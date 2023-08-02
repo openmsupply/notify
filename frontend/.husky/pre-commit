@@ -1,0 +1,21 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+cd frontend
+# yarn pre-commit-lint
+
+# ----- Sorting translation files alphabetically ----
+
+for FILE in `git diff --relative --name-only --cached | grep "locales.*json"`; do
+  echo "Sorting translations in $FILE"
+  
+  .husky/sort-json-abc.js $FILE > .husky/tmp.json
+
+  diff=$(comm -3 $FILE .husky/tmp.json)
+
+  if [ "${diff}" != "" ]; then
+    cat .husky/tmp.json > $FILE
+    git add $FILE
+  fi
+  rm .husky/tmp.json
+done

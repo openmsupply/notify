@@ -1,0 +1,146 @@
+name: NPM build, test & bundle size diff
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+  pull_request:
+    types: [opened]
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+
+jobs:
+  build-head:
+    name: Build head
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          cd ./frontend
+          yarn install --force --frozen-lockfile
+      - name: Test head
+        run: |
+          cd ./frontend
+          yarn test
+      - name: Build head
+        run: |
+          cd ./frontend
+          yarn build-stats
+          mv ./packages/host/dist/stats.json ./packages/host/dist/head.json
+      - name: Zip head stats
+        run: zip -j head.zip ./frontend/packages/host/dist/head.json
+      - name: Delete old head stats
+        uses: actions/github-script@v6
+        id: artifact
+        with:
+          script: |
+            const res = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            res.data.artifacts
+              .forEach(({ id }) => {
+                github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: id,
+              })
+            });
+      - name: Upload new head stats
+        uses: actions/upload-artifact@v3
+        with:
+          name: head
+          path: head.zip
+          retention-days: 1
+
+  build-base:
+    name: Build base
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+      - name: Install dependencies
+        run: |
+          cd ./frontend
+          yarn install --force --frozen-lockfile
+      - name: Test base
+        run: |
+          cd ./frontend
+          yarn test
+      - name: Build base
+        run: |
+          cd ./frontend
+          yarn build-stats
+          mv ./packages/host/dist/stats.json ./packages/host/dist/base.json
+      - name: Zip base stats
+        run: zip -j base.zip ./frontend/packages/host/dist/base.json
+      - name: Delete old base stats
+        uses: actions/github-script@v6
+        id: artifact
+        with:
+          script: |
+            const res = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            res.data.artifacts
+              .forEach(({ id }) => {
+                github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: id,
+              })
+            });
+      - name: Upload new base stats
+        uses: actions/upload-artifact@v3
+        with:
+          name: base
+          path: base.zip
+          retention-days: 1
+
+  report:
+    # Skip generating bundle diff report for base branch (i.e. main)
+    if: ${{ github.ref != 'refs/heads/main' }}
+    name: Generate report
+    runs-on: ubuntu-latest
+    needs: [build-base, build-head]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download base stats
+        uses: actions/download-artifact@v3
+        with:
+          name: base
+      - name: Unzip base stats
+        run: |
+          unzip -o base.zip
+          unzip -o base.zip
+      - name: Download head stats
+        uses: actions/download-artifact@v3
+        with:
+          name: head
+      - name: Unzip head stats
+        run: |
+          unzip -o head.zip
+          unzip -o head.zip
+      - name: Diff between base & head
+        id: get-diff
+        uses: NejcZdovc/bundle-size-diff@v1
+        with:
+          base_path: ./base.json
+          pr_path: ./head.json
+      - name: Comment
+        uses: NejcZdovc/comment-pr@v1.1.1
+        with:
+          file: "comment.md"
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          OLD: ${{steps.get-diff.outputs.base_file_string}}
+          NEW: ${{steps.get-diff.outputs.pr_file_string}}
+          DIFF: ${{steps.get-diff.outputs.diff_file_string}}
+          DIFF_PERCENT: ${{steps.get-diff.outputs.percent}}

@@ -1,0 +1,24 @@
+{
+  "name": "@notify-frontend/system",
+  "version": "0.0.0",
+  "sideEffects": false,
+  "main": "./src/index.ts",
+  "private": true,
+  "devDependencies": {
+    "eslint-config-prettier": "^8.3.0",
+    "husky": "^7.0.1",
+    "lint-staged": "^12.3.8",
+    "prettier": "^2.3.2",
+    "typescript": "^4.3.5"
+  },
+  "scripts": {
+    "tsc": "tsc"
+  },
+  "dependencies": {
+    "@notify-frontend/common": "^0.0.1",
+    "@notify-frontend/config": "^0.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "zxcvbn-typescript": "^5.0.1"
+  }
+}

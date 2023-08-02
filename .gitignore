@@ -12,3 +12,15 @@ Cargo.lock
 
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
+
+backend/*.sqlite*
+backend/repository/.env
+backend/configuration/local.yaml
+backend/certs_disabled/
+
+# Misc
+.DS_Store
+
+# vscode
+backend/.vscode/settings.json
+.vscode/
