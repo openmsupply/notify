@@ -1,0 +1,5 @@
+server:
+  host: 127.0.0.1
+  app_url: "http://localhost:3007"
+telegram:
+  bot_token: "Your Telegram Bot Token"
