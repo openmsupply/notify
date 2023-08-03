@@ -1,4 +1,4 @@
-use config::{Config, ConfigError, Environment, File, FileSourceFile};
+use config::{Config, ConfigError, Environment, File, FileFormat, FileSourceFile};
 use repository::{KeyValueStoreRepository, KeyValueType, StorageConnection};
 use service::settings::Settings;
 use std::{
@@ -37,7 +37,7 @@ pub fn get_configuration_directory() -> Result<PathBuf, SettingsError> {
 ///
 /// The base configuration file stores configuration properties which are common between local and
 /// production environments.
-pub fn get_configuration_base_file() -> Result<File<FileSourceFile>, SettingsError> {
+pub fn get_configuration_base_file() -> Result<File<FileSourceFile, FileFormat>, SettingsError> {
     let configuration_directory = get_configuration_directory()?;
     let base_file =
         File::from(configuration_directory.join(CONFIGURATION_BASE_FILE_PATH)).required(true);
@@ -48,7 +48,7 @@ pub fn get_configuration_base_file() -> Result<File<FileSourceFile>, SettingsErr
 ///
 /// The application configuration file stores environment-specific configuration properties. Valid
 /// environments are `local` and `production`.
-pub fn get_configuration_app_file() -> Result<File<FileSourceFile>, SettingsError> {
+pub fn get_configuration_app_file() -> Result<File<FileSourceFile, FileFormat>, SettingsError> {
     let configuration_directory = get_configuration_directory()?;
     let app_file = File::from(get_configuration_app_file_path(configuration_directory));
     Ok(app_file)
@@ -116,12 +116,17 @@ pub fn copy_example_environment_configuration_file_if_required() -> Result<(), S
 pub fn get_configuration() -> Result<Settings, SettingsError> {
     copy_example_environment_configuration_file_if_required()?;
 
-    let mut configuration: Config = Config::default();
-    configuration
-        .merge(get_configuration_base_file()?)?
-        .merge(get_configuration_app_file()?)?
-        .merge(get_configuration_environment())?;
-    let settings: Settings = configuration.try_into()?;
+    let base_file = get_configuration_base_file()?;
+    let app_file = get_configuration_base_file()?;
+    let configuration: Config = Config::builder()
+        .set_default("default", 1)?
+        .add_source(base_file)
+        .add_source(app_file)
+        .add_source(get_configuration_environment())
+        .build()?;
+
+    let settings: Settings = configuration.try_deserialize()?;
+
     Ok(settings)
 }
 

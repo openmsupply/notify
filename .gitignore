@@ -7,3 +7,4 @@ backend/certs_disabled/
 # vscode
 .vscode/
 .DS_store
+.tmp/
