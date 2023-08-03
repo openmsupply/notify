@@ -14,10 +14,12 @@ import {
   ModalTabs,
   isValidUsername,
   User,
+  Box,
 } from '@notify-frontend/common';
 import { UserAccountRowFragment, useUserAccount } from '../../api';
 import { userAccountParsers } from '../../api/api';
 import { UserAccountEditForm } from './UserAccountEditForm';
+import { LogList } from 'packages/system/src/Log';
 
 interface UserAccountEditModalProps {
   mode: ModalMode | null;
@@ -34,6 +36,7 @@ const createUserAccountRowFragment = (
   username: '',
   displayName: '',
   permissions: [],
+  auditLogs: [],
   ...seed,
 });
 
@@ -121,6 +124,14 @@ export const UserAccountEditModal: FC<UserAccountEditModalProps> = ({
         />
       ),
       value: t('label.details'),
+    },
+    {
+      Component: (
+        <Box sx={{ width: '500px', height: '450px' }}>
+          <LogList records={draft.auditLogs ?? []} />
+        </Box>
+      ),
+      value: t('label.log'),
     },
   ];
 

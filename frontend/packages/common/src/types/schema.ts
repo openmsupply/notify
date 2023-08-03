@@ -54,6 +54,11 @@ export type AuthTokenErrorInterface = {
 
 export type AuthTokenResponse = AuthToken | AuthTokenError;
 
+export type CountResponse = {
+  __typename: 'CountResponse';
+  count: Scalars['Int'];
+};
+
 export type CreateUserAccountInput = {
   displayName?: InputMaybe<Scalars['String']>;
   email?: InputMaybe<Scalars['String']>;
@@ -162,6 +167,7 @@ export type FullMutation = {
   inviteSupplier: InviteResponse;
   /** Resets the password for a user based on the password reset token */
   resetPasswordUsingToken: PasswordResetResponse;
+  setLateSubmissionDeadline: UpdateQuoteLateSubmissionDeadlineResponse;
   updateManufacturer: UpdateManufacturerResponse;
   updateOrganisation: UpdateOrganisationResponse;
   updateOrganisationGroup: UpdateOrganisationGroupResponse;
@@ -302,6 +308,12 @@ export type FullMutationInviteSupplierArgs = {
 export type FullMutationResetPasswordUsingTokenArgs = {
   password: Scalars['String'];
   token: Scalars['String'];
+};
+
+
+export type FullMutationSetLateSubmissionDeadlineArgs = {
+  input: SetLateSubmissionDeadlineInput;
+  organisationId: Scalars['String'];
 };
 
 
@@ -724,6 +736,15 @@ export type InvalidToken = RefreshTokenErrorInterface & {
   description: Scalars['String'];
 };
 
+export type InviteNode = {
+  __typename: 'InviteNode';
+  id: Scalars['String'];
+  invitedOrganisationId: Scalars['String'];
+  lateSubmissionDeadline?: Maybe<Scalars['DateTime']>;
+  lateSubmissionReason?: Maybe<Scalars['String']>;
+  tenderRequestId: Scalars['String'];
+};
+
 export type InviteResponse = IdResponse;
 
 export type InviteUserInput = {
@@ -767,6 +788,7 @@ export type LogNode = {
 };
 
 export enum LogNodeType {
+  LateQuotesAllowed = 'LATE_QUOTES_ALLOWED',
   ManufacturerCreated = 'MANUFACTURER_CREATED',
   ManufacturerUpdated = 'MANUFACTURER_UPDATED',
   NoticeModified = 'NOTICE_MODIFIED',
@@ -1077,7 +1099,8 @@ export type QuoteNode = {
   finalisedDatetime?: Maybe<Scalars['DateTime']>;
   freightType: Scalars['String'];
   id: Scalars['String'];
-  late: Scalars['Boolean'];
+  invite?: Maybe<InviteNode>;
+  isLate: Scalars['Boolean'];
   lineCount: Scalars['Int'];
   modifiedDatetime: Scalars['DateTime'];
   organisation?: Maybe<OrganisationNode>;
@@ -1120,6 +1143,7 @@ export type QuoteSummaryConnector = {
 export type QuoteSummaryNode = {
   __typename: 'QuoteSummaryNode';
   id: Scalars['String'];
+  invite?: Maybe<InviteNode>;
   lineCount: Scalars['Int'];
   modifiedDatetime: Scalars['DateTime'];
   organisation?: Maybe<OrganisationNode>;
@@ -1131,6 +1155,7 @@ export type QuoteSummaryNode = {
 
 export enum QuoteSummaryNodeStatus {
   Confirmed = 'CONFIRMED',
+  ConfirmedLate = 'CONFIRMED_LATE',
   Draft = 'DRAFT',
   Invited = 'INVITED',
   Withdrawn = 'WITHDRAWN'
@@ -1180,6 +1205,13 @@ export type RefreshTokenErrorInterface = {
 };
 
 export type RefreshTokenResponse = RefreshToken | RefreshTokenError;
+
+export type SetLateSubmissionDeadlineInput = {
+  lateSubmissionDeadline: Scalars['DateTime'];
+  organisationIds: Array<Scalars['String']>;
+  reason: Scalars['String'];
+  tenderRequestId: Scalars['String'];
+};
 
 export type SimpleStringFilterInput = {
   /** Search term must be an exact match (case sensitive) */
@@ -1480,6 +1512,8 @@ export type UpdateQuoteInput = {
   statusReason?: InputMaybe<Scalars['String']>;
   supplierNotes?: InputMaybe<Scalars['String']>;
 };
+
+export type UpdateQuoteLateSubmissionDeadlineResponse = CountResponse;
 
 export type UpdateQuoteResponse = QuoteNode;
 
