@@ -16,7 +16,7 @@ describe('HeaderRow', () => {
     sortBy: { key: string; direction: 'asc' | 'desc' };
   }> = ({ onChangeSortBy, sortBy }) => {
     const [column1, column2] = useColumns<Item>(
-      ['status', ['packSize', { sortable: false }]],
+      ['status', ['description', { sortable: false }]],
       { onChangeSortBy, sortBy },
       [sortBy]
     );
@@ -37,7 +37,7 @@ describe('HeaderRow', () => {
 
   it('renders the cells passed', () => {
     const onSortBy = jest.fn();
-    const sortBy = { key: 'packSize', direction: 'asc' as 'asc' | 'desc' };
+    const sortBy = { key: 'description', direction: 'asc' as 'asc' | 'desc' };
 
     const { getByRole } = render(
       <TestingProvider>
@@ -46,7 +46,7 @@ describe('HeaderRow', () => {
     );
 
     const nameHeader = getByRole('columnheader', { name: /status/i });
-    const packSizeHeader = getByRole('columnheader', { name: /packSize/i });
+    const packSizeHeader = getByRole('columnheader', { name: /description/i });
 
     expect(nameHeader).toBeInTheDocument();
     expect(packSizeHeader).toBeInTheDocument();
@@ -63,7 +63,7 @@ describe('HeaderRow', () => {
     );
 
     const nameHeader = getByRole('button', { name: /status/i });
-    const packSizeHeader = queryByRole('button', { name: /pack size/i });
+    const packSizeHeader = queryByRole('button', { name: /description/i });
 
     expect(nameHeader).toBeInTheDocument();
     expect(packSizeHeader).not.toBeInTheDocument();
@@ -71,7 +71,7 @@ describe('HeaderRow', () => {
 
   it('calls the provided sortBy function when the sort button is pressed', () => {
     const onSortBy = jest.fn();
-    const sortBy = { key: 'packSize', direction: 'asc' as 'asc' | 'desc' };
+    const sortBy = { key: 'description', direction: 'asc' as 'asc' | 'desc' };
 
     const { getByRole } = render(
       <TestingProvider>
@@ -88,7 +88,7 @@ describe('HeaderRow', () => {
 
   it('calls the provided sortBy function with the values of the column', () => {
     const onSortBy = jest.fn();
-    const sortBy = { key: 'packSize', direction: 'asc' as 'asc' | 'desc' };
+    const sortBy = { key: 'description', direction: 'asc' as 'asc' | 'desc' };
 
     const { getByRole } = render(
       <TestingProvider>
