@@ -15,7 +15,6 @@ import {
   useAuthContext,
   useLocation,
   EnvUtils,
-  PermissionNode,
   UsersIcon,
   ExternalNavLink,
   BookIcon,
@@ -129,7 +128,7 @@ export const AppDrawer: React.FC = () => {
   const t = useTranslation(['host']);
   const isMediumScreen = useIsMediumScreen();
   const drawer = useDrawer();
-  const { logout, hasPermission } = useAuthContext();
+  const { logout } = useAuthContext();
   const location = useLocation();
 
   React.useEffect(() => {
@@ -184,7 +183,6 @@ export const AppDrawer: React.FC = () => {
         <UpperListContainer>
           <List>
             <AppNavLink
-              visible={hasPermission(PermissionNode.ServerAdmin)}
               to={AppRoute.UserAccounts}
               icon={<UsersIcon fontSize="small" color="primary" />}
               text={t('users')}
