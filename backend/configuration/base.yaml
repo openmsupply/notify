@@ -1,0 +1,21 @@
+server:
+  port: 8176
+  debug_cors_permissive: true # enable this to allow any origin for development purposes
+  cors_origins: [http://localhost:3007] # Used to set the allowed origins in Cross Origin Request Security
+  app_url: "http://localhost:3007"
+database:
+  host: "localhost"
+  port: 5432
+  username: "sqlite"
+  password: "password"
+  database_name: "notify.sqlite"
+mail:
+  host: "localhost"
+  #1025 is the default port for mailhog (https://github.com/mailhog/MailHog)
+  port: "1025"
+  starttls: false
+  username: ""
+  password: ""
+  from: "no-reply@msupply.foundation"
+telegram:
+  bot_token: ""
