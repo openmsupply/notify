@@ -27,7 +27,7 @@
     "start": "webpack-cli serve",
     "build": "webpack --env production --env APP_BUILD_VERSION=$APP_BUILD_VERSION",
     "build-stats": "webpack --env stats --env production",
-    "serve": "serve dist -p 3003",
+    "serve": "serve dist -p 3007",
     "tsc": "tsc"
   },
   "dependencies": {

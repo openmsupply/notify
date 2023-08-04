@@ -16,7 +16,7 @@ declare global {
   }
 }
 
-const { API_HOST = 'http://localhost:8001', BUILD_VERSION = '0.0.0' } =
+const { API_HOST = 'http://localhost:8007', BUILD_VERSION = '0.0.0' } =
   config ?? {};
 
 export const Environment: EnvironmentConfig = {

@@ -38,7 +38,7 @@ module.exports = env => {
         ? path.join(__dirname, 'dist')
         : path.join(__dirname, 'public'),
 
-      port: 3003,
+      port: 3007,
       historyApiFallback: true,
       headers: {
         'Access-Control-Allow-Origin': '*',
