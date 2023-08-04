@@ -5,13 +5,13 @@ declare const APP_BUILD_VERSION: string;
 // i.e. web app is on https://my.healthsupplyhub.com/, then graphql will be available https://my.openmsupply.com/graphql
 
 // For development, API server and front end are launched seperately on different ports and possible different IPs
-// by default we assume development API server is launched on the same domain/ip and on port 8001 (Default). We can overwrite this
+// by default we assume development API server is launched on the same domain/ip and on port 8007 (Default). We can overwrite this
 // with API_HOST which is available through webpack.DefinePlugin (i.e. webpack server --env API_HOST='localhost:9000')
 
 const isProductionBuild = process.env['NODE_ENV'] === 'production';
 const { port, hostname, protocol } = window.location;
 
-const defaultDevelopmentApiHost = `${protocol}//${hostname}:8001`;
+const defaultDevelopmentApiHost = `${protocol}//${hostname}:8007`;
 const productionApiHost = `${protocol}//${hostname}:${port}`;
 
 const developmentApiHost =

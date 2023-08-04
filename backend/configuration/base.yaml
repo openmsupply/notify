@@ -1,5 +1,5 @@
 server:
-  port: 8176
+  port: 8007
   debug_cors_permissive: true # enable this to allow any origin for development purposes
   cors_origins: [http://localhost:3007] # Used to set the allowed origins in Cross Origin Request Security
   app_url: "http://localhost:3007"
