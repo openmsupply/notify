@@ -8,6 +8,8 @@ module.exports = {
   transform: {
     '^.+\\.(t|j)sx?$': ['@swc/jest', { sourceMaps: 'inline' }],
   },
+  // UUID package requires transformation... usually node_modules ignored
+  transformIgnorePatterns: ['/node_modules/(?!(uuid)/)'],
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest-setup.ts'],
   moduleNameMapper: {

@@ -4,22 +4,22 @@ import { GraphQLClient } from 'graphql-request';
 import * as Dom from 'graphql-request/dist/types.dom';
 import gql from 'graphql-tag';
 export type InitiatePasswordResetMutationVariables = Types.Exact<{
-  emailOrUserId: Types.Scalars['String'];
+  emailOrUserId: Types.Scalars['String']['input'];
 }>;
 
 
 export type InitiatePasswordResetMutation = { __typename: 'FullMutation', initiatePasswordReset: { __typename: 'PasswordResetResponseMessage', message: string } };
 
 export type ValidatePasswordResetTokenMutationVariables = Types.Exact<{
-  token: Types.Scalars['String'];
+  token: Types.Scalars['String']['input'];
 }>;
 
 
 export type ValidatePasswordResetTokenMutation = { __typename: 'FullMutation', validatePasswordResetToken: { __typename: 'PasswordResetResponseMessage', message: string } };
 
 export type ResetPasswordUsingTokenMutationVariables = Types.Exact<{
-  token: Types.Scalars['String'];
-  password: Types.Scalars['String'];
+  token: Types.Scalars['String']['input'];
+  password: Types.Scalars['String']['input'];
 }>;
 
 

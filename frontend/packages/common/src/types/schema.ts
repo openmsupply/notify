@@ -3,44 +3,41 @@ export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: string;
-  String: string;
-  Boolean: boolean;
-  Int: number;
-  Float: number;
-  /**
-   * Implement the DateTime<Utc> scalar
-   *
-   * The input/output is a string in RFC3339 format.
-   */
-  DateTime: string;
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
+  DateTime: { input: string; output: string; }
 };
 
 export type AcceptUserInviteInput = {
-  displayName: Scalars['String'];
-  password: Scalars['String'];
-  username: Scalars['String'];
+  displayName: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  username: Scalars['String']['input'];
 };
 
 export type AccessDenied = LogoutErrorInterface & {
   __typename: 'AccessDenied';
-  description: Scalars['String'];
-  fullError: Scalars['String'];
+  description: Scalars['String']['output'];
+  fullError: Scalars['String']['output'];
 };
 
 export type AskQuestionInput = {
-  askingOrganisationId: Scalars['String'];
-  id: Scalars['String'];
-  question: Scalars['String'];
-  tenderRequestId: Scalars['String'];
+  askingOrganisationId: Scalars['String']['input'];
+  id: Scalars['String']['input'];
+  question: Scalars['String']['input'];
+  tenderRequestId: Scalars['String']['input'];
 };
 
 export type AuthToken = {
   __typename: 'AuthToken';
   /** Bearer token */
-  token: Scalars['String'];
+  token: Scalars['String']['output'];
 };
 
 export type AuthTokenError = {
@@ -49,38 +46,38 @@ export type AuthTokenError = {
 };
 
 export type AuthTokenErrorInterface = {
-  description: Scalars['String'];
+  description: Scalars['String']['output'];
 };
 
 export type AuthTokenResponse = AuthToken | AuthTokenError;
 
 export type CountResponse = {
   __typename: 'CountResponse';
-  count: Scalars['Int'];
+  count: Scalars['Int']['output'];
 };
 
 export type CreateUserAccountInput = {
-  displayName?: InputMaybe<Scalars['String']>;
-  email?: InputMaybe<Scalars['String']>;
-  id: Scalars['String'];
-  organisationId?: InputMaybe<Scalars['String']>;
-  password: Scalars['String'];
+  displayName?: InputMaybe<Scalars['String']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
+  organisationId?: InputMaybe<Scalars['String']['input']>;
+  password: Scalars['String']['input'];
   permissions: Array<PermissionNode>;
-  username: Scalars['String'];
+  username: Scalars['String']['input'];
 };
 
 export type CreateUserAccountResponse = UserAccountNode;
 
 export type DatabaseError = NodeErrorInterface & RefreshTokenErrorInterface & {
   __typename: 'DatabaseError';
-  description: Scalars['String'];
-  fullError: Scalars['String'];
+  description: Scalars['String']['output'];
+  fullError: Scalars['String']['output'];
 };
 
 export type DatetimeFilterInput = {
-  afterOrEqualTo?: InputMaybe<Scalars['DateTime']>;
-  beforeOrEqualTo?: InputMaybe<Scalars['DateTime']>;
-  equalTo?: InputMaybe<Scalars['DateTime']>;
+  afterOrEqualTo?: InputMaybe<Scalars['DateTime']['input']>;
+  beforeOrEqualTo?: InputMaybe<Scalars['DateTime']['input']>;
+  equalTo?: InputMaybe<Scalars['DateTime']['input']>;
 };
 
 export type DeleteGroupMemberResponse = DeleteResponse;
@@ -99,7 +96,7 @@ export type DeleteQuoteUploadResponse = DeleteResponse;
 
 export type DeleteResponse = {
   __typename: 'DeleteResponse';
-  id: Scalars['String'];
+  id: Scalars['String']['output'];
 };
 
 export type DeleteTenderRequestNoticeResponse = DeleteResponse;
@@ -115,9 +112,9 @@ export type EqualFilterLogTypeInput = {
 };
 
 export type EqualFilterStringInput = {
-  equalAny?: InputMaybe<Array<Scalars['String']>>;
-  equalTo?: InputMaybe<Scalars['String']>;
-  notEqualTo?: InputMaybe<Scalars['String']>;
+  equalAny?: InputMaybe<Array<Scalars['String']['input']>>;
+  equalTo?: InputMaybe<Scalars['String']['input']>;
+  notEqualTo?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type EqualFilterTenderRequestStatusInput = {
@@ -128,7 +125,7 @@ export type EqualFilterTenderRequestStatusInput = {
 
 export type FileDownloadNode = {
   __typename: 'FileDownloadNode';
-  fileId: Scalars['String'];
+  fileId: Scalars['String']['output'];
 };
 
 export type FileDownloadResponse = FileDownloadNode;
@@ -185,7 +182,7 @@ export type FullMutation = {
 
 export type FullMutationAcceptUserInviteArgs = {
   input: AcceptUserInviteInput;
-  token: Scalars['String'];
+  token: Scalars['String']['input'];
 };
 
 
@@ -200,62 +197,62 @@ export type FullMutationCreateUserAccountArgs = {
 
 
 export type FullMutationDeleteGroupMemberArgs = {
-  id: Scalars['String'];
+  id: Scalars['String']['input'];
 };
 
 
 export type FullMutationDeleteGroupMembersForOrganisationGroupIdArgs = {
-  organisationGroupId: Scalars['String'];
+  organisationGroupId: Scalars['String']['input'];
 };
 
 
 export type FullMutationDeleteManufacturerArgs = {
-  manufacturerId: Scalars['String'];
+  manufacturerId: Scalars['String']['input'];
 };
 
 
 export type FullMutationDeleteOrganisationArgs = {
-  organisationId: Scalars['String'];
+  organisationId: Scalars['String']['input'];
 };
 
 
 export type FullMutationDeleteOrganisationGroupArgs = {
-  id: Scalars['String'];
+  id: Scalars['String']['input'];
 };
 
 
 export type FullMutationDeleteOrganisationLogoArgs = {
-  organisationId: Scalars['String'];
+  organisationId: Scalars['String']['input'];
 };
 
 
 export type FullMutationDeleteQuoteLinesForQuoteIdArgs = {
-  quoteId: Scalars['String'];
+  quoteId: Scalars['String']['input'];
 };
 
 
 export type FullMutationDeleteQuoteUploadArgs = {
-  quoteUploadId: Scalars['String'];
+  quoteUploadId: Scalars['String']['input'];
 };
 
 
 export type FullMutationDeleteTenderRequestNoticeArgs = {
-  tenderRequestNoticeId: Scalars['String'];
+  tenderRequestNoticeId: Scalars['String']['input'];
 };
 
 
 export type FullMutationDeleteTenderRequestUploadArgs = {
-  tenderRequestUploadId: Scalars['String'];
+  tenderRequestUploadId: Scalars['String']['input'];
 };
 
 
 export type FullMutationDeleteUserAccountArgs = {
-  userAccountId: Scalars['String'];
+  userAccountId: Scalars['String']['input'];
 };
 
 
 export type FullMutationInitiatePasswordResetArgs = {
-  email: Scalars['String'];
+  email: Scalars['String']['input'];
 };
 
 
@@ -300,20 +297,20 @@ export type FullMutationInsertTenderRequestLineArgs = {
 
 
 export type FullMutationInviteSupplierArgs = {
-  invitedOrganisationId: Scalars['String'];
-  tenderRequestId: Scalars['String'];
+  invitedOrganisationId: Scalars['String']['input'];
+  tenderRequestId: Scalars['String']['input'];
 };
 
 
 export type FullMutationResetPasswordUsingTokenArgs = {
-  password: Scalars['String'];
-  token: Scalars['String'];
+  password: Scalars['String']['input'];
+  token: Scalars['String']['input'];
 };
 
 
 export type FullMutationSetLateSubmissionDeadlineArgs = {
   input: SetLateSubmissionDeadlineInput;
-  organisationId: Scalars['String'];
+  organisationId: Scalars['String']['input'];
 };
 
 
@@ -368,12 +365,12 @@ export type FullMutationUpsertTenderRequestNoticeArgs = {
 
 
 export type FullMutationValidatePasswordResetTokenArgs = {
-  token: Scalars['String'];
+  token: Scalars['String']['input'];
 };
 
 export type FullQuery = {
   __typename: 'FullQuery';
-  apiVersion: Scalars['String'];
+  apiVersion: Scalars['String']['output'];
   /**
    * Retrieves a new auth bearer and refresh token
    * The refresh token is returned as a cookie
@@ -429,19 +426,19 @@ export type FullQuery = {
 
 
 export type FullQueryAuthTokenArgs = {
-  password: Scalars['String'];
-  username: Scalars['String'];
+  password: Scalars['String']['input'];
+  username: Scalars['String']['input'];
 };
 
 
 export type FullQueryGetOrganisationArgs = {
-  organisationId: Scalars['String'];
+  organisationId: Scalars['String']['input'];
 };
 
 
 export type FullQueryGroupMembersArgs = {
   filter?: InputMaybe<GroupMemberFilterInput>;
-  organisationId?: InputMaybe<Scalars['String']>;
+  organisationId?: InputMaybe<Scalars['String']['input']>;
   page?: InputMaybe<PaginationInput>;
   sort?: InputMaybe<Array<GroupMemberSortInput>>;
 };
@@ -449,7 +446,7 @@ export type FullQueryGroupMembersArgs = {
 
 export type FullQueryInvitedTenderRequestsArgs = {
   filter?: InputMaybe<TenderRequestFilterInput>;
-  organisationId: Scalars['String'];
+  organisationId: Scalars['String']['input'];
   page?: InputMaybe<PaginationInput>;
   sort?: InputMaybe<Array<TenderRequestSortInput>>;
 };
@@ -471,7 +468,7 @@ export type FullQueryManufacturersArgs = {
 
 export type FullQueryOrganisationGroupsArgs = {
   filter?: InputMaybe<OrganisationGroupFilterInput>;
-  organisationId?: InputMaybe<Scalars['String']>;
+  organisationId?: InputMaybe<Scalars['String']['input']>;
   page?: InputMaybe<PaginationInput>;
   sort?: InputMaybe<Array<OrganisationGroupSortInput>>;
 };
@@ -479,14 +476,14 @@ export type FullQueryOrganisationGroupsArgs = {
 
 export type FullQueryOrganisationsArgs = {
   filter?: InputMaybe<OrganisationFilterInput>;
-  organisationId?: InputMaybe<Scalars['String']>;
+  organisationId?: InputMaybe<Scalars['String']['input']>;
   page?: InputMaybe<PaginationInput>;
   sort?: InputMaybe<Array<OrganisationSortInput>>;
 };
 
 
 export type FullQueryOrganisationsByTenderRequestArgs = {
-  tenderRequestId: Scalars['String'];
+  tenderRequestId: Scalars['String']['input'];
 };
 
 
@@ -494,51 +491,51 @@ export type FullQueryQuestionsByTenderRequestIdArgs = {
   filter?: InputMaybe<TenderQuestionFilterInput>;
   page?: InputMaybe<PaginationInput>;
   sort?: InputMaybe<Array<TenderQuestionSortInput>>;
-  tenderRequestId: Scalars['String'];
+  tenderRequestId: Scalars['String']['input'];
 };
 
 
 export type FullQueryQuoteAttachmentZipArgs = {
-  organisationId?: InputMaybe<Scalars['String']>;
-  tenderRequestId: Scalars['String'];
+  organisationId?: InputMaybe<Scalars['String']['input']>;
+  tenderRequestId: Scalars['String']['input'];
 };
 
 
 export type FullQueryQuoteDownloadArgs = {
-  organisationId?: InputMaybe<Scalars['String']>;
-  quoteId: Scalars['String'];
-  tenderRequestId: Scalars['String'];
+  organisationId?: InputMaybe<Scalars['String']['input']>;
+  quoteId: Scalars['String']['input'];
+  tenderRequestId: Scalars['String']['input'];
 };
 
 
 export type FullQueryQuoteLinesArgs = {
   filter?: InputMaybe<QuoteLineFilterInput>;
-  organisationId?: InputMaybe<Scalars['String']>;
+  organisationId?: InputMaybe<Scalars['String']['input']>;
   page?: InputMaybe<PaginationInput>;
   sort?: InputMaybe<Array<QuoteLineSortInput>>;
 };
 
 
 export type FullQueryQuoteSummaryArgs = {
-  tenderRequestId: Scalars['String'];
+  tenderRequestId: Scalars['String']['input'];
 };
 
 
 export type FullQueryQuoteUploadsArgs = {
-  organisationId?: InputMaybe<Scalars['String']>;
-  quoteId: Scalars['String'];
+  organisationId?: InputMaybe<Scalars['String']['input']>;
+  quoteId: Scalars['String']['input'];
 };
 
 
 export type FullQueryQuoteUploadsByTenderRequestIdArgs = {
-  organisationId?: InputMaybe<Scalars['String']>;
-  tenderRequestId: Scalars['String'];
+  organisationId?: InputMaybe<Scalars['String']['input']>;
+  tenderRequestId: Scalars['String']['input'];
 };
 
 
 export type FullQueryQuotesArgs = {
   filter?: InputMaybe<QuoteFilterInput>;
-  organisationId?: InputMaybe<Scalars['String']>;
+  organisationId?: InputMaybe<Scalars['String']['input']>;
   page?: InputMaybe<PaginationInput>;
   sort?: InputMaybe<Array<QuoteSortInput>>;
 };
@@ -553,41 +550,41 @@ export type FullQuerySuppliersArgs = {
 
 export type FullQueryTenderQuoteLinesArgs = {
   filter?: InputMaybe<TenderQuoteLineFilterInput>;
-  organisationId: Scalars['String'];
-  quoteId: Scalars['String'];
-  tenderRequestId: Scalars['String'];
+  organisationId: Scalars['String']['input'];
+  quoteId: Scalars['String']['input'];
+  tenderRequestId: Scalars['String']['input'];
 };
 
 
 export type FullQueryTenderRequestLinesArgs = {
   filter?: InputMaybe<TenderRequestLineFilterInput>;
-  organisationId: Scalars['String'];
+  organisationId: Scalars['String']['input'];
   page?: InputMaybe<PaginationInput>;
   sort?: InputMaybe<Array<TenderRequestLineSortInput>>;
 };
 
 
 export type FullQueryTenderRequestLinesByTenderRequestIdArgs = {
-  organisationId: Scalars['String'];
-  tenderRequestId: Scalars['String'];
+  organisationId: Scalars['String']['input'];
+  tenderRequestId: Scalars['String']['input'];
 };
 
 
 export type FullQueryTenderRequestNoticesArgs = {
-  organisationId?: InputMaybe<Scalars['String']>;
-  tenderRequestId: Scalars['String'];
+  organisationId?: InputMaybe<Scalars['String']['input']>;
+  tenderRequestId: Scalars['String']['input'];
 };
 
 
 export type FullQueryTenderRequestUploadsArgs = {
-  organisationId?: InputMaybe<Scalars['String']>;
-  tenderRequestId: Scalars['String'];
+  organisationId?: InputMaybe<Scalars['String']['input']>;
+  tenderRequestId: Scalars['String']['input'];
 };
 
 
 export type FullQueryTenderRequestsArgs = {
   filter?: InputMaybe<TenderRequestFilterInput>;
-  organisationId?: InputMaybe<Scalars['String']>;
+  organisationId?: InputMaybe<Scalars['String']['input']>;
   page?: InputMaybe<PaginationInput>;
   sort?: InputMaybe<Array<TenderRequestSortInput>>;
 };
@@ -595,7 +592,7 @@ export type FullQueryTenderRequestsArgs = {
 
 export type FullQueryUserAccountsArgs = {
   filter?: InputMaybe<UserAccountFilterInput>;
-  organisationId?: InputMaybe<Scalars['String']>;
+  organisationId?: InputMaybe<Scalars['String']['input']>;
   page?: InputMaybe<PaginationInput>;
   sort?: InputMaybe<Array<UserAccountSortInput>>;
 };
@@ -603,7 +600,7 @@ export type FullQueryUserAccountsArgs = {
 export type GroupMemberConnector = {
   __typename: 'GroupMemberConnector';
   nodes: Array<GroupMemberNode>;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type GroupMemberFilterInput = {
@@ -615,10 +612,10 @@ export type GroupMemberFilterInput = {
 
 export type GroupMemberNode = {
   __typename: 'GroupMemberNode';
-  id: Scalars['String'];
+  id: Scalars['String']['output'];
   organisation?: Maybe<OrganisationNode>;
-  organisationGroupId: Scalars['String'];
-  organisationId: Scalars['String'];
+  organisationGroupId: Scalars['String']['output'];
+  organisationId: Scalars['String']['output'];
 };
 
 export type GroupMemberResponse = GroupMemberConnector;
@@ -628,92 +625,92 @@ export enum GroupMemberSortFieldInput {
 }
 
 export type GroupMemberSortInput = {
-  desc?: InputMaybe<Scalars['Boolean']>;
+  desc?: InputMaybe<Scalars['Boolean']['input']>;
   key: GroupMemberSortFieldInput;
 };
 
 export type IdResponse = {
   __typename: 'IdResponse';
-  id: Scalars['String'];
+  id: Scalars['String']['output'];
 };
 
 export type InsertGroupMemberInput = {
-  id: Scalars['String'];
-  organisationGroupId: Scalars['String'];
-  organisationId: Scalars['String'];
+  id: Scalars['String']['input'];
+  organisationGroupId: Scalars['String']['input'];
+  organisationId: Scalars['String']['input'];
 };
 
 export type InsertGroupMemberResponse = GroupMemberNode;
 
 export type InsertManufacturerInput = {
-  code: Scalars['String'];
-  country?: InputMaybe<Scalars['String']>;
-  id: Scalars['String'];
-  name: Scalars['String'];
+  code: Scalars['String']['input'];
+  country?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
+  name: Scalars['String']['input'];
 };
 
 export type InsertManufacturerResponse = ManufacturerNode;
 
 export type InsertOrganisationGroupInput = {
-  id: Scalars['String'];
-  name: Scalars['String'];
-  organisationId: Scalars['String'];
+  id: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  organisationId: Scalars['String']['input'];
 };
 
 export type InsertOrganisationGroupResponse = OrganisationGroupNode;
 
 export type InsertOrganisationInput = {
-  code: Scalars['String'];
-  contactName?: InputMaybe<Scalars['String']>;
-  description?: InputMaybe<Scalars['String']>;
-  email?: InputMaybe<Scalars['String']>;
-  id: Scalars['String'];
-  isCustomer: Scalars['Boolean'];
-  isManufacturer: Scalars['Boolean'];
-  isSupplier: Scalars['Boolean'];
-  name: Scalars['String'];
-  phone?: InputMaybe<Scalars['String']>;
-  website?: InputMaybe<Scalars['String']>;
+  code: Scalars['String']['input'];
+  contactName?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
+  isCustomer: Scalars['Boolean']['input'];
+  isManufacturer: Scalars['Boolean']['input'];
+  isSupplier: Scalars['Boolean']['input'];
+  name: Scalars['String']['input'];
+  phone?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type InsertOrganisationResponse = OrganisationNode;
 
 export type InsertQuoteInput = {
-  currency: Scalars['String'];
-  freightType: Scalars['String'];
-  id: Scalars['String'];
-  organisationId: Scalars['String'];
-  statusReason: Scalars['String'];
-  supplierNotes?: InputMaybe<Scalars['String']>;
-  tenderRequestId: Scalars['String'];
+  currency: Scalars['String']['input'];
+  freightType: Scalars['String']['input'];
+  id: Scalars['String']['input'];
+  organisationId: Scalars['String']['input'];
+  statusReason: Scalars['String']['input'];
+  supplierNotes?: InputMaybe<Scalars['String']['input']>;
+  tenderRequestId: Scalars['String']['input'];
 };
 
 export type InsertQuoteResponse = QuoteNode;
 
 export type InsertTenderRequestInput = {
-  closingDatetime: Scalars['DateTime'];
-  description: Scalars['String'];
-  id: Scalars['String'];
-  incoterm?: InputMaybe<Scalars['String']>;
-  organisationId: Scalars['String'];
-  publishedDatetime?: InputMaybe<Scalars['DateTime']>;
+  closingDatetime: Scalars['DateTime']['input'];
+  description: Scalars['String']['input'];
+  id: Scalars['String']['input'];
+  incoterm?: InputMaybe<Scalars['String']['input']>;
+  organisationId: Scalars['String']['input'];
+  publishedDatetime?: InputMaybe<Scalars['DateTime']['input']>;
 };
 
 export type InsertTenderRequestLineInput = {
-  comments: Scalars['String'];
-  conditions: Scalars['String'];
-  id: Scalars['String'];
-  itemCode: Scalars['String'];
-  itemId: Scalars['String'];
-  itemName: Scalars['String'];
-  msupplyLineNumber: Scalars['Int'];
-  numberOfPacks: Scalars['Float'];
-  preferredPackSize: Scalars['Float'];
-  productSpecifications?: InputMaybe<Scalars['String']>;
-  tenderRequestId: Scalars['String'];
-  unitQuantity: Scalars['Float'];
-  units: Scalars['String'];
-  universalCode?: InputMaybe<Scalars['String']>;
+  comments: Scalars['String']['input'];
+  conditions: Scalars['String']['input'];
+  id: Scalars['String']['input'];
+  itemCode: Scalars['String']['input'];
+  itemId: Scalars['String']['input'];
+  itemName: Scalars['String']['input'];
+  msupplyLineNumber: Scalars['Int']['input'];
+  numberOfPacks: Scalars['Float']['input'];
+  preferredPackSize: Scalars['Float']['input'];
+  productSpecifications?: InputMaybe<Scalars['String']['input']>;
+  tenderRequestId: Scalars['String']['input'];
+  unitQuantity: Scalars['Float']['input'];
+  units: Scalars['String']['input'];
+  universalCode?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type InsertTenderRequestLineResponse = TenderRequestLineNode;
@@ -722,50 +719,50 @@ export type InsertTenderRequestResponse = TenderRequestNode;
 
 export type InternalError = LogoutErrorInterface & RefreshTokenErrorInterface & {
   __typename: 'InternalError';
-  description: Scalars['String'];
-  fullError: Scalars['String'];
+  description: Scalars['String']['output'];
+  fullError: Scalars['String']['output'];
 };
 
 export type InvalidCredentials = AuthTokenErrorInterface & {
   __typename: 'InvalidCredentials';
-  description: Scalars['String'];
+  description: Scalars['String']['output'];
 };
 
 export type InvalidToken = RefreshTokenErrorInterface & {
   __typename: 'InvalidToken';
-  description: Scalars['String'];
+  description: Scalars['String']['output'];
 };
 
 export type InviteNode = {
   __typename: 'InviteNode';
-  id: Scalars['String'];
-  invitedOrganisationId: Scalars['String'];
-  lateSubmissionDeadline?: Maybe<Scalars['DateTime']>;
-  lateSubmissionReason?: Maybe<Scalars['String']>;
-  tenderRequestId: Scalars['String'];
+  id: Scalars['String']['output'];
+  invitedOrganisationId: Scalars['String']['output'];
+  lateSubmissionDeadline?: Maybe<Scalars['DateTime']['output']>;
+  lateSubmissionReason?: Maybe<Scalars['String']['output']>;
+  tenderRequestId: Scalars['String']['output'];
 };
 
 export type InviteResponse = IdResponse;
 
 export type InviteUserInput = {
-  displayName: Scalars['String'];
-  email: Scalars['String'];
-  organisationId: Scalars['String'];
+  displayName: Scalars['String']['input'];
+  email: Scalars['String']['input'];
+  organisationId: Scalars['String']['input'];
   permissions: Array<PermissionNode>;
-  username: Scalars['String'];
+  username: Scalars['String']['input'];
 };
 
 export type InviteUserResponse = InviteUserResponseMessage;
 
 export type InviteUserResponseMessage = {
   __typename: 'InviteUserResponseMessage';
-  message: Scalars['String'];
+  message: Scalars['String']['output'];
 };
 
 export type LogConnector = {
   __typename: 'LogConnector';
   nodes: Array<LogNode>;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type LogFilterInput = {
@@ -778,11 +775,11 @@ export type LogFilterInput = {
 
 export type LogNode = {
   __typename: 'LogNode';
-  datetime: Scalars['DateTime'];
-  id: Scalars['String'];
+  datetime: Scalars['DateTime']['output'];
+  id: Scalars['String']['output'];
   organisation?: Maybe<OrganisationNode>;
-  organisationId?: Maybe<Scalars['String']>;
-  recordId?: Maybe<Scalars['String']>;
+  organisationId?: Maybe<Scalars['String']['output']>;
+  recordId?: Maybe<Scalars['String']['output']>;
   recordType: LogNodeType;
   user?: Maybe<UserAccountNode>;
 };
@@ -821,7 +818,7 @@ export type LogSortInput = {
    * Sort query result is sorted descending or ascending (if not provided the default is
    * ascending)
    */
-  desc?: InputMaybe<Scalars['Boolean']>;
+  desc?: InputMaybe<Scalars['Boolean']['input']>;
   /** Sort query result by `key` */
   key: LogSortFieldInput;
 };
@@ -829,7 +826,7 @@ export type LogSortInput = {
 export type Logout = {
   __typename: 'Logout';
   /** User id of the logged out user */
-  userId: Scalars['String'];
+  userId: Scalars['String']['output'];
 };
 
 export type LogoutError = {
@@ -838,7 +835,7 @@ export type LogoutError = {
 };
 
 export type LogoutErrorInterface = {
-  description: Scalars['String'];
+  description: Scalars['String']['output'];
 };
 
 export type LogoutResponse = Logout | LogoutError;
@@ -846,7 +843,7 @@ export type LogoutResponse = Logout | LogoutError;
 export type ManufacturerConnector = {
   __typename: 'ManufacturerConnector';
   nodes: Array<ManufacturerNode>;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type ManufacturerFilterInput = {
@@ -858,10 +855,10 @@ export type ManufacturerFilterInput = {
 export type ManufacturerNode = {
   __typename: 'ManufacturerNode';
   auditLogs: Array<LogNode>;
-  code: Scalars['String'];
-  country?: Maybe<Scalars['String']>;
-  id: Scalars['String'];
-  name: Scalars['String'];
+  code: Scalars['String']['output'];
+  country?: Maybe<Scalars['String']['output']>;
+  id: Scalars['String']['output'];
+  name: Scalars['String']['output'];
 };
 
 export enum ManufacturerSortFieldInput {
@@ -875,7 +872,7 @@ export type ManufacturerSortInput = {
    * Sort query result is sorted descending or ascending (if not provided the default is
    * ascending)
    */
-  desc?: InputMaybe<Scalars['Boolean']>;
+  desc?: InputMaybe<Scalars['Boolean']['input']>;
   /** Sort query result by `key` */
   key: ManufacturerSortFieldInput;
 };
@@ -884,7 +881,7 @@ export type ManufacturersResponse = ManufacturerConnector;
 
 export type NoRefreshTokenProvided = RefreshTokenErrorInterface & {
   __typename: 'NoRefreshTokenProvided';
-  description: Scalars['String'];
+  description: Scalars['String']['output'];
 };
 
 /** Generic Error Wrapper */
@@ -894,35 +891,35 @@ export type NodeError = {
 };
 
 export type NodeErrorInterface = {
-  description: Scalars['String'];
+  description: Scalars['String']['output'];
 };
 
 export type NotARefreshToken = RefreshTokenErrorInterface & {
   __typename: 'NotARefreshToken';
-  description: Scalars['String'];
+  description: Scalars['String']['output'];
 };
 
 export type OrganisationConnector = {
   __typename: 'OrganisationConnector';
   nodes: Array<OrganisationNode>;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type OrganisationFilterInput = {
   code?: InputMaybe<StringFilterInput>;
   id?: InputMaybe<EqualFilterStringInput>;
-  isCustomer?: InputMaybe<Scalars['Boolean']>;
-  isManufacturer?: InputMaybe<Scalars['Boolean']>;
-  isSupplier?: InputMaybe<Scalars['Boolean']>;
+  isCustomer?: InputMaybe<Scalars['Boolean']['input']>;
+  isManufacturer?: InputMaybe<Scalars['Boolean']['input']>;
+  isSupplier?: InputMaybe<Scalars['Boolean']['input']>;
   modifiedBy?: InputMaybe<EqualFilterStringInput>;
   name?: InputMaybe<StringFilterInput>;
-  search?: InputMaybe<Scalars['String']>;
+  search?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type OrganisationGroupConnector = {
   __typename: 'OrganisationGroupConnector';
   nodes: Array<OrganisationGroupNode>;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type OrganisationGroupFilterInput = {
@@ -933,9 +930,9 @@ export type OrganisationGroupFilterInput = {
 
 export type OrganisationGroupNode = {
   __typename: 'OrganisationGroupNode';
-  id: Scalars['String'];
-  name: Scalars['String'];
-  organisationId: Scalars['String'];
+  id: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  organisationId: Scalars['String']['output'];
 };
 
 export type OrganisationGroupResponse = OrganisationGroupConnector;
@@ -945,36 +942,36 @@ export enum OrganisationGroupSortFieldInput {
 }
 
 export type OrganisationGroupSortInput = {
-  desc?: InputMaybe<Scalars['Boolean']>;
+  desc?: InputMaybe<Scalars['Boolean']['input']>;
   key: OrganisationGroupSortFieldInput;
 };
 
 export type OrganisationNode = {
   __typename: 'OrganisationNode';
   auditLogs: Array<LogNode>;
-  code: Scalars['String'];
-  contactName?: Maybe<Scalars['String']>;
-  country?: Maybe<Scalars['String']>;
-  createdDatetime?: Maybe<Scalars['DateTime']>;
-  description?: Maybe<Scalars['String']>;
-  discoverable: Scalars['Boolean'];
-  email?: Maybe<Scalars['String']>;
-  entityType?: Maybe<Scalars['String']>;
-  fullLegalName?: Maybe<Scalars['String']>;
-  id: Scalars['String'];
-  isCustomer: Scalars['Boolean'];
-  isManufacturer: Scalars['Boolean'];
-  isSupplier: Scalars['Boolean'];
-  logoId?: Maybe<Scalars['String']>;
-  modifiedBy: Scalars['String'];
-  modifiedDatetime?: Maybe<Scalars['DateTime']>;
-  name: Scalars['String'];
-  operatingAddress?: Maybe<Scalars['String']>;
-  phone?: Maybe<Scalars['String']>;
-  postalAddress?: Maybe<Scalars['String']>;
-  registrationJurisdiction?: Maybe<Scalars['String']>;
-  registrationNumber?: Maybe<Scalars['String']>;
-  website?: Maybe<Scalars['String']>;
+  code: Scalars['String']['output'];
+  contactName?: Maybe<Scalars['String']['output']>;
+  country?: Maybe<Scalars['String']['output']>;
+  createdDatetime?: Maybe<Scalars['DateTime']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  discoverable: Scalars['Boolean']['output'];
+  email?: Maybe<Scalars['String']['output']>;
+  entityType?: Maybe<Scalars['String']['output']>;
+  fullLegalName?: Maybe<Scalars['String']['output']>;
+  id: Scalars['String']['output'];
+  isCustomer: Scalars['Boolean']['output'];
+  isManufacturer: Scalars['Boolean']['output'];
+  isSupplier: Scalars['Boolean']['output'];
+  logoId?: Maybe<Scalars['String']['output']>;
+  modifiedBy: Scalars['String']['output'];
+  modifiedDatetime?: Maybe<Scalars['DateTime']['output']>;
+  name: Scalars['String']['output'];
+  operatingAddress?: Maybe<Scalars['String']['output']>;
+  phone?: Maybe<Scalars['String']['output']>;
+  postalAddress?: Maybe<Scalars['String']['output']>;
+  registrationJurisdiction?: Maybe<Scalars['String']['output']>;
+  registrationNumber?: Maybe<Scalars['String']['output']>;
+  website?: Maybe<Scalars['String']['output']>;
 };
 
 export enum OrganisationSortFieldInput {
@@ -988,7 +985,7 @@ export type OrganisationSortInput = {
    * Sort query result is sorted descending or ascending (if not provided the default is
    * ascending)
    */
-  desc?: InputMaybe<Scalars['Boolean']>;
+  desc?: InputMaybe<Scalars['Boolean']['input']>;
   /** Sort query result by `key` */
   key: OrganisationSortFieldInput;
 };
@@ -1012,16 +1009,16 @@ export type OrganisationsResponse = OrganisationConnector;
  */
 export type PaginationInput = {
   /** Max number of returned items */
-  first?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
   /** First returned item is at the `offset` position in the full list */
-  offset?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type PasswordResetResponse = PasswordResetResponseMessage;
 
 export type PasswordResetResponseMessage = {
   __typename: 'PasswordResetResponseMessage';
-  message: Scalars['String'];
+  message: Scalars['String']['output'];
 };
 
 export enum PermissionNode {
@@ -1034,7 +1031,7 @@ export enum PermissionNode {
 export type QuoteConnector = {
   __typename: 'QuoteConnector';
   nodes: Array<QuoteNode>;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type QuoteFilterInput = {
@@ -1046,7 +1043,7 @@ export type QuoteFilterInput = {
 export type QuoteLineConnector = {
   __typename: 'QuoteLineConnector';
   nodes: Array<QuoteLineNode>;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type QuoteLineFilterInput = {
@@ -1056,22 +1053,22 @@ export type QuoteLineFilterInput = {
 
 export type QuoteLineNode = {
   __typename: 'QuoteLineNode';
-  createdDatetime: Scalars['DateTime'];
-  currency: Scalars['String'];
-  deliveryLeadTime: Scalars['String'];
-  expiryPeriod: Scalars['String'];
-  id: Scalars['String'];
-  itemCode: Scalars['String'];
-  manufacturerId: Scalars['String'];
-  methodOfDelivery: Scalars['String'];
-  modifiedDatetime: Scalars['DateTime'];
-  numberOfPacks: Scalars['Int'];
-  packSize: Scalars['Float'];
-  pricePerPack: Scalars['Float'];
-  quoteId: Scalars['String'];
-  supplierItemId?: Maybe<Scalars['String']>;
-  supplierNotes: Scalars['String'];
-  tenderRequestLineId: Scalars['String'];
+  createdDatetime: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  deliveryLeadTime: Scalars['String']['output'];
+  expiryPeriod: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  itemCode: Scalars['String']['output'];
+  manufacturerId: Scalars['String']['output'];
+  methodOfDelivery: Scalars['String']['output'];
+  modifiedDatetime: Scalars['DateTime']['output'];
+  numberOfPacks: Scalars['Int']['output'];
+  packSize: Scalars['Float']['output'];
+  pricePerPack: Scalars['Float']['output'];
+  quoteId: Scalars['String']['output'];
+  supplierItemId?: Maybe<Scalars['String']['output']>;
+  supplierNotes: Scalars['String']['output'];
+  tenderRequestLineId: Scalars['String']['output'];
 };
 
 export enum QuoteLineSortFieldInput {
@@ -1083,7 +1080,7 @@ export type QuoteLineSortInput = {
    * Sort query result is sorted descending or ascending (if not provided the default is
    * ascending)
    */
-  desc?: InputMaybe<Scalars['Boolean']>;
+  desc?: InputMaybe<Scalars['Boolean']['input']>;
   /** Sort query result by `key` */
   key: QuoteLineSortFieldInput;
 };
@@ -1093,22 +1090,22 @@ export type QuoteLinesResponse = QuoteLineConnector;
 export type QuoteNode = {
   __typename: 'QuoteNode';
   auditLogs: Array<LogNode>;
-  createdDatetime: Scalars['DateTime'];
-  currency: Scalars['String'];
-  customerNotes?: Maybe<Scalars['String']>;
-  finalisedDatetime?: Maybe<Scalars['DateTime']>;
-  freightType: Scalars['String'];
-  id: Scalars['String'];
+  createdDatetime: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  customerNotes?: Maybe<Scalars['String']['output']>;
+  finalisedDatetime?: Maybe<Scalars['DateTime']['output']>;
+  freightType: Scalars['String']['output'];
+  id: Scalars['String']['output'];
   invite?: Maybe<InviteNode>;
-  isLate: Scalars['Boolean'];
-  lineCount: Scalars['Int'];
-  modifiedDatetime: Scalars['DateTime'];
+  isLate: Scalars['Boolean']['output'];
+  lineCount: Scalars['Int']['output'];
+  modifiedDatetime: Scalars['DateTime']['output'];
   organisation?: Maybe<OrganisationNode>;
-  organisationId: Scalars['String'];
+  organisationId: Scalars['String']['output'];
   status: QuoteNodeStatus;
-  statusReason: Scalars['String'];
-  supplierNotes?: Maybe<Scalars['String']>;
-  tenderRequestId: Scalars['String'];
+  statusReason: Scalars['String']['output'];
+  supplierNotes?: Maybe<Scalars['String']['output']>;
+  tenderRequestId: Scalars['String']['output'];
 };
 
 export enum QuoteNodeStatus {
@@ -1127,7 +1124,7 @@ export type QuoteSortInput = {
    * Sort query result is sorted descending or ascending (if not provided the default is
    * ascending)
    */
-  desc?: InputMaybe<Scalars['Boolean']>;
+  desc?: InputMaybe<Scalars['Boolean']['input']>;
   /** Sort query result by `key` */
   key: QuoteSortFieldInput;
 };
@@ -1137,20 +1134,20 @@ export type QuoteSummariesResponse = QuoteSummaryConnector;
 export type QuoteSummaryConnector = {
   __typename: 'QuoteSummaryConnector';
   nodes: Array<QuoteSummaryNode>;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type QuoteSummaryNode = {
   __typename: 'QuoteSummaryNode';
-  id: Scalars['String'];
+  id: Scalars['String']['output'];
   invite?: Maybe<InviteNode>;
-  lineCount: Scalars['Int'];
-  modifiedDatetime: Scalars['DateTime'];
+  lineCount: Scalars['Int']['output'];
+  modifiedDatetime: Scalars['DateTime']['output'];
   organisation?: Maybe<OrganisationNode>;
-  organisationId: Scalars['String'];
+  organisationId: Scalars['String']['output'];
   status: QuoteSummaryNodeStatus;
-  statusReason: Scalars['String'];
-  tenderRequestId: Scalars['String'];
+  statusReason: Scalars['String']['output'];
+  tenderRequestId: Scalars['String']['output'];
 };
 
 export enum QuoteSummaryNodeStatus {
@@ -1164,20 +1161,20 @@ export enum QuoteSummaryNodeStatus {
 export type QuoteUploadConnector = {
   __typename: 'QuoteUploadConnector';
   nodes: Array<QuoteUploadNode>;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type QuoteUploadNode = {
   __typename: 'QuoteUploadNode';
-  contentType: Scalars['String'];
-  createdDatetime: Scalars['DateTime'];
-  description: Scalars['String'];
-  fileName: Scalars['String'];
-  id: Scalars['String'];
-  modifiedDatetime: Scalars['DateTime'];
+  contentType: Scalars['String']['output'];
+  createdDatetime: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  fileName: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  modifiedDatetime: Scalars['DateTime']['output'];
   organisation?: Maybe<OrganisationNode>;
-  organisationId?: Maybe<Scalars['String']>;
-  quoteId: Scalars['String'];
+  organisationId?: Maybe<Scalars['String']['output']>;
+  quoteId: Scalars['String']['output'];
 };
 
 export type QuoteUploadsResponse = QuoteUploadConnector;
@@ -1186,13 +1183,13 @@ export type QuotesResponse = QuoteConnector;
 
 export type RecordNotFound = NodeErrorInterface & {
   __typename: 'RecordNotFound';
-  description: Scalars['String'];
+  description: Scalars['String']['output'];
 };
 
 export type RefreshToken = {
   __typename: 'RefreshToken';
   /** New Bearer token */
-  token: Scalars['String'];
+  token: Scalars['String']['output'];
 };
 
 export type RefreshTokenError = {
@@ -1201,36 +1198,36 @@ export type RefreshTokenError = {
 };
 
 export type RefreshTokenErrorInterface = {
-  description: Scalars['String'];
+  description: Scalars['String']['output'];
 };
 
 export type RefreshTokenResponse = RefreshToken | RefreshTokenError;
 
 export type SetLateSubmissionDeadlineInput = {
-  lateSubmissionDeadline: Scalars['DateTime'];
-  organisationIds: Array<Scalars['String']>;
-  reason: Scalars['String'];
-  tenderRequestId: Scalars['String'];
+  lateSubmissionDeadline: Scalars['DateTime']['input'];
+  organisationIds: Array<Scalars['String']['input']>;
+  reason: Scalars['String']['input'];
+  tenderRequestId: Scalars['String']['input'];
 };
 
 export type SimpleStringFilterInput = {
   /** Search term must be an exact match (case sensitive) */
-  equalTo?: InputMaybe<Scalars['String']>;
+  equalTo?: InputMaybe<Scalars['String']['input']>;
   /** Search term must be included in search candidate (case insensitive) */
-  like?: InputMaybe<Scalars['String']>;
+  like?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type StringFilterInput = {
-  endsWith?: InputMaybe<Scalars['String']>;
-  equalAny?: InputMaybe<Array<Scalars['String']>>;
+  endsWith?: InputMaybe<Scalars['String']['input']>;
+  equalAny?: InputMaybe<Array<Scalars['String']['input']>>;
   /** Search term must be an exact match (case sensitive) */
-  equalTo?: InputMaybe<Scalars['String']>;
-  isNull?: InputMaybe<Scalars['Boolean']>;
+  equalTo?: InputMaybe<Scalars['String']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
   /** Search term must be included in search candidate (case insensitive) */
-  like?: InputMaybe<Scalars['String']>;
-  notEqualAll?: InputMaybe<Array<Scalars['String']>>;
-  notEqualTo?: InputMaybe<Scalars['String']>;
-  startsWith?: InputMaybe<Scalars['String']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  notEqualAll?: InputMaybe<Array<Scalars['String']['input']>>;
+  notEqualTo?: InputMaybe<Scalars['String']['input']>;
+  startsWith?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type TenderQuestionFilterInput = {
@@ -1248,36 +1245,36 @@ export enum TenderQuestionSortFieldInput {
 }
 
 export type TenderQuestionSortInput = {
-  desc?: InputMaybe<Scalars['Boolean']>;
+  desc?: InputMaybe<Scalars['Boolean']['input']>;
   key: TenderQuestionSortFieldInput;
 };
 
 export type TenderQuoteLineConnector = {
   __typename: 'TenderQuoteLineConnector';
   nodes: Array<TenderQuoteLineNode>;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type TenderQuoteLineFilterInput = {
-  isQuoted?: InputMaybe<Scalars['Boolean']>;
+  isQuoted?: InputMaybe<Scalars['Boolean']['input']>;
   itemName?: InputMaybe<StringFilterInput>;
 };
 
 export type TenderQuoteLineNode = {
   __typename: 'TenderQuoteLineNode';
-  conditions: Scalars['String'];
-  currency: Scalars['String'];
-  id: Scalars['String'];
-  itemName: Scalars['String'];
-  pricePerPack: Scalars['Float'];
-  productSpecifications: Scalars['String'];
-  quoteLineId: Scalars['String'];
-  quotedNumberOfPacks: Scalars['Int'];
-  requestedNumberOfPacks: Scalars['Float'];
-  supplierNotes: Scalars['String'];
-  tenderRequestId: Scalars['String'];
-  totalPrice: Scalars['Float'];
-  unitQuantity: Scalars['Float'];
+  conditions: Scalars['String']['output'];
+  currency: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  itemName: Scalars['String']['output'];
+  pricePerPack: Scalars['Float']['output'];
+  productSpecifications: Scalars['String']['output'];
+  quoteLineId: Scalars['String']['output'];
+  quotedNumberOfPacks: Scalars['Int']['output'];
+  requestedNumberOfPacks: Scalars['Float']['output'];
+  supplierNotes: Scalars['String']['output'];
+  tenderRequestId: Scalars['String']['output'];
+  totalPrice: Scalars['Float']['output'];
+  unitQuantity: Scalars['Float']['output'];
 };
 
 export type TenderQuoteLinesResponse = TenderQuoteLineConnector;
@@ -1285,7 +1282,7 @@ export type TenderQuoteLinesResponse = TenderQuoteLineConnector;
 export type TenderRequestConnector = {
   __typename: 'TenderRequestConnector';
   nodes: Array<TenderRequestNode>;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type TenderRequestFilterInput = {
@@ -1298,7 +1295,7 @@ export type TenderRequestFilterInput = {
 export type TenderRequestLineConnector = {
   __typename: 'TenderRequestLineConnector';
   nodes: Array<TenderRequestLineNode>;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type TenderRequestLineFilterInput = {
@@ -1309,18 +1306,18 @@ export type TenderRequestLineFilterInput = {
 
 export type TenderRequestLineNode = {
   __typename: 'TenderRequestLineNode';
-  comments: Scalars['String'];
-  conditions: Scalars['String'];
-  id: Scalars['String'];
-  itemCode: Scalars['String'];
-  itemId: Scalars['String'];
-  itemName: Scalars['String'];
-  numberOfPacks: Scalars['Float'];
-  preferredPackSize: Scalars['Float'];
-  productSpecifications?: Maybe<Scalars['String']>;
-  tenderRequestId: Scalars['String'];
-  unitQuantity: Scalars['Float'];
-  universalCode?: Maybe<Scalars['String']>;
+  comments: Scalars['String']['output'];
+  conditions: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  itemCode: Scalars['String']['output'];
+  itemId: Scalars['String']['output'];
+  itemName: Scalars['String']['output'];
+  numberOfPacks: Scalars['Float']['output'];
+  preferredPackSize: Scalars['Float']['output'];
+  productSpecifications?: Maybe<Scalars['String']['output']>;
+  tenderRequestId: Scalars['String']['output'];
+  unitQuantity: Scalars['Float']['output'];
+  universalCode?: Maybe<Scalars['String']['output']>;
 };
 
 export enum TenderRequestLineSortFieldInput {
@@ -1336,7 +1333,7 @@ export type TenderRequestLineSortInput = {
    * Sort query result is sorted descending or ascending (if not provided the default is
    * ascending)
    */
-  desc?: InputMaybe<Scalars['Boolean']>;
+  desc?: InputMaybe<Scalars['Boolean']['input']>;
   /** Sort query result by `key` */
   key: TenderRequestLineSortFieldInput;
 };
@@ -1346,17 +1343,17 @@ export type TenderRequestLinesResponse = TenderRequestLineConnector;
 export type TenderRequestNode = {
   __typename: 'TenderRequestNode';
   auditLogs: Array<LogNode>;
-  closingDatetime: Scalars['DateTime'];
-  createdDatetime: Scalars['DateTime'];
-  description: Scalars['String'];
-  id: Scalars['String'];
-  incoterm?: Maybe<Scalars['String']>;
-  lineCount: Scalars['Int'];
-  modifiedDatetime: Scalars['DateTime'];
+  closingDatetime: Scalars['DateTime']['output'];
+  createdDatetime: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  incoterm?: Maybe<Scalars['String']['output']>;
+  lineCount: Scalars['Int']['output'];
+  modifiedDatetime: Scalars['DateTime']['output'];
   organisation?: Maybe<OrganisationNode>;
-  organisationId: Scalars['String'];
-  publishedDatetime?: Maybe<Scalars['DateTime']>;
-  reason?: Maybe<Scalars['String']>;
+  organisationId: Scalars['String']['output'];
+  publishedDatetime?: Maybe<Scalars['DateTime']['output']>;
+  reason?: Maybe<Scalars['String']['output']>;
   status: TenderRequestNodeStatus;
 };
 
@@ -1371,20 +1368,20 @@ export enum TenderRequestNodeStatus {
 export type TenderRequestNoticeConnector = {
   __typename: 'TenderRequestNoticeConnector';
   nodes: Array<TenderRequestNoticeNode>;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type TenderRequestNoticeNode = {
   __typename: 'TenderRequestNoticeNode';
-  body: Scalars['String'];
-  createdBy: Scalars['String'];
-  createdDatetime: Scalars['DateTime'];
-  id: Scalars['String'];
-  modifiedBy: Scalars['String'];
-  modifiedDatetime: Scalars['DateTime'];
-  originalId: Scalars['String'];
-  tenderRequestId: Scalars['String'];
-  title: Scalars['String'];
+  body: Scalars['String']['output'];
+  createdBy: Scalars['String']['output'];
+  createdDatetime: Scalars['DateTime']['output'];
+  id: Scalars['String']['output'];
+  modifiedBy: Scalars['String']['output'];
+  modifiedDatetime: Scalars['DateTime']['output'];
+  originalId: Scalars['String']['output'];
+  tenderRequestId: Scalars['String']['output'];
+  title: Scalars['String']['output'];
 };
 
 export type TenderRequestNoticesResponse = TenderRequestNoticeConnector;
@@ -1392,23 +1389,23 @@ export type TenderRequestNoticesResponse = TenderRequestNoticeConnector;
 export type TenderRequestQuestionConnector = {
   __typename: 'TenderRequestQuestionConnector';
   nodes: Array<TenderRequestQuestionNode>;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type TenderRequestQuestionNode = {
   __typename: 'TenderRequestQuestionNode';
-  answer?: Maybe<Scalars['String']>;
-  answeredBy?: Maybe<Scalars['String']>;
-  answeredDatetime?: Maybe<Scalars['DateTime']>;
-  askingOrganisation: Scalars['String'];
-  createdBy: Scalars['String'];
-  createdDatetime: Scalars['DateTime'];
-  id: Scalars['String'];
-  modifiedBy: Scalars['String'];
-  modifiedDatetime: Scalars['DateTime'];
-  noticeId?: Maybe<Scalars['String']>;
-  question: Scalars['String'];
-  tenderRequestId: Scalars['String'];
+  answer?: Maybe<Scalars['String']['output']>;
+  answeredBy?: Maybe<Scalars['String']['output']>;
+  answeredDatetime?: Maybe<Scalars['DateTime']['output']>;
+  askingOrganisation: Scalars['String']['output'];
+  createdBy: Scalars['String']['output'];
+  createdDatetime: Scalars['DateTime']['output'];
+  id: Scalars['String']['output'];
+  modifiedBy: Scalars['String']['output'];
+  modifiedDatetime: Scalars['DateTime']['output'];
+  noticeId?: Maybe<Scalars['String']['output']>;
+  question: Scalars['String']['output'];
+  tenderRequestId: Scalars['String']['output'];
 };
 
 export type TenderRequestQuestionResponse = NodeError | TenderRequestQuestionNode;
@@ -1425,7 +1422,7 @@ export type TenderRequestSortInput = {
    * Sort query result is sorted descending or ascending (if not provided the default is
    * ascending)
    */
-  desc?: InputMaybe<Scalars['Boolean']>;
+  desc?: InputMaybe<Scalars['Boolean']['input']>;
   /** Sort query result by `key` */
   key: TenderRequestSortFieldInput;
 };
@@ -1433,18 +1430,18 @@ export type TenderRequestSortInput = {
 export type TenderRequestUploadConnector = {
   __typename: 'TenderRequestUploadConnector';
   nodes: Array<TenderRequestUploadNode>;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type TenderRequestUploadNode = {
   __typename: 'TenderRequestUploadNode';
-  contentType: Scalars['String'];
-  createdDatetime: Scalars['DateTime'];
-  description: Scalars['String'];
-  fileName: Scalars['String'];
-  id: Scalars['String'];
-  modifiedDatetime: Scalars['DateTime'];
-  tenderRequestId: Scalars['String'];
+  contentType: Scalars['String']['output'];
+  createdDatetime: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  fileName: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  modifiedDatetime: Scalars['DateTime']['output'];
+  tenderRequestId: Scalars['String']['output'];
 };
 
 export type TenderRequestUploadsResponse = TenderRequestUploadConnector;
@@ -1453,64 +1450,64 @@ export type TenderRequestsResponse = TenderRequestConnector;
 
 export type TokenExpired = RefreshTokenErrorInterface & {
   __typename: 'TokenExpired';
-  description: Scalars['String'];
+  description: Scalars['String']['output'];
 };
 
 export type UpdateManufacturerInput = {
-  code?: InputMaybe<Scalars['String']>;
-  country?: InputMaybe<Scalars['String']>;
-  id: Scalars['String'];
-  name?: InputMaybe<Scalars['String']>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateManufacturerResponse = ManufacturerNode;
 
 export type UpdateOrganisationGroupInput = {
-  id: Scalars['String'];
-  name?: InputMaybe<Scalars['String']>;
-  organisationId?: InputMaybe<Scalars['String']>;
+  id: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  organisationId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateOrganisationGroupResponse = OrganisationGroupNode;
 
 export type UpdateOrganisationInput = {
-  code?: InputMaybe<Scalars['String']>;
-  contactName?: InputMaybe<Scalars['String']>;
-  country?: InputMaybe<Scalars['String']>;
-  description?: InputMaybe<Scalars['String']>;
-  discoverable?: InputMaybe<Scalars['Boolean']>;
-  email?: InputMaybe<Scalars['String']>;
-  entityType?: InputMaybe<Scalars['String']>;
-  fullLegalName?: InputMaybe<Scalars['String']>;
-  id: Scalars['String'];
-  isCustomer?: InputMaybe<Scalars['Boolean']>;
-  isManufacturer?: InputMaybe<Scalars['Boolean']>;
-  isSupplier?: InputMaybe<Scalars['Boolean']>;
-  logoId?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
-  operatingAddress?: InputMaybe<Scalars['String']>;
-  phone?: InputMaybe<Scalars['String']>;
-  postalAddress?: InputMaybe<Scalars['String']>;
-  registrationJurisdiction?: InputMaybe<Scalars['String']>;
-  registrationNumber?: InputMaybe<Scalars['String']>;
-  website?: InputMaybe<Scalars['String']>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  contactName?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  discoverable?: InputMaybe<Scalars['Boolean']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  entityType?: InputMaybe<Scalars['String']['input']>;
+  fullLegalName?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
+  isCustomer?: InputMaybe<Scalars['Boolean']['input']>;
+  isManufacturer?: InputMaybe<Scalars['Boolean']['input']>;
+  isSupplier?: InputMaybe<Scalars['Boolean']['input']>;
+  logoId?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  operatingAddress?: InputMaybe<Scalars['String']['input']>;
+  phone?: InputMaybe<Scalars['String']['input']>;
+  postalAddress?: InputMaybe<Scalars['String']['input']>;
+  registrationJurisdiction?: InputMaybe<Scalars['String']['input']>;
+  registrationNumber?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateOrganisationResponse = OrganisationNode;
 
 export type UpdateOwnUserAccountInput = {
-  displayName?: InputMaybe<Scalars['String']>;
-  email?: InputMaybe<Scalars['String']>;
-  id: Scalars['String'];
-  password?: InputMaybe<Scalars['String']>;
-  username?: InputMaybe<Scalars['String']>;
+  displayName?: InputMaybe<Scalars['String']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
+  password?: InputMaybe<Scalars['String']['input']>;
+  username?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateQuoteInput = {
-  id: Scalars['String'];
+  id: Scalars['String']['input'];
   status?: InputMaybe<QuoteNodeStatus>;
-  statusReason?: InputMaybe<Scalars['String']>;
-  supplierNotes?: InputMaybe<Scalars['String']>;
+  statusReason?: InputMaybe<Scalars['String']['input']>;
+  supplierNotes?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateQuoteLateSubmissionDeadlineResponse = CountResponse;
@@ -1518,61 +1515,61 @@ export type UpdateQuoteLateSubmissionDeadlineResponse = CountResponse;
 export type UpdateQuoteResponse = QuoteNode;
 
 export type UpdateTenderRequestInput = {
-  closingDatetime?: InputMaybe<Scalars['DateTime']>;
-  description?: InputMaybe<Scalars['String']>;
-  id: Scalars['String'];
-  reason?: InputMaybe<Scalars['String']>;
+  closingDatetime?: InputMaybe<Scalars['DateTime']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
+  reason?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<TenderRequestNodeStatus>;
 };
 
 export type UpdateTenderRequestResponse = TenderRequestNode;
 
 export type UpdateUserAccountInput = {
-  displayName?: InputMaybe<Scalars['String']>;
-  email?: InputMaybe<Scalars['String']>;
-  id: Scalars['String'];
-  password?: InputMaybe<Scalars['String']>;
+  displayName?: InputMaybe<Scalars['String']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
+  password?: InputMaybe<Scalars['String']['input']>;
   permissions?: InputMaybe<Array<PermissionNode>>;
-  username?: InputMaybe<Scalars['String']>;
+  username?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateUserAccountResponse = UserAccountNode;
 
 export type UpsertAnswerInput = {
-  answer: Scalars['String'];
-  id: Scalars['String'];
-  noticeId?: InputMaybe<Scalars['String']>;
-  tenderRequestId: Scalars['String'];
+  answer: Scalars['String']['input'];
+  id: Scalars['String']['input'];
+  noticeId?: InputMaybe<Scalars['String']['input']>;
+  tenderRequestId: Scalars['String']['input'];
 };
 
 export type UpsertAnswerResponse = NodeError | TenderRequestQuestionNode;
 
 export type UpsertQuoteLineInput = {
-  comments: Scalars['String'];
-  currency: Scalars['String'];
-  deliveryLeadTime: Scalars['String'];
-  expiryPeriod: Scalars['String'];
-  id: Scalars['String'];
-  itemCode: Scalars['String'];
-  itemName: Scalars['String'];
-  manufacturerName: Scalars['String'];
-  methodOfDelivery: Scalars['String'];
-  numberOfPacks: Scalars['Int'];
-  packSize: Scalars['Float'];
-  pricePerPack: Scalars['Float'];
-  quoteId: Scalars['String'];
-  supplierItemId?: InputMaybe<Scalars['String']>;
-  tenderRequestLineId: Scalars['String'];
+  comments: Scalars['String']['input'];
+  currency: Scalars['String']['input'];
+  deliveryLeadTime: Scalars['String']['input'];
+  expiryPeriod: Scalars['String']['input'];
+  id: Scalars['String']['input'];
+  itemCode: Scalars['String']['input'];
+  itemName: Scalars['String']['input'];
+  manufacturerName: Scalars['String']['input'];
+  methodOfDelivery: Scalars['String']['input'];
+  numberOfPacks: Scalars['Int']['input'];
+  packSize: Scalars['Float']['input'];
+  pricePerPack: Scalars['Float']['input'];
+  quoteId: Scalars['String']['input'];
+  supplierItemId?: InputMaybe<Scalars['String']['input']>;
+  tenderRequestLineId: Scalars['String']['input'];
 };
 
 export type UpsertQuoteLineResponse = QuoteLineNode;
 
 export type UpsertTenderRequestNoticeInput = {
-  body: Scalars['String'];
-  id: Scalars['String'];
-  originalId: Scalars['String'];
-  tenderRequestId: Scalars['String'];
-  title: Scalars['String'];
+  body: Scalars['String']['input'];
+  id: Scalars['String']['input'];
+  originalId: Scalars['String']['input'];
+  tenderRequestId: Scalars['String']['input'];
+  title: Scalars['String']['input'];
 };
 
 export type UpsertTenderRequestNoticeResponse = TenderRequestNoticeNode;
@@ -1580,27 +1577,27 @@ export type UpsertTenderRequestNoticeResponse = TenderRequestNoticeNode;
 export type UserAccountConnector = {
   __typename: 'UserAccountConnector';
   nodes: Array<UserAccountNode>;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type UserAccountFilterInput = {
   displayName?: InputMaybe<SimpleStringFilterInput>;
   id?: InputMaybe<EqualFilterStringInput>;
   organisationId?: InputMaybe<EqualFilterStringInput>;
-  search?: InputMaybe<Scalars['String']>;
+  search?: InputMaybe<Scalars['String']['input']>;
   username?: InputMaybe<SimpleStringFilterInput>;
 };
 
 export type UserAccountNode = {
   __typename: 'UserAccountNode';
   auditLogs: Array<LogNode>;
-  displayName: Scalars['String'];
-  email?: Maybe<Scalars['String']>;
-  id: Scalars['String'];
+  displayName: Scalars['String']['output'];
+  email?: Maybe<Scalars['String']['output']>;
+  id: Scalars['String']['output'];
   organisation?: Maybe<OrganisationNode>;
-  organisationId?: Maybe<Scalars['String']>;
+  organisationId?: Maybe<Scalars['String']['output']>;
   permissions: Array<PermissionNode>;
-  username: Scalars['String'];
+  username: Scalars['String']['output'];
 };
 
 export enum UserAccountSortFieldInput {
@@ -1613,7 +1610,7 @@ export type UserAccountSortInput = {
    * Sort query result is sorted descending or ascending (if not provided the default is
    * ascending)
    */
-  desc?: InputMaybe<Scalars['Boolean']>;
+  desc?: InputMaybe<Scalars['Boolean']['input']>;
   /** Sort query result by `key` */
   key: UserAccountSortFieldInput;
 };

@@ -36,7 +36,7 @@ export type UpdateUserAccountMutationVariables = Types.Exact<{
 export type UpdateUserAccountMutation = { __typename: 'FullMutation', updateUserAccount: { __typename: 'UserAccountNode', id: string, username: string, email?: string | null, displayName: string, permissions: Array<Types.PermissionNode>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> } };
 
 export type DeleteUserAccountMutationVariables = Types.Exact<{
-  input: Types.Scalars['String'];
+  input: Types.Scalars['String']['input'];
 }>;
 
 
@@ -44,7 +44,7 @@ export type DeleteUserAccountMutation = { __typename: 'FullMutation', deleteUser
 
 export type AcceptUserInviteMutationVariables = Types.Exact<{
   input: Types.AcceptUserInviteInput;
-  token: Types.Scalars['String'];
+  token: Types.Scalars['String']['input'];
 }>;
 
 

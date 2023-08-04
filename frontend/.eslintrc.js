@@ -7,13 +7,12 @@ module.exports = {
     'plugin:jest-dom/recommended',
     'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
-    'google',
     'prettier',
   ],
   overrides: [
     {
       files: ['*.js', '*.jsx'],
-      plugins: ['plugin:react/recommended', 'google', 'prettier'],
+      plugins: ['react', 'prettier'],
     },
   ],
   parser: '@typescript-eslint/parser',
@@ -41,4 +40,8 @@ module.exports = {
       { markers: ['#', '/'], exceptions: ['-'] },
     ],
   },
+  ignorePatterns: [
+    '**/operations.generated.ts',
+    '**/*.js'
+  ]
 };

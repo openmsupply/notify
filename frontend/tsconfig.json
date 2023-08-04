@@ -1,4 +1,5 @@
 {
+  "exclude": ["packages/**/operations.generated.ts"],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {

@@ -4,8 +4,8 @@ import { GraphQLClient } from 'graphql-request';
 import * as Dom from 'graphql-request/dist/types.dom';
 import gql from 'graphql-tag';
 export type AuthTokenQueryVariables = Types.Exact<{
-  username: Types.Scalars['String'];
-  password: Types.Scalars['String'];
+  username: Types.Scalars['String']['input'];
+  password: Types.Scalars['String']['input'];
 }>;
 
 
