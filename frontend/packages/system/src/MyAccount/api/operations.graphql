@@ -1,0 +1,15 @@
+fragment MyAccountRow on UserAccountNode {
+  __typename
+  id
+  username
+  email
+  displayName
+}
+
+mutation updateOwnUserAccount($input: UpdateOwnUserAccountInput!) {
+  updateOwnUserAccount(input: $input) {
+    ... on UserAccountNode {
+      ...MyAccountRow
+    }
+  }
+}
