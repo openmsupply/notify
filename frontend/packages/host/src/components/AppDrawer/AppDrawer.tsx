@@ -20,6 +20,8 @@ import {
   BookIcon,
   UserIcon,
   LogoutIcon,
+  SuppliersIcon,
+  RouteBuilder,
 } from '@notify-frontend/common';
 import { AppRoute, ExternalURL } from '@notify-frontend/config';
 import { AppDrawerIcon } from './AppDrawerIcon';
@@ -182,6 +184,13 @@ export const AppDrawer: React.FC = () => {
       >
         <UpperListContainer>
           <List>
+            <AppNavLink
+              to={RouteBuilder.create(AppRoute.Notifications)
+                .addPart(AppRoute.NotificationGroups)
+                .build()}
+              icon={<SuppliersIcon fontSize="small" color="primary" />}
+              text={t('notification-groups')}
+            />
             <AppNavLink
               to={AppRoute.UserAccounts}
               icon={<UsersIcon fontSize="small" color="primary" />}

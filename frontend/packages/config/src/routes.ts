@@ -4,9 +4,11 @@ export enum AppRoute {
   PasswordReset = 'password-reset',
   ForgotPassword = 'forgot-password',
 
-  UserAccounts = 'Users',
-
+  UserAccounts = 'users',
   MyAccount = 'my-account',
+
+  Notifications = 'notifications',
+  NotificationGroups = 'groups',
 
   Admin = 'admin',
   Logout = 'logout',
