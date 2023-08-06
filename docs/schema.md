@@ -30,6 +30,11 @@ erDiagram
     NOTIFICATION_GROUP_MEMBER {
         TEXT id PK "UNIQUE NOT NULL"
         TEXT notification_group_id FK "NOT NULL"
+        TEXT notifier_id FK "NOT NULL"
+    }
+    NOTIFIER {
+        TEXT id PK "UNIQUE NOT NULL"
+        TEXT name "NOT NULL"
         TEXT notification_type "NOT NULL (TELEGRAM/EMAIL/ETC)"
         TEXT to_address "NOT NULL (Email address/Chat_id/ETC)"
     }
@@ -48,5 +53,6 @@ erDiagram
     }
     NOTIFICATION_GROUP ||--o{ NOTIFICATION_EVENT : has
     NOTIFICATION_GROUP ||--o{ NOTIFICATION_GROUP_MEMBER : has
+    NOTIFICATION_GROUP_MEMBER ||--o{ NOTIFIER : has
     USER ||--o{ USER_PERMISSION : has
 ```
