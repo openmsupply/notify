@@ -65,9 +65,9 @@ impl TelegramClient {
             .get("result")
             .ok_or_else(|| TelegramError::Fatal("No result in response".to_string()))?
             .get("name")
-            .ok_or_else(|| TelegramError::Fatal("No first_name in response".to_string()))?
+            .ok_or_else(|| TelegramError::Fatal("No name in response".to_string()))?
             .as_str()
-            .ok_or_else(|| TelegramError::Fatal("first_name is not a string".to_string()))
+            .ok_or_else(|| TelegramError::Fatal("name is not a string".to_string()))
             .map(|s| s.to_string())
     }
 
