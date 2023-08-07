@@ -4,6 +4,7 @@ import {
   matchPath,
   RouteBuilder,
   SettingsIcon,
+  SuppliersIcon,
   Tooltip,
   useLocation,
   UserIcon,
@@ -23,6 +24,8 @@ const getIcon = (section?: AppRoute) => {
       return <UsersIcon color="primary" fontSize="small" />;
     case AppRoute.Admin:
       return <SettingsIcon color="primary" fontSize="small" />;
+    case AppRoute.Recipients:
+      return <SuppliersIcon color="primary" fontSize="small" />;
     case AppRoute.MyAccount:
       return <UserIcon color="primary" fontSize="small" />;
     default:
@@ -31,7 +34,12 @@ const getIcon = (section?: AppRoute) => {
 };
 
 const getSection = (): Section | undefined => {
-  const routes = [AppRoute.UserAccounts, AppRoute.Admin, AppRoute.MyAccount];
+  const routes = [
+    AppRoute.UserAccounts,
+    AppRoute.Admin,
+    AppRoute.MyAccount,
+    AppRoute.Recipients,
+  ];
   const location = useLocation();
 
   for (let i = 0; i < routes.length; i++) {
