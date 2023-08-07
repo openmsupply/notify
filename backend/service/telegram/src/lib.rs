@@ -1,3 +1,5 @@
+use serde_json::json;
+
 struct TelegramClient {
     token: String,
     http_client: reqwest::Client,
@@ -20,7 +22,7 @@ enum TelegramError {
 
 impl From<reqwest::Error> for TelegramError {
     fn from(error: reqwest::Error) -> TelegramError {
-        // TODO, revisit fatal non fatal errors
+        // TODO, revisit fatal vs non fatal errors?
         if error.is_timeout() {
             return TelegramError::Temporary(TemporaryErrorType::TimedOut(error.to_string()));
         }
@@ -53,6 +55,22 @@ impl TelegramClient {
         }
     }
 
+    async fn get_name(&self) -> Result<String, TelegramError> {
+        let url = format!("{}/getMyName", self.base_url);
+        let response = self.http_client.get(&url).send().await?;
+        let response_text = response.text().await?;
+        response_text
+            .parse::<serde_json::Value>()
+            .map_err(|e| TelegramError::Fatal(e.to_string()))?
+            .get("result")
+            .ok_or_else(|| TelegramError::Fatal("No result in response".to_string()))?
+            .get("name")
+            .ok_or_else(|| TelegramError::Fatal("No first_name in response".to_string()))?
+            .as_str()
+            .ok_or_else(|| TelegramError::Fatal("first_name is not a string".to_string()))
+            .map(|s| s.to_string())
+    }
+
     async fn send_message(&self, chat_id: &str, message: &str) -> Result<(), TelegramError> {
         let params = [("chat_id", chat_id), ("text", message)];
         let url = format!("{}/sendMessage", self.base_url);
@@ -83,11 +101,29 @@ mod test {
     use super::*;
 
     fn get_telegram_token_from_env() -> String {
-        std::env::var("TELEGRAM_TOKEN").unwrap()
+        std::env::var("TELEGRAM_TOKEN")
+            .expect("Please set the TELEGRAM_TOKEN environment variable to run the telegram tests")
     }
 
     fn get_telegram_chat_id_from_env() -> String {
-        std::env::var("TELEGRAM_CHAT_ID").unwrap()
+        std::env::var("TELEGRAM_CHAT_ID").expect(
+            "Please set the TELEGRAM_CHAT_ID environment variable to run the telegram tests",
+        )
+    }
+
+    #[tokio::test]
+    async fn test_get_name() {
+        let client = TelegramClient::new(get_telegram_token_from_env());
+        let name = client.get_name().await;
+        if !name.is_ok() {
+            println!(
+                "Unable to get name of bot, your environment might not be setup: {:?}",
+                name
+            );
+        }
+
+        assert!(name.is_ok());
+        println!("My name is {}", name.unwrap());
     }
 
     #[tokio::test]
