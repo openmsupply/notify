@@ -185,11 +185,11 @@ export const AppDrawer: React.FC = () => {
         <UpperListContainer>
           <List>
             <AppNavLink
-              to={RouteBuilder.create(AppRoute.Notifications)
-                .addPart(AppRoute.NotificationGroups)
+              to={RouteBuilder.create(AppRoute.Recipients)
+                .addPart(AppRoute.RecipientLists)
                 .build()}
               icon={<SuppliersIcon fontSize="small" color="primary" />}
-              text={t('notification-groups')}
+              text={t('recipient-lists')}
             />
             <AppNavLink
               to={AppRoute.UserAccounts}

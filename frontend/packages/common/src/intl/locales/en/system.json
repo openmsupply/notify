@@ -3,7 +3,7 @@
   "button.return-to-login": "Login",
   "button.send-password-reset": "Send Password Reset",
   "error.email-invalid": "Invalid email",
-  "error.no-notification-group-members": "No Notification Group Members",
+  "error.no-recipient-list-members": "No Recipient List Members",
   "error.no-users": "No Users",
   "error.unknown-error": "Unknown Error",
   "error.username-invalid-characters": "Username must not contain any special characters or spaces",
@@ -37,5 +37,5 @@
   "password-reset.initiate": "Initiate Password Reset",
   "text.no-description": "No description",
   "text.no-website": "No website",
-  "tooltip.manage-notification-group": "Manage Notification Group"
+  "tooltip.manage-recipient-list": "Manage Recipient List"
 }

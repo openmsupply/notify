@@ -8,7 +8,9 @@ export enum AppRoute {
   MyAccount = 'my-account',
 
   Notifications = 'notifications',
-  NotificationGroups = 'groups',
+
+  Recipients = 'recipients',
+  RecipientLists = 'lists',
 
   Admin = 'admin',
   Logout = 'logout',

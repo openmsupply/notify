@@ -24,7 +24,7 @@ const getIcon = (section?: AppRoute) => {
       return <UsersIcon color="primary" fontSize="small" />;
     case AppRoute.Admin:
       return <SettingsIcon color="primary" fontSize="small" />;
-    case AppRoute.Notifications:
+    case AppRoute.Recipients:
       return <SuppliersIcon color="primary" fontSize="small" />;
     case AppRoute.MyAccount:
       return <UserIcon color="primary" fontSize="small" />;
@@ -38,7 +38,7 @@ const getSection = (): Section | undefined => {
     AppRoute.UserAccounts,
     AppRoute.Admin,
     AppRoute.MyAccount,
-    AppRoute.Notifications,
+    AppRoute.Recipients,
   ];
   const location = useLocation();
 

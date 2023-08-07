@@ -17,36 +17,36 @@ const dummyData = [
   {
     id: 'kids-id',
     name: 'Kids',
-    description: 'This is a description about the group',
+    description: 'This is a description about the list',
   },
   {
     id: 'mates-id',
     name: 'Mates',
-    description: 'This is a description about the group',
+    description: 'This is a description about the list',
   },
   {
     id: 'lads-id',
     name: 'Lads',
-    description: 'This is a description about the group',
+    description: 'This is a description about the list',
   },
   {
     id: 'homies-id',
     name: 'Homies',
-    description: 'This is a description about the group',
+    description: 'This is a description about the list',
   },
   {
     id: 'cuties-id',
     name: 'Cuties',
-    description: 'This is a description about the group',
+    description: 'This is a description about the list',
   },
   {
     id: 'bros-id',
     name: 'Bros',
-    description: 'This is a description about the group',
+    description: 'This is a description about the list',
   },
 ];
 
-export const GroupList = () => {
+export const AllLists = () => {
   const t = useTranslation('system');
   const navigate = useNavigate();
 
@@ -61,8 +61,8 @@ export const GroupList = () => {
         height: 'min-content',
       }}
     >
-      {dummyData.map(group => (
-        <Grid item xs={12} md={6} key={group.id} sx={{ height: 'fit-content' }}>
+      {dummyData.map(list => (
+        <Grid item xs={12} md={6} key={list.id} sx={{ height: 'fit-content' }}>
           <Paper
             sx={{
               borderRadius: '16px',
@@ -73,7 +73,7 @@ export const GroupList = () => {
               display: 'flex',
               justifyContent: 'space-between',
             }}
-            key={group.id}
+            key={list.id}
           >
             <Box>
               <Typography
@@ -83,16 +83,16 @@ export const GroupList = () => {
                   color: 'gray.dark',
                 }}
               >
-                {group.name}
+                {list.name}
               </Typography>
               <Typography sx={{ color: 'gray.dark' }}>
-                {group.description}
+                {list.description}
               </Typography>
             </Box>
             <ButtonWithIcon
               Icon={<SettingsIcon />}
-              onClick={() => navigate(group.id)}
-              title={t('tooltip.manage-notification-group')}
+              onClick={() => navigate(list.id)}
+              title={t('tooltip.manage-recipient-list')}
               label={t('label.manage')}
             />
           </Paper>

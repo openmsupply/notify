@@ -7,11 +7,7 @@ import {
   UserAccountNode,
 } from '@notify-frontend/common';
 
-export const GroupDetailsToolbar = ({
-  filter,
-}: {
-  filter: FilterController;
-}) => {
+export const Toolbar = ({ filter }: { filter: FilterController }) => {
   const t = useTranslation(['system']);
 
   const key = 'username' as keyof UserAccountNode;
