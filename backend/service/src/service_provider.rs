@@ -5,6 +5,7 @@ use repository::{RepositoryError, StorageConnection, StorageConnectionManager};
 use crate::{
     auth::{AuthService, AuthServiceTrait},
     email::{EmailService, EmailServiceTrait},
+    recipient::{RecipientService, RecipientServiceTrait},
     settings::Settings,
     user_account::{UserAccountService, UserAccountServiceTrait},
 };
@@ -15,6 +16,7 @@ pub struct ServiceProvider {
     pub validation_service: Box<dyn AuthServiceTrait>,
     pub general_service: Box<dyn GeneralServiceTrait>,
     pub user_account_service: Box<dyn UserAccountServiceTrait>,
+    pub recipient_service: Box<dyn RecipientServiceTrait>,
     pub settings: Settings,
 }
 
@@ -66,6 +68,7 @@ impl ServiceProvider {
             validation_service: Box::new(AuthService::new()),
             general_service: Box::new(GeneralService {}),
             user_account_service: Box::new(UserAccountService {}),
+            recipient_service: Box::new(RecipientService {}),
             settings: settings,
         }
     }

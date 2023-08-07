@@ -22,6 +22,7 @@ pub struct RecipientFilter {
 #[derive(PartialEq, Debug)]
 pub enum RecipientSortField {
     Name,
+    ToAddress,
 }
 
 pub type RecipientSort = Sort<RecipientSortField>;
@@ -64,6 +65,9 @@ impl<'a> RecipientRepository<'a> {
             match sort.key {
                 RecipientSortField::Name => {
                     apply_sort_no_case!(query, sort, recipient_dsl::name);
+                }
+                RecipientSortField::ToAddress => {
+                    apply_sort_no_case!(query, sort, recipient_dsl::to_address);
                 }
             }
         } else {

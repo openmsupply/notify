@@ -4,9 +4,12 @@ mod user_account;
 pub use user_account::*;
 mod user_permissions;
 pub use user_permissions::*;
+mod recipients;
+pub use recipients::*;
 
 use crate::{
-    UserAccountRow, UserAccountRowRepository, UserPermissionRow, UserPermissionRowRepository,
+    RecipientRow, RecipientRowRepository, UserAccountRow, UserAccountRowRepository,
+    UserPermissionRow, UserPermissionRowRepository,
 };
 
 use super::StorageConnection;
@@ -15,12 +18,14 @@ use super::StorageConnection;
 pub struct MockData {
     pub user_accounts: Vec<UserAccountRow>,
     pub permissions: Vec<UserPermissionRow>,
+    pub recipients: Vec<RecipientRow>,
 }
 
 #[derive(Default)]
 pub struct MockDataInserts {
     pub user_accounts: bool,
     pub permissions: bool,
+    pub recipients: bool,
 }
 
 impl MockDataInserts {
@@ -28,6 +33,7 @@ impl MockDataInserts {
         MockDataInserts {
             user_accounts: true,
             permissions: true,
+            recipients: true,
         }
     }
 
@@ -43,6 +49,11 @@ impl MockDataInserts {
     pub fn permissions(mut self) -> Self {
         self.user_accounts = true; // Permissions require user accounts
         self.permissions = true;
+        self
+    }
+
+    pub fn recipients(mut self) -> Self {
+        self.recipients = true;
         self
     }
 }
@@ -83,8 +94,8 @@ fn all_mock_data() -> MockDataCollection {
         "base",
         MockData {
             user_accounts: mock_user_accounts(),
-
             permissions: mock_permissions(),
+            recipients: mock_recipients(),
         },
     );
     data
@@ -115,6 +126,12 @@ pub async fn insert_mock_data(
                 repo.insert_one(row).unwrap();
             }
         }
+        if inserts.recipients {
+            let repo = RecipientRowRepository::new(connection);
+            for row in &mock_data.recipients {
+                repo.insert_one(row).unwrap();
+            }
+        }
     }
 
     mock_data
@@ -125,10 +142,12 @@ impl MockData {
         let MockData {
             mut user_accounts,
             mut permissions,
+            mut recipients,
         } = other;
 
         self.user_accounts.append(&mut user_accounts);
         self.permissions.append(&mut permissions);
+        self.recipients.append(&mut recipients);
 
         self
     }

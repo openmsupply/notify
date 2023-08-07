@@ -37,7 +37,9 @@ impl NotificationType {
     }
 }
 
-#[derive(Clone, Queryable, Insertable, AsChangeset, Debug, PartialEq, Eq, Default)]
+#[derive(
+    Clone, Queryable, Identifiable, Insertable, AsChangeset, Debug, PartialEq, Eq, Default,
+)]
 #[table_name = "recipient"]
 pub struct RecipientRow {
     pub id: String,
@@ -59,6 +61,13 @@ impl<'a> RecipientRowRepository<'a> {
         diesel::insert_into(recipient_dsl::recipient)
             .values(row)
             .execute(&self.connection.connection)?;
+        Ok(())
+    }
+
+    pub fn update_one(&self, row: &RecipientRow) -> Result<(), RepositoryError> {
+        let query = diesel::update(row).set(row);
+        // println!("{}", diesel::debug_query::<DBType, _>(&query).to_string());
+        query.execute(&self.connection.connection)?;
         Ok(())
     }
 
