@@ -1,5 +1,6 @@
 import { useTranslation } from '@common/intl';
 import {
+  Box,
   ButtonWithIcon,
   Grid,
   Paper,
@@ -10,15 +11,39 @@ import { useNavigate } from 'packages/common/src';
 import React from 'react';
 
 const dummyData = [
-  { id: 'friends-id', name: 'Friends' },
-  { id: 'foes-id', name: 'Foes' },
-  { id: 'fries-id', name: 'Fries' },
-  { id: 'kids-id', name: 'Kids' },
-  { id: 'mates-id', name: 'Mates' },
-  { id: 'lads-id', name: 'Lads' },
-  { id: 'homies-id', name: 'Homies' },
-  { id: 'cuties-id', name: 'Cuties' },
-  { id: 'bros-id', name: 'Bros' },
+  { id: 'friends-id', name: 'Friends', description: 'My good friends' },
+  { id: 'foes-id', name: 'Foes', description: 'Keep your enemies closer' },
+  { id: 'fries-id', name: 'Fries', description: 'With ketchup please' },
+  {
+    id: 'kids-id',
+    name: 'Kids',
+    description: 'This is a description about the group',
+  },
+  {
+    id: 'mates-id',
+    name: 'Mates',
+    description: 'This is a description about the group',
+  },
+  {
+    id: 'lads-id',
+    name: 'Lads',
+    description: 'This is a description about the group',
+  },
+  {
+    id: 'homies-id',
+    name: 'Homies',
+    description: 'This is a description about the group',
+  },
+  {
+    id: 'cuties-id',
+    name: 'Cuties',
+    description: 'This is a description about the group',
+  },
+  {
+    id: 'bros-id',
+    name: 'Bros',
+    description: 'This is a description about the group',
+  },
 ];
 
 export const GroupList = () => {
@@ -50,11 +75,20 @@ export const GroupList = () => {
             }}
             key={group.id}
           >
-            <Typography
-              sx={{ fontSize: '14px', fontWeight: 'bold', color: 'gray.dark' }}
-            >
-              {group.name}
-            </Typography>
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  color: 'gray.dark',
+                }}
+              >
+                {group.name}
+              </Typography>
+              <Typography sx={{ color: 'gray.dark' }}>
+                {group.description}
+              </Typography>
+            </Box>
             <ButtonWithIcon
               Icon={<SettingsIcon />}
               onClick={() => navigate(group.id)}
