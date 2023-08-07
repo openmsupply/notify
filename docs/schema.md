@@ -29,7 +29,7 @@ erDiagram
     }
     RECIPIENT_LIST_MEMBER {
         TEXT id PK "UNIQUE NOT NULL"
-        TEXT recipiEnt_list_id FK "NOT NULL"
+        TEXT recipient_list_id FK "NOT NULL"
         TEXT recipient_id FK "NOT NULL"
     }
     RECIPIENT {
