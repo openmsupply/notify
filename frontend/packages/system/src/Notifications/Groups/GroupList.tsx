@@ -30,7 +30,7 @@ export const GroupList = () => {
       container
       spacing={2}
       sx={{
-        padding: '0 0 16px 16px',
+        padding: '0 16px 16px 0',
         maxWidth: '1200px',
         margin: '0 auto',
         height: 'min-content',
