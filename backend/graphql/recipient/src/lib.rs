@@ -171,7 +171,7 @@ mod test {
                 rows: vec![Recipient {
                     id: "test_id".to_string(),
                     name: "test_name".to_string(),
-                    to_address: "email@x.com".to_string(), //TODO don't return passwords !
+                    to_address: "email@x.com".to_string(),
                     notification_type: NotificationType::Email,
                 }],
                 count: 1,
