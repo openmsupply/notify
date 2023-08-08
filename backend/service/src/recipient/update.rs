@@ -1,4 +1,8 @@
-use super::{query::get_recipient, validate::check_recipient_exists, ModifyRecipientError};
+use super::{
+    query::get_recipient,
+    validate::{check_recipient_exists, check_to_address_is_unique},
+    ModifyRecipientError,
+};
 use crate::{audit_log::audit_log_entry, service_provider::ServiceContext};
 use chrono::Utc;
 use repository::{
@@ -46,6 +50,14 @@ pub fn validate(
         Some(recipient_row) => recipient_row,
         None => return Err(ModifyRecipientError::RecipientDoesNotExist),
     };
+
+    if !check_to_address_is_unique(
+        &new_recipient.id,
+        new_recipient.to_address.clone(),
+        connection,
+    )? {
+        return Err(ModifyRecipientError::RecipientAlreadyExists);
+    }
 
     Ok(recipient_row)
 }

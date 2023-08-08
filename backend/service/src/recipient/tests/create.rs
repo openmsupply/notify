@@ -23,15 +23,29 @@ mod recipient_create_test {
         let context = ServiceContext::new(service_provider).unwrap();
         let service = &context.service_provider.recipient_service;
 
-        //Create for a id that already exists (Should use update in this case)
+        //Create for a id that already exists
         assert_eq!(
             service.create_recipient(
                 &context,
                 CreateRecipient {
                     id: mock_data["base"].recipients[0].id.clone(),
-                    name: mock_data["base"].recipients[0].name.clone(),
+                    name: "some name".to_string(),
+                    to_address: "some@address.com".to_string(),
+                    notification_type: NotificationType::Email,
+                },
+            ),
+            Err(ModifyRecipientError::RecipientAlreadyExists)
+        );
+
+        //Create for a to_address that already exists
+        assert_eq!(
+            service.create_recipient(
+                &context,
+                CreateRecipient {
+                    id: "some-new-id".to_string(),
+                    name: "some name".to_string(),
                     to_address: mock_data["base"].recipients[0].to_address.clone(),
-                    notification_type: mock_data["base"].recipients[0].notification_type.clone(),
+                    notification_type: NotificationType::Email,
                 },
             ),
             Err(ModifyRecipientError::RecipientAlreadyExists)

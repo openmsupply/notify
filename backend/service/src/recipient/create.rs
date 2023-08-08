@@ -1,4 +1,8 @@
-use super::{query::get_recipient, validate::check_recipient_does_not_exist, ModifyRecipientError};
+use super::{
+    query::get_recipient,
+    validate::{check_recipient_does_not_exist, check_to_address_is_unique},
+    ModifyRecipientError,
+};
 use crate::audit_log::audit_log_entry;
 use crate::service_provider::ServiceContext;
 
@@ -46,6 +50,14 @@ pub fn validate(
     connection: &StorageConnection,
 ) -> Result<(), ModifyRecipientError> {
     if !check_recipient_does_not_exist(&new_recipient.id, connection)? {
+        return Err(ModifyRecipientError::RecipientAlreadyExists);
+    }
+
+    if !check_to_address_is_unique(
+        &new_recipient.id,
+        Some(new_recipient.to_address.clone()),
+        connection,
+    )? {
         return Err(ModifyRecipientError::RecipientAlreadyExists);
     }
 

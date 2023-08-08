@@ -3,9 +3,9 @@ use super::{
     DBType, NotificationType, RecipientRow, StorageConnection,
 };
 use crate::{
-    diesel_macros::{apply_equal_filter, apply_sort_no_case},
+    diesel_macros::{apply_equal_filter, apply_sort_no_case, apply_string_filter},
     repository_error::RepositoryError,
-    EqualFilter, Pagination, Sort,
+    EqualFilter, Pagination, Sort, StringFilter,
 };
 
 use diesel::{dsl::IntoBoxed, prelude::*};
@@ -16,6 +16,7 @@ pub type Recipient = RecipientRow;
 pub struct RecipientFilter {
     pub id: Option<EqualFilter<String>>,
     pub notification_type: Option<EqualFilter<NotificationType>>,
+    pub to_address: Option<StringFilter>,
     pub search: Option<String>,
 }
 
@@ -98,11 +99,13 @@ fn create_filtered_query(filter: Option<RecipientFilter>) -> BoxedRecipientQuery
         let RecipientFilter {
             id,
             notification_type,
+            to_address,
             search,
         } = f;
 
         apply_equal_filter!(query, id, recipient_dsl::id);
         apply_equal_filter!(query, notification_type, recipient_dsl::notification_type);
+        apply_string_filter!(query, to_address, recipient_dsl::to_address);
 
         if let Some(search) = search {
             let search_term = format!("%{}%", search);
@@ -128,6 +131,10 @@ impl RecipientFilter {
     }
     pub fn notification_type(mut self, filter: EqualFilter<NotificationType>) -> Self {
         self.notification_type = Some(filter);
+        self
+    }
+    pub fn to_address(mut self, filter: StringFilter) -> Self {
+        self.to_address = Some(filter);
         self
     }
     pub fn search(mut self, filter: String) -> Self {

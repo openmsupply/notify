@@ -15,7 +15,7 @@ mod recipient_update_tests {
 
     #[actix_rt::test]
     async fn recipient_service_update_errors() {
-        let (_, _, connection_manager, _) = setup_all(
+        let (mock_data, _, connection_manager, _) = setup_all(
             "recipient_service_update_errors",
             MockDataInserts::none().recipients(),
         )
@@ -40,6 +40,20 @@ mod recipient_update_tests {
                 },
             ),
             Err(ModifyRecipientError::RecipientDoesNotExist)
+        );
+
+        // Updating to a to_address that already exists should fail
+        assert_eq!(
+            service.update_recipient(
+                &context,
+                UpdateRecipient {
+                    id: mock_data["base"].recipients[0].id.clone(),
+                    to_address: Some(mock_data["base"].recipients[1].to_address.clone()),
+                    name: None,
+                    notification_type: None,
+                },
+            ),
+            Err(ModifyRecipientError::RecipientAlreadyExists)
         );
     }
     #[actix_rt::test]
