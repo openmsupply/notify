@@ -1575,12 +1575,9 @@ dependencies = [
  "actix-web",
  "assert-json-diff",
  "async-graphql",
- "chrono",
  "graphql_core",
  "graphql_types",
  "repository",
- "reqwest",
- "serde",
  "service",
  "util",
 ]

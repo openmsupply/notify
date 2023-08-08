@@ -18,4 +18,4 @@ mail:
   password: ""
   from: "no-reply@msupply.foundation"
 telegram:
-  bot_token: ""
+  token: ""
