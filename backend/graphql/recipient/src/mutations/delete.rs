@@ -14,7 +14,7 @@ pub fn delete_recipient(ctx: &Context<'_>, recipient_id: &str) -> Result<DeleteR
     let user = validate_auth(
         ctx,
         &ResourceAccessRequest {
-            resource: Resource::MutateRecipients,
+            resource: Resource::ServerAdmin,
         },
     )?;
 

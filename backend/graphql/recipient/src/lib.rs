@@ -31,7 +31,7 @@ impl RecipientQueries {
         let user = validate_auth(
             ctx,
             &ResourceAccessRequest {
-                resource: Resource::QueryRecipients,
+                resource: Resource::ServerAdmin,
             },
         )?;
 
