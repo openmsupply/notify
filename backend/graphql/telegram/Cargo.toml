@@ -11,6 +11,7 @@ doctest = false
 
 repository = { path = "../../repository" }
 service = { path = "../../service" }
+telegram = { path = "../../telegram" }
 util = { path = "../../util" }
 graphql_core = { path = "../core" }
 graphql_types = { path = "../types" }

@@ -33,14 +33,10 @@ impl TelegramMutations {
                     .send_html_message(&chat_id, "This is a test message from notify")
                     .await;
                 match message {
-                    Ok(message) => {
-                        return Ok(TelegramMessageResponse::Response(TelegramMessageNode {
-                            msg_json: message,
-                        }))
-                    }
+                    Ok(message) => return Ok(TelegramMessageResponse::Response(message.into())),
                     Err(err) => {
                         return Err(StandardGraphqlError::InternalError(format!(
-                            "Can't send message : {:?}",
+                            "Unable to send message : {:?}",
                             err
                         ))
                         .extend())

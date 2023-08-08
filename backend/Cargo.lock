@@ -1579,6 +1579,7 @@ dependencies = [
  "graphql_types",
  "repository",
  "service",
+ "telegram",
  "util",
 ]
 
@@ -3207,6 +3208,7 @@ version = "0.1.0"
 dependencies = [
  "async-graphql",
  "reqwest",
+ "serde",
  "serde_json",
  "tokio",
 ]
