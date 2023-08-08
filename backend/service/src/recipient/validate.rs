@@ -15,22 +15,3 @@ pub fn check_recipient_does_not_exist(
 
     Ok(recipient.is_none())
 }
-
-#[cfg(test)]
-mod test {
-    #[test]
-    fn test_check_recipient_exists() -> Result<(), String> {
-        //
-        // let result = check_recipient_exists().unwrap();
-        // if result != expected {
-        //     Err(format!(
-        //         "check_username_doesnt_contain_special_characters {} result: {}, expected: {}",
-        //         username, result, expected
-        //     ))
-        // } else {
-        //     Ok(())
-        // }
-
-        Ok(())
-    }
-}
