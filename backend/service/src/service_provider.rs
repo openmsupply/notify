@@ -62,6 +62,8 @@ impl ServiceContext {
 
 impl ServiceProvider {
     pub fn new(connection_manager: StorageConnectionManager, settings: Settings) -> Self {
+        log::info!("Creating service provider");
+        log::info!("Settings {:?}", settings.telegram.token);
         let telegram = match &settings.telegram.token {
             Some(token) => Some(TelegramClient::new(token.clone())),
             None => None,

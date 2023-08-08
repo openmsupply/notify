@@ -71,15 +71,17 @@ impl TelegramClient {
             .map(|s| s.to_string())
     }
 
-    pub async fn send_html_message(&self, chat_id: &str, html: &str) -> Result<(), TelegramError> {
+    pub async fn send_html_message(
+        &self,
+        chat_id: &str,
+        html: &str,
+    ) -> Result<String, TelegramError> {
         let params = [("chat_id", chat_id), ("text", html), ("parse_mode", "HTML")];
         let url = format!("{}/sendMessage", self.base_url);
 
         let response = self.http_client.post(&url).form(&params).send().await?;
         let response_text = response.text().await?;
-
-        dbg!(response_text);
-        Ok(())
+        Ok(response_text)
     }
 }
 
