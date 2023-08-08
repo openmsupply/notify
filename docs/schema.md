@@ -22,14 +22,19 @@ erDiagram
         TEXT message_content "NOT NULL (JSON?)"
         TEXT error_message "NULLABLE"
     }
-    NOTIFICATION_GROUP {
+    RECIPIENT_LIST {
         TEXT id PK "UNIQUE NOT NULL"
         TEXT name "NOT NULL"
         TEXT description "NOT NULL"
     }
-    NOTIFICATION_GROUP_MEMBER {
+    RECIPIENT_LIST_MEMBER {
         TEXT id PK "UNIQUE NOT NULL"
-        TEXT notification_group_id FK "NOT NULL"
+        TEXT recipient_list_id FK "NOT NULL"
+        TEXT recipient_id FK "NOT NULL"
+    }
+    RECIPIENT {
+        TEXT id PK "UNIQUE NOT NULL"
+        TEXT name "NOT NULL"
         TEXT notification_type "NOT NULL (TELEGRAM/EMAIL/ETC)"
         TEXT to_address "NOT NULL (Email address/Chat_id/ETC)"
     }
@@ -46,7 +51,8 @@ erDiagram
         TEXT organisation_id FK ""
 	    TEXT permission "NOT NULL"
     }
-    NOTIFICATION_GROUP ||--o{ NOTIFICATION_EVENT : has
-    NOTIFICATION_GROUP ||--o{ NOTIFICATION_GROUP_MEMBER : has
+    RECIPIENT_LIST ||--o{ NOTIFICATION_EVENT : has
+    RECIPIENT_LIST ||--o{ RECIPIENT_LIST_MEMBER : has
+    RECIPIENT_LIST_MEMBER ||--o{ RECIPIENT : has
     USER ||--o{ USER_PERMISSION : has
 ```
