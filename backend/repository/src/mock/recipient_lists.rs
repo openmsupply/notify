@@ -1,7 +1,5 @@
 use crate::RecipientListRow;
 
-// users
-
 pub fn mock_recipient_lists() -> Vec<RecipientListRow> {
     vec![mock_recipient_list_a(), mock_recipient_list_b()]
 }

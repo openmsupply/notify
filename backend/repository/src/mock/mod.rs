@@ -8,10 +8,13 @@ mod recipients;
 pub use recipients::*;
 mod recipient_lists;
 pub use recipient_lists::*;
+mod recipient_list_members;
+pub use recipient_list_members::*;
 
 use crate::{
-    RecipientListRow, RecipientListRowRepository, RecipientRow, RecipientRowRepository,
-    UserAccountRow, UserAccountRowRepository, UserPermissionRow, UserPermissionRowRepository,
+    RecipientListMemberRow, RecipientListMemberRowRepository, RecipientListRow,
+    RecipientListRowRepository, RecipientRow, RecipientRowRepository, UserAccountRow,
+    UserAccountRowRepository, UserPermissionRow, UserPermissionRowRepository,
 };
 
 use super::StorageConnection;
@@ -22,6 +25,7 @@ pub struct MockData {
     pub permissions: Vec<UserPermissionRow>,
     pub recipients: Vec<RecipientRow>,
     pub recipient_lists: Vec<RecipientListRow>,
+    pub recipient_list_members: Vec<RecipientListMemberRow>,
 }
 
 #[derive(Default)]
@@ -30,6 +34,7 @@ pub struct MockDataInserts {
     pub permissions: bool,
     pub recipients: bool,
     pub recipient_lists: bool,
+    pub recipient_list_members: bool,
 }
 
 impl MockDataInserts {
@@ -39,6 +44,7 @@ impl MockDataInserts {
             permissions: true,
             recipients: true,
             recipient_lists: true,
+            recipient_list_members: true,
         }
     }
 
@@ -64,6 +70,13 @@ impl MockDataInserts {
 
     pub fn recipient_lists(mut self) -> Self {
         self.recipient_lists = true;
+        self
+    }
+
+    pub fn recipient_list_members(mut self) -> Self {
+        self.recipients = true;
+        self.recipient_lists = true;
+        self.recipient_list_members = true;
         self
     }
 }
@@ -107,6 +120,7 @@ fn all_mock_data() -> MockDataCollection {
             permissions: mock_permissions(),
             recipients: mock_recipients(),
             recipient_lists: mock_recipient_lists(),
+            recipient_list_members: mock_recipient_list_members(),
         },
     );
     data
@@ -149,6 +163,12 @@ pub async fn insert_mock_data(
                 repo.insert_one(row).unwrap();
             }
         }
+        if inserts.recipient_list_members {
+            let repo = RecipientListMemberRowRepository::new(connection);
+            for row in &mock_data.recipient_list_members {
+                repo.insert_one(row).unwrap();
+            }
+        }
     }
 
     mock_data
@@ -161,12 +181,15 @@ impl MockData {
             mut permissions,
             mut recipients,
             mut recipient_lists,
+            mut recipient_list_members,
         } = other;
 
         self.user_accounts.append(&mut user_accounts);
         self.permissions.append(&mut permissions);
         self.recipients.append(&mut recipients);
         self.recipient_lists.append(&mut recipient_lists);
+        self.recipient_list_members
+            .append(&mut recipient_list_members);
 
         self
     }
