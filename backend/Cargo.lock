@@ -1516,6 +1516,7 @@ dependencies = [
  "async-trait",
  "graphql_core",
  "graphql_general",
+ "graphql_telegram",
  "graphql_types",
  "graphql_user_account",
  "log",
@@ -1550,6 +1551,24 @@ dependencies = [
 
 [[package]]
 name = "graphql_general"
+version = "0.1.0"
+dependencies = [
+ "actix-rt",
+ "actix-web",
+ "assert-json-diff",
+ "async-graphql",
+ "chrono",
+ "graphql_core",
+ "graphql_types",
+ "repository",
+ "reqwest",
+ "serde",
+ "service",
+ "util",
+]
+
+[[package]]
+name = "graphql_telegram"
 version = "0.1.0"
 dependencies = [
  "actix-rt",
@@ -3189,6 +3208,7 @@ dependencies = [
 name = "telegram"
 version = "0.1.0"
 dependencies = [
+ "async-graphql",
  "reqwest",
  "serde_json",
  "tokio",

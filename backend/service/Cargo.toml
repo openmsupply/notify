@@ -9,7 +9,7 @@ doctest = false
 
 [dependencies]
 repository = { path = "../repository" }
-telegram = { path = "./telegram" }
+telegram = { path = "../telegram" }
 util = { path = "../util" }
 anyhow = "1.0.44"
 bcrypt = "0.15.0"

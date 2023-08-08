@@ -1,8 +1,5 @@
 #![allow(clippy::too_many_arguments)]
 
-#[cfg(test)]
-mod tests;
-
 mod logger;
 
 use actix_web::web::{self, Data, ReqData};
@@ -15,6 +12,7 @@ use graphql_core::loader::LoaderRegistry;
 use graphql_core::{refresh_token_from_cookie, RefreshTokenData, SelfRequest};
 use graphql_general::GeneralQueries;
 
+use graphql_telegram::mutations::TelegramMutations;
 use graphql_user_account::{UserAccountMutations, UserAccountQueries};
 
 use logger::{RequestLogger, ResponseLogger};
@@ -28,7 +26,7 @@ use tokio::sync::mpsc::Sender;
 pub struct FullQuery(pub GeneralQueries, pub UserAccountQueries);
 
 #[derive(MergedObject, Default, Clone)]
-pub struct FullMutation(pub UserAccountMutations);
+pub struct FullMutation(pub UserAccountMutations, pub TelegramMutations);
 
 pub type Schema = async_graphql::Schema<FullQuery, FullMutation, async_graphql::EmptySubscription>;
 type Builder = SchemaBuilder<FullQuery, FullMutation, EmptySubscription>;
@@ -38,7 +36,7 @@ pub fn full_query() -> FullQuery {
 }
 
 pub fn full_mutation() -> FullMutation {
-    FullMutation(UserAccountMutations)
+    FullMutation(UserAccountMutations, TelegramMutations)
 }
 
 pub fn schema_builder() -> Builder {

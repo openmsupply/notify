@@ -1,13 +1,13 @@
 use serde_json::json;
 
-struct TelegramClient {
+pub struct TelegramClient {
     token: String,
     http_client: reqwest::Client,
     base_url: String,
 }
 
 #[derive(Debug)]
-enum TemporaryErrorType {
+pub enum TemporaryErrorType {
     TimedOut(String),
     TooManyRequests,
     InternalServerError(String),
@@ -15,7 +15,7 @@ enum TemporaryErrorType {
 }
 
 #[derive(Debug)]
-enum TelegramError {
+pub enum TelegramError {
     Fatal(String),
     Temporary(TemporaryErrorType),
 }
@@ -45,7 +45,7 @@ impl From<reqwest::Error> for TelegramError {
 }
 
 impl TelegramClient {
-    fn new(token: String) -> TelegramClient {
+    pub fn new(token: String) -> TelegramClient {
         let http_client = reqwest::Client::new();
         let url = format!("https://api.telegram.org/bot{}", token);
         TelegramClient {
@@ -55,7 +55,7 @@ impl TelegramClient {
         }
     }
 
-    async fn get_name(&self) -> Result<String, TelegramError> {
+    pub async fn get_name(&self) -> Result<String, TelegramError> {
         let url = format!("{}/getMyName", self.base_url);
         let response = self.http_client.get(&url).send().await?;
         let response_text = response.text().await?;
@@ -71,19 +71,7 @@ impl TelegramClient {
             .map(|s| s.to_string())
     }
 
-    async fn send_message(&self, chat_id: &str, message: &str) -> Result<(), TelegramError> {
-        let params = [("chat_id", chat_id), ("text", message)];
-        let url = format!("{}/sendMessage", self.base_url);
-
-        let response = self.http_client.post(&url).form(&params).send().await?;
-
-        let response_text = response.text().await?;
-
-        dbg!(response_text);
-        Ok(())
-    }
-
-    async fn send_html_message(&self, chat_id: &str, html: &str) -> Result<(), TelegramError> {
+    pub async fn send_html_message(&self, chat_id: &str, html: &str) -> Result<(), TelegramError> {
         let params = [("chat_id", chat_id), ("text", html), ("parse_mode", "HTML")];
         let url = format!("{}/sendMessage", self.base_url);
 
@@ -124,15 +112,6 @@ mod test {
 
         assert!(name.is_ok());
         println!("My name is {}", name.unwrap());
-    }
-
-    #[tokio::test]
-    async fn test_send_message() {
-        let client = TelegramClient::new(get_telegram_token_from_env());
-        client
-            .send_message(&get_telegram_chat_id_from_env(), "Hello from notify")
-            .await
-            .unwrap();
     }
 
     #[tokio::test]

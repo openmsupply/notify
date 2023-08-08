@@ -11,6 +11,7 @@ doctest = false
 reqwest = { version = "0.11", features = ["json"] } 
 tokio = { version = "1", features = ["full"] }
 serde_json = "1.0.66"
+async-graphql = { version = "3.0.35", features = ["dataloader", "chrono", "log"] }
 
 
 [features]
