@@ -12,7 +12,7 @@ pub struct TelegramMutations;
 
 #[Object]
 impl TelegramMutations {
-    async fn send_test_message(
+    async fn send_test_telegram_message(
         &self,
         ctx: &Context<'_>,
         chat_id: String,
