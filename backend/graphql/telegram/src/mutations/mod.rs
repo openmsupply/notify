@@ -1,4 +1,4 @@
-use crate::types::{TelegramMessageNode, TelegramMessageResponse};
+use crate::types::TelegramMessageResponse;
 use async_graphql::*;
 use async_graphql::{Context, Object};
 use graphql_core::{

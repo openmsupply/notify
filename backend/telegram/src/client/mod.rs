@@ -90,6 +90,40 @@ impl TelegramClient {
             .map(|s| s.to_string())
     }
 
+    pub async fn get_chat(&self, chat_id: &str) -> Result<TelegramChat, TelegramError> {
+        let params = [("chat_id", chat_id)];
+        let url = format!("{}/getChat", self.base_url);
+
+        let response = self.http_client.post(&url).form(&params).send().await?;
+        let response_text = response.text().await?;
+
+        let response_json = response_text
+            .parse::<serde_json::Value>()
+            .map_err(|e| TelegramError::Fatal(e.to_string()))?;
+
+        // If telegram gets an error we get a response something like this
+        // {\"ok\":false,\"error_code\":400,\"description\":\"Bad Request: chat not found\"}
+        if let Some(error_code) = response_json.get("error_code") {
+            let error_message = match response_json.get("description") {
+                Some(description) => description.to_string(),
+                None => "Unknown error".to_string(),
+            };
+            return Err(TelegramError::Fatal(format!(
+                "Error code {} : {}",
+                error_code, error_message
+            )));
+        }
+
+        let chat = response_json
+            .get("result")
+            .ok_or_else(|| TelegramError::Fatal("No result in response".to_string()))?;
+
+        let chat: TelegramChat = serde_json::from_value(chat.clone())
+            .map_err(|e| TelegramError::Fatal(e.to_string()))?;
+
+        Ok(chat)
+    }
+
     pub async fn send_html_message(
         &self,
         chat_id: &str,
