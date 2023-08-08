@@ -235,7 +235,7 @@ mod test {
             RecipientQueries,
             EmptyMutation,
             "test_graphql_recipient_inputs",
-            MockDataInserts::all(),
+            MockDataInserts::none(),
         )
         .await;
 

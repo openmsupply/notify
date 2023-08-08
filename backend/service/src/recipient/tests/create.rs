@@ -13,8 +13,11 @@ mod recipient_create_test {
     use crate::test_utils::get_test_settings;
     #[actix_rt::test]
     async fn create_recipient_service_errors() {
-        let (mock_data, _, connection_manager, _) =
-            setup_all("create_recipient_service_errors", MockDataInserts::all()).await;
+        let (mock_data, _, connection_manager, _) = setup_all(
+            "create_recipient_service_errors",
+            MockDataInserts::none().recipients(),
+        )
+        .await;
 
         let service_provider = Arc::new(ServiceProvider::new(
             connection_manager,
@@ -55,7 +58,7 @@ mod recipient_create_test {
     #[actix_rt::test]
     async fn create_recipient_service_success() {
         let (_, _, connection_manager, _) =
-            setup_all("create_recipient_service_success", MockDataInserts::all()).await;
+            setup_all("create_recipient_service_success", MockDataInserts::none()).await;
 
         let connection = connection_manager.connection().unwrap();
         let recipient_row_repository = RecipientRowRepository::new(&connection);

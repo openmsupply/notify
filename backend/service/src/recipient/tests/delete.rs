@@ -12,8 +12,11 @@ mod recipient_delete_test {
 
     #[actix_rt::test]
     async fn recipient_service_delete_errors() {
-        let (_, _, connection_manager, _) =
-            setup_all("recipient_service_delete_errors", MockDataInserts::all()).await;
+        let (_, _, connection_manager, _) = setup_all(
+            "recipient_service_delete_errors",
+            MockDataInserts::none().recipients(),
+        )
+        .await;
 
         let service_provider = Arc::new(ServiceProvider::new(
             connection_manager,
@@ -30,8 +33,11 @@ mod recipient_delete_test {
     }
     #[actix_rt::test]
     async fn recipient_service_delete_success() {
-        let (_, _, connection_manager, _) =
-            setup_all("recipient_service_delete_success", MockDataInserts::all()).await;
+        let (_, _, connection_manager, _) = setup_all(
+            "recipient_service_delete_success",
+            MockDataInserts::none().recipients(),
+        )
+        .await;
 
         let connection = connection_manager.connection().unwrap();
         let recipient_repository = RecipientRepository::new(&connection);
