@@ -21,10 +21,12 @@ pub enum Resource {
     Authenticated,
     RouteMe,
     MutateRecipients,
+    MutateRecipientLists,
     MutateUsers,
     ServerAdmin,
     QueryLog,
     QueryRecipients,
+    QueryRecipientLists,
     QueryUsers,
 }
 
@@ -49,6 +51,15 @@ fn all_permissions() -> HashMap<Resource, PermissionDSL> {
     );
     map.insert(
         Resource::QueryRecipients,
+        PermissionDSL::HasPermission(Permission::ServerAdmin),
+    );
+
+    map.insert(
+        Resource::MutateRecipientLists,
+        PermissionDSL::HasPermission(Permission::ServerAdmin),
+    );
+    map.insert(
+        Resource::QueryRecipientLists,
         PermissionDSL::HasPermission(Permission::ServerAdmin),
     );
 
