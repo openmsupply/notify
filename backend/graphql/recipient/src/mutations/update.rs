@@ -4,7 +4,7 @@ use graphql_core::{
     standard_graphql_error::{validate_auth, StandardGraphqlError},
     ContextExt,
 };
-use graphql_types::types::{NotificationTypeNode, RecipientNode};
+use graphql_types::types::RecipientNode;
 use service::{
     auth::{Resource, ResourceAccessRequest},
     recipient::update::UpdateRecipient,
@@ -40,7 +40,6 @@ pub struct UpdateRecipientInput {
     pub id: String,
     pub name: Option<String>,
     pub to_address: Option<String>,
-    pub notification_type: Option<NotificationTypeNode>,
 }
 
 impl From<UpdateRecipientInput> for UpdateRecipient {
@@ -49,16 +48,12 @@ impl From<UpdateRecipientInput> for UpdateRecipient {
             id,
             name,
             to_address,
-            notification_type,
         }: UpdateRecipientInput,
     ) -> Self {
-        let notification_type = notification_type.map(NotificationTypeNode::to_domain);
-
         UpdateRecipient {
             id,
             name,
             to_address,
-            notification_type,
         }
     }
 }
@@ -146,7 +141,6 @@ mod test {
                     id
                     name
                     toAddress
-                    notificationType
                   }
             }
           }
