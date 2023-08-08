@@ -8,7 +8,7 @@ use graphql_types::types::{NotificationTypeNode, RecipientNode};
 use service::{
     auth::{Resource, ResourceAccessRequest},
     recipient::update::UpdateRecipient,
-    recipient::ModifyRecipientError as ServiceError,
+    recipient::ModifyRecipientError,
 };
 
 pub fn update_recipient(
@@ -68,17 +68,17 @@ pub enum UpdateRecipientResponse {
     Response(RecipientNode),
 }
 
-fn map_error(error: ServiceError) -> Result<UpdateRecipientResponse> {
+fn map_error(error: ModifyRecipientError) -> Result<UpdateRecipientResponse> {
     use StandardGraphqlError::*;
     let formatted_error = format!("{:#?}", error);
 
     let graphql_error = match error {
         // Standard Graphql Errors
-        ServiceError::RecipientDoesNotExist => BadUserInput(formatted_error),
-        ServiceError::RecipientAlreadyExists => BadUserInput(formatted_error),
-        ServiceError::ModifiedRecordNotFound => InternalError(formatted_error),
-        ServiceError::DatabaseError(_) => InternalError(formatted_error),
-        ServiceError::GenericError(s) => InternalError(s),
+        ModifyRecipientError::RecipientDoesNotExist => BadUserInput(formatted_error),
+        ModifyRecipientError::RecipientAlreadyExists => BadUserInput(formatted_error),
+        ModifyRecipientError::ModifiedRecordNotFound => InternalError(formatted_error),
+        ModifyRecipientError::DatabaseError(_) => InternalError(formatted_error),
+        ModifyRecipientError::GenericError(s) => InternalError(s),
     };
 
     Err(graphql_error.extend())

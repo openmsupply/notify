@@ -7,7 +7,7 @@ use graphql_core::{
 use graphql_types::types::DeleteResponse;
 use service::{
     auth::{Resource, ResourceAccessRequest},
-    recipient::delete::DeleteRecipientError as ServiceError,
+    recipient::delete::DeleteRecipientError,
 };
 
 pub fn delete_recipient(ctx: &Context<'_>, recipient_id: &str) -> Result<DeleteRecipientResponse> {
@@ -37,15 +37,15 @@ pub enum DeleteRecipientResponse {
     Response(DeleteResponse),
 }
 
-fn map_error(error: ServiceError) -> Result<DeleteRecipientResponse> {
+fn map_error(error: DeleteRecipientError) -> Result<DeleteRecipientResponse> {
     use StandardGraphqlError::*;
     let formatted_error = format!("{:#?}", error);
 
     let graphql_error = match error {
         // Structured Errors
         // Standard Graphql Errors
-        ServiceError::RecipientDoesNotExist => BadUserInput(formatted_error),
-        ServiceError::DatabaseError(_) => InternalError(formatted_error),
+        DeleteRecipientError::RecipientDoesNotExist => BadUserInput(formatted_error),
+        DeleteRecipientError::DatabaseError(_) => InternalError(formatted_error),
     };
 
     Err(graphql_error.extend())
