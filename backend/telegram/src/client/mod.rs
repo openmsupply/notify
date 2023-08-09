@@ -1,6 +1,10 @@
+use std::time::Duration;
+
 use serde_json;
 
 use serde::{Deserialize, Serialize};
+
+const DEFAULT_REQUEST_TIMEOUT: u64 = 60;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct TelegramChat {
@@ -66,7 +70,10 @@ impl From<reqwest::Error> for TelegramError {
 
 impl TelegramClient {
     pub fn new(token: String) -> TelegramClient {
-        let http_client = reqwest::Client::new();
+        let http_client = reqwest::Client::builder()
+            .timeout(Duration::from_secs(DEFAULT_REQUEST_TIMEOUT))
+            .build()
+            .expect("Something went unexpectedly wrong building the telegram reqwest client");
         let url = format!("https://api.telegram.org/bot{}", token);
         TelegramClient {
             http_client: http_client,
@@ -170,8 +177,8 @@ impl TelegramClient {
 
     pub async fn get_updates(
         &self,
-        timeout: u32,
-        last_update_id: u32,
+        last_update_id: i64,
+        timeout: i64,
     ) -> Result<Vec<serde_json::Value>, TelegramError> {
         let url = format!("{}/getUpdates", self.base_url);
         // We add one to the last update_id so we don't get the same updates again

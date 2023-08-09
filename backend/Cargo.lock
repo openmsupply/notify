@@ -3030,6 +3030,7 @@ dependencies = [
  "sanitize-filename",
  "serde",
  "service",
+ "telegram",
  "tokio",
  "util",
 ]
@@ -3206,6 +3207,7 @@ dependencies = [
 name = "telegram"
 version = "0.1.0"
 dependencies = [
+ "log",
  "reqwest",
  "serde",
  "serde_json",

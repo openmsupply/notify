@@ -26,6 +26,8 @@ use std::{
 };
 use tokio::sync::{oneshot, Mutex};
 
+use telegram::{service::get_updates_poller::get_updates_poller, TelegramClient};
+
 pub mod configuration;
 pub mod cors;
 pub mod environment;
@@ -71,8 +73,6 @@ async fn run_server(
 
     let restart_switch = Data::new(restart_switch);
 
-    let closure_settings = config_settings.clone();
-
     let scheduled_task_context = ServiceContext::new(service_provider_data.clone().into_inner());
     let scheduled_task_context = match scheduled_task_context {
         Ok(scheduled_task_context) => scheduled_task_context,
@@ -88,10 +88,22 @@ async fn run_server(
         scheduled_task_runner(scheduled_task_context).await;
     });
 
+    let telegram_token = config_settings.clone().telegram.token;
+    let telegram_client_handle = actix_web::rt::spawn(async move {
+        if let Some(telegram_token) = telegram_token {
+            let telegram_client = TelegramClient::new(telegram_token);
+            log::info!("Starting Telegram Client Polling");
+            get_updates_poller(&telegram_client).await;
+        } else {
+            log::info!("Telegram Client not configured");
+        }
+    });
+
+    let http_server_config_settings = config_settings.clone();
     let mut http_server = HttpServer::new(move || {
-        let cors = cors_policy(&closure_settings);
+        let cors = cors_policy(&http_server_config_settings);
         App::new()
-            .app_data(Data::new(closure_settings.clone()))
+            .app_data(Data::new(http_server_config_settings.clone()))
             .app_data(service_provider_data.clone())
             .wrap(add_authentication_context(auth_data.clone()))
             .wrap(logger_middleware().exclude("/graphql")) // Exclude graphql requests, as they are logged from async-graphql
@@ -128,6 +140,7 @@ async fn run_server(
     };
 
     server_handle.stop(true).await;
+    telegram_client_handle.abort();
     scheduled_task_handle.abort();
     Ok(restart)
 }

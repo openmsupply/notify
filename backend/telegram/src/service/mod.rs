@@ -12,7 +12,7 @@
        - Send the message with the chat id
 */
 
-mod get_updates_poller;
+pub mod get_updates_poller;
 
 /*
 Example API Polling responses

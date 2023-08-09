@@ -36,6 +36,7 @@ graphql_core = { path = "../graphql/core" }
 graphql_types = { path = "../graphql/types" }
 repository = { path = "../repository" }
 service = { path = "../service" }
+telegram = { path = "../telegram" }
 util = { path = "../util" }
 
 actix-cors = "0.6.1"
