@@ -137,8 +137,8 @@ async fn upload_temporary_file(
 
     let service_context = ServiceContext {
         connection: db_connection,
-        service_provider: service_provider.clone().into_inner(),
         user_id: authentication_context.clone().user_id,
+        app_url: settings.server.app_url.clone(),
     };
 
     let authorised_user = service_provider.validation_service.validate(

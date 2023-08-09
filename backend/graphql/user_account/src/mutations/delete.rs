@@ -23,8 +23,8 @@ pub fn delete_user_account(
 
     let service_context = ctx.service_context(Some(&user))?;
 
-    match service_context
-        .service_provider
+    match ctx
+        .service_provider()
         .user_account_service
         .delete_user_account(&service_context, user_account_id)
     {

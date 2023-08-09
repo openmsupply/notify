@@ -22,8 +22,8 @@ pub fn create_user_account(
 
     let service_context = ctx.service_context(Some(&user))?;
 
-    match service_context
-        .service_provider
+    match ctx
+        .service_provider()
         .user_account_service
         .create_user_account(&service_context, input.into())
     {

@@ -15,7 +15,6 @@ pub struct ServiceProvider {
     pub connection_manager: StorageConnectionManager,
     pub email_service: Box<dyn EmailServiceTrait>,
     pub validation_service: Box<dyn AuthServiceTrait>,
-    pub general_service: Box<dyn GeneralServiceTrait>,
     pub user_account_service: Box<dyn UserAccountServiceTrait>,
     pub recipient_service: Box<dyn RecipientServiceTrait>,
     pub settings: Settings,
@@ -24,8 +23,9 @@ pub struct ServiceProvider {
 
 pub struct ServiceContext {
     pub connection: StorageConnection,
-    pub service_provider: Arc<ServiceProvider>,
+    // pub service_provider: Arc<ServiceProvider>,
     pub user_id: String,
+    pub app_url: String,
 }
 
 impl ServiceContext {
@@ -33,8 +33,8 @@ impl ServiceContext {
         let connection = service_provider.connection_manager.connection()?;
         Ok(ServiceContext {
             connection,
-            service_provider,
             user_id: "".to_string(),
+            app_url: service_provider.settings.server.app_url.clone(),
         })
     }
 
@@ -45,8 +45,8 @@ impl ServiceContext {
         let connection = service_provider.connection_manager.connection()?;
         Ok(ServiceContext {
             connection,
-            service_provider,
             user_id,
+            app_url: service_provider.settings.server.app_url.clone(),
         })
     }
 
@@ -56,8 +56,9 @@ impl ServiceContext {
         let connection = service_provider.connection_manager.connection()?;
         Ok(ServiceContext {
             connection,
-            service_provider,
+            // service_provider,
             user_id: "9cd8ce10-969b-45c4-871e-3a744c75ddf0".to_string(), // Admin user id is hardcoded in the database migration
+            app_url: service_provider.settings.server.app_url.clone(),
         })
     }
 }
@@ -73,7 +74,6 @@ impl ServiceProvider {
             connection_manager,
             email_service: Box::new(EmailService::new(settings.clone())),
             validation_service: Box::new(AuthService::new()),
-            general_service: Box::new(GeneralService {}),
             user_account_service: Box::new(UserAccountService {}),
             recipient_service: Box::new(RecipientService {}),
             settings: settings,
@@ -86,9 +86,3 @@ impl ServiceProvider {
         self.connection_manager.connection()
     }
 }
-
-pub trait GeneralServiceTrait: Sync + Send {}
-
-pub struct GeneralService;
-
-impl GeneralServiceTrait for GeneralService {}

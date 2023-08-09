@@ -23,8 +23,8 @@ mod user_account_query_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::new(service_provider).unwrap();
-        let service = &context.service_provider.user_account_service;
+        let context = ServiceContext::new(service_provider.clone()).unwrap();
+        let service = &service_provider.user_account_service;
 
         assert_eq!(
             service.get_user_accounts(
@@ -65,8 +65,8 @@ mod user_account_query_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::new(service_provider).unwrap();
-        let service = &context.service_provider.user_account_service;
+        let context = ServiceContext::new(service_provider.clone()).unwrap();
+        let service = &service_provider.user_account_service;
 
         assert_eq!(
             service.get_user_account(&context, "invalid_id".to_owned()),
@@ -92,8 +92,8 @@ mod user_account_query_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::new(service_provider).unwrap();
-        let service = &context.service_provider.user_account_service;
+        let context = ServiceContext::new(service_provider.clone()).unwrap();
+        let service = &service_provider.user_account_service;
 
         let db_accounts = service
             .get_user_accounts(
@@ -120,8 +120,8 @@ mod user_account_query_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::new(service_provider).unwrap();
-        let service = &context.service_provider.user_account_service;
+        let context = ServiceContext::new(service_provider.clone()).unwrap();
+        let service = &service_provider.user_account_service;
 
         let db_accounts = service
             .get_user_accounts(
@@ -155,8 +155,8 @@ mod user_account_query_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::new(service_provider).unwrap();
-        let service = &context.service_provider.user_account_service;
+        let context = ServiceContext::new(service_provider.clone()).unwrap();
+        let service = &service_provider.user_account_service;
         let remove_admin_filter =
             UserAccountFilter::new().username(StringFilter::not_equal_to("admin"));
         // Test Username sort with default sort order

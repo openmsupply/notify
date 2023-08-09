@@ -25,8 +25,8 @@ pub fn initiate_password_reset(
     email_or_user_id: &str,
 ) -> Result<PasswordResetResponse> {
     let service_context = ctx.service_context(None)?;
-    match service_context
-        .service_provider
+    match ctx
+        .service_provider()
         .user_account_service
         .initiate_password_reset(&service_context, email_or_user_id)
     {
@@ -44,8 +44,8 @@ pub fn validate_password_reset_token(
     token: &str,
 ) -> Result<PasswordResetResponse> {
     let service_context = ctx.service_context(None)?;
-    match service_context
-        .service_provider
+    match ctx
+        .service_provider()
         .user_account_service
         .validate_password_reset_token(&service_context, token)
     {
@@ -64,11 +64,11 @@ pub fn reset_password_using_token(
     password: &str,
 ) -> Result<PasswordResetResponse> {
     let service_context = ctx.service_context(None)?;
-    match service_context
-        .service_provider
-        .user_account_service
-        .reset_password(&service_context, token, password)
-    {
+    match ctx.service_provider().user_account_service.reset_password(
+        &service_context,
+        token,
+        password,
+    ) {
         Ok(_) => Ok(PasswordResetResponse::Response(
             PasswordResetResponseMessage {
                 message: "Password reset completed".to_string(),

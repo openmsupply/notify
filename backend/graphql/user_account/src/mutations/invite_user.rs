@@ -97,8 +97,8 @@ pub fn initiate_user_invite(
     )?;
 
     let service_context = ctx.service_context(Some(&user))?;
-    match service_context
-        .service_provider
+    match ctx
+        .service_provider()
         .user_account_service
         .initiate_user_invite(&service_context, input.into())
     {
@@ -115,8 +115,8 @@ pub fn accept_user_invite(
     input: AcceptUserInviteInput,
 ) -> Result<InviteUserResponse> {
     let service_context = ctx.service_context(None)?;
-    match service_context
-        .service_provider
+    match ctx
+        .service_provider()
         .user_account_service
         .accept_user_invite(&service_context, token, input.into())
     {

@@ -65,7 +65,7 @@ pub fn queue_user_welcome_email(
     to: &str,
     params: &UserWelcomeParams,
 ) -> Result<(), EmailServiceError> {
-    let server_url = ctx.service_provider.settings.server.app_url.clone();
+    let server_url = ctx.app_url.clone();
     let url = format!("{}/login", server_url);
 
     let email = create_welcome_email(to, &url, params)?;

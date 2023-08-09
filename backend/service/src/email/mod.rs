@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use chrono::Utc;
 use lettre::address::AddressError;
 use lettre::message::{Mailbox, MultiPart};
@@ -206,6 +208,28 @@ impl EmailServiceTrait for EmailService {
         log::debug!("Sent {} emails", sent_count);
 
         Ok(sent_count)
+    }
+}
+
+static TASK_INTERVAL: Duration = Duration::from_secs(10);
+
+pub async fn periodically_send_queued_emails(
+    email_service: &Box<dyn EmailServiceTrait>,
+    service_context: ServiceContext,
+) {
+    let mut interval = tokio::time::interval(TASK_INTERVAL);
+    loop {
+        interval.tick().await;
+        log::debug!("Sending emails");
+        let send_emails = email_service.send_queued_emails(&service_context);
+        match send_emails {
+            Ok(num) => {
+                if num > 0 {
+                    log::info!("Sent {} queued emails", num);
+                }
+            }
+            Err(error) => log::error!("Error sending queued emails: {:?}", error),
+        };
     }
 }
 

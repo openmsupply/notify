@@ -20,7 +20,6 @@ use service::auth_data::{AuthData, AuthenticationContext};
 use service::service_provider::{ServiceContext, ServiceProvider};
 
 use loader::LoaderRegistry;
-use service::settings::Settings;
 use tokio::sync::mpsc::Sender;
 
 /// Performs a query to ourself, e.g. the report endpoint can query
@@ -42,7 +41,6 @@ pub trait ContextExt {
     fn get_auth_data(&self) -> &AuthData;
     fn get_auth_context(&self) -> Option<AuthenticationContext>;
     fn self_request(&self) -> Option<&Box<dyn SelfRequest>>;
-    fn get_settings(&self) -> &Settings;
     fn restart_switch(&self) -> Sender<bool>;
 }
 
@@ -72,8 +70,8 @@ impl<'a> ContextExt for Context<'a> {
 
         Ok(ServiceContext {
             connection: self.get_connection_manager().connection()?,
-            service_provider: self.service_provider(),
             user_id: user_id,
+            app_url: self.service_provider().settings.server.app_url.clone(),
         })
     }
 
@@ -86,10 +84,6 @@ impl<'a> ContextExt for Context<'a> {
             Some(auth_context) => Some(auth_context.clone()),
             None => None,
         }
-    }
-
-    fn get_settings(&self) -> &Settings {
-        self.data_unchecked::<Data<Settings>>()
     }
 
     fn self_request(&self) -> Option<&Box<dyn SelfRequest>> {
