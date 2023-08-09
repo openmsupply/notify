@@ -167,6 +167,45 @@ impl TelegramClient {
 
         Ok(message)
     }
+
+    pub async fn get_updates(
+        &self,
+        timeout: u32,
+        last_update_id: u32,
+    ) -> Result<Vec<serde_json::Value>, TelegramError> {
+        let url = format!("{}/getUpdates", self.base_url);
+        // We add one to the last update_id so we don't get the same updates again
+        let params = [("timeout", timeout), ("offset", last_update_id + 1)];
+
+        let response = self.http_client.get(&url).form(&params).send().await?;
+        let response_text = response.text().await?;
+
+        let response_json = response_text
+            .parse::<serde_json::Value>()
+            .map_err(|e| TelegramError::Fatal(e.to_string()))?;
+
+        // If telegram gets an error I assume we get a response something like this
+        // {\"ok\":false,\"error_code\":400,\"description\":\"Bad Request: chat not found\"}
+        if let Some(error_code) = response_json.get("error_code") {
+            let error_message = match response_json.get("description") {
+                Some(description) => description.to_string(),
+                None => "Unknown error".to_string(),
+            };
+            return Err(TelegramError::Fatal(format!(
+                "Error code {} : {}",
+                error_code, error_message
+            )));
+        }
+
+        let updates = response_json
+            .get("result")
+            .ok_or_else(|| TelegramError::Fatal("No result in response".to_string()))?;
+
+        let updates: Vec<serde_json::Value> = serde_json::from_value(updates.clone())
+            .map_err(|e| TelegramError::Fatal(e.to_string()))?;
+
+        Ok(updates)
+    }
 }
 
 #[cfg(test)]
