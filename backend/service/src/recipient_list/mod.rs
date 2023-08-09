@@ -3,6 +3,7 @@ use self::{
     create::{create_recipient_list, CreateRecipientList},
     delete::{delete_recipient_list, DeleteRecipientListError},
     query::{get_recipient_list, get_recipient_lists},
+    remove_member::{remove_recipient_from_list, RemoveRecipientFromList},
     update::{update_recipient_list, UpdateRecipientList},
 };
 
@@ -19,6 +20,7 @@ pub mod add_member;
 pub mod create;
 pub mod delete;
 pub mod query;
+pub mod remove_member;
 pub mod update;
 pub mod validate;
 
@@ -71,6 +73,14 @@ pub trait RecipientListServiceTrait: Sync + Send {
         input: AddRecipientToList,
     ) -> Result<RecipientListMember, ModifyRecipientListError> {
         add_recipient_to_list(ctx, input)
+    }
+
+    fn remove_recipient_from_list(
+        &self,
+        ctx: &ServiceContext,
+        input: RemoveRecipientFromList,
+    ) -> Result<RecipientListMember, ModifyRecipientListError> {
+        remove_recipient_from_list(ctx, input)
     }
 }
 

@@ -7,4 +7,6 @@ mod delete;
 #[cfg(test)]
 mod query;
 #[cfg(test)]
+mod remove_member;
+#[cfg(test)]
 mod update;
