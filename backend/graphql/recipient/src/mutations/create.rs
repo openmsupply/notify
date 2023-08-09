@@ -22,8 +22,8 @@ pub fn create_recipient(
 
     let service_context = ctx.service_context(Some(&user))?;
 
-    match service_context
-        .service_provider
+    match ctx
+        .service_provider()
         .recipient_service
         .create_recipient(&service_context, input.into())
     {

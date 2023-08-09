@@ -23,8 +23,8 @@ pub fn update_recipient(
     )?;
 
     let service_context = ctx.service_context(Some(&user))?;
-    match service_context
-        .service_provider
+    match ctx
+        .service_provider()
         .recipient_service
         .update_recipient(&service_context, input.into())
     {

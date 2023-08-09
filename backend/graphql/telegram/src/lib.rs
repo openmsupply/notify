@@ -21,7 +21,7 @@ impl TelegramQueries {
         )?;
 
         let service_ctx = ctx.service_context(Some(&user))?;
-        let telegram_service = &service_ctx.service_provider.telegram;
+        let telegram_service = &ctx.service_provider().telegram;
 
         let bot_name = match telegram_service {
             Some(telegram_service) => {

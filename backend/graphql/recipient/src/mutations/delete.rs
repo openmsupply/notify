@@ -20,8 +20,8 @@ pub fn delete_recipient(ctx: &Context<'_>, recipient_id: &str) -> Result<DeleteR
 
     let service_context = ctx.service_context(Some(&user))?;
 
-    match service_context
-        .service_provider
+    match ctx
+        .service_provider()
         .recipient_service
         .delete_recipient(&service_context, recipient_id)
     {

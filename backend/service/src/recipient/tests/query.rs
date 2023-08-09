@@ -23,8 +23,8 @@ mod recipient_query_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::new(service_provider).unwrap();
-        let service = &context.service_provider.recipient_service;
+        let context = ServiceContext::new(service_provider.clone()).unwrap();
+        let service = &service_provider.recipient_service;
 
         assert_eq!(
             service.get_recipients(
@@ -65,8 +65,8 @@ mod recipient_query_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::new(service_provider).unwrap();
-        let service = &context.service_provider.recipient_service;
+        let context = ServiceContext::new(service_provider.clone()).unwrap();
+        let service = &service_provider.recipient_service;
 
         assert_eq!(
             service.get_recipient(&context, "invalid_id".to_owned()),
@@ -92,8 +92,8 @@ mod recipient_query_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::new(service_provider).unwrap();
-        let service = &context.service_provider.recipient_service;
+        let context = ServiceContext::new(service_provider.clone()).unwrap();
+        let service = &service_provider.recipient_service;
 
         let db_recipients = service
             .get_recipients(
@@ -120,8 +120,8 @@ mod recipient_query_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::new(service_provider).unwrap();
-        let service = &context.service_provider.recipient_service;
+        let context = ServiceContext::new(service_provider.clone()).unwrap();
+        let service = &service_provider.recipient_service;
 
         let to_address_search_db_recipients = service
             .get_recipients(
@@ -177,8 +177,8 @@ mod recipient_query_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::new(service_provider).unwrap();
-        let service = &context.service_provider.recipient_service;
+        let context = ServiceContext::new(service_provider.clone()).unwrap();
+        let service = &service_provider.recipient_service;
 
         // Test name sort with default sort order
         let db_recipients = service

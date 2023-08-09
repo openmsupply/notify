@@ -23,8 +23,8 @@ mod recipient_create_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::new(service_provider).unwrap();
-        let service = &context.service_provider.recipient_service;
+        let context = ServiceContext::new(service_provider.clone()).unwrap();
+        let service = &service_provider.recipient_service;
 
         //Create for a id that already exists
         assert_eq!(
@@ -66,8 +66,8 @@ mod recipient_create_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::as_server_admin(service_provider).unwrap();
-        let service = &context.service_provider.recipient_service;
+        let context = ServiceContext::as_server_admin(service_provider.clone()).unwrap();
+        let service = &service_provider.recipient_service;
 
         let new_recipient_id = uuid();
         let result = service.create_recipient(

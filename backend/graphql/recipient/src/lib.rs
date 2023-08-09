@@ -37,8 +37,8 @@ impl RecipientQueries {
 
         let service_context = ctx.service_context(Some(&user))?;
 
-        let recipients = service_context
-            .service_provider
+        let recipients = ctx
+            .service_provider()
             .recipient_service
             .get_recipients(
                 &service_context,

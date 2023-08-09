@@ -22,8 +22,8 @@ mod recipient_delete_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::new(service_provider).unwrap();
-        let service = &context.service_provider.recipient_service;
+        let context = ServiceContext::new(service_provider.clone()).unwrap();
+        let service = &service_provider.recipient_service;
 
         // Recipient does not exist
         assert_eq!(
@@ -45,8 +45,8 @@ mod recipient_delete_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::new(service_provider).unwrap();
-        let service = &context.service_provider.recipient_service;
+        let context = ServiceContext::new(service_provider.clone()).unwrap();
+        let service = &service_provider.recipient_service;
 
         assert_eq!(
             service.delete_recipient(&context, "id_recipient_b"),

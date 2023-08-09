@@ -25,8 +25,8 @@ mod recipient_update_tests {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::new(service_provider).unwrap();
-        let service = &context.service_provider.recipient_service;
+        let context = ServiceContext::new(service_provider.clone()).unwrap();
+        let service = &service_provider.recipient_service;
 
         // Trying to updating Recipient that does not exist should fail
         assert_eq!(
@@ -66,11 +66,10 @@ mod recipient_update_tests {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::as_server_admin(service_provider).unwrap();
+        let context = ServiceContext::as_server_admin(service_provider.clone()).unwrap();
 
         //Create a recipient to update
-        context
-            .service_provider
+        service_provider
             .recipient_service
             .create_recipient(
                 &context,
@@ -84,8 +83,7 @@ mod recipient_update_tests {
             .unwrap();
 
         // Update name
-        let updated_recipient = context
-            .service_provider
+        let updated_recipient = service_provider
             .recipient_service
             .update_recipient(
                 &context,
@@ -100,8 +98,7 @@ mod recipient_update_tests {
         assert_eq!(updated_recipient.name, "name_for_id1".to_string());
 
         // Update email
-        let updated_recipient = context
-            .service_provider
+        let updated_recipient = service_provider
             .recipient_service
             .update_recipient(
                 &context,
