@@ -26,27 +26,33 @@ use tokio::sync::mpsc::Sender;
 
 #[derive(MergedObject, Default, Clone)]
 pub struct FullQuery(
-    
     pub GeneralQueries,
-   
     pub UserAccountQueries,
     pub RecipientQueries,
-,
     pub TelegramQueries,
 );
 
 #[derive(MergedObject, Default, Clone)]
-pub struct FullMutation(pub UserAccountMutations, pub RecipientMutations, pub TelegramMutations);
+pub struct FullMutation(
+    pub UserAccountMutations,
+    pub RecipientMutations,
+    pub TelegramMutations,
+);
 
 pub type Schema = async_graphql::Schema<FullQuery, FullMutation, async_graphql::EmptySubscription>;
 type Builder = SchemaBuilder<FullQuery, FullMutation, EmptySubscription>;
 
 pub fn full_query() -> FullQuery {
-    FullQuery(GeneralQueries, UserAccountQueries, RecipientQueries, TelegramQueries)
+    FullQuery(
+        GeneralQueries,
+        UserAccountQueries,
+        RecipientQueries,
+        TelegramQueries,
+    )
 }
 
 pub fn full_mutation() -> FullMutation {
-    FullMutation(UserAccountMutations)
+    FullMutation(UserAccountMutations, RecipientMutations, TelegramMutations)
 }
 
 pub fn schema_builder() -> Builder {
