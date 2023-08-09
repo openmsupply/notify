@@ -1,18 +1,16 @@
+use super::{map_error, ModifyRecipientListResponse};
 use async_graphql::*;
-use graphql_core::{
-    standard_graphql_error::{validate_auth, StandardGraphqlError},
-    ContextExt,
-};
+use graphql_core::{standard_graphql_error::validate_auth, ContextExt};
 use graphql_types::types::RecipientListNode;
 use service::{
     auth::{Resource, ResourceAccessRequest},
-    recipient_list::{create::CreateRecipientList, ModifyRecipientListError},
+    recipient_list::create::CreateRecipientList,
 };
 
 pub fn create_recipient_list(
     ctx: &Context<'_>,
     input: CreateRecipientListInput,
-) -> Result<CreateRecipientListResponse> {
+) -> Result<ModifyRecipientListResponse> {
     let user = validate_auth(
         ctx,
         &ResourceAccessRequest {
@@ -27,7 +25,7 @@ pub fn create_recipient_list(
         .recipient_list_service
         .create_recipient_list(&service_context, input.into())
     {
-        Ok(recipient_list) => Ok(CreateRecipientListResponse::Response(
+        Ok(recipient_list) => Ok(ModifyRecipientListResponse::Response(
             RecipientListNode::from_domain(recipient_list),
         )),
         Err(error) => map_error(error),
@@ -55,30 +53,6 @@ impl From<CreateRecipientListInput> for CreateRecipientList {
             description,
         }
     }
-}
-
-#[derive(Union)]
-pub enum CreateRecipientListResponse {
-    Response(RecipientListNode),
-}
-
-fn map_error(error: ModifyRecipientListError) -> Result<CreateRecipientListResponse> {
-    use StandardGraphqlError::*;
-    let formatted_error = format!("{:#?}", error);
-
-    let graphql_error = match error {
-        // Standard Graphql Errors
-        ModifyRecipientListError::RecipientListAlreadyExists => BadUserInput(formatted_error),
-        ModifyRecipientListError::RecipientListDoesNotExist => BadUserInput(formatted_error),
-        ModifyRecipientListError::RecipientDoesNotExist => BadUserInput(formatted_error),
-        ModifyRecipientListError::RecipientListMemberAlreadyExists => BadUserInput(formatted_error),
-        ModifyRecipientListError::RecipientListMemberDoesNotExist => BadUserInput(formatted_error),
-        ModifyRecipientListError::DatabaseError(_) => InternalError(formatted_error),
-        ModifyRecipientListError::ModifiedRecordNotFound => InternalError(formatted_error),
-        ModifyRecipientListError::GenericError(s) => InternalError(s),
-    };
-
-    Err(graphql_error.extend())
 }
 
 #[cfg(test)]

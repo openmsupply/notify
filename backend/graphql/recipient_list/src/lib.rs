@@ -65,7 +65,7 @@ impl RecipientListMutations {
         &self,
         ctx: &Context<'_>,
         input: CreateRecipientListInput,
-    ) -> Result<CreateRecipientListResponse> {
+    ) -> Result<ModifyRecipientListResponse> {
         create_recipient_list(ctx, input)
     }
 
@@ -73,7 +73,7 @@ impl RecipientListMutations {
         &self,
         ctx: &Context<'_>,
         input: UpdateRecipientListInput,
-    ) -> Result<UpdateRecipientListResponse> {
+    ) -> Result<ModifyRecipientListResponse> {
         update_recipient_list(ctx, input)
     }
 
@@ -89,7 +89,7 @@ impl RecipientListMutations {
         &self,
         ctx: &Context<'_>,
         input: AddRecipientToListInput,
-    ) -> Result<AddRecipientToListResponse> {
+    ) -> Result<ModifyRecipientListResponse> {
         add_recipient_to_list(ctx, input)
     }
 }
