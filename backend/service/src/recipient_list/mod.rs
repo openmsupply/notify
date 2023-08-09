@@ -1,4 +1,5 @@
 use self::{
+    add_member::{add_recipient_to_list, AddRecipientToList},
     create::{create_recipient_list, CreateRecipientList},
     delete::{delete_recipient_list, DeleteRecipientListError},
     query::{get_recipient_list, get_recipient_lists},
@@ -8,11 +9,13 @@ use self::{
 use super::{ListError, ListResult};
 use crate::{service_provider::ServiceContext, SingleRecordError};
 use repository::{
-    PaginationOption, RecipientList, RecipientListFilter, RecipientListSort, RepositoryError,
+    PaginationOption, RecipientList, RecipientListFilter, RecipientListMember, RecipientListSort,
+    RepositoryError,
 };
 
 mod tests;
 
+pub mod add_member;
 pub mod create;
 pub mod delete;
 pub mod query;
@@ -61,6 +64,14 @@ pub trait RecipientListServiceTrait: Sync + Send {
     ) -> Result<RecipientList, ModifyRecipientListError> {
         update_recipient_list(ctx, input)
     }
+
+    fn add_recipient_to_list(
+        &self,
+        ctx: &ServiceContext,
+        input: AddRecipientToList,
+    ) -> Result<RecipientListMember, ModifyRecipientListError> {
+        add_recipient_to_list(ctx, input)
+    }
 }
 
 pub struct RecipientListService {}
@@ -72,6 +83,8 @@ pub enum ModifyRecipientListError {
     ModifiedRecordNotFound,
     DatabaseError(RepositoryError),
     RecipientListDoesNotExist,
+    RecipientListMemberAlreadyExists,
+    RecipientListMemberDoesNotExist,
     GenericError(String),
 }
 
@@ -96,6 +109,14 @@ impl PartialEq for ModifyRecipientListError {
             (
                 ModifyRecipientListError::RecipientListDoesNotExist,
                 ModifyRecipientListError::RecipientListDoesNotExist,
+            ) => true,
+            (
+                ModifyRecipientListError::RecipientListMemberDoesNotExist,
+                ModifyRecipientListError::RecipientListMemberDoesNotExist,
+            ) => true,
+            (
+                ModifyRecipientListError::RecipientListMemberAlreadyExists,
+                ModifyRecipientListError::RecipientListMemberAlreadyExists,
             ) => true,
             _ => false,
         }

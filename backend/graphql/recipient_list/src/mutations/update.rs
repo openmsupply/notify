@@ -8,7 +8,7 @@ use graphql_types::types::RecipientListNode;
 use service::{
     auth::{Resource, ResourceAccessRequest},
     recipient_list::update::UpdateRecipientList,
-    recipient_list::ModifyRecipientListError as ServiceError,
+    recipient_list::ModifyRecipientListError,
 };
 
 pub fn update_recipient_list(
@@ -63,17 +63,19 @@ pub enum UpdateRecipientListResponse {
     Response(RecipientListNode),
 }
 
-fn map_error(error: ServiceError) -> Result<UpdateRecipientListResponse> {
+fn map_error(error: ModifyRecipientListError) -> Result<UpdateRecipientListResponse> {
     use StandardGraphqlError::*;
     let formatted_error = format!("{:#?}", error);
 
     let graphql_error = match error {
         // Standard Graphql Errors
-        ServiceError::RecipientListDoesNotExist => BadUserInput(formatted_error),
-        ServiceError::RecipientListAlreadyExists => BadUserInput(formatted_error),
-        ServiceError::ModifiedRecordNotFound => InternalError(formatted_error),
-        ServiceError::DatabaseError(_) => InternalError(formatted_error),
-        ServiceError::GenericError(s) => InternalError(s),
+        ModifyRecipientListError::RecipientListDoesNotExist => BadUserInput(formatted_error),
+        ModifyRecipientListError::RecipientListAlreadyExists => BadUserInput(formatted_error),
+        ModifyRecipientListError::RecipientListMemberAlreadyExists => BadUserInput(formatted_error),
+        ModifyRecipientListError::RecipientListMemberDoesNotExist => BadUserInput(formatted_error),
+        ModifyRecipientListError::ModifiedRecordNotFound => InternalError(formatted_error),
+        ModifyRecipientListError::DatabaseError(_) => InternalError(formatted_error),
+        ModifyRecipientListError::GenericError(s) => InternalError(s),
     };
 
     Err(graphql_error.extend())

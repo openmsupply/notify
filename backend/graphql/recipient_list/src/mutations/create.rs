@@ -70,6 +70,8 @@ fn map_error(error: ModifyRecipientListError) -> Result<CreateRecipientListRespo
         // Standard Graphql Errors
         ModifyRecipientListError::RecipientListAlreadyExists => BadUserInput(formatted_error),
         ModifyRecipientListError::RecipientListDoesNotExist => BadUserInput(formatted_error),
+        ModifyRecipientListError::RecipientListMemberAlreadyExists => BadUserInput(formatted_error),
+        ModifyRecipientListError::RecipientListMemberDoesNotExist => BadUserInput(formatted_error),
         ModifyRecipientListError::DatabaseError(_) => InternalError(formatted_error),
         ModifyRecipientListError::ModifiedRecordNotFound => InternalError(formatted_error),
         ModifyRecipientListError::GenericError(s) => InternalError(s),

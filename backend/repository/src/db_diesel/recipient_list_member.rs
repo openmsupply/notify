@@ -15,6 +15,7 @@ pub type RecipientListMember = RecipientListMemberRow;
 #[derive(Clone, Default, Debug, PartialEq)]
 pub struct RecipientListMemberFilter {
     pub id: Option<EqualFilter<String>>,
+    pub recipient_id: Option<EqualFilter<String>>,
     pub recipient_list_id: Option<EqualFilter<String>>,
 }
 
@@ -79,20 +80,17 @@ fn create_filtered_query(filter: Option<RecipientListMemberFilter>) -> BoxedReci
     if let Some(f) = filter {
         let RecipientListMemberFilter {
             id,
+            recipient_id,
             recipient_list_id,
         } = f;
 
         apply_equal_filter!(query, id, recipient_list_member_dsl::id);
+        apply_equal_filter!(query, recipient_id, recipient_list_member_dsl::recipient_id);
         apply_equal_filter!(
             query,
             recipient_list_id,
             recipient_list_member_dsl::recipient_list_id
         );
-
-        // can i do subquery in service layer? rather than loader??
-        // I think service layer is better than here, so we can just query IDs if we need them
-        // but the service is the use case, where usually we will want the join
-        // will want search by name... can we do that filter in the service layer or is that problematic
     }
 
     query
@@ -105,6 +103,10 @@ impl RecipientListMemberFilter {
 
     pub fn id(mut self, filter: EqualFilter<String>) -> Self {
         self.id = Some(filter);
+        self
+    }
+    pub fn recipient_id(mut self, filter: EqualFilter<String>) -> Self {
+        self.recipient_id = Some(filter);
         self
     }
     pub fn recipient_list_id(mut self, filter: EqualFilter<String>) -> Self {
