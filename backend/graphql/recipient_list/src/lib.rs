@@ -84,6 +84,14 @@ impl RecipientListMutations {
     ) -> Result<DeleteRecipientListResponse> {
         delete_recipient_list(ctx, &recipient_list_id)
     }
+
+    async fn add_recipient_to_list(
+        &self,
+        ctx: &Context<'_>,
+        input: AddRecipientToListInput,
+    ) -> Result<AddRecipientToListResponse> {
+        add_recipient_to_list(ctx, input)
+    }
 }
 
 #[cfg(test)]
