@@ -6,11 +6,13 @@ use service::recipient_list::ModifyRecipientListError;
 mod add_member;
 mod create;
 mod delete;
+mod remove_member;
 mod update;
 
 pub use add_member::*;
 pub use create::*;
 pub use delete::*;
+pub use remove_member::*;
 pub use update::*;
 
 #[derive(Union)]
