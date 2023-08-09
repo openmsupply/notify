@@ -1,3 +1,5 @@
+pub mod recipient;
+pub use self::recipient::*;
 pub mod user_account;
 pub use self::user_account::*;
 pub mod log;

@@ -3,6 +3,7 @@
   "button.return-to-login": "Login",
   "button.send-password-reset": "Send Password Reset",
   "error.email-invalid": "Invalid email",
+  "error.no-recipient-list-members": "No Recipient List Members",
   "error.no-users": "No Users",
   "error.unknown-error": "Unknown Error",
   "error.username-invalid-characters": "Username must not contain any special characters or spaces",
@@ -25,9 +26,6 @@
   "label.update-contact": "Update Contact",
   "label.update-details": "Update Details",
   "label.update-profile": "Update Profile",
-  "text.no-description": "No description",
-  "text.no-website": "No website",
-  "not-logged-in": "Not logged in",
   "messages.error-deleting-generic_one": "{{count}} record could not be deleted",
   "messages.error-deleting-generic_other": "{{count}} records could not be deleted",
   "messages.password-excellent": "Excellent",
@@ -35,5 +33,9 @@
   "messages.password-notbad": "Not bad",
   "messages.password-poor": "Poor",
   "messages.password-weak": "Weak",
-  "password-reset.initiate": "Initiate Password Reset"
+  "not-logged-in": "Not logged in",
+  "password-reset.initiate": "Initiate Password Reset",
+  "text.no-description": "No description",
+  "text.no-website": "No website",
+  "tooltip.manage-recipient-list": "Manage Recipient List"
 }

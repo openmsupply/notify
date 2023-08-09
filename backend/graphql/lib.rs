@@ -12,6 +12,7 @@ use graphql_core::loader::LoaderRegistry;
 use graphql_core::{refresh_token_from_cookie, RefreshTokenData, SelfRequest};
 use graphql_general::GeneralQueries;
 
+use graphql_recipient::{RecipientMutations, RecipientQueries};
 use graphql_telegram::mutations::TelegramMutations;
 use graphql_telegram::TelegramQueries;
 use graphql_user_account::{UserAccountMutations, UserAccountQueries};
@@ -25,23 +26,27 @@ use tokio::sync::mpsc::Sender;
 
 #[derive(MergedObject, Default, Clone)]
 pub struct FullQuery(
+    
     pub GeneralQueries,
+   
     pub UserAccountQueries,
+    pub RecipientQueries,
+,
     pub TelegramQueries,
 );
 
 #[derive(MergedObject, Default, Clone)]
-pub struct FullMutation(pub UserAccountMutations, pub TelegramMutations);
+pub struct FullMutation(pub UserAccountMutations, pub RecipientMutations, pub TelegramMutations);
 
 pub type Schema = async_graphql::Schema<FullQuery, FullMutation, async_graphql::EmptySubscription>;
 type Builder = SchemaBuilder<FullQuery, FullMutation, EmptySubscription>;
 
 pub fn full_query() -> FullQuery {
-    FullQuery(GeneralQueries, UserAccountQueries, TelegramQueries)
+    FullQuery(GeneralQueries, UserAccountQueries, RecipientQueries, TelegramQueries)
 }
 
 pub fn full_mutation() -> FullMutation {
-    FullMutation(UserAccountMutations, TelegramMutations)
+    FullMutation(UserAccountMutations)
 }
 
 pub fn schema_builder() -> Builder {
