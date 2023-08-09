@@ -1,4 +1,7 @@
-use repository::{RecipientRow, RecipientRowRepository, RepositoryError, StorageConnection};
+use repository::{
+    EqualFilter, RecipientFilter, RecipientRepository, RecipientRow, RecipientRowRepository,
+    RepositoryError, StorageConnection, StringFilter,
+};
 
 pub fn check_recipient_exists(
     id: &str,
@@ -14,4 +17,23 @@ pub fn check_recipient_does_not_exist(
     let recipient = check_recipient_exists(id, connection)?;
 
     Ok(recipient.is_none())
+}
+
+pub fn check_to_address_is_unique(
+    id: &str,
+    to_address: Option<String>,
+    connection: &StorageConnection,
+) -> Result<bool, RepositoryError> {
+    match to_address {
+        None => Ok(true),
+        Some(to_address) => {
+            let recipients = RecipientRepository::new(connection).query_by_filter(
+                RecipientFilter::new()
+                    .to_address(StringFilter::equal_to(&to_address.trim().to_lowercase()))
+                    .id(EqualFilter::not_equal_to(id)),
+            )?;
+
+            Ok(recipients.is_empty())
+        }
+    }
 }

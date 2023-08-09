@@ -16,7 +16,7 @@ pub fn create_recipient(
     let user = validate_auth(
         ctx,
         &ResourceAccessRequest {
-            resource: Resource::MutateRecipients,
+            resource: Resource::ServerAdmin,
         },
     )?;
 

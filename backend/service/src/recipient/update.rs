@@ -1,15 +1,16 @@
-use super::{query::get_recipient, validate::check_recipient_exists, ModifyRecipientError};
+use super::{
+    query::get_recipient,
+    validate::{check_recipient_exists, check_to_address_is_unique},
+    ModifyRecipientError,
+};
 use crate::{audit_log::audit_log_entry, service_provider::ServiceContext};
 use chrono::Utc;
-use repository::{
-    LogType, NotificationType, Recipient, RecipientRow, RecipientRowRepository, StorageConnection,
-};
+use repository::{LogType, Recipient, RecipientRow, RecipientRowRepository, StorageConnection};
 
 #[derive(Clone)]
 pub struct UpdateRecipient {
     pub id: String,
     pub name: Option<String>,
-    pub notification_type: Option<NotificationType>,
     pub to_address: Option<String>,
 }
 
@@ -47,6 +48,14 @@ pub fn validate(
         None => return Err(ModifyRecipientError::RecipientDoesNotExist),
     };
 
+    if !check_to_address_is_unique(
+        &new_recipient.id,
+        new_recipient.to_address.clone(),
+        connection,
+    )? {
+        return Err(ModifyRecipientError::RecipientAlreadyExists);
+    }
+
     Ok(recipient_row)
 }
 
@@ -54,7 +63,6 @@ pub fn generate(
     UpdateRecipient {
         id: _id, //ID is already used for look up so we can assume it's the same
         name,
-        notification_type,
         to_address,
     }: UpdateRecipient,
     current_recipient_row: RecipientRow,
@@ -62,9 +70,6 @@ pub fn generate(
     let mut new_recipient_row = current_recipient_row;
     if let Some(name) = name {
         new_recipient_row.name = name.trim().to_string();
-    }
-    if let Some(notification_type) = notification_type {
-        new_recipient_row.notification_type = notification_type;
     }
     if let Some(to_address) = to_address {
         new_recipient_row.to_address = to_address.trim().to_ascii_lowercase();

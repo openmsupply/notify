@@ -31,7 +31,7 @@ impl RecipientQueries {
         let user = validate_auth(
             ctx,
             &ResourceAccessRequest {
-                resource: Resource::QueryRecipients,
+                resource: Resource::ServerAdmin,
             },
         )?;
 
@@ -171,7 +171,7 @@ mod test {
                 rows: vec![Recipient {
                     id: "test_id".to_string(),
                     name: "test_name".to_string(),
-                    to_address: "email@x.com".to_string(), //TODO don't return passwords !
+                    to_address: "email@x.com".to_string(),
                     notification_type: NotificationType::Email,
                 }],
                 count: 1,
@@ -235,7 +235,7 @@ mod test {
             RecipientQueries,
             EmptyMutation,
             "test_graphql_recipient_inputs",
-            MockDataInserts::all(),
+            MockDataInserts::none(),
         )
         .await;
 

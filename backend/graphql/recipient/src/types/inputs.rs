@@ -1,7 +1,10 @@
 use async_graphql::{Enum, InputObject};
-use graphql_core::{generic_filters::EqualFilterStringInput, map_filter};
+use graphql_core::{
+    generic_filters::{EqualFilterStringInput, StringFilterInput},
+    map_filter,
+};
 use graphql_types::types::NotificationTypeNode;
-use repository::{EqualFilter, RecipientFilter, RecipientSort, RecipientSortField};
+use repository::{EqualFilter, RecipientFilter, RecipientSort, RecipientSortField, StringFilter};
 
 #[derive(Enum, Copy, Clone, PartialEq, Eq)]
 #[graphql(rename_items = "camelCase")]
@@ -45,6 +48,7 @@ impl RecipientSortInput {
 pub struct RecipientFilterInput {
     pub id: Option<EqualFilterStringInput>,
     pub search: Option<String>,
+    pub to_address: Option<StringFilterInput>,
     pub notification_type: Option<EqualFilterNotificationTypeInput>,
 }
 
@@ -52,6 +56,7 @@ impl From<RecipientFilterInput> for RecipientFilter {
     fn from(f: RecipientFilterInput) -> Self {
         RecipientFilter {
             id: f.id.map(EqualFilter::from),
+            to_address: f.to_address.map(StringFilter::from),
             notification_type: f
                 .notification_type
                 .map(|t| map_filter!(t, NotificationTypeNode::to_domain)),

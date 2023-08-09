@@ -123,7 +123,7 @@ mod recipient_query_test {
         let context = ServiceContext::new(service_provider).unwrap();
         let service = &context.service_provider.recipient_service;
 
-        let db_recipients = service
+        let to_address_search_db_recipients = service
             .get_recipients(
                 &context,
                 None,
@@ -135,9 +135,37 @@ mod recipient_query_test {
             )
             .unwrap();
 
-        assert_eq!(db_recipients.count, 2);
-        assert_eq!(db_recipients.rows[0].name, "recipient_a".to_string());
-        assert_eq!(db_recipients.rows[1].name, "recipient_aa".to_string());
+        assert_eq!(to_address_search_db_recipients.count, 2);
+        assert_eq!(
+            to_address_search_db_recipients.rows[0].to_address,
+            "a@openmsupply.foundation".to_string()
+        );
+        assert_eq!(
+            to_address_search_db_recipients.rows[1].to_address,
+            "aa@openmsupply.foundation".to_string()
+        );
+
+        let name_search_db_recipients = service
+            .get_recipients(
+                &context,
+                None,
+                Some(RecipientFilter {
+                    search: Some("recipient_a".to_string()),
+                    ..Default::default()
+                }),
+                None,
+            )
+            .unwrap();
+
+        assert_eq!(name_search_db_recipients.count, 2);
+        assert_eq!(
+            name_search_db_recipients.rows[0].name,
+            "recipient_a".to_string()
+        );
+        assert_eq!(
+            name_search_db_recipients.rows[1].name,
+            "recipient_aa".to_string()
+        );
     }
 
     #[actix_rt::test]

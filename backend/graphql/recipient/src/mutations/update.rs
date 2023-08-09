@@ -4,11 +4,11 @@ use graphql_core::{
     standard_graphql_error::{validate_auth, StandardGraphqlError},
     ContextExt,
 };
-use graphql_types::types::{NotificationTypeNode, RecipientNode};
+use graphql_types::types::RecipientNode;
 use service::{
     auth::{Resource, ResourceAccessRequest},
     recipient::update::UpdateRecipient,
-    recipient::ModifyRecipientError as ServiceError,
+    recipient::ModifyRecipientError,
 };
 
 pub fn update_recipient(
@@ -18,7 +18,7 @@ pub fn update_recipient(
     let user = validate_auth(
         ctx,
         &ResourceAccessRequest {
-            resource: Resource::MutateRecipients,
+            resource: Resource::ServerAdmin,
         },
     )?;
 
@@ -40,7 +40,6 @@ pub struct UpdateRecipientInput {
     pub id: String,
     pub name: Option<String>,
     pub to_address: Option<String>,
-    pub notification_type: Option<NotificationTypeNode>,
 }
 
 impl From<UpdateRecipientInput> for UpdateRecipient {
@@ -49,16 +48,12 @@ impl From<UpdateRecipientInput> for UpdateRecipient {
             id,
             name,
             to_address,
-            notification_type,
         }: UpdateRecipientInput,
     ) -> Self {
-        let notification_type = notification_type.map(NotificationTypeNode::to_domain);
-
         UpdateRecipient {
             id,
             name,
             to_address,
-            notification_type,
         }
     }
 }
@@ -68,17 +63,17 @@ pub enum UpdateRecipientResponse {
     Response(RecipientNode),
 }
 
-fn map_error(error: ServiceError) -> Result<UpdateRecipientResponse> {
+fn map_error(error: ModifyRecipientError) -> Result<UpdateRecipientResponse> {
     use StandardGraphqlError::*;
     let formatted_error = format!("{:#?}", error);
 
     let graphql_error = match error {
         // Standard Graphql Errors
-        ServiceError::RecipientDoesNotExist => BadUserInput(formatted_error),
-        ServiceError::RecipientAlreadyExists => BadUserInput(formatted_error),
-        ServiceError::ModifiedRecordNotFound => InternalError(formatted_error),
-        ServiceError::DatabaseError(_) => InternalError(formatted_error),
-        ServiceError::GenericError(s) => InternalError(s),
+        ModifyRecipientError::RecipientDoesNotExist => BadUserInput(formatted_error),
+        ModifyRecipientError::RecipientAlreadyExists => BadUserInput(formatted_error),
+        ModifyRecipientError::ModifiedRecordNotFound => InternalError(formatted_error),
+        ModifyRecipientError::DatabaseError(_) => InternalError(formatted_error),
+        ModifyRecipientError::GenericError(s) => InternalError(s),
     };
 
     Err(graphql_error.extend())
@@ -146,7 +141,6 @@ mod test {
                     id
                     name
                     toAddress
-                    notificationType
                   }
             }
           }

@@ -18,7 +18,7 @@ pub fn update_recipient_list(
     let user = validate_auth(
         ctx,
         &ResourceAccessRequest {
-            resource: Resource::MutateRecipientLists,
+            resource: Resource::ServerAdmin,
         },
     )?;
 
