@@ -1,6 +1,10 @@
-use super::{dataloader::DataLoader, LogNode};
+use super::{dataloader::DataLoader, LogNode, RecipientNode};
 use async_graphql::{Context, Object, SimpleObject, Union};
-use graphql_core::{loader::AuditLogLoader, simple_generic_errors::NodeError, ContextExt};
+use graphql_core::{
+    loader::{AuditLogLoader, RecipientLoader},
+    simple_generic_errors::NodeError,
+    ContextExt,
+};
 use repository::RecipientList;
 use service::{usize_to_u32, ListResult};
 
@@ -43,6 +47,19 @@ impl RecipientListNode {
             .unwrap_or_default();
 
         Ok(result.into_iter().map(LogNode::from_domain).collect())
+    }
+
+    pub async fn recipients(
+        &self,
+        ctx: &Context<'_>,
+    ) -> Result<Vec<RecipientNode>, async_graphql::Error> {
+        let loader = ctx.get_loader::<DataLoader<RecipientLoader>>();
+        let result = loader
+            .load_one(self.row().id.to_string())
+            .await?
+            .unwrap_or_default();
+
+        Ok(result.into_iter().map(RecipientNode::from_domain).collect())
     }
 }
 
