@@ -68,7 +68,7 @@ pub fn queue_user_invite_email(
     params: &UserInviteParams,
     reset_token: &str,
 ) -> Result<(), EmailServiceError> {
-    let server_url = ctx.service_provider.settings.server.app_url.clone();
+    let server_url = ctx.app_url.clone();
 
     let verify_account_url = format!("{}/verify-account?token={}", server_url, reset_token);
 

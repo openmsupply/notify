@@ -429,7 +429,7 @@ mod permission_validation_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::new(service_provider).unwrap();
+        let context = ServiceContext::new(service_provider.clone()).unwrap();
         let permission_repo = UserPermissionRowRepository::new(&context.connection);
 
         let mut service = AuthService::new();

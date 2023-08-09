@@ -75,7 +75,7 @@ pub fn validate_auth(
 
     let service_ctx = ctx.service_context(None)?;
 
-    let result = service_ctx.service_provider.validation_service.validate(
+    let result = ctx.service_provider().validation_service.validate(
         &service_ctx,
         &auth_context,
         access_request,

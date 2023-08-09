@@ -10,13 +10,13 @@ use crate::{
 };
 
 use super::{
-    create::CreateUserAccount,
+    create::{create_user_account, CreateUserAccount},
     email::{
         password_reset::queue_password_reset_email,
         user_invite::{queue_user_invite_email, UserInviteParams},
         user_welcome::{queue_user_welcome_email, UserWelcomeParams},
     },
-    update::UpdateUserAccount,
+    update::{update_user_account, UpdateUserAccount},
     ModifyUserAccountError,
 };
 
@@ -233,10 +233,7 @@ pub fn initiate_user_invite(
         permissions: input.permissions.clone(),
     };
 
-    let user = ctx
-        .service_provider
-        .user_account_service
-        .create_user_account(ctx, user)?;
+    let user = create_user_account(ctx, user)?;
 
     // Save password reset token to database
     repo.set_password_reset_token(&user.id, &token, &now)
@@ -282,10 +279,7 @@ pub fn accept_user_invite(
         permissions: None,
     };
 
-    let mut user = ctx
-        .service_provider
-        .user_account_service
-        .update_user_account(ctx, user)?;
+    let mut user = update_user_account(ctx, user)?;
 
     // Clear the password reset token
     user.password_reset_datetime = None;
@@ -424,13 +418,12 @@ mod password_test {
         let service_provider = Arc::new(service_provider_with_mock_email_service(
             &connection_manager,
         ));
-        let ctx = ServiceContext::new(service_provider).unwrap();
+        let ctx = ServiceContext::new(service_provider.clone()).unwrap();
 
         let user_id = mock_data["base"].user_accounts[1].id.clone();
 
         // Create a password reset token using user_id
-        let result = ctx
-            .service_provider
+        let result = service_provider
             .user_account_service
             .initiate_password_reset(&ctx, &user_id);
 
@@ -448,13 +441,13 @@ mod password_test {
         let service_provider = Arc::new(service_provider_with_mock_email_service(
             &connection_manager,
         ));
-        let ctx = ServiceContext::new(service_provider).unwrap();
+        let ctx = ServiceContext::new(service_provider.clone()).unwrap();
 
         let mock_user_accounts = mock_data["base"].user_accounts.clone();
         let user_email = mock_user_accounts[0].email.clone().unwrap();
 
         // Create a password reset token using email address
-        ctx.service_provider
+        service_provider
             .user_account_service
             .initiate_password_reset(&ctx, &user_email)
             .unwrap();
@@ -464,7 +457,7 @@ mod password_test {
         let user = repo.find_one_by_email(&user_email).unwrap().unwrap();
 
         // Test that the reset token is cleared after successful reset
-        ctx.service_provider
+        service_provider
             .user_account_service
             .reset_password(&ctx, &user.password_reset_token.unwrap(), "password")
             .unwrap();
@@ -477,7 +470,7 @@ mod password_test {
         user.password_reset_datetime = Some(NaiveDateTime::from_timestamp_opt(0, 0)).unwrap(); // Using Oldest possible timestamp, it must be expired :)
         repo.update_one(&user).unwrap();
 
-        let result = ctx.service_provider.user_account_service.reset_password(
+        let result = service_provider.user_account_service.reset_password(
             &ctx,
             &user.password_reset_token.unwrap(),
             "password",
@@ -497,35 +490,26 @@ mod password_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let ctx = ServiceContext::new(service_provider).unwrap();
+        let ctx = ServiceContext::new(service_provider.clone()).unwrap();
 
         let mock_user_accounts = mock_data["base"].user_accounts.clone();
         let user_email = mock_user_accounts[0].email.clone().unwrap();
 
         // Check that an invalid token returns an error
-        let result = ctx
-            .service_provider
-            .user_account_service
-            .validate_password_reset_token(&ctx, "invalid_token");
+        let result = validate_password_reset_token(&ctx, "invalid_token");
         assert!(result.is_err());
 
         // Check that a valid token returns no error
 
         // Create a password reset token
-        let _result = ctx
-            .service_provider
-            .user_account_service
-            .initiate_password_reset(&ctx, &user_email);
+        let _result = initiate_password_reset(&ctx, &user_email);
 
         // Get reset token from database
         let repo = UserAccountRowRepository::new(&ctx.connection);
         let user = repo.find_one_by_email(&user_email).unwrap().unwrap();
 
         // Validate Token
-        let result = ctx
-            .service_provider
-            .user_account_service
-            .validate_password_reset_token(&ctx, &user.password_reset_token.unwrap());
+        let result = validate_password_reset_token(&ctx, &user.password_reset_token.unwrap());
 
         assert!(result.is_ok());
     }
@@ -542,15 +526,12 @@ mod password_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let ctx = ServiceContext::new(service_provider).unwrap();
+        let ctx = ServiceContext::new(service_provider.clone()).unwrap();
 
         let mock_user_accounts = mock_data["base"].user_accounts.clone();
         let user_email = mock_user_accounts[0].email.clone().unwrap();
 
-        let _result = ctx
-            .service_provider
-            .user_account_service
-            .initiate_password_reset(&ctx, &user_email);
+        let _result = initiate_password_reset(&ctx, &user_email);
         // Check that the password reset token is set in the database
         let repo = UserAccountRowRepository::new(&ctx.connection);
         let updated_user_account = repo.find_one_by_email(&user_email).unwrap().unwrap();
@@ -567,8 +548,8 @@ mod password_test {
             connection_manager,
             get_test_settings(&settings.database_name),
         ));
-        let context = ServiceContext::as_server_admin(service_provider).unwrap();
-        let service = &context.service_provider.user_account_service;
+        let context = ServiceContext::as_server_admin(service_provider.clone()).unwrap();
+        let service = &service_provider.user_account_service;
 
         // create a test user
         let username = "testuser";
@@ -639,10 +620,9 @@ mod password_test {
             display_name: "New User".to_string(),
         };
 
-        let ctx = ServiceContext::with_user(service_provider, inviting_user.id).unwrap();
+        let ctx = ServiceContext::with_user(service_provider.clone(), inviting_user.id).unwrap();
 
-        let result = ctx
-            .service_provider
+        let result = service_provider
             .user_account_service
             .initiate_user_invite(&ctx, invite_data.clone());
 
@@ -677,10 +657,9 @@ mod password_test {
             display_name: "New User".to_string(),
         };
 
-        let ctx = ServiceContext::with_user(service_provider, inviting_user.id).unwrap();
+        let ctx = ServiceContext::with_user(service_provider.clone(), inviting_user.id).unwrap();
 
-        let result = ctx
-            .service_provider
+        let result = service_provider
             .user_account_service
             .initiate_user_invite(&ctx, invite_data.clone());
 
@@ -702,22 +681,20 @@ mod password_test {
 
         // Check that an invalid token is not accepted
 
-        let result = ctx
-            .service_provider
-            .user_account_service
-            .accept_user_invite(&ctx, "InvalidToken", accept_data.clone());
+        let result = service_provider.user_account_service.accept_user_invite(
+            &ctx,
+            "InvalidToken",
+            accept_data.clone(),
+        );
         assert!(result.is_err());
 
         // Check that a valid token is accepted
 
-        let result = ctx
-            .service_provider
-            .user_account_service
-            .accept_user_invite(
-                &ctx,
-                new_user_account.password_reset_token.as_ref().unwrap(),
-                accept_data.clone(),
-            );
+        let result = service_provider.user_account_service.accept_user_invite(
+            &ctx,
+            new_user_account.password_reset_token.as_ref().unwrap(),
+            accept_data.clone(),
+        );
         assert!(result.is_ok());
 
         // Check that the user account is updated in the database

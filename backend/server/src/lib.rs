@@ -1,7 +1,6 @@
 use crate::{
     configuration::get_or_create_token_secret, cors::cors_policy,
-    scheduled_tasks::scheduled_task_runner, serve_frontend::config_server_frontend,
-    static_files::config_static_files,
+    serve_frontend::config_server_frontend, static_files::config_static_files,
 };
 
 use self::middleware::{compress as compress_middleware, logger as logger_middleware};
@@ -14,6 +13,7 @@ use repository::{get_storage_connection_manager, run_db_migrations, StorageConne
 
 use service::{
     auth_data::AuthData,
+    email::periodically_send_queued_emails,
     service_provider::{ServiceContext, ServiceProvider},
     settings::{is_develop, ServerSettings, Settings},
     token_bucket::TokenBucket,
@@ -30,7 +30,6 @@ pub mod configuration;
 pub mod cors;
 pub mod environment;
 pub mod middleware;
-mod scheduled_tasks;
 mod serve_frontend;
 pub mod static_files;
 
@@ -84,8 +83,10 @@ async fn run_server(
         }
     };
 
+    let email_service_sp = service_provider_data.clone().into_inner();
     let scheduled_task_handle = actix_web::rt::spawn(async move {
-        scheduled_task_runner(scheduled_task_context).await;
+        periodically_send_queued_emails(&email_service_sp.email_service, scheduled_task_context)
+            .await;
     });
 
     let mut http_server = HttpServer::new(move || {

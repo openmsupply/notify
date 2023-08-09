@@ -36,8 +36,8 @@ impl UserAccountQueries {
 
         let service_context = ctx.service_context(Some(&user))?;
 
-        let user_accounts = service_context
-            .service_provider
+        let user_accounts = ctx
+            .service_provider()
             .user_account_service
             .get_user_accounts(
                 &service_context,

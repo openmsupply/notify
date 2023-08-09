@@ -21,8 +21,8 @@ pub fn me(ctx: &Context<'_>) -> Result<UserResponse> {
     )?;
 
     let service_ctx = ctx.service_context(Some(&user))?;
-    let user = match service_ctx
-        .service_provider
+    let user = match ctx
+        .service_provider()
         .user_account_service
         .get_user_account(&service_ctx, user.user_id)
     {

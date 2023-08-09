@@ -86,7 +86,7 @@ pub fn queue_password_reset_email(
     users: Vec<UserAccount>,
 ) -> Result<(), EmailServiceError> {
     // NOTE: Even though this takes an array of users, it should only ever be called for a single email address as only 1 email will be sent
-    let server_url = ctx.service_provider.settings.server.app_url.clone();
+    let server_url = ctx.app_url.clone();
     let password_reset_base_url = format!("{}/password-reset?token=", server_url);
 
     let users: Vec<PasswordResetUser> = users.into_iter().map(|u| u.into()).collect();

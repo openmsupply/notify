@@ -15,7 +15,7 @@ use crate::{
         JWTIssuingError, TokenPair, TokenService, DEFAULT_REFRESH_TOKEN_EXPIRY,
         DEFAULT_TOKEN_EXPIRY,
     },
-    user_account::passwords::VerifyPasswordError,
+    user_account::passwords::{verify_password, VerifyPasswordError},
 };
 
 #[derive(Debug)]
@@ -80,11 +80,7 @@ impl LoginService {
         input: LoginInput,
     ) -> Result<TokenPair, LoginError> {
         let mut service_ctx = ServiceContext::new(service_provider.clone())?;
-        let user_account = match service_ctx
-            .service_provider
-            .user_account_service
-            .verify_password(&service_ctx, &input.username, &input.password)
-        {
+        let user_account = match verify_password(&service_ctx, &input.username, &input.password) {
             Ok(user) => user,
             Err(err) => {
                 return Err(match err {

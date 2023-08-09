@@ -22,8 +22,8 @@ mod user_account_create_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::new(service_provider).unwrap();
-        let service = &context.service_provider.user_account_service;
+        let context = ServiceContext::new(service_provider.clone()).unwrap();
+        let service = &service_provider.user_account_service;
 
         //Create for a user_id that already exists (Should use update in this case)
         assert_eq!(
@@ -123,8 +123,8 @@ mod user_account_create_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::as_server_admin(service_provider).unwrap();
-        let service = &context.service_provider.user_account_service;
+        let context = ServiceContext::as_server_admin(service_provider.clone()).unwrap();
+        let service = &service_provider.user_account_service;
 
         let new_user_id = uuid();
         let new_password = "%A_Nice_Long_Secure_PA55W0RD!".to_string();
@@ -195,8 +195,8 @@ mod user_account_create_test {
             connection_manager,
             get_test_settings(""),
         ));
-        let context = ServiceContext::as_server_admin(service_provider).unwrap();
-        let service = &context.service_provider.user_account_service;
+        let context = ServiceContext::as_server_admin(service_provider.clone()).unwrap();
+        let service = &service_provider.user_account_service;
         let permission_repo = UserPermissionRepository::new(&connection);
 
         let new_user_id = uuid();
