@@ -9,6 +9,8 @@ pub mod diesel_schema;
 mod email_queue_row;
 mod filter_sort_pagination;
 mod key_value_store;
+mod recipient;
+mod recipient_row;
 mod storage_connection;
 mod user_account;
 mod user_account_row;
@@ -19,17 +21,19 @@ pub use audit_log_row::*;
 pub use email_queue_row::*;
 pub use filter_sort_pagination::*;
 pub use key_value_store::*;
+pub use recipient::*;
+pub use recipient_row::*;
 pub use storage_connection::*;
 pub use user_account::*;
 pub use user_account_row::*;
+pub use user_permission::*;
+pub use user_permission_row::*;
 
 use diesel::{
     prelude::*,
     r2d2::{ConnectionManager, Pool, PooledConnection},
     result::{DatabaseErrorKind as DieselDatabaseErrorKind, Error as DieselError},
 };
-pub use user_permission::*;
-pub use user_permission_row::*;
 
 pub type DBBackendConnection = SqliteConnection;
 
