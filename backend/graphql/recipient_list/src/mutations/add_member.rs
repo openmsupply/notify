@@ -6,7 +6,6 @@ use graphql_types::types::RecipientListNode;
 use service::{
     auth::{Resource, ResourceAccessRequest},
     recipient_list::{add_member::AddRecipientToList, ModifyRecipientListError},
-    SingleRecordError,
 };
 
 pub fn add_recipient_to_list(
@@ -31,7 +30,7 @@ pub fn add_recipient_to_list(
                 Ok(recipient_list_row) => Ok(ModifyRecipientListResponse::Response(
                     RecipientListNode::from_domain(recipient_list_row),
                 )),
-                Err(error) => map_error(map_query_error(error)),
+                Err(error) => map_error(ModifyRecipientListError::from(error)),
             }
         }
         Err(error) => map_error(error),
@@ -59,13 +58,4 @@ impl From<AddRecipientToListInput> for AddRecipientToList {
             recipient_list_id,
         }
     }
-}
-
-fn map_query_error(error: SingleRecordError) -> ModifyRecipientListError {
-    let modify_error = match error {
-        SingleRecordError::DatabaseError(db_err) => ModifyRecipientListError::DatabaseError(db_err),
-        SingleRecordError::NotFound(_) => ModifyRecipientListError::ModifiedRecordNotFound,
-    };
-
-    modify_error
 }
