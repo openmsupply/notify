@@ -14,7 +14,7 @@ mod recipient_list_delete_test {
     async fn recipient_list_service_delete_errors() {
         let (_, _, connection_manager, _) = setup_all(
             "recipient_list_service_delete_errors",
-            MockDataInserts::all(),
+            MockDataInserts::none(),
         )
         .await;
 

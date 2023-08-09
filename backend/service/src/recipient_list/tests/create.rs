@@ -15,7 +15,7 @@ mod recipient_list_create_test {
     async fn create_recipient_list_service_errors() {
         let (mock_data, _, connection_manager, _) = setup_all(
             "create_recipient_list_service_errors",
-            MockDataInserts::all(),
+            MockDataInserts::none().recipient_lists(),
         )
         .await;
 
@@ -44,7 +44,7 @@ mod recipient_list_create_test {
     async fn create_recipient_list_service_success() {
         let (_, _, connection_manager, _) = setup_all(
             "create_recipient_list_service_success",
-            MockDataInserts::all(),
+            MockDataInserts::none(),
         )
         .await;
 
