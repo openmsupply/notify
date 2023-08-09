@@ -3,10 +3,10 @@ use async_graphql::*;
 use super::{map_error, ModifyRecipientListResponse};
 use graphql_core::{standard_graphql_error::validate_auth, ContextExt};
 use graphql_types::types::RecipientListNode;
-use repository::RecipientList;
 use service::{
     auth::{Resource, ResourceAccessRequest},
-    recipient_list::add_member::AddRecipientToList,
+    recipient_list::{add_member::AddRecipientToList, ModifyRecipientListError},
+    SingleRecordError,
 };
 
 pub fn add_recipient_to_list(
@@ -21,18 +21,19 @@ pub fn add_recipient_to_list(
     )?;
 
     let service_context = ctx.service_context(Some(&user))?;
-    match service_context
-        .service_provider
-        .recipient_list_service
-        .add_recipient_to_list(&service_context, input.into())
-    {
-        Ok(recipient_list_member) => Ok(ModifyRecipientListResponse::Response(
-            // TODO: what do we wanna do here hm
-            RecipientListNode::from_domain(RecipientList {
-                id: recipient_list_member.recipient_list_id.clone(),
-                ..Default::default()
-            }),
-        )),
+
+    let service = &service_context.service_provider.recipient_list_service;
+
+    match service.add_recipient_to_list(&service_context, input.into()) {
+        Ok(member) => {
+            // This is a recipient list mutation - if successful, we query for and return the recipient list node
+            match service.get_recipient_list(&service_context, member.recipient_list_id.clone()) {
+                Ok(recipient_list_row) => Ok(ModifyRecipientListResponse::Response(
+                    RecipientListNode::from_domain(recipient_list_row),
+                )),
+                Err(error) => map_error(map_query_error(error)),
+            }
+        }
         Err(error) => map_error(error),
     }
 }
@@ -58,4 +59,13 @@ impl From<AddRecipientToListInput> for AddRecipientToList {
             recipient_list_id,
         }
     }
+}
+
+fn map_query_error(error: SingleRecordError) -> ModifyRecipientListError {
+    let modify_error = match error {
+        SingleRecordError::DatabaseError(db_err) => ModifyRecipientListError::DatabaseError(db_err),
+        SingleRecordError::NotFound(_) => ModifyRecipientListError::ModifiedRecordNotFound,
+    };
+
+    modify_error
 }

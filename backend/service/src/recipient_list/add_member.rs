@@ -28,7 +28,6 @@ pub fn add_recipient_to_list(
 
             repo.insert_one(&new_recipient_list_member_row)?;
 
-            // TODO: check now exists
             match repo
                 .find_one_by_id(&new_recipient_list_member_row.id)
                 .map_err(ModifyRecipientListError::from)?
