@@ -85,6 +85,7 @@ pub enum ModifyRecipientListError {
     RecipientListDoesNotExist,
     RecipientListMemberAlreadyExists,
     RecipientListMemberDoesNotExist,
+    RecipientDoesNotExist,
     GenericError(String),
 }
 
@@ -109,6 +110,10 @@ impl PartialEq for ModifyRecipientListError {
             (
                 ModifyRecipientListError::RecipientListDoesNotExist,
                 ModifyRecipientListError::RecipientListDoesNotExist,
+            ) => true,
+            (
+                ModifyRecipientListError::RecipientDoesNotExist,
+                ModifyRecipientListError::RecipientDoesNotExist,
             ) => true,
             (
                 ModifyRecipientListError::RecipientListMemberDoesNotExist,

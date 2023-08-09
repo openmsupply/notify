@@ -1,5 +1,8 @@
-use super::{validate::check_recipient_list_member_does_not_exist, ModifyRecipientListError};
-use crate::service_provider::ServiceContext;
+use super::{
+    validate::{check_recipient_list_exists, check_recipient_list_member_does_not_exist},
+    ModifyRecipientListError,
+};
+use crate::{recipient::validate::check_recipient_exists, service_provider::ServiceContext};
 
 use repository::{
     RecipientListMember, RecipientListMemberRow, RecipientListMemberRowRepository,
@@ -52,6 +55,16 @@ pub fn validate(
     new_member: &AddRecipientToList,
     connection: &StorageConnection,
 ) -> Result<(), ModifyRecipientListError> {
+    match check_recipient_exists(&new_member.recipient_id, connection)? {
+        Some(_) => (),
+        None => return Err(ModifyRecipientListError::RecipientDoesNotExist),
+    };
+
+    match check_recipient_list_exists(&new_member.recipient_list_id, connection)? {
+        Some(_) => (),
+        None => return Err(ModifyRecipientListError::RecipientListDoesNotExist),
+    };
+
     if !check_recipient_list_member_does_not_exist(
         &new_member.recipient_id,
         &new_member.recipient_list_id,
