@@ -2,28 +2,9 @@ use std::time::Duration;
 
 use serde_json;
 
-use serde::{Deserialize, Serialize};
+use crate::{TelegramChat, TelegramMessage};
 
 const DEFAULT_REQUEST_TIMEOUT: u64 = 60;
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct TelegramChat {
-    pub id: serde_json::Value,
-    pub title: String,
-    pub r#type: String,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct TelegramUser {
-    pub username: Option<String>,
-}
-#[derive(Debug, Deserialize, Serialize)]
-pub struct TelegramMessage {
-    pub message_id: serde_json::Value,
-    pub text: String,
-    pub from: TelegramUser,
-    pub chat: TelegramChat,
-}
 
 pub struct TelegramClient {
     http_client: reqwest::Client,
@@ -237,13 +218,28 @@ mod test {
         let name = client.get_name().await;
         if !name.is_ok() {
             println!(
-                "Unable to get name of bot, your environment might not be setup: {:?}",
+                "Unable to get name of bot, your environment might not be setup correctly: {:?}",
                 name
             );
         }
 
         assert!(name.is_ok());
         println!("My name is {}", name.unwrap());
+    }
+
+    #[tokio::test]
+    async fn test_get_chat() {
+        let client = TelegramClient::new(get_telegram_token_from_env());
+        let chat = client.get_chat(&get_telegram_chat_id_from_env()).await;
+        if !chat.is_ok() {
+            println!(
+                "Unable to get chat, your environment might not be setup correctly: {:?}",
+                chat
+            );
+        }
+
+        assert!(chat.is_ok());
+        println!("Chat is {:?}", chat.unwrap());
     }
 
     #[tokio::test]

@@ -18,7 +18,7 @@ impl From<TelegramMessage> for TelegramMessageNode {
     fn from(message: TelegramMessage) -> Self {
         TelegramMessageNode {
             username: message.from.username.unwrap_or_default(),
-            message: message.text,
+            message: message.text.unwrap_or_default(),
             chat_name: message.chat.title,
             chat_id: message.chat.id.to_string(),
         }

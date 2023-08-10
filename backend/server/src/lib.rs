@@ -26,7 +26,7 @@ use std::{
 };
 use tokio::sync::{oneshot, Mutex};
 
-use telegram::{service::get_updates_poller::get_updates_poller, TelegramClient};
+use telegram::{service::poll_get_updates, TelegramClient, TelegramUpdate};
 
 pub mod configuration;
 pub mod cors;
@@ -88,14 +88,25 @@ async fn run_server(
         scheduled_task_runner(scheduled_task_context).await;
     });
 
+    // Setup a channel to receive telegram messages, which we want to handle in recipient service
+    const TELEGRAM_UPDATE_BUFFER_SIZE: usize = 8;
+    let (tx, mut rx) = tokio::sync::mpsc::channel::<TelegramUpdate>(TELEGRAM_UPDATE_BUFFER_SIZE);
+
     let telegram_token = config_settings.clone().telegram.token;
     let telegram_client_handle = actix_web::rt::spawn(async move {
         if let Some(telegram_token) = telegram_token {
             let telegram_client = TelegramClient::new(telegram_token);
             log::info!("Starting Telegram Client Polling");
-            get_updates_poller(&telegram_client).await;
+            poll_get_updates(&telegram_client, &tx).await;
         } else {
             log::info!("Telegram Client not configured");
+        }
+    });
+
+    // TODO : Handle telegram messages in recipient service
+    let telegram_update_handler = actix_web::rt::spawn(async move {
+        while let Some(update) = rx.recv().await {
+            log::info!("Received Telegram Update: {:?}", update);
         }
     });
 
@@ -140,6 +151,7 @@ async fn run_server(
     };
 
     server_handle.stop(true).await;
+    telegram_update_handler.abort();
     telegram_client_handle.abort();
     scheduled_task_handle.abort();
     Ok(restart)
