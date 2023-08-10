@@ -68,9 +68,7 @@ pub fn validate(
         return Err(ModifyRecipientListError::RecipientListAlreadyExists);
     }
 
-    // TODO
-    // list name has no special chars?
-    // length constraints?
+    // TODO length constraints?
 
     Ok(())
 }
