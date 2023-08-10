@@ -3,7 +3,8 @@ use async_graphql::{Context, Enum, Object, SimpleObject, Union};
 use graphql_core::{loader::AuditLogLoader, simple_generic_errors::NodeError, ContextExt};
 use repository::{NotificationType, Recipient};
 use serde::Serialize;
-use service::{usize_to_u32, ListResult};
+use service::ListResult;
+use util::usize_to_u32;
 
 #[derive(Union)]
 pub enum RecipientsResponse {

@@ -217,7 +217,7 @@ mod test {
                 rows: vec![UserAccount {
                     id: "test_id".to_string(),
                     username: "test_username".to_string(),
-                    hashed_password: "test_password".to_string(), //TODO don't return passwords !
+                    hashed_password: "test_password".to_string(),
                     email: None,
                     display_name: "test_username".to_string(),
                     password_reset_token: None,
