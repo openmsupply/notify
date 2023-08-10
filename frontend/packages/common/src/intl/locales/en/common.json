@@ -87,6 +87,7 @@
   "label.line": "Line {{line, number}}",
   "label.line-total": "Line total",
   "label.log": "Log",
+  "label.manage": "Manage",
   "label.message": "Message",
   "label.months_one": "month",
   "label.months_other": "months",

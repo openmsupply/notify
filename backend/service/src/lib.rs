@@ -11,6 +11,7 @@ pub mod auth_data;
 pub mod email;
 pub mod filters;
 pub mod login;
+pub mod recipient;
 pub mod service_provider;
 pub mod settings;
 pub mod static_files;
