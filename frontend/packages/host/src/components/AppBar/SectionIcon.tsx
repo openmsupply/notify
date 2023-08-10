@@ -7,7 +7,6 @@ import {
   SuppliersIcon,
   Tooltip,
   useLocation,
-  UserIcon,
   UsersIcon,
   useTranslation,
 } from '@notify-frontend/common';
@@ -26,20 +25,13 @@ const getIcon = (section?: AppRoute) => {
       return <SettingsIcon color="primary" fontSize="small" />;
     case AppRoute.Recipients:
       return <SuppliersIcon color="primary" fontSize="small" />;
-    case AppRoute.MyAccount:
-      return <UserIcon color="primary" fontSize="small" />;
     default:
       return undefined;
   }
 };
 
 const getSection = (): Section | undefined => {
-  const routes = [
-    AppRoute.UserAccounts,
-    AppRoute.Admin,
-    AppRoute.MyAccount,
-    AppRoute.Recipients,
-  ];
+  const routes = [AppRoute.UserAccounts, AppRoute.Admin, AppRoute.Recipients];
   const location = useLocation();
 
   for (let i = 0; i < routes.length; i++) {
