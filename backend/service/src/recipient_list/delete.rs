@@ -1,7 +1,8 @@
 use super::validate::check_recipient_list_exists;
 use crate::service_provider::ServiceContext;
 use repository::{
-    RecipientListRow, RecipientListRowRepository, RepositoryError, StorageConnection,
+    RecipientListMemberRowRepository, RecipientListRow, RecipientListRowRepository,
+    RepositoryError, StorageConnection,
 };
 
 #[derive(PartialEq, Debug)]
@@ -19,13 +20,23 @@ pub fn delete_recipient_list(
         .transaction_sync(|connection| {
             let recipient_list_row = validate(connection, recipient_list_id)?;
 
+            let member_repo = RecipientListMemberRowRepository::new(connection);
             let recipient_list_repo = RecipientListRowRepository::new(connection);
-            match recipient_list_repo.delete(recipient_list_id) {
-                Ok(_) => {}
+
+            match member_repo.delete_all_for_recipient_list_id(recipient_list_id) {
+                Ok(_) => {
+                    match recipient_list_repo.delete(recipient_list_id) {
+                        Ok(_) => {}
+                        Err(err) => {
+                            return Err(DeleteRecipientListError::from(err));
+                        }
+                    };
+                }
                 Err(err) => {
                     return Err(DeleteRecipientListError::from(err));
                 }
             };
+
             Ok(recipient_list_row)
         })
         .map_err(|error| error.to_inner_error())?;

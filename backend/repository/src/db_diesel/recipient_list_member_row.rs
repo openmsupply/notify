@@ -66,5 +66,15 @@ impl<'a> RecipientListMemberRowRepository<'a> {
         Ok(result)
     }
 
-    // TODO: delete all by list id
+    pub fn delete_all_for_recipient_list_id(
+        &self,
+        recipient_list_id: &str,
+    ) -> Result<(), RepositoryError> {
+        diesel::delete(
+            recipient_list_member_dsl::recipient_list_member
+                .filter(recipient_list_member_dsl::recipient_list_id.eq(recipient_list_id)),
+        )
+        .execute(&self.connection.connection)?;
+        Ok(())
+    }
 }

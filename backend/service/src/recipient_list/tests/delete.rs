@@ -3,7 +3,10 @@ mod recipient_list_delete_test {
     use std::sync::Arc;
 
     use repository::{mock::MockDataInserts, test_db::setup_all};
-    use repository::{EqualFilter, RecipientListFilter, RecipientListRepository};
+    use repository::{
+        EqualFilter, RecipientListFilter, RecipientListMemberFilter, RecipientListMemberRepository,
+        RecipientListRepository,
+    };
 
     use crate::recipient_list::delete::DeleteRecipientListError;
     use crate::service_provider::ServiceContext;
@@ -35,7 +38,7 @@ mod recipient_list_delete_test {
     async fn recipient_list_service_delete_success() {
         let (_, _, connection_manager, _) = setup_all(
             "recipient_list_service_delete_success",
-            MockDataInserts::none().recipient_lists(),
+            MockDataInserts::none().recipient_list_members(),
         )
         .await;
 
@@ -57,6 +60,15 @@ mod recipient_list_delete_test {
             recipient_list_repository
                 .query_by_filter(
                     RecipientListFilter::new().id(EqualFilter::equal_to("id_recipient_list_b"))
+                )
+                .unwrap(),
+            vec![]
+        );
+        assert_eq!(
+            RecipientListMemberRepository::new(&connection)
+                .query_by_filter(
+                    RecipientListMemberFilter::new()
+                        .recipient_list_id(EqualFilter::equal_to("id_recipient_list_b"))
                 )
                 .unwrap(),
             vec![]
