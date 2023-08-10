@@ -248,7 +248,7 @@ mod test {
         client
             .send_html_message(
                 &get_telegram_chat_id_from_env(),
-                "<a href=\"https://www.msupply.foundation\">Visit the mSupply Foundation Website</a>",
+                "This is a test message from Notify. Find out more by about notify by <a href=\"https://www.msupply.foundation\">Visiting the mSupply Foundation Website</a>",
             )
             .await
             .unwrap();

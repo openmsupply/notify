@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 
 // Get a telegram id from a struct as a String
 // This should be a derive macro eventually, but one thing at at time!
-trait TelegramId {
+pub trait TelegramId {
     fn id(&self) -> String;
 }
 

@@ -84,4 +84,16 @@ impl<'a> RecipientRowRepository<'a> {
             .optional()?;
         Ok(result)
     }
+    pub fn find_one_by_to_address_and_type(
+        &self,
+        address: &str,
+        notification_type: NotificationType,
+    ) -> Result<Option<RecipientRow>, RepositoryError> {
+        let result = recipient_dsl::recipient
+            .filter(recipient_dsl::to_address.eq(address))
+            .filter(recipient_dsl::notification_type.eq(notification_type))
+            .first(&self.connection.connection)
+            .optional()?;
+        Ok(result)
+    }
 }

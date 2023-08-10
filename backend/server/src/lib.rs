@@ -14,6 +14,7 @@ use repository::{get_storage_connection_manager, run_db_migrations, StorageConne
 
 use service::{
     auth_data::AuthData,
+    recipient::telegram::handle_telegram_updates,
     service_provider::{ServiceContext, ServiceProvider},
     settings::{is_develop, ServerSettings, Settings},
     token_bucket::TokenBucket,
@@ -90,7 +91,7 @@ async fn run_server(
 
     // Setup a channel to receive telegram messages, which we want to handle in recipient service
     const TELEGRAM_UPDATE_BUFFER_SIZE: usize = 8;
-    let (tx, mut rx) = tokio::sync::mpsc::channel::<TelegramUpdate>(TELEGRAM_UPDATE_BUFFER_SIZE);
+    let (tx, rx) = tokio::sync::mpsc::channel::<TelegramUpdate>(TELEGRAM_UPDATE_BUFFER_SIZE);
 
     let telegram_token = config_settings.clone().telegram.token;
     let telegram_client_handle = actix_web::rt::spawn(async move {
@@ -103,12 +104,24 @@ async fn run_server(
         }
     });
 
-    // TODO : Handle telegram messages in recipient service
-    let telegram_update_handler = actix_web::rt::spawn(async move {
-        while let Some(update) = rx.recv().await {
-            log::info!("Received Telegram Update: {:?}", update);
+    // Handle telegram updates in recipient service
+    let telegram_update_context = ServiceContext::new(service_provider_data.clone().into_inner());
+    let telegram_update_context = match telegram_update_context {
+        Ok(telegram_update_context) => telegram_update_context,
+        Err(error) => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                format!(
+                    "Error unable to create telegram update task context: {:?}",
+                    error
+                ),
+            ));
         }
-    });
+    };
+    let telegram_update_handler =
+        actix_web::rt::spawn(
+            async move { handle_telegram_updates(telegram_update_context, rx).await },
+        );
 
     let http_server_config_settings = config_settings.clone();
     let mut http_server = HttpServer::new(move || {
