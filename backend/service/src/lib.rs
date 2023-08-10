@@ -125,9 +125,3 @@ pub fn get_default_pagination(
 
     Ok(result)
 }
-
-#[derive(Debug, PartialEq)]
-pub struct InputWithResult<I, R> {
-    pub input: I,
-    pub result: R,
-}
