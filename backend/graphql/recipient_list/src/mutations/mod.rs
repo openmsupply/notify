@@ -27,6 +27,7 @@ pub fn map_error(error: ModifyRecipientListError) -> Result<ModifyRecipientListR
         // Standard Graphql Errors
         ModifyRecipientListError::RecipientListDoesNotExist => BadUserInput(formatted_error),
         ModifyRecipientListError::RecipientListAlreadyExists => BadUserInput(formatted_error),
+        ModifyRecipientListError::InvalidRecipientListName => BadUserInput(formatted_error),
         ModifyRecipientListError::RecipientDoesNotExist => BadUserInput(formatted_error),
         ModifyRecipientListError::RecipientListMemberAlreadyExists => BadUserInput(formatted_error),
         ModifyRecipientListError::RecipientListMemberDoesNotExist => BadUserInput(formatted_error),

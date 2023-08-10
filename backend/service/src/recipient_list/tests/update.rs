@@ -52,6 +52,19 @@ mod recipient_list_update_tests {
             ),
             Err(ModifyRecipientListError::RecipientListAlreadyExists)
         );
+
+        // Trying to update to a name with illegal characters should fail
+        assert_eq!(
+            service.update_recipient_list(
+                &context,
+                UpdateRecipientList {
+                    id: mock_data["base"].recipient_lists[0].id.clone(),
+                    name: Some("name'; DROP TABLE Students;--".to_string()),
+                    description: None,
+                },
+            ),
+            Err(ModifyRecipientListError::InvalidRecipientListName)
+        );
     }
     #[actix_rt::test]
     async fn recipient_list_service_update_success() {

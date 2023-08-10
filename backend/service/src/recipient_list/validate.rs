@@ -1,8 +1,19 @@
+use regex::Regex;
 use repository::{
     EqualFilter, RecipientListFilter, RecipientListMemberFilter, RecipientListMemberRepository,
     RecipientListMemberRow, RecipientListRepository, RecipientListRow, RecipientListRowRepository,
     RepositoryError, StorageConnection, StringFilter,
 };
+
+lazy_static! {
+    static ref SPECIAL_CHARS_RE: Regex = Regex::new(r"[^ 0-9A-Za-z_\-@.+:/]").unwrap();
+}
+
+pub fn check_list_name_doesnt_contain_special_characters(
+    string: &str,
+) -> Result<bool, RepositoryError> {
+    Ok(!SPECIAL_CHARS_RE.is_match(string.trim()))
+}
 
 pub fn check_recipient_list_exists(
     id: &str,

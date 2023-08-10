@@ -93,6 +93,7 @@ pub enum ModifyRecipientListError {
     ModifiedRecordNotFound,
     DatabaseError(RepositoryError),
     RecipientListDoesNotExist,
+    InvalidRecipientListName,
     RecipientListMemberAlreadyExists,
     RecipientListMemberDoesNotExist,
     RecipientDoesNotExist,
@@ -132,6 +133,10 @@ impl PartialEq for ModifyRecipientListError {
             (
                 ModifyRecipientListError::RecipientListMemberAlreadyExists,
                 ModifyRecipientListError::RecipientListMemberAlreadyExists,
+            ) => true,
+            (
+                ModifyRecipientListError::InvalidRecipientListName,
+                ModifyRecipientListError::InvalidRecipientListName,
             ) => true,
             _ => false,
         }

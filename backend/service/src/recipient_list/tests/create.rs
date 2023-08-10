@@ -39,7 +39,7 @@ mod recipient_list_create_test {
             Err(ModifyRecipientListError::RecipientListAlreadyExists)
         );
 
-        //Create for a name that already exists
+        // Create for a name that already exists
         assert_eq!(
             service.create_recipient_list(
                 &context,
@@ -50,6 +50,19 @@ mod recipient_list_create_test {
                 },
             ),
             Err(ModifyRecipientListError::RecipientListAlreadyExists)
+        );
+
+        // Create with an illegal name string
+        assert_eq!(
+            service.create_recipient_list(
+                &context,
+                CreateRecipientList {
+                    id: "some-new-id".to_string(),
+                    name: "name'; DROP TABLE Students;--".to_string(),
+                    description: "some-new-description".to_string(),
+                },
+            ),
+            Err(ModifyRecipientListError::InvalidRecipientListName)
         );
     }
 

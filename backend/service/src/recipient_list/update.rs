@@ -1,6 +1,9 @@
 use super::{
     query::get_recipient_list,
-    validate::{check_recipient_list_exists, check_recipient_list_name_is_unique},
+    validate::{
+        check_list_name_doesnt_contain_special_characters, check_recipient_list_exists,
+        check_recipient_list_name_is_unique,
+    },
     ModifyRecipientListError,
 };
 use crate::{audit_log::audit_log_entry, service_provider::ServiceContext};
@@ -47,6 +50,12 @@ pub fn validate(
     connection: &StorageConnection,
     new_recipient_list: &UpdateRecipientList,
 ) -> Result<RecipientListRow, ModifyRecipientListError> {
+    if let Some(list_name) = &new_recipient_list.name {
+        if !check_list_name_doesnt_contain_special_characters(list_name)? {
+            return Err(ModifyRecipientListError::InvalidRecipientListName);
+        }
+    }
+
     let recipient_list_row = match check_recipient_list_exists(&new_recipient_list.id, connection)?
     {
         Some(recipient_list_row) => recipient_list_row,

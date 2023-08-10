@@ -1,6 +1,9 @@
 use super::{
     query::get_recipient_list,
-    validate::{check_recipient_list_does_not_exist, check_recipient_list_name_is_unique},
+    validate::{
+        check_list_name_doesnt_contain_special_characters, check_recipient_list_does_not_exist,
+        check_recipient_list_name_is_unique,
+    },
     ModifyRecipientListError,
 };
 use crate::audit_log::audit_log_entry;
@@ -49,6 +52,10 @@ pub fn validate(
     new_recipient_list: &CreateRecipientList,
     connection: &StorageConnection,
 ) -> Result<(), ModifyRecipientListError> {
+    if !check_list_name_doesnt_contain_special_characters(&new_recipient_list.name)? {
+        return Err(ModifyRecipientListError::InvalidRecipientListName);
+    }
+
     if !check_recipient_list_does_not_exist(&new_recipient_list.id, connection)? {
         return Err(ModifyRecipientListError::RecipientListAlreadyExists);
     }
