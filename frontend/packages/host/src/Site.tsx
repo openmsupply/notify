@@ -16,7 +16,7 @@ import { AppDrawer, AppBar, Footer, NotFound } from './components';
 import { CommandK } from './CommandK';
 import { AppRoute } from '@notify-frontend/config';
 import { Settings } from './Admin/Settings';
-import { UserAccountRouter, MyAccountRouter } from './routers';
+import { UserAccountRouter } from './routers';
 import { RequireAuthentication } from './components/Navigation/RequireAuthentication';
 import { QueryErrorHandler } from './QueryErrorHandler';
 import { RecipientsRouter } from './routers/RecipientsRouter';
@@ -51,12 +51,6 @@ export const Site: FC = () => {
                     .addWildCard()
                     .build()}
                   element={<Settings />}
-                />
-                <Route
-                  path={RouteBuilder.create(AppRoute.MyAccount)
-                    .addWildCard()
-                    .build()}
-                  element={<MyAccountRouter />}
                 />
                 <Route
                   path={RouteBuilder.create(AppRoute.Recipients)
