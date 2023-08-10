@@ -89,7 +89,6 @@ pub struct SqliteConnectionOptions {
 impl diesel::r2d2::CustomizeConnection<SqliteConnection, diesel::r2d2::Error>
     for SqliteConnectionOptions
 {
-    //TODO: make relevant sqlite customisation settings configurable at runtime.
     fn on_acquire(&self, conn: &mut SqliteConnection) -> Result<(), diesel::r2d2::Error> {
         //Set busy_timeout first as setting WAL can generate busy during a write
         if let Some(d) = self.busy_timeout_ms {

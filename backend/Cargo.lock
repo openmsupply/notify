@@ -1112,6 +1112,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "database"
+version = "0.1.0"
+
+[[package]]
 name = "derive_more"
 version = "0.99.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"

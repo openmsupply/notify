@@ -8,5 +8,6 @@ members = [
     "util",
     "repository",
     "service",
-    "graphql"
+    "graphql",
+    "database",
 ]
