@@ -16,6 +16,7 @@
 
 /*
 Example API Polling responses
+https://core.telegram.org/bots/api#getupdates
 
 {
     "ok": true,
