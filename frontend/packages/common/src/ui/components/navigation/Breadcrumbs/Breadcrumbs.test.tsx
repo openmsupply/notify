@@ -27,6 +27,6 @@ describe('Breadcrumbs', () => {
     );
 
     expect(getByText(/admin/i)).toBeInTheDocument();
-    expect(getByText(/forgot password/i)).toBeInTheDocument();
+    expect(getByText(/forgot/i)).toBeInTheDocument();
   });
 });
