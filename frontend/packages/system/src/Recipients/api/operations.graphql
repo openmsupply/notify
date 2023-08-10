@@ -1,0 +1,24 @@
+fragment RecipientRow on RecipientNode {
+  __typename
+  id
+  name
+  to_address
+  description
+}
+
+query Recipients(
+  $filter: RecipientFilterInput
+  $page: PaginationInput
+  $sort: [RecipientSortInput!]
+) {
+  recipients(filter: $filter, page: $page, sort: $sort) {
+    __typename
+    ... on RecipientConnector {
+      __typename
+      totalCount
+      nodes {
+        ...RecipientRow
+      }
+    }
+  }
+}
