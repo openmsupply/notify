@@ -1,8 +1,10 @@
 /*
-   The telegram serviçe polls the telegram /getUpdates api and handle the following cases.
+   The telegram service polls the telegram /getUpdates api deserializes the messages (that is knows how to handle) and publishes them to a channel.
+
+   We expect to implement logic like this:
 
    A new chat_id is seen
-       - Create a new recipient for the chat id
+       - Create a new recipient for the chat id (via published update)
        - Send a welcome message to the chat (including the chat id for reference)
 
    An existing chat_id is seen (check if we need to update the chat name in the recipient)

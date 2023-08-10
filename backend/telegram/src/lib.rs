@@ -4,12 +4,15 @@ pub mod service;
 pub use client::*;
 use serde::{Deserialize, Serialize};
 
-// Rather than use a defined Telegram Client, we've implemented a minimal one in this crate.
-// The expectation is that as we need more functionality we can flesh out this infrastructure
+// Rather than use an existing Telegram Client, we've implemented a minimal one in this crate.
+// If we need more functionality we can flesh out this crate, or refactor using another library.
 // We use serde to deserialize the json responses from telegram into structs with fields relevant to our application
+//  - This comes with run-time risks if json can't be serialised. Hopefully the key edge cases are handled.
 
 // Get a telegram id from a struct as a String
-// This should be a derive macro eventually, but one thing at at time!
+// We store ids from telegram as a JSON::Value in the struct to reduce risk of deserialisation issues, but we generally want to use it as a String
+// (Telegram treats ids as a Numbers)
+// This could possibly be a derive macro eventually, but one thing at at time!
 pub trait TelegramId {
     fn id(&self) -> String;
 }
@@ -127,7 +130,7 @@ impl TelegramId for TelegramMessage {
                 }
             }
 */
-// TelegramMyChatMember is used to quickly add chatids when the bot is first added to a chat group
+// Note: TelegramMyChatMember is triggered when the bot is first added to a chat group
 #[derive(Debug, Deserialize, Serialize)]
 pub struct TelegramMyChatMember {
     pub chat: TelegramChat,
@@ -334,7 +337,82 @@ mod test {
             message.text,
             Some("@bot-name Can you tell me this chat_id please?".to_string())
         );
-        // TODO : Parse Entity stuff
+        // TODO : Parse Entity stuff to detect direct mentions for https://github.com/openmsupply/notify/issues/32
     }
-    // TODO : Test cases for TelegramUpdate impl (eg. chat())
+
+    #[test]
+    fn test_get_chat_impl() {
+        let json = r#"
+        {
+            "update_id": 794348060,
+            "message": {
+                "message_id": 43,
+                "from": {
+                    "id": 5068627745,
+                    "is_bot": false,
+                    "first_name": "Bob",
+                    "last_name": "Jones",
+                    "language_code": "en"
+                },
+                "chat": {
+                    "id": -903279238,
+                    "title": "Bob & notify (East)",
+                    "type": "group",
+                    "all_members_are_administrators": true
+                },
+                "date": 1691620356,
+                "new_chat_title": "Bob & notify (East)"
+            }
+        }
+        "#;
+
+        let update: super::TelegramUpdate = serde_json::from_str(json).unwrap();
+        let chat = update.chat().unwrap();
+        assert_eq!(chat.id, -903279238);
+        assert_eq!(chat.title, "Bob & notify (East)".to_string());
+
+        let json = r#"
+        {
+            "update_id": 794348060,
+            "my_chat_member": {
+                "chat": {
+                    "id": -903279238,
+                    "title": "Bob & notify (East)",
+                    "type": "group",
+                    "all_members_are_administrators": true
+                },
+                "from": {
+                    "id": 5068627745,
+                    "is_bot": false,
+                    "first_name": "Bob",
+                    "last_name": "Jones",
+                    "language_code": "en"
+                },
+                "date": 1691620356,
+                "old_chat_member": {
+                    "user": {
+                        "id": 6544022299,
+                        "is_bot": true,
+                        "first_name": "notify",
+                        "username": "notify"
+                    },
+                    "status": "left"
+                },
+                "new_chat_member": {
+                    "user": {
+                        "id": 6544022299,
+                        "is_bot": true,
+                        "first_name": "notify",
+                        "username": "notify"
+                    },
+                    "status": "member"
+                }
+            }
+        }"#;
+
+        let update = serde_json::from_str::<super::TelegramUpdate>(json).unwrap();
+        let chat = update.chat().unwrap();
+        assert_eq!(chat.id, -903279238);
+        assert_eq!(chat.title, "Bob & notify (East)".to_string());
+    }
 }

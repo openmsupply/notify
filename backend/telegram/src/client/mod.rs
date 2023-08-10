@@ -27,7 +27,6 @@ pub enum TelegramError {
 
 impl From<reqwest::Error> for TelegramError {
     fn from(error: reqwest::Error) -> TelegramError {
-        // TODO, revisit fatal vs non fatal errors?
         if error.is_timeout() {
             return TelegramError::Temporary(TemporaryErrorType::TimedOut(error.to_string()));
         }
