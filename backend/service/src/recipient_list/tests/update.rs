@@ -14,7 +14,7 @@ mod recipient_list_update_tests {
 
     #[actix_rt::test]
     async fn recipient_list_service_update_errors() {
-        let (_, _, connection_manager, _) = setup_all(
+        let (mock_data, _, connection_manager, _) = setup_all(
             "recipient_list_service_update_errors",
             MockDataInserts::none().recipient_lists(),
         )
@@ -38,6 +38,19 @@ mod recipient_list_update_tests {
                 },
             ),
             Err(ModifyRecipientListError::RecipientListDoesNotExist)
+        );
+
+        // Trying to update to a name that already exists should fail
+        assert_eq!(
+            service.update_recipient_list(
+                &context,
+                UpdateRecipientList {
+                    id: mock_data["base"].recipient_lists[0].id.clone(),
+                    name: Some(mock_data["base"].recipient_lists[1].name.clone()),
+                    description: None,
+                },
+            ),
+            Err(ModifyRecipientListError::RecipientListAlreadyExists)
         );
     }
     #[actix_rt::test]

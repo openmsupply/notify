@@ -1,6 +1,7 @@
 use repository::{
-    EqualFilter, RecipientListMemberFilter, RecipientListMemberRepository, RecipientListMemberRow,
-    RecipientListRow, RecipientListRowRepository, RepositoryError, StorageConnection,
+    EqualFilter, RecipientListFilter, RecipientListMemberFilter, RecipientListMemberRepository,
+    RecipientListMemberRow, RecipientListRepository, RecipientListRow, RecipientListRowRepository,
+    RepositoryError, StorageConnection, StringFilter,
 };
 
 pub fn check_recipient_list_exists(
@@ -17,6 +18,25 @@ pub fn check_recipient_list_does_not_exist(
     let recipient_list = check_recipient_list_exists(id, connection)?;
 
     Ok(recipient_list.is_none())
+}
+
+pub fn check_recipient_list_name_is_unique(
+    id: &str,
+    list_name: Option<String>,
+    connection: &StorageConnection,
+) -> Result<bool, RepositoryError> {
+    match list_name {
+        None => Ok(true),
+        Some(list_name) => {
+            let recipient_lists = RecipientListRepository::new(connection).query_by_filter(
+                RecipientListFilter::new()
+                    .name(StringFilter::equal_to(&list_name.trim().to_lowercase()))
+                    .id(EqualFilter::not_equal_to(id)),
+            )?;
+
+            Ok(recipient_lists.is_empty())
+        }
+    }
 }
 
 pub fn check_recipient_list_member_exists(

@@ -1,5 +1,6 @@
 use super::{
-    query::get_recipient_list, validate::check_recipient_list_does_not_exist,
+    query::get_recipient_list,
+    validate::{check_recipient_list_does_not_exist, check_recipient_list_name_is_unique},
     ModifyRecipientListError,
 };
 use crate::audit_log::audit_log_entry;
@@ -52,9 +53,16 @@ pub fn validate(
         return Err(ModifyRecipientListError::RecipientListAlreadyExists);
     }
 
+    if !check_recipient_list_name_is_unique(
+        &new_recipient_list.id,
+        Some(new_recipient_list.name.clone()),
+        connection,
+    )? {
+        return Err(ModifyRecipientListError::RecipientListAlreadyExists);
+    }
+
     // TODO
     // list name has no special chars?
-    // list name is also unique?
     // length constraints?
 
     Ok(())

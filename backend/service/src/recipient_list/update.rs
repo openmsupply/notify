@@ -1,5 +1,7 @@
 use super::{
-    query::get_recipient_list, validate::check_recipient_list_exists, ModifyRecipientListError,
+    query::get_recipient_list,
+    validate::{check_recipient_list_exists, check_recipient_list_name_is_unique},
+    ModifyRecipientListError,
 };
 use crate::{audit_log::audit_log_entry, service_provider::ServiceContext};
 use chrono::Utc;
@@ -50,6 +52,14 @@ pub fn validate(
         Some(recipient_list_row) => recipient_list_row,
         None => return Err(ModifyRecipientListError::RecipientListDoesNotExist),
     };
+
+    if !check_recipient_list_name_is_unique(
+        &new_recipient_list.id,
+        new_recipient_list.name.clone(),
+        connection,
+    )? {
+        return Err(ModifyRecipientListError::RecipientListAlreadyExists);
+    }
 
     Ok(recipient_list_row)
 }

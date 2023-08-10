@@ -38,6 +38,19 @@ mod recipient_list_create_test {
             ),
             Err(ModifyRecipientListError::RecipientListAlreadyExists)
         );
+
+        //Create for a name that already exists
+        assert_eq!(
+            service.create_recipient_list(
+                &context,
+                CreateRecipientList {
+                    id: "some-new-id".to_string(),
+                    name: mock_data["base"].recipient_lists[0].name.clone(),
+                    description: "nice new description".to_string(),
+                },
+            ),
+            Err(ModifyRecipientListError::RecipientListAlreadyExists)
+        );
     }
 
     #[actix_rt::test]
