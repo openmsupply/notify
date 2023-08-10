@@ -91,14 +91,15 @@ async fn run_server(
 
     // Setup a channel to receive telegram messages, which we want to handle in recipient service
     const TELEGRAM_UPDATE_BUFFER_SIZE: usize = 8;
-    let (tx, rx) = tokio::sync::mpsc::channel::<TelegramUpdate>(TELEGRAM_UPDATE_BUFFER_SIZE);
+    let (telegram_update_tx, telegram_update_rx) =
+        tokio::sync::mpsc::channel::<TelegramUpdate>(TELEGRAM_UPDATE_BUFFER_SIZE);
 
     let telegram_token = config_settings.clone().telegram.token;
     let telegram_client_handle = actix_web::rt::spawn(async move {
         if let Some(telegram_token) = telegram_token {
             let telegram_client = TelegramClient::new(telegram_token);
             log::info!("Starting Telegram Client Polling");
-            poll_get_updates(&telegram_client, &tx).await;
+            poll_get_updates(&telegram_client, &telegram_update_tx).await;
         } else {
             log::info!("Telegram Client not configured");
         }
@@ -118,10 +119,9 @@ async fn run_server(
             ));
         }
     };
-    let telegram_update_handler =
-        actix_web::rt::spawn(
-            async move { handle_telegram_updates(telegram_update_context, rx).await },
-        );
+    let telegram_update_handler = actix_web::rt::spawn(async move {
+        handle_telegram_updates(telegram_update_context, telegram_update_rx).await
+    });
 
     let http_server_config_settings = config_settings.clone();
     let mut http_server = HttpServer::new(move || {
