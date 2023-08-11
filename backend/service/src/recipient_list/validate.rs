@@ -6,7 +6,7 @@ use repository::{
 };
 
 lazy_static! {
-    static ref SPECIAL_CHARS_RE: Regex = Regex::new(r"[^ 0-9A-Za-z_\-@.+:/]").unwrap();
+    static ref SPECIAL_CHARS_RE: Regex = Regex::new(r"[^ 0-9A-Za-z_\-@.+:/()]").unwrap();
 }
 
 pub fn check_list_name_doesnt_contain_special_characters(
@@ -75,4 +75,46 @@ pub fn check_recipient_list_member_does_not_exist(
         check_recipient_list_member_exists(recipient_id, recipient_list_id, connection)?;
 
     Ok(list_member.is_none())
+}
+
+#[cfg(test)]
+mod test {
+    use super::check_list_name_doesnt_contain_special_characters;
+
+    fn list_name_char_test(name: &str, expected: bool) -> Result<(), String> {
+        let result = check_list_name_doesnt_contain_special_characters(name).unwrap();
+        if result != expected {
+            Err(format!(
+                "check_list_name_doesnt_contain_special_characters {} result: {}, expected: {}",
+                name, result, expected
+            ))
+        } else {
+            Ok(())
+        }
+    }
+
+    #[test]
+    fn test_good_names() -> Result<(), String> {
+        [
+            "admins",
+            "Team A",
+            "  Team 42 ",
+            "Supervisors (Area 3)",
+            "Friends: The close ones",
+            "Monitors - fridges",
+        ]
+        .iter()
+        .try_for_each(|name| list_name_char_test(*name, true))?;
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_bad_names() -> Result<(), String> {
+        ["admi%", "Team A'); DROP TABLE Students;--"]
+            .iter()
+            .try_for_each(|name| list_name_char_test(*name, false))?;
+
+        Ok(())
+    }
 }
