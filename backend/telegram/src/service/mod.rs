@@ -187,7 +187,7 @@ Example API Polling responses
 */
 
 use crate::{TelegramClient, TelegramUpdate};
-use log;
+use log::{self};
 
 static TELEGRAM_POLL_TIMEOUT_SECONDS: i64 = 30;
 static ERROR_SLEEP_SECONDS: u64 = 10;
@@ -197,7 +197,7 @@ pub async fn poll_get_updates(
     tx_updates: &tokio::sync::mpsc::Sender<TelegramUpdate>,
 ) {
     // BTW : Might be a good idea to persist last_update_id to the KV store so we can pickup from where we left off on a restart?
-    let mut last_update_id: i64 = -2;
+    let mut last_update_id = None;
 
     loop {
         let updates = telegram_client
@@ -208,7 +208,7 @@ pub async fn poll_get_updates(
                 let num = updates.len();
                 log::debug!("Got {} updates", num);
                 if num > 0 {
-                    last_update_id = handle_json_updates(updates, tx_updates).await;
+                    last_update_id = Some(handle_json_updates(updates, tx_updates).await);
                 }
             }
             Err(error) => {
