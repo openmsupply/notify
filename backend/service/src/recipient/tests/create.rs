@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod recipient_create_test {
+    use repository::mock::mock_recipient_a;
     use repository::{mock::MockDataInserts, test_db::setup_all};
     use repository::{NotificationType, RecipientRowRepository};
     use std::sync::Arc;
@@ -13,7 +14,7 @@ mod recipient_create_test {
     use crate::test_utils::get_test_settings;
     #[actix_rt::test]
     async fn create_recipient_service_errors() {
-        let (mock_data, _, connection_manager, _) = setup_all(
+        let (_, _, connection_manager, _) = setup_all(
             "create_recipient_service_errors",
             MockDataInserts::none().recipients(),
         )
@@ -31,7 +32,7 @@ mod recipient_create_test {
             service.create_recipient(
                 &context,
                 CreateRecipient {
-                    id: mock_data["base"].recipients[0].id.clone(),
+                    id: mock_recipient_a().id.clone(),
                     name: "some name".to_string(),
                     to_address: "some@address.com".to_string(),
                     notification_type: NotificationType::Email,
@@ -47,7 +48,7 @@ mod recipient_create_test {
                 CreateRecipient {
                     id: "some-new-id".to_string(),
                     name: "some name".to_string(),
-                    to_address: mock_data["base"].recipients[0].to_address.clone(),
+                    to_address: mock_recipient_a().to_address.clone(),
                     notification_type: NotificationType::Email,
                 },
             ),

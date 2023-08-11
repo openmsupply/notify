@@ -1,5 +1,9 @@
 #[cfg(test)]
 mod recipient_list_member_remove_test {
+    use repository::mock::{
+        mock_recipient_a, mock_recipient_list_with_no_members,
+        mock_recipient_list_with_recipient_members_a_and_b,
+    };
     use repository::{mock::MockDataInserts, test_db::setup_all};
     use repository::{EqualFilter, RecipientListMemberFilter, RecipientListMemberRepository};
     use std::sync::Arc;
@@ -12,7 +16,7 @@ mod recipient_list_member_remove_test {
     use crate::test_utils::get_test_settings;
     #[actix_rt::test]
     async fn remove_recipient_from_list_service_errors() {
-        let (mock_data, _, connection_manager, _) = setup_all(
+        let (_, _, connection_manager, _) = setup_all(
             "remove_recipient_from_list_service_errors",
             MockDataInserts::none(),
         )
@@ -25,14 +29,13 @@ mod recipient_list_member_remove_test {
         let context = ServiceContext::new(service_provider).unwrap();
         let service = &context.service_provider.recipient_list_service;
 
-        // Add removing recipient from list it is not a part of
+        // removing recipient from list it is not a part of
         assert_eq!(
             service.remove_recipient_from_list(
                 &context,
                 RemoveRecipientFromList {
-                    // No mock data set up, so recipent[0] not in recipient_list[0]
-                    recipient_id: mock_data["base"].recipients[0].id.clone(),
-                    recipient_list_id: mock_data["base"].recipient_lists[0].id.clone(),
+                    recipient_id: mock_recipient_a().id.clone(),
+                    recipient_list_id: mock_recipient_list_with_no_members().id.clone(),
                 },
             ),
             Err(ModifyRecipientListError::RecipientListMemberDoesNotExist)
@@ -41,7 +44,7 @@ mod recipient_list_member_remove_test {
 
     #[actix_rt::test]
     async fn remove_recipient_from_list_service_success() {
-        let (mock_data, _, connection_manager, _) = setup_all(
+        let (_, _, connection_manager, _) = setup_all(
             "remove_recipient_from_list_service_success",
             MockDataInserts::none().recipient_list_members(),
         )
@@ -59,9 +62,10 @@ mod recipient_list_member_remove_test {
         let result = service.remove_recipient_from_list(
             &context,
             RemoveRecipientFromList {
-                // as per mock data setup, recipient[0] is part of recipient_list[0]
-                recipient_id: mock_data["base"].recipients[0].id.clone(),
-                recipient_list_id: mock_data["base"].recipient_lists[0].id.clone(),
+                recipient_id: mock_recipient_a().id.clone(),
+                recipient_list_id: mock_recipient_list_with_recipient_members_a_and_b()
+                    .id
+                    .clone(),
             },
         );
 
@@ -74,9 +78,9 @@ mod recipient_list_member_remove_test {
             recipient_list_member_repository
                 .query_by_filter(
                     RecipientListMemberFilter::new()
-                        .recipient_id(EqualFilter::equal_to(&mock_data["base"].recipients[0].id))
+                        .recipient_id(EqualFilter::equal_to(&mock_recipient_a().id))
                         .recipient_list_id(EqualFilter::equal_to(
-                            &mock_data["base"].recipient_lists[0].id,
+                            &mock_recipient_list_with_recipient_members_a_and_b().id,
                         )),
                 )
                 .unwrap(),

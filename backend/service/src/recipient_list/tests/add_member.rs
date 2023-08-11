@@ -1,5 +1,8 @@
 #[cfg(test)]
 mod recipient_list_member_add_test {
+    use repository::mock::{
+        mock_recipient_a, mock_recipient_list_c, mock_recipient_list_with_recipient_members_a_and_b,
+    };
     use repository::{mock::MockDataInserts, test_db::setup_all};
     use repository::{EqualFilter, RecipientListMemberFilter, RecipientListMemberRepository};
     use std::sync::Arc;
@@ -12,7 +15,7 @@ mod recipient_list_member_add_test {
     use crate::test_utils::get_test_settings;
     #[actix_rt::test]
     async fn add_recipient_to_list_service_errors() {
-        let (mock_data, _, connection_manager, _) = setup_all(
+        let (_, _, connection_manager, _) = setup_all(
             "add_recipient_to_list_service_errors",
             MockDataInserts::none().recipient_list_members(),
         )
@@ -31,7 +34,7 @@ mod recipient_list_member_add_test {
                 &context,
                 AddRecipientToList {
                     recipient_id: "some-unknown-id".to_string(),
-                    recipient_list_id: mock_data["base"].recipient_lists[0].id.clone(),
+                    recipient_list_id: mock_recipient_list_c().id.clone(),
                 },
             ),
             Err(ModifyRecipientListError::RecipientDoesNotExist)
@@ -42,7 +45,7 @@ mod recipient_list_member_add_test {
             service.add_recipient_to_list(
                 &context,
                 AddRecipientToList {
-                    recipient_id: mock_data["base"].recipients[0].id.clone(),
+                    recipient_id: mock_recipient_a().id.clone(),
                     recipient_list_id: "some-unknown-id".to_string(),
                 },
             ),
@@ -54,11 +57,9 @@ mod recipient_list_member_add_test {
             service.add_recipient_to_list(
                 &context,
                 AddRecipientToList {
-                    recipient_id: mock_data["base"].recipient_list_members[0]
-                        .recipient_id
-                        .clone(),
-                    recipient_list_id: mock_data["base"].recipient_list_members[0]
-                        .recipient_list_id
+                    recipient_id: mock_recipient_a().id.clone(),
+                    recipient_list_id: mock_recipient_list_with_recipient_members_a_and_b()
+                        .id
                         .clone(),
                 },
             ),
@@ -68,7 +69,7 @@ mod recipient_list_member_add_test {
 
     #[actix_rt::test]
     async fn add_recipient_to_list_service_success() {
-        let (mock_data, _, connection_manager, _) = setup_all(
+        let (_, _, connection_manager, _) = setup_all(
             "add_recipient_to_list_service_success",
             MockDataInserts::none().recipients().recipient_lists(),
         )
@@ -86,8 +87,8 @@ mod recipient_list_member_add_test {
         let result = service.add_recipient_to_list(
             &context,
             AddRecipientToList {
-                recipient_id: mock_data["base"].recipients[0].id.clone(),
-                recipient_list_id: mock_data["base"].recipient_lists[0].id.clone(),
+                recipient_id: mock_recipient_a().id.clone(),
+                recipient_list_id: mock_recipient_list_c().id.clone(),
             },
         );
 
@@ -99,17 +100,12 @@ mod recipient_list_member_add_test {
         let result = recipient_list_member_repository
             .query_one(
                 RecipientListMemberFilter::new()
-                    .recipient_id(EqualFilter::equal_to(&mock_data["base"].recipients[0].id))
-                    .recipient_list_id(EqualFilter::equal_to(
-                        &mock_data["base"].recipient_lists[0].id,
-                    )),
+                    .recipient_id(EqualFilter::equal_to(&mock_recipient_a().id))
+                    .recipient_list_id(EqualFilter::equal_to(&mock_recipient_list_c().id)),
             )
             .unwrap();
 
         // RecipientListMember now exists
-        assert_eq!(
-            result.unwrap().recipient_id,
-            mock_data["base"].recipients[0].id.clone()
-        );
+        assert_eq!(result.unwrap().recipient_id, mock_recipient_a().id.clone());
     }
 }

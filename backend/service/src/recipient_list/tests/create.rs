@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod recipient_list_create_test {
+    use repository::mock::mock_recipient_list_c;
     use repository::RecipientListRowRepository;
     use repository::{mock::MockDataInserts, test_db::setup_all};
     use std::sync::Arc;
@@ -13,7 +14,7 @@ mod recipient_list_create_test {
     use crate::test_utils::get_test_settings;
     #[actix_rt::test]
     async fn create_recipient_list_service_errors() {
-        let (mock_data, _, connection_manager, _) = setup_all(
+        let (_, _, connection_manager, _) = setup_all(
             "create_recipient_list_service_errors",
             MockDataInserts::none().recipient_lists(),
         )
@@ -31,9 +32,9 @@ mod recipient_list_create_test {
             service.create_recipient_list(
                 &context,
                 CreateRecipientList {
-                    id: mock_data["base"].recipient_lists[0].id.clone(),
-                    name: mock_data["base"].recipient_lists[0].name.clone(),
-                    description: mock_data["base"].recipient_lists[0].description.clone(),
+                    id: mock_recipient_list_c().id.clone(),
+                    name: mock_recipient_list_c().name.clone(),
+                    description: mock_recipient_list_c().description.clone(),
                 },
             ),
             Err(ModifyRecipientListError::RecipientListAlreadyExists)
@@ -45,7 +46,7 @@ mod recipient_list_create_test {
                 &context,
                 CreateRecipientList {
                     id: "some-new-id".to_string(),
-                    name: mock_data["base"].recipient_lists[0].name.clone(),
+                    name: mock_recipient_list_c().name.clone(),
                     description: "nice new description".to_string(),
                 },
             ),

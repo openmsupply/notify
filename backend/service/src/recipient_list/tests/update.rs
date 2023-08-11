@@ -3,6 +3,7 @@ mod recipient_list_update_tests {
 
     use std::sync::Arc;
 
+    use repository::mock::{mock_recipient_list_c, mock_recipient_list_with_no_members};
     use repository::{mock::MockDataInserts, test_db::setup_all};
 
     use crate::recipient_list::create::CreateRecipientList;
@@ -14,7 +15,7 @@ mod recipient_list_update_tests {
 
     #[actix_rt::test]
     async fn recipient_list_service_update_errors() {
-        let (mock_data, _, connection_manager, _) = setup_all(
+        let (_, _, connection_manager, _) = setup_all(
             "recipient_list_service_update_errors",
             MockDataInserts::none().recipient_lists(),
         )
@@ -45,8 +46,8 @@ mod recipient_list_update_tests {
             service.update_recipient_list(
                 &context,
                 UpdateRecipientList {
-                    id: mock_data["base"].recipient_lists[0].id.clone(),
-                    name: Some(mock_data["base"].recipient_lists[1].name.clone()),
+                    id: mock_recipient_list_with_no_members().id.clone(),
+                    name: Some(mock_recipient_list_c().name.clone()),
                     description: None,
                 },
             ),
@@ -58,7 +59,7 @@ mod recipient_list_update_tests {
             service.update_recipient_list(
                 &context,
                 UpdateRecipientList {
-                    id: mock_data["base"].recipient_lists[0].id.clone(),
+                    id: mock_recipient_list_c().id.clone(),
                     name: Some("name'; DROP TABLE Students;--".to_string()),
                     description: None,
                 },
