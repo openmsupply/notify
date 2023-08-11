@@ -16,6 +16,7 @@ use graphql_core::{refresh_token_from_cookie, RefreshTokenData, SelfRequest};
 use graphql_general::GeneralQueries;
 
 use graphql_recipient::{RecipientMutations, RecipientQueries};
+use graphql_recipient_list::{RecipientListMutations, RecipientListQueries};
 use graphql_user_account::{UserAccountMutations, UserAccountQueries};
 
 use logger::{RequestLogger, ResponseLogger};
@@ -30,20 +31,34 @@ pub struct FullQuery(
     pub GeneralQueries,
     pub UserAccountQueries,
     pub RecipientQueries,
+    pub RecipientListQueries,
 );
 
 #[derive(MergedObject, Default, Clone)]
-pub struct FullMutation(pub UserAccountMutations, pub RecipientMutations);
+pub struct FullMutation(
+    pub UserAccountMutations,
+    pub RecipientMutations,
+    pub RecipientListMutations,
+);
 
 pub type Schema = async_graphql::Schema<FullQuery, FullMutation, async_graphql::EmptySubscription>;
 type Builder = SchemaBuilder<FullQuery, FullMutation, EmptySubscription>;
 
 pub fn full_query() -> FullQuery {
-    FullQuery(GeneralQueries, UserAccountQueries, RecipientQueries)
+    FullQuery(
+        GeneralQueries,
+        UserAccountQueries,
+        RecipientQueries,
+        RecipientListQueries,
+    )
 }
 
 pub fn full_mutation() -> FullMutation {
-    FullMutation(UserAccountMutations, RecipientMutations)
+    FullMutation(
+        UserAccountMutations,
+        RecipientMutations,
+        RecipientListMutations,
+    )
 }
 
 pub fn schema_builder() -> Builder {

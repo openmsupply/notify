@@ -16,6 +16,7 @@ graphql_types = { path = "types" }
 graphql_general = { path = "general" }
 graphql_user_account = { path = "user_account" }
 graphql_recipient = { path = "recipient" }
+graphql_recipient_list = { path = "recipient_list" }
 
 
 actix-web = { version = "4.0.1", default-features = false, features = [
