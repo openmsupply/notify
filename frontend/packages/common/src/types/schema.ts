@@ -27,6 +27,11 @@ export type AccessDenied = LogoutErrorInterface & {
   fullError: Scalars['String']['output'];
 };
 
+export type AddRecipientToListInput = {
+  recipientId: Scalars['String']['input'];
+  recipientListId: Scalars['String']['input'];
+};
+
 export type AuthToken = {
   __typename: 'AuthToken';
   /** Bearer token */
@@ -51,6 +56,12 @@ export type CreateRecipientInput = {
   toAddress: Scalars['String']['input'];
 };
 
+export type CreateRecipientListInput = {
+  description: Scalars['String']['input'];
+  id: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
 export type CreateRecipientResponse = RecipientNode;
 
 export type CreateUserAccountInput = {
@@ -69,6 +80,8 @@ export type DatabaseError = RefreshTokenErrorInterface & {
   description: Scalars['String']['output'];
   fullError: Scalars['String']['output'];
 };
+
+export type DeleteRecipientListResponse = DeleteResponse;
 
 export type DeleteRecipientResponse = DeleteResponse;
 
@@ -101,9 +114,12 @@ export type FullMutation = {
   __typename: 'FullMutation';
   /** Updates user account based on a token and their information (Response to initiate_user_invite) */
   acceptUserInvite: InviteUserResponse;
+  addRecipientToList: ModifyRecipientListMembersResponse;
   createRecipient: CreateRecipientResponse;
+  createRecipientList: ModifyRecipientListResponse;
   createUserAccount: CreateUserAccountResponse;
   deleteRecipient: DeleteRecipientResponse;
+  deleteRecipientList: DeleteRecipientListResponse;
   deleteUserAccount: DeleteUserAccountResponse;
   /**
    * Initiates the password reset flow for a user based on email address
@@ -112,9 +128,11 @@ export type FullMutation = {
   initiatePasswordReset: PasswordResetResponse;
   /** Invites a new user to the system */
   initiateUserInvite: InviteUserResponse;
+  removeRecipientFromList: ModifyRecipientListMembersResponse;
   /** Resets the password for a user based on the password reset token */
   resetPasswordUsingToken: PasswordResetResponse;
   updateRecipient: UpdateRecipientResponse;
+  updateRecipientList: ModifyRecipientListResponse;
   updateUserAccount: UpdateUserAccountResponse;
   /** Validates Password Reset Token */
   validatePasswordResetToken: PasswordResetResponse;
@@ -127,8 +145,18 @@ export type FullMutationAcceptUserInviteArgs = {
 };
 
 
+export type FullMutationAddRecipientToListArgs = {
+  input: AddRecipientToListInput;
+};
+
+
 export type FullMutationCreateRecipientArgs = {
   input: CreateRecipientInput;
+};
+
+
+export type FullMutationCreateRecipientListArgs = {
+  input: CreateRecipientListInput;
 };
 
 
@@ -139,6 +167,11 @@ export type FullMutationCreateUserAccountArgs = {
 
 export type FullMutationDeleteRecipientArgs = {
   recipientId: Scalars['String']['input'];
+};
+
+
+export type FullMutationDeleteRecipientListArgs = {
+  recipientListId: Scalars['String']['input'];
 };
 
 
@@ -157,6 +190,11 @@ export type FullMutationInitiateUserInviteArgs = {
 };
 
 
+export type FullMutationRemoveRecipientFromListArgs = {
+  input: RemoveRecipientFromListInput;
+};
+
+
 export type FullMutationResetPasswordUsingTokenArgs = {
   password: Scalars['String']['input'];
   token: Scalars['String']['input'];
@@ -165,6 +203,11 @@ export type FullMutationResetPasswordUsingTokenArgs = {
 
 export type FullMutationUpdateRecipientArgs = {
   input: UpdateRecipientInput;
+};
+
+
+export type FullMutationUpdateRecipientListArgs = {
+  input: UpdateRecipientListInput;
 };
 
 
@@ -188,6 +231,8 @@ export type FullQuery = {
   logout: LogoutResponse;
   logs: LogResponse;
   me: UserResponse;
+  /** Query "recipient_list" entries */
+  recipientLists: RecipientListsResponse;
   /** Query "recipient" entries */
   recipients: RecipientsResponse;
   /**
@@ -213,6 +258,13 @@ export type FullQueryLogsArgs = {
 };
 
 
+export type FullQueryRecipientListsArgs = {
+  filter?: InputMaybe<RecipientListFilterInput>;
+  page?: InputMaybe<PaginationInput>;
+  sort?: InputMaybe<Array<RecipientListSortInput>>;
+};
+
+
 export type FullQueryRecipientsArgs = {
   filter?: InputMaybe<RecipientFilterInput>;
   page?: InputMaybe<PaginationInput>;
@@ -224,6 +276,11 @@ export type FullQueryUserAccountsArgs = {
   filter?: InputMaybe<UserAccountFilterInput>;
   page?: InputMaybe<PaginationInput>;
   sort?: InputMaybe<Array<UserAccountSortInput>>;
+};
+
+export type IdResponse = {
+  __typename: 'IdResponse';
+  id: Scalars['String']['output'];
 };
 
 export type InternalError = LogoutErrorInterface & RefreshTokenErrorInterface & {
@@ -279,7 +336,11 @@ export type LogNode = {
 };
 
 export enum LogNodeType {
+  RecipientAddedToList = 'RECIPIENT_ADDED_TO_LIST',
   RecipientCreated = 'RECIPIENT_CREATED',
+  RecipientListCreated = 'RECIPIENT_LIST_CREATED',
+  RecipientListUpdated = 'RECIPIENT_LIST_UPDATED',
+  RecipientRemovedFromList = 'RECIPIENT_REMOVED_FROM_LIST',
   RecipientUpdated = 'RECIPIENT_UPDATED',
   UserAccountCreated = 'USER_ACCOUNT_CREATED',
   UserAccountPasswordResetInitiated = 'USER_ACCOUNT_PASSWORD_RESET_INITIATED',
@@ -323,6 +384,10 @@ export type LogoutErrorInterface = {
 };
 
 export type LogoutResponse = Logout | LogoutError;
+
+export type ModifyRecipientListMembersResponse = IdResponse;
+
+export type ModifyRecipientListResponse = RecipientListNode;
 
 export type NoRefreshTokenProvided = RefreshTokenErrorInterface & {
   __typename: 'NoRefreshTokenProvided';
@@ -376,6 +441,42 @@ export type RecipientFilterInput = {
   toAddress?: InputMaybe<StringFilterInput>;
 };
 
+export type RecipientListConnector = {
+  __typename: 'RecipientListConnector';
+  nodes: Array<RecipientListNode>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type RecipientListFilterInput = {
+  id?: InputMaybe<EqualFilterStringInput>;
+  name?: InputMaybe<StringFilterInput>;
+};
+
+export type RecipientListNode = {
+  __typename: 'RecipientListNode';
+  auditLogs: Array<LogNode>;
+  description: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  recipients: Array<RecipientNode>;
+};
+
+export enum RecipientListSortFieldInput {
+  Name = 'name'
+}
+
+export type RecipientListSortInput = {
+  /**
+   * Sort query result is sorted descending or ascending (if not provided the default is
+   * ascending)
+   */
+  desc?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Sort query result by `key` */
+  key: RecipientListSortFieldInput;
+};
+
+export type RecipientListsResponse = RecipientListConnector;
+
 export type RecipientNode = {
   __typename: 'RecipientNode';
   auditLogs: Array<LogNode>;
@@ -419,6 +520,11 @@ export type RefreshTokenErrorInterface = {
 
 export type RefreshTokenResponse = RefreshToken | RefreshTokenError;
 
+export type RemoveRecipientFromListInput = {
+  recipientId: Scalars['String']['input'];
+  recipientListId: Scalars['String']['input'];
+};
+
 export type SimpleStringFilterInput = {
   /** Search term must be an exact match (case sensitive) */
   equalTo?: InputMaybe<Scalars['String']['input']>;
@@ -448,6 +554,12 @@ export type UpdateRecipientInput = {
   id: Scalars['String']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   toAddress?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateRecipientListInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateRecipientResponse = RecipientNode;
