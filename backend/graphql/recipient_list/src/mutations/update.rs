@@ -7,7 +7,7 @@ use service::{
     recipient_list::update::UpdateRecipientList,
 };
 
-use super::{map_recipient_list_error, ModifyRecipientListResponse};
+use super::{map_error, ModifyRecipientListResponse};
 
 pub fn update_recipient_list(
     ctx: &Context<'_>,
@@ -29,7 +29,7 @@ pub fn update_recipient_list(
         Ok(recipient_list_row) => Ok(ModifyRecipientListResponse::Response(
             RecipientListNode::from_domain(recipient_list_row),
         )),
-        Err(error) => map_recipient_list_error(error),
+        Err(error) => map_error(error),
     }
 }
 
