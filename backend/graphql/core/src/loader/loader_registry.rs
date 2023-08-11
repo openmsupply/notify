@@ -5,7 +5,7 @@ use async_graphql::dataloader::DataLoader;
 use repository::StorageConnectionManager;
 use service::service_provider::ServiceProvider;
 
-use super::{user_permission::UserPermissionLoader, AuditLogLoader, RecipientLoader};
+use super::{user_permission::UserPermissionLoader, AuditLogLoader, RecipientsLoader};
 
 pub type LoaderMap = Map<AnyLoader>;
 pub type AnyLoader = dyn Any + Send + Sync;
@@ -46,7 +46,7 @@ pub async fn get_loaders(
     loaders.insert(user_permission_loader);
 
     let recipient_loader = DataLoader::new(
-        RecipientLoader {
+        RecipientsLoader {
             connection_manager: connection_manager.clone(),
         },
         async_std::task::spawn,

@@ -8,12 +8,12 @@ use async_graphql::dataloader::*;
 use async_graphql::*;
 use std::collections::HashMap;
 
-pub struct RecipientLoader {
+pub struct RecipientsLoader {
     pub connection_manager: StorageConnectionManager,
 }
 
 #[async_trait::async_trait]
-impl Loader<String> for RecipientLoader {
+impl Loader<String> for RecipientsLoader {
     type Value = Vec<Recipient>;
     type Error = async_graphql::Error;
 

@@ -1,7 +1,7 @@
 use super::{dataloader::DataLoader, LogNode, RecipientNode};
 use async_graphql::{Context, Object, SimpleObject, Union};
 use graphql_core::{
-    loader::{AuditLogLoader, RecipientLoader},
+    loader::{AuditLogLoader, RecipientsLoader},
     simple_generic_errors::NodeError,
     ContextExt,
 };
@@ -53,7 +53,7 @@ impl RecipientListNode {
         &self,
         ctx: &Context<'_>,
     ) -> Result<Vec<RecipientNode>, async_graphql::Error> {
-        let loader = ctx.get_loader::<DataLoader<RecipientLoader>>();
+        let loader = ctx.get_loader::<DataLoader<RecipientsLoader>>();
         let result = loader
             .load_one(self.row().id.to_string())
             .await?
