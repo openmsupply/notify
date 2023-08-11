@@ -235,8 +235,6 @@ async fn handle_json_updates(
                     "Error update doesn't include an update_id!!!!: {:?}",
                     update
                 );
-                // Increment update_id so we hopefully don't get this update again.
-                last_update_id += 1;
                 continue;
             }
         };
@@ -244,7 +242,6 @@ async fn handle_json_updates(
             Some(update_id) => update_id,
             None => {
                 log::error!("Error parsing update_id as i64: {:?}", update);
-                last_update_id += 1;
                 continue;
             }
         };
@@ -589,7 +586,7 @@ mod test {
 
         let last_update_id = handle_json_updates(updates, &tx).await;
 
-        // because we can't handle the second update_id as an i64, we automatically increment to avoid an infinite loop potential
-        assert_eq!(last_update_id, 794348053);
+        // We quietly skip the bad update_id
+        assert_eq!(last_update_id, 794348052);
     }
 }
