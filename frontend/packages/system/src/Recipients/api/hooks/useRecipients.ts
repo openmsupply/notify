@@ -25,10 +25,12 @@ export const useRecipients = ({
   return useQuery(RECIPIENTS, async () => {
     const response = await sdk.Recipients({
       filter,
-      sort: {
-        desc: sortBy?.isDesc ?? false,
-        key: sortBy?.key as RecipientSortFieldInput,
-      },
+      sort: sortBy
+        ? {
+            desc: sortBy.isDesc ?? false,
+            key: sortBy.key as RecipientSortFieldInput,
+          }
+        : undefined,
       page: {
         first,
         offset,
