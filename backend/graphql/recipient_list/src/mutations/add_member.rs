@@ -1,7 +1,7 @@
 use async_graphql::*;
 use graphql_types::types::IdResponse;
 
-use super::{map_list_member_error, ModifyRecipientListMembersResponse};
+use super::{map_error, ModifyRecipientListMembersResponse};
 use graphql_core::{standard_graphql_error::validate_auth, ContextExt};
 use service::{
     auth::{Resource, ResourceAccessRequest},
@@ -27,7 +27,7 @@ pub fn add_recipient_to_list(
         Ok(member) => Ok(ModifyRecipientListMembersResponse::Response(IdResponse(
             member.recipient_id,
         ))),
-        Err(error) => map_list_member_error(error),
+        Err(error) => map_error(error),
     }
 }
 

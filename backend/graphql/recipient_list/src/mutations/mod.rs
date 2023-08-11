@@ -20,18 +20,12 @@ pub enum ModifyRecipientListResponse {
     Response(RecipientListNode),
 }
 
-pub fn map_list_member_error(
-    error: ModifyRecipientListError,
-) -> Result<ModifyRecipientListMembersResponse> {
-    map_error::<ModifyRecipientListMembersResponse>(error)
-}
-
 #[derive(Union)]
 pub enum ModifyRecipientListMembersResponse {
     Response(IdResponse),
 }
 
-fn map_error<T>(error: ModifyRecipientListError) -> Result<T> {
+pub fn map_error<T>(error: ModifyRecipientListError) -> Result<T> {
     let formatted_error = format!("{:#?}", error);
 
     let graphql_error = match error {
