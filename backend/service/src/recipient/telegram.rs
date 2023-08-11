@@ -95,7 +95,7 @@ pub async fn handle_telegram_updates(
                         recipient_cache.insert(chat_id, recipient);
                     }
                     Err(e) => {
-                        log::error!("Error creating recipient, skipping... {:?}", e);
+                        log::error!("Error updating recipient, skipping... {:?}", e);
                         continue;
                     }
                 }
