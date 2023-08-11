@@ -1,6 +1,6 @@
 use async_graphql::*;
 use graphql_core::standard_graphql_error::StandardGraphqlError::*;
-use graphql_types::types::RecipientListNode;
+use graphql_types::types::{IdResponse, RecipientListNode};
 use service::recipient_list::ModifyRecipientListError;
 
 mod add_member;
@@ -20,7 +20,24 @@ pub enum ModifyRecipientListResponse {
     Response(RecipientListNode),
 }
 
-pub fn map_error(error: ModifyRecipientListError) -> Result<ModifyRecipientListResponse> {
+pub fn map_list_member_error(
+    error: ModifyRecipientListError,
+) -> Result<ModifyRecipientListMembersResponse> {
+    map_error::<ModifyRecipientListMembersResponse>(error)
+}
+
+#[derive(Union)]
+pub enum ModifyRecipientListMembersResponse {
+    Response(IdResponse),
+}
+
+pub fn map_recipient_list_error(
+    error: ModifyRecipientListError,
+) -> Result<ModifyRecipientListResponse> {
+    map_error::<ModifyRecipientListResponse>(error)
+}
+
+fn map_error<T>(error: ModifyRecipientListError) -> Result<T> {
     let formatted_error = format!("{:#?}", error);
 
     let graphql_error = match error {

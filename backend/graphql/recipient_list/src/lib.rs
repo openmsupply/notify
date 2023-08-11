@@ -89,7 +89,7 @@ impl RecipientListMutations {
         &self,
         ctx: &Context<'_>,
         input: AddRecipientToListInput,
-    ) -> Result<ModifyRecipientListResponse> {
+    ) -> Result<ModifyRecipientListMembersResponse> {
         add_recipient_to_list(ctx, input)
     }
 
@@ -97,7 +97,7 @@ impl RecipientListMutations {
         &self,
         ctx: &Context<'_>,
         input: RemoveRecipientFromListInput,
-    ) -> Result<ModifyRecipientListResponse> {
+    ) -> Result<ModifyRecipientListMembersResponse> {
         remove_recipient_from_list(ctx, input)
     }
 }
