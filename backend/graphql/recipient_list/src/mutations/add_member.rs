@@ -25,7 +25,7 @@ pub fn add_recipient_to_list(
 
     match service.add_recipient_to_list(&service_context, input.into()) {
         Ok(member) => Ok(ModifyRecipientListMembersResponse::Response(IdResponse(
-            member.recipient_list_id,
+            member.recipient_id,
         ))),
         Err(error) => map_list_member_error(error),
     }

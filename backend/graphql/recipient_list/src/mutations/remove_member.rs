@@ -25,7 +25,7 @@ pub fn remove_recipient_from_list(
 
     match service.remove_recipient_from_list(&service_context, input.into()) {
         Ok(member) => Ok(ModifyRecipientListMembersResponse::Response(IdResponse(
-            member.recipient_list_id,
+            member.recipient_id,
         ))),
         Err(error) => map_list_member_error(error),
     }
