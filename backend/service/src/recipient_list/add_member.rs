@@ -2,10 +2,14 @@ use super::{
     validate::{check_recipient_list_exists, check_recipient_list_member_does_not_exist},
     ModifyRecipientListError,
 };
-use crate::{recipient::validate::check_recipient_exists, service_provider::ServiceContext};
+use crate::{
+    audit_log::audit_log_entry, recipient::validate::check_recipient_exists,
+    service_provider::ServiceContext,
+};
 
+use chrono::Utc;
 use repository::{
-    RecipientListMember, RecipientListMemberRow, RecipientListMemberRowRepository,
+    LogType, RecipientListMember, RecipientListMemberRow, RecipientListMemberRowRepository,
     StorageConnection,
 };
 use util::uuid::uuid;
@@ -35,17 +39,15 @@ pub fn add_recipient_to_list(
                 Some(group_member) => Ok(group_member),
                 None => Err(ModifyRecipientListError::RecipientListMemberDoesNotExist),
             }
-            //
         })
         .map_err(|error| error.to_inner_error())?;
 
-    // TODO: Audit logging // should this log go on the list or on the recipient? should really include both the list and recipient ids...
-    // audit_log_entry(
-    //     &ctx,
-    //     LogType::RecipientAddedToList,
-    //     Some(new_recipient_list.id),
-    //     Utc::now().naive_utc(),
-    // )?;
+    audit_log_entry(
+        &ctx,
+        LogType::RecipientAddedToList,
+        Some(recipient_list_member.recipient_list_id.clone()),
+        Utc::now().naive_utc(),
+    )?;
 
     Ok(recipient_list_member)
 }

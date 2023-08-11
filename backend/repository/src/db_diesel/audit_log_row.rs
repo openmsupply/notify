@@ -27,6 +27,8 @@ pub enum LogType {
     RecipientUpdated,
     RecipientListCreated,
     RecipientListUpdated,
+    RecipientAddedToList,
+    RecipientRemovedFromList,
 }
 
 #[derive(Clone, Queryable, Insertable, AsChangeset, Debug, PartialEq)]
