@@ -8,10 +8,10 @@ use repository::{
     RecipientListMember, RecipientListMemberRow, RecipientListMemberRowRepository,
     StorageConnection,
 };
+use util::uuid::uuid;
 
 #[derive(Clone)]
 pub struct AddRecipientToList {
-    pub id: String,
     pub recipient_id: String,
     pub recipient_list_id: String,
 }
@@ -77,13 +77,12 @@ pub fn validate(
 
 pub fn generate(
     AddRecipientToList {
-        id,
         recipient_id,
         recipient_list_id,
     }: AddRecipientToList,
 ) -> Result<RecipientListMemberRow, ModifyRecipientListError> {
     Ok(RecipientListMemberRow {
-        id,
+        id: uuid(),
         recipient_id,
         recipient_list_id,
     })

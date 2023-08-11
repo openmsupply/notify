@@ -1,9 +1,8 @@
 #[cfg(test)]
 mod recipient_list_member_add_test {
-    use repository::RecipientListMemberRowRepository;
     use repository::{mock::MockDataInserts, test_db::setup_all};
+    use repository::{EqualFilter, RecipientListMemberFilter, RecipientListMemberRepository};
     use std::sync::Arc;
-    use util::uuid::uuid;
 
     use crate::recipient_list::add_member::AddRecipientToList;
     use crate::recipient_list::ModifyRecipientListError;
@@ -31,7 +30,6 @@ mod recipient_list_member_add_test {
             service.add_recipient_to_list(
                 &context,
                 AddRecipientToList {
-                    id: "a good new id".to_string(),
                     recipient_id: "some-unknown-id".to_string(),
                     recipient_list_id: mock_data["base"].recipient_lists[0].id.clone(),
                 },
@@ -44,7 +42,6 @@ mod recipient_list_member_add_test {
             service.add_recipient_to_list(
                 &context,
                 AddRecipientToList {
-                    id: "a good new id".to_string(),
                     recipient_id: mock_data["base"].recipients[0].id.clone(),
                     recipient_list_id: "some-unknown-id".to_string(),
                 },
@@ -57,7 +54,6 @@ mod recipient_list_member_add_test {
             service.add_recipient_to_list(
                 &context,
                 AddRecipientToList {
-                    id: "some-new-id".to_string(),
                     recipient_id: mock_data["base"].recipient_list_members[0]
                         .recipient_id
                         .clone(),
@@ -79,8 +75,7 @@ mod recipient_list_member_add_test {
         .await;
 
         let connection = connection_manager.connection().unwrap();
-        let recipient_list_member_row_repository =
-            RecipientListMemberRowRepository::new(&connection);
+        let recipient_list_member_repository = RecipientListMemberRepository::new(&connection);
         let service_provider = Arc::new(ServiceProvider::new(
             connection_manager,
             get_test_settings(""),
@@ -88,11 +83,9 @@ mod recipient_list_member_add_test {
         let context = ServiceContext::as_server_admin(service_provider).unwrap();
         let service = &context.service_provider.recipient_list_service;
 
-        let new_recipient_list_member_id = uuid();
         let result = service.add_recipient_to_list(
             &context,
             AddRecipientToList {
-                id: new_recipient_list_member_id.clone(),
                 recipient_id: mock_data["base"].recipients[0].id.clone(),
                 recipient_list_id: mock_data["base"].recipient_lists[0].id.clone(),
             },
@@ -103,8 +96,14 @@ mod recipient_list_member_add_test {
         }
         assert!(result.is_ok());
 
-        let result = recipient_list_member_row_repository
-            .find_one_by_id(&new_recipient_list_member_id)
+        let result = recipient_list_member_repository
+            .query_one(
+                RecipientListMemberFilter::new()
+                    .recipient_id(EqualFilter::equal_to(&mock_data["base"].recipients[0].id))
+                    .recipient_list_id(EqualFilter::equal_to(
+                        &mock_data["base"].recipient_lists[0].id,
+                    )),
+            )
             .unwrap();
 
         // RecipientListMember now exists

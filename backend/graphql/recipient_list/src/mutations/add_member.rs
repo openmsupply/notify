@@ -33,7 +33,6 @@ pub fn add_recipient_to_list(
 
 #[derive(InputObject, Clone)]
 pub struct AddRecipientToListInput {
-    pub id: String,
     pub recipient_id: String,
     pub recipient_list_id: String,
 }
@@ -41,13 +40,11 @@ pub struct AddRecipientToListInput {
 impl From<AddRecipientToListInput> for AddRecipientToList {
     fn from(
         AddRecipientToListInput {
-            id,
             recipient_id,
             recipient_list_id,
         }: AddRecipientToListInput,
     ) -> Self {
         AddRecipientToList {
-            id,
             recipient_id,
             recipient_list_id,
         }
