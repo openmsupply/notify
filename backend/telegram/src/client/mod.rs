@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use serde::Serialize;
 use serde_json;
 
 use crate::{TelegramChat, TelegramMessage};
@@ -23,6 +24,12 @@ pub enum TemporaryErrorType {
 pub enum TelegramError {
     Fatal(String),
     Temporary(TemporaryErrorType),
+}
+
+#[derive(Serialize)]
+struct GetUpdatesParams {
+    offset: Option<i64>,
+    timeout: i64,
 }
 
 impl From<reqwest::Error> for TelegramError {
@@ -155,14 +162,21 @@ impl TelegramClient {
         Ok(message)
     }
 
+    /// last_update_id +1 maps to "offset" parameter, api description of offset:
+    /// Identifier of the first update to be returned. Must be greater by one than the highest among the identifiers
+    /// of previously received updates. By default, updates starting with the earliest unconfirmed update are returned.
+    /// An update is considered confirmed as soon as getUpdates is called with an offset higher than its update_id.
     pub async fn get_updates(
         &self,
-        last_update_id: i64,
+        last_update_id: Option<i64>,
         timeout: i64,
     ) -> Result<Vec<serde_json::Value>, TelegramError> {
         let url = format!("{}/getUpdates", self.base_url);
         // We add one to the last update_id so we don't get the same updates again
-        let params = [("timeout", timeout), ("offset", last_update_id + 1)];
+        let params = GetUpdatesParams {
+            offset: last_update_id.map(|id| id + 1),
+            timeout,
+        };
 
         let response = self.http_client.get(&url).form(&params).send().await?;
         let response_text = response.text().await?;
