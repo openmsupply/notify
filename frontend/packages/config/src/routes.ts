@@ -5,7 +5,6 @@ export enum AppRoute {
   ForgotPassword = 'forgot-password',
 
   UserAccounts = 'users',
-  MyAccount = 'my-account',
 
   Notifications = 'notifications',
 
