@@ -2,8 +2,8 @@ fragment RecipientRow on RecipientNode {
   __typename
   id
   name
-  to_address
-  description
+  toAddress
+  notificationType
 }
 
 query Recipients(

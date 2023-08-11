@@ -7,19 +7,13 @@ import {
   createTableStore,
   useColumns,
 } from '@common/ui';
-
-type Recipient = {
-  id: string;
-  name: string;
-  notificationType: string;
-  toAddress: string;
-};
+import { RecipientRowFragment } from '../api';
 
 export const RecipientTable = ({
   recipients,
   nothingHereMessage,
 }: {
-  recipients: Recipient[];
+  recipients: RecipientRowFragment[];
   nothingHereMessage: string;
 }) => {
   const columns = useColumns([
