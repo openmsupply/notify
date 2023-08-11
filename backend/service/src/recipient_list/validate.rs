@@ -41,7 +41,7 @@ pub fn check_recipient_list_name_is_unique(
         Some(list_name) => {
             let recipient_lists = RecipientListRepository::new(connection).query_by_filter(
                 RecipientListFilter::new()
-                    .name(StringFilter::equal_to(&list_name.trim().to_lowercase()))
+                    .name(StringFilter::equal_to(&list_name.trim().to_string()))
                     .id(EqualFilter::not_equal_to(id)),
             )?;
 
