@@ -168,13 +168,13 @@ impl TelegramClient {
     /// An update is considered confirmed as soon as getUpdates is called with an offset higher than its update_id.
     pub async fn get_updates(
         &self,
-        last_update_id: Option<i64>,
+        last_confirmed_id: Option<i64>,
         timeout: i64,
     ) -> Result<Vec<serde_json::Value>, TelegramError> {
         let url = format!("{}/getUpdates", self.base_url);
         // We add one to the last update_id so we don't get the same updates again
         let params = GetUpdatesParams {
-            offset: last_update_id.map(|id| id + 1),
+            offset: last_confirmed_id.map(|id| id + 1),
             timeout,
         };
 
