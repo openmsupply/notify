@@ -25,6 +25,10 @@ pub enum LogType {
     UserAccountPasswordResetInitiated,
     RecipientCreated,
     RecipientUpdated,
+    RecipientListCreated,
+    RecipientListUpdated,
+    RecipientAddedToList,
+    RecipientRemovedFromList,
 }
 
 #[derive(Clone, Queryable, Insertable, AsChangeset, Debug, PartialEq)]

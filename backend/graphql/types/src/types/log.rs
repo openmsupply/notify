@@ -21,6 +21,10 @@ pub struct LogConnector {
 pub enum LogNodeType {
     RecipientCreated,
     RecipientUpdated,
+    RecipientListCreated,
+    RecipientListUpdated,
+    RecipientAddedToList,
+    RecipientRemovedFromList,
     UserLoggedIn,
     UserAccountCreated,
     UserAccountUpdated,
@@ -75,6 +79,10 @@ impl LogNodeType {
         match from {
             LogType::RecipientCreated => LogNodeType::RecipientCreated,
             LogType::RecipientUpdated => LogNodeType::RecipientUpdated,
+            LogType::RecipientListCreated => LogNodeType::RecipientListCreated,
+            LogType::RecipientListUpdated => LogNodeType::RecipientListUpdated,
+            LogType::RecipientAddedToList => LogNodeType::RecipientAddedToList,
+            LogType::RecipientRemovedFromList => LogNodeType::RecipientRemovedFromList,
             LogType::UserLoggedIn => LogNodeType::UserLoggedIn,
             LogType::UserAccountCreated => LogNodeType::UserAccountCreated,
             LogType::UserAccountUpdated => LogNodeType::UserAccountUpdated,
@@ -88,6 +96,10 @@ impl LogNodeType {
         match self {
             LogNodeType::RecipientCreated => LogType::RecipientCreated,
             LogNodeType::RecipientUpdated => LogType::RecipientUpdated,
+            LogNodeType::RecipientListCreated => LogType::RecipientListCreated,
+            LogNodeType::RecipientListUpdated => LogType::RecipientListUpdated,
+            LogNodeType::RecipientAddedToList => LogType::RecipientAddedToList,
+            LogNodeType::RecipientRemovedFromList => LogType::RecipientRemovedFromList,
             LogNodeType::UserLoggedIn => LogType::UserLoggedIn,
             LogNodeType::UserAccountCreated => LogType::UserAccountCreated,
             LogNodeType::UserAccountUpdated => LogType::UserAccountUpdated,

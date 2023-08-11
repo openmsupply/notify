@@ -2,6 +2,7 @@
 mod recipient_delete_test {
     use std::sync::Arc;
 
+    use repository::mock::mock_recipient_b;
     use repository::{mock::MockDataInserts, test_db::setup_all};
     use repository::{EqualFilter, RecipientFilter, RecipientRepository};
 
@@ -49,13 +50,15 @@ mod recipient_delete_test {
         let service = &context.service_provider.recipient_service;
 
         assert_eq!(
-            service.delete_recipient(&context, "id_recipient_b"),
-            Ok("id_recipient_b".to_string())
+            service.delete_recipient(&context, &mock_recipient_b().id),
+            Ok(mock_recipient_b().id.clone())
         );
 
         assert_eq!(
             recipient_repository
-                .query_by_filter(RecipientFilter::new().id(EqualFilter::equal_to("id_recipient_b")))
+                .query_by_filter(
+                    RecipientFilter::new().id(EqualFilter::equal_to(&mock_recipient_b().id))
+                )
                 .unwrap(),
             vec![]
         );

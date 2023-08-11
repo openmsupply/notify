@@ -1,7 +1,5 @@
 use crate::{NotificationType, RecipientRow};
 
-// users
-
 pub fn mock_recipients() -> Vec<RecipientRow> {
     vec![
         mock_recipient_a(),
