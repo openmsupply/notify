@@ -19,6 +19,45 @@ pub struct CreateRecipient {
     pub to_address: String,
 }
 
+pub fn upsert_recipient(
+    ctx: &ServiceContext,
+    new_recipient: CreateRecipient,
+) -> Result<Recipient, ModifyRecipientError> {
+    let recipient = ctx
+        .connection
+        .transaction_sync(|connection| {
+            let validation_result = validate(&new_recipient, connection);
+            let new_recipient_row = match validation_result {
+                Ok(_) => {
+                    let new_recipient_row = generate(new_recipient.clone())?;
+                    RecipientRowRepository::new(connection).insert_one(&new_recipient_row)?;
+                    new_recipient_row
+                }
+                Err(ModifyRecipientError::RecipientAlreadyExists) => {
+                    let new_recipient_row = generate(new_recipient.clone())?;
+                    RecipientRowRepository::new(connection).update_one(&new_recipient_row)?;
+                    new_recipient_row
+                }
+                Err(error) => {
+                    return Err(error);
+                }
+            };
+
+            get_recipient(ctx, new_recipient_row.id).map_err(ModifyRecipientError::from)
+        })
+        .map_err(|error| error.to_inner_error())?;
+
+    // Audit logging
+    audit_log_entry(
+        &ctx,
+        LogType::RecipientCreated,
+        Some(new_recipient.id),
+        Utc::now().naive_utc(),
+    )?;
+
+    Ok(recipient)
+}
+
 pub fn create_recipient(
     ctx: &ServiceContext,
     new_recipient: CreateRecipient,

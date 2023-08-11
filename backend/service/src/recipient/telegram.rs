@@ -1,14 +1,22 @@
 use std::collections::HashMap;
 
-use repository::RecipientRowRepository;
 use repository::{NotificationType, Recipient};
+use repository::{RecipientRow, RecipientRowRepository};
 use telegram::TelegramId;
 use telegram::TelegramUpdate;
 use util::uuid::uuid;
 
-use crate::recipient::create::{self, create_recipient};
-use crate::recipient::update::{update_recipient, UpdateRecipient};
+use crate::recipient::create::{upsert_recipient, CreateRecipient};
 use crate::service_provider::ServiceContext;
+
+fn blank_telegram_recipient() -> RecipientRow {
+    RecipientRow {
+        id: uuid(),
+        name: "".to_string(),
+        notification_type: NotificationType::Telegram,
+        to_address: "".to_string(),
+    }
+}
 
 pub async fn handle_telegram_updates(
     ctx: ServiceContext,
@@ -29,11 +37,11 @@ pub async fn handle_telegram_updates(
                 match recipient_repo
                     .find_one_by_to_address_and_type(&chat_id, NotificationType::Telegram)
                 {
-                    Ok(Some(recepient)) => recepient,
-                    Ok(None) => Default::default(), // Make sure default is created with unique id
+                    Ok(Some(recipient)) => recipient,
+                    Ok(None) => blank_telegram_recipient(),
                     Err(e) => {
-                        log::error!("Error looking up recepient in database {}", e);
-                        Default::default()
+                        log::error!("Error looking up recipient in database {}", e);
+                        blank_telegram_recipient()
                     }
                 }
             });
@@ -47,14 +55,14 @@ pub async fn handle_telegram_updates(
                 cached_recipient.to_address = chat.id();
                 cached_recipient.name = chat.title.clone();
 
-                let upsert_recepient = UpsertRecepient {
+                let new_recipient = CreateRecipient {
                     id: cached_recipient.id.clone(),
                     name: chat.title.clone(),
                     notification_type: NotificationType::Telegram,
                     to_address: chat.id(),
                 };
 
-                match upsert_recepient(&ctx, upsert_recepient) {
+                match upsert_recipient(&ctx, new_recipient) {
                     Ok(recipient_result) => log::info!("Updated recipient: {:?}", recipient_result),
                     Err(e) => log::error!("Error updating recipient, skipping... {:?}", e),
                 }
