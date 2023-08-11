@@ -25,57 +25,18 @@ pub async fn handle_telegram_updates(
 
         if let Some(chat) = update.chat() {
             let chat_id = chat.id();
-            let cached_recipient = recipient_cache.get(&chat_id);
-            let cached_recipient = match cached_recipient {
-                Some(cached_recipient) => cached_recipient.to_owned(),
-                None => {
-                    // Cache miss, lets see if we already have it in the db, and if not create it
-                    let recipient_result = recipient_repo
-                        .find_one_by_to_address_and_type(&chat_id, NotificationType::Telegram);
-                    match recipient_result {
-                        Ok(recipient_option) => {
-                            match recipient_option {
-                                Some(recipient) => {
-                                    // Recipient was already in the db, cache it and continue
-                                    recipient_cache.insert(chat_id.clone(), recipient.clone());
-                                    recipient
-                                }
-                                None => {
-                                    log::debug!(
-                                        "Recipient doesn't exist in db, creating new one..."
-                                    );
-                                    let new_recipient = create::CreateRecipient {
-                                        id: uuid(),
-                                        name: chat.title.clone(),
-                                        notification_type: NotificationType::Telegram,
-                                        to_address: chat_id.clone(),
-                                    };
-                                    let recipient_result = create_recipient(&ctx, new_recipient);
-                                    log::info!("Created recipient: {:?}", recipient_result);
-                                    match recipient_result {
-                                        Ok(recipient) => {
-                                            // Recipient created, cache it and continue
-                                            recipient_cache
-                                                .insert(chat_id.clone(), recipient.clone());
-                                            recipient
-                                        }
-                                        Err(_) => {
-                                            log::error!(
-                                                "Error creating recipient, skipping processing chat"
-                                            );
-                                            continue;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        Err(e) => {
-                            log::error!("Error finding recipient in db, skipping... {:?}", e);
-                            continue;
-                        }
+            let cached_recipient = recipient_cache.entry(chat_id.clone()).or_insert_with(|| {
+                match recipient_repo
+                    .find_one_by_to_address_and_type(&chat_id, NotificationType::Telegram)
+                {
+                    Ok(Some(recepient)) => recepient,
+                    Ok(None) => Default::default(), // Make sure default is created with unique id
+                    Err(e) => {
+                        log::error!("Error looking up recepient in database {}", e);
+                        Default::default()
                     }
                 }
-            };
+            });
 
             // Check if we need to update the recipient name (e.g if the chat title has changed)
             if cached_recipient.name != chat.title {
@@ -83,21 +44,19 @@ pub async fn handle_telegram_updates(
                     "Chat title doesn't match recipient name, updating recipient: {:?}",
                     chat
                 );
-                let new_recipient = UpdateRecipient {
+                cached_recipient.to_address = chat.id();
+                cached_recipient.name = chat.title.clone();
+
+                let upsert_recepient = UpsertRecepient {
                     id: cached_recipient.id.clone(),
-                    name: Some(chat.title.clone()),
-                    to_address: None,
+                    name: chat.title.clone(),
+                    notification_type: NotificationType::Telegram,
+                    to_address: chat.id(),
                 };
-                let recipient_result = update_recipient(&ctx, new_recipient);
-                log::info!("Updated recipient: {:?}", recipient_result);
-                match recipient_result {
-                    Ok(recipient) => {
-                        recipient_cache.insert(chat_id, recipient);
-                    }
-                    Err(e) => {
-                        log::error!("Error updating recipient, skipping... {:?}", e);
-                        continue;
-                    }
+
+                match upsert_recepient(&ctx, upsert_recepient) {
+                    Ok(recipient_result) => log::info!("Updated recipient: {:?}", recipient_result),
+                    Err(e) => log::error!("Error updating recipient, skipping... {:?}", e),
                 }
             }
         }
