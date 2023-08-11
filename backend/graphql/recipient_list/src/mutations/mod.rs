@@ -31,12 +31,6 @@ pub enum ModifyRecipientListMembersResponse {
     Response(IdResponse),
 }
 
-pub fn map_recipient_list_error(
-    error: ModifyRecipientListError,
-) -> Result<ModifyRecipientListResponse> {
-    map_error::<ModifyRecipientListResponse>(error)
-}
-
 fn map_error<T>(error: ModifyRecipientListError) -> Result<T> {
     let formatted_error = format!("{:#?}", error);
 

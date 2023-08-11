@@ -1,4 +1,4 @@
-use super::{map_recipient_list_error, ModifyRecipientListResponse};
+use super::{map_error, ModifyRecipientListResponse};
 use async_graphql::*;
 use graphql_core::{standard_graphql_error::validate_auth, ContextExt};
 use graphql_types::types::RecipientListNode;
@@ -28,7 +28,7 @@ pub fn create_recipient_list(
         Ok(recipient_list) => Ok(ModifyRecipientListResponse::Response(
             RecipientListNode::from_domain(recipient_list),
         )),
-        Err(error) => map_recipient_list_error(error),
+        Err(error) => map_error(error),
     }
 }
 
