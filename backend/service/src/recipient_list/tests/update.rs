@@ -41,13 +41,13 @@ mod recipient_list_update_tests {
             Err(ModifyRecipientListError::RecipientListDoesNotExist)
         );
 
-        // Trying to update to a name that already exists should fail
+        // Trying to update to a name that already exists should fail (even with added whitespace)
         assert_eq!(
             service.update_recipient_list(
                 &context,
                 UpdateRecipientList {
                     id: mock_recipient_list_with_no_members().id.clone(),
-                    name: Some(mock_recipient_list_c().name.clone()),
+                    name: Some(mock_recipient_list_c().name.clone() + "  "),
                     description: None,
                 },
             ),
