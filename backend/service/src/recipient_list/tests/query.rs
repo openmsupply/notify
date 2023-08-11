@@ -2,6 +2,7 @@
 mod recipient_list_query_test {
     use std::sync::Arc;
 
+    use repository::mock::mock_recipient_list_c;
     use repository::{
         mock::MockDataInserts, test_db::setup_all, RecipientListFilter, RecipientListSortField,
     };
@@ -74,10 +75,10 @@ mod recipient_list_query_test {
         );
 
         let db_recipient_list = service
-            .get_recipient_list(&context, "id_recipient_list_a".to_owned())
+            .get_recipient_list(&context, mock_recipient_list_c().id.clone())
             .unwrap();
 
-        assert_eq!(db_recipient_list.id, "id_recipient_list_a");
+        assert_eq!(db_recipient_list.id, mock_recipient_list_c().id.clone());
     }
 
     #[actix_rt::test]
@@ -99,13 +100,19 @@ mod recipient_list_query_test {
             .get_recipient_lists(
                 &context,
                 None,
-                Some(RecipientListFilter::new().id(EqualFilter::equal_to("id_recipient_list_a"))),
+                Some(
+                    RecipientListFilter::new()
+                        .id(EqualFilter::equal_to(&mock_recipient_list_c().id)),
+                ),
                 None,
             )
             .unwrap();
 
         assert_eq!(db_recipient_lists.count, 1);
-        assert_eq!(db_recipient_lists.rows[0].id, "id_recipient_list_a");
+        assert_eq!(
+            db_recipient_lists.rows[0].id,
+            mock_recipient_list_c().id.clone()
+        );
     }
 
     #[actix_rt::test]

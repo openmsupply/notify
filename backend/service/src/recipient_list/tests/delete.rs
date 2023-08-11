@@ -2,6 +2,7 @@
 mod recipient_list_delete_test {
     use std::sync::Arc;
 
+    use repository::mock::mock_recipient_list_c;
     use repository::{mock::MockDataInserts, test_db::setup_all};
     use repository::{
         EqualFilter, RecipientListFilter, RecipientListMemberFilter, RecipientListMemberRepository,
@@ -52,14 +53,15 @@ mod recipient_list_delete_test {
         let service = &context.service_provider.recipient_list_service;
 
         assert_eq!(
-            service.delete_recipient_list(&context, "id_recipient_list_b"),
-            Ok("id_recipient_list_b".to_string())
+            service.delete_recipient_list(&context, &mock_recipient_list_c().id),
+            Ok(mock_recipient_list_c().id.clone())
         );
 
         assert_eq!(
             recipient_list_repository
                 .query_by_filter(
-                    RecipientListFilter::new().id(EqualFilter::equal_to("id_recipient_list_b"))
+                    RecipientListFilter::new()
+                        .id(EqualFilter::equal_to(&mock_recipient_list_c().id))
                 )
                 .unwrap(),
             vec![]
@@ -68,7 +70,7 @@ mod recipient_list_delete_test {
             RecipientListMemberRepository::new(&connection)
                 .query_by_filter(
                     RecipientListMemberFilter::new()
-                        .recipient_list_id(EqualFilter::equal_to("id_recipient_list_b"))
+                        .recipient_list_id(EqualFilter::equal_to(&mock_recipient_list_c().id))
                 )
                 .unwrap(),
             vec![]
