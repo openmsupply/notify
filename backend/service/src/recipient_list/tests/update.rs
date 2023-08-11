@@ -66,6 +66,31 @@ mod recipient_list_update_tests {
             ),
             Err(ModifyRecipientListError::InvalidRecipientListName)
         );
+
+        // Trying to update to an inappropriate length of name should fail
+        assert_eq!(
+            service.update_recipient_list(
+                &context,
+                UpdateRecipientList {
+                    id: mock_recipient_list_c().id.clone(),
+                    // less than 3 chars
+                    name: Some("x".to_string()),
+                    description: None,
+                },
+            ),
+            Err(ModifyRecipientListError::InvalidRecipientListName)
+        );
+        assert_eq!(
+            service.update_recipient_list(
+                &context,
+                UpdateRecipientList {
+                    id: mock_recipient_list_c().id.clone(),
+                    name: Some("Why hello there this is an exceedingly large recipient list name that really isn't necessary given you can provide a description :)".to_string()),
+                    description: None,
+                },
+            ),
+            Err(ModifyRecipientListError::InvalidRecipientListName)
+        );
     }
     #[actix_rt::test]
     async fn recipient_list_service_update_success() {

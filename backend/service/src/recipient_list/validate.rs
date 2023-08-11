@@ -50,6 +50,10 @@ pub fn check_recipient_list_name_is_unique(
     }
 }
 
+pub fn check_list_name_is_appropriate_length(name: &str) -> Result<bool, RepositoryError> {
+    Ok(name.trim().len() >= 3 && name.len() <= 70)
+}
+
 pub fn check_recipient_list_member_exists(
     recipient_id: &str,
     recipient_list_id: &str,

@@ -1,8 +1,8 @@
 use super::{
     query::get_recipient_list,
     validate::{
-        check_list_name_doesnt_contain_special_characters, check_recipient_list_exists,
-        check_recipient_list_name_is_unique,
+        check_list_name_doesnt_contain_special_characters, check_list_name_is_appropriate_length,
+        check_recipient_list_exists, check_recipient_list_name_is_unique,
     },
     ModifyRecipientListError,
 };
@@ -52,6 +52,10 @@ pub fn validate(
 ) -> Result<RecipientListRow, ModifyRecipientListError> {
     if let Some(list_name) = &new_recipient_list.name {
         if !check_list_name_doesnt_contain_special_characters(list_name)? {
+            return Err(ModifyRecipientListError::InvalidRecipientListName);
+        }
+
+        if !check_list_name_is_appropriate_length(&list_name)? {
             return Err(ModifyRecipientListError::InvalidRecipientListName);
         }
     }

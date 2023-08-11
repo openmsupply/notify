@@ -1,8 +1,8 @@
 use super::{
     query::get_recipient_list,
     validate::{
-        check_list_name_doesnt_contain_special_characters, check_recipient_list_does_not_exist,
-        check_recipient_list_name_is_unique,
+        check_list_name_doesnt_contain_special_characters, check_list_name_is_appropriate_length,
+        check_recipient_list_does_not_exist, check_recipient_list_name_is_unique,
     },
     ModifyRecipientListError,
 };
@@ -56,6 +56,10 @@ pub fn validate(
         return Err(ModifyRecipientListError::InvalidRecipientListName);
     }
 
+    if !check_list_name_is_appropriate_length(&new_recipient_list.name)? {
+        return Err(ModifyRecipientListError::InvalidRecipientListName);
+    }
+
     if !check_recipient_list_does_not_exist(&new_recipient_list.id, connection)? {
         return Err(ModifyRecipientListError::RecipientListAlreadyExists);
     }
@@ -67,8 +71,6 @@ pub fn validate(
     )? {
         return Err(ModifyRecipientListError::RecipientListAlreadyExists);
     }
-
-    // TODO length constraints?
 
     Ok(())
 }

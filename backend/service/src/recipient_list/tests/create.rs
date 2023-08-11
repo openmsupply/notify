@@ -65,6 +65,31 @@ mod recipient_list_create_test {
             ),
             Err(ModifyRecipientListError::InvalidRecipientListName)
         );
+
+        // Create with an inappropriate length name
+        assert_eq!(
+            service.create_recipient_list(
+                &context,
+                CreateRecipientList {
+                    id: "some-new-id".to_string(),
+                    // less than 3 chars when trimmed
+                    name: "  x     ".to_string(),
+                    description: "some-new-description".to_string(),
+                },
+            ),
+            Err(ModifyRecipientListError::InvalidRecipientListName)
+        );
+        assert_eq!(
+            service.create_recipient_list(
+                &context,
+                CreateRecipientList {
+                    id: "some-new-id".to_string(),
+                    name: "Why hello there this is an exceedingly large recipient list name that really isn't necessary given you can provide a description :)".to_string(),
+                    description: "some-new-description".to_string(),
+                },
+            ),
+            Err(ModifyRecipientListError::InvalidRecipientListName)
+        );
     }
 
     #[actix_rt::test]
