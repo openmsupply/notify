@@ -16,10 +16,12 @@ type FilterRule = {
     | FilterByConditionByType['date']]?: unknown;
 };
 
-export type FilterBy = Record<string, FilterRule | null>;
+export type FilterBy = Record<string, FilterRule | string | null>;
 
 export interface FilterController {
   filterBy: FilterBy | null;
+
+  onChangeStringRule: (key: string, value: string) => void;
 
   onChangeDateFilterRule: (
     key: string,

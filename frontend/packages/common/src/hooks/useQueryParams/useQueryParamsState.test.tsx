@@ -139,6 +139,33 @@ describe('useQueryParamsState', () => {
   });
 
   describe('filter', () => {
+    describe('onChangeStringRule', () => {
+      it('clears filter rule when set to empty string', () => {
+        const { result } = renderHook(() =>
+          useQueryParamsState({ initialFilter: { id: 'some-id' } })
+        );
+
+        act(() => result.current.filter.onChangeStringRule('id', ''));
+
+        expect(result.current.filter.filterBy).toEqual({});
+      });
+
+      it('sets new string rule', () => {
+        const { result } = renderHook(() =>
+          useQueryParamsState({ initialFilter: { id: { equalTo: 'some-id' } } })
+        );
+
+        act(() =>
+          result.current.filter.onChangeStringRule('search', 'spongebob')
+        );
+
+        expect(result.current.filter.filterBy).toEqual({
+          id: { equalTo: 'some-id' },
+          search: 'spongebob',
+        });
+      });
+    });
+
     describe('onChangeStringFilterRule', () => {
       it('clears filter rule when set to empty string', () => {
         const { result } = renderHook(() =>
