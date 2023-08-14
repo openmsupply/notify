@@ -97,6 +97,10 @@ async fn run_server(
     let telegram_token = config_settings.clone().telegram.token;
     let telegram_client_handle = actix_web::rt::spawn(async move {
         if let Some(telegram_token) = telegram_token {
+            if telegram_token.is_empty() {
+                log::error!("Telegram Client not configured");
+                return;
+            }
             let telegram_client = TelegramClient::new(telegram_token);
             log::info!("Starting Telegram Client Polling");
             poll_get_updates(&telegram_client, &telegram_update_tx).await;
