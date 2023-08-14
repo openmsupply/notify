@@ -1,14 +1,22 @@
 use std::collections::HashMap;
 
-use repository::RecipientRowRepository;
 use repository::{NotificationType, Recipient};
+use repository::{RecipientRow, RecipientRowRepository};
 use telegram::TelegramId;
 use telegram::TelegramUpdate;
 use util::uuid::uuid;
 
-use crate::recipient::create::{self, create_recipient};
-use crate::recipient::update::{update_recipient, UpdateRecipient};
+use crate::recipient::create::{upsert_recipient, CreateRecipient};
 use crate::service_provider::ServiceContext;
+
+fn blank_telegram_recipient() -> RecipientRow {
+    RecipientRow {
+        id: uuid(),
+        name: "".to_string(),
+        notification_type: NotificationType::Telegram,
+        to_address: "".to_string(),
+    }
+}
 
 pub async fn handle_telegram_updates(
     ctx: ServiceContext,
@@ -25,81 +33,267 @@ pub async fn handle_telegram_updates(
 
         if let Some(chat) = update.chat() {
             let chat_id = chat.id();
-            let cached_recipient = recipient_cache.get(&chat_id);
-            let cached_recipient = match cached_recipient {
-                Some(cached_recipient) => cached_recipient.to_owned(),
-                None => {
-                    // Cache miss, lets see if we already have it in the db, and if not create it
-                    let recipient_result = recipient_repo
-                        .find_one_by_to_address_and_type(&chat_id, NotificationType::Telegram);
-                    match recipient_result {
-                        Ok(recipient_option) => {
-                            match recipient_option {
-                                Some(recipient) => {
-                                    // Recipient was already in the db, cache it and continue
-                                    recipient_cache.insert(chat_id.clone(), recipient.clone());
-                                    recipient
-                                }
-                                None => {
-                                    log::debug!(
-                                        "Recipient doesn't exist in db, creating new one..."
-                                    );
-                                    let new_recipient = create::CreateRecipient {
-                                        id: uuid(),
-                                        name: chat.title.clone(),
-                                        notification_type: NotificationType::Telegram,
-                                        to_address: chat_id.clone(),
-                                    };
-                                    let recipient_result = create_recipient(&ctx, new_recipient);
-                                    log::info!("Created recipient: {:?}", recipient_result);
-                                    match recipient_result {
-                                        Ok(recipient) => {
-                                            // Recipient created, cache it and continue
-                                            recipient_cache
-                                                .insert(chat_id.clone(), recipient.clone());
-                                            recipient
-                                        }
-                                        Err(_) => {
-                                            log::error!(
-                                                "Error creating recipient, skipping processing chat"
-                                            );
-                                            continue;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        Err(e) => {
-                            log::error!("Error finding recipient in db, skipping... {:?}", e);
-                            continue;
-                        }
+            let cached_recipient = recipient_cache.entry(chat_id.clone()).or_insert_with(|| {
+                match recipient_repo
+                    .find_one_by_to_address_and_type(&chat_id, NotificationType::Telegram)
+                {
+                    Ok(Some(recipient)) => recipient,
+                    Ok(None) => blank_telegram_recipient(),
+                    Err(e) => {
+                        log::error!("Error looking up recipient in database {}", e);
+                        // Because we are returning a new UUID for this telegram chat id, when there's a db error, there is a potential bug here!
+                        // With sqlite, it's likely that the whole service will have problems if we can't re-write from the database but we log a warning to restart at least.
+                        // Handling this error nicely would required more complex code, making it hard to read and reason about.
+                        // Adding caching to the repository layer might also be a good solution.
+                        log::error!("WARNING: After a database error the cache may be inconsistent, please restart the server!!! {}", e);
+                        blank_telegram_recipient()
                     }
                 }
-            };
+            });
 
-            // Check if we need to update the recipient name (e.g if the chat title has changed)
+            // Check if we need to update the recipient name (e.g if the chat title has changed or if we just created the recipient)
             if cached_recipient.name != chat.title {
                 log::debug!(
                     "Chat title doesn't match recipient name, updating recipient: {:?}",
                     chat
                 );
-                let new_recipient = UpdateRecipient {
+                cached_recipient.to_address = chat.id();
+                cached_recipient.name = chat.title.clone();
+
+                let new_recipient = CreateRecipient {
                     id: cached_recipient.id.clone(),
-                    name: Some(chat.title.clone()),
-                    to_address: None,
+                    name: chat.title.clone(),
+                    notification_type: NotificationType::Telegram,
+                    to_address: chat.id(),
                 };
-                let recipient_result = update_recipient(&ctx, new_recipient);
-                log::info!("Updated recipient: {:?}", recipient_result);
-                match recipient_result {
-                    Ok(recipient) => {
-                        recipient_cache.insert(chat_id, recipient);
-                    }
+
+                match upsert_recipient(&ctx, new_recipient) {
+                    Ok(recipient_result) => log::info!("Updated recipient: {:?}", recipient_result),
                     Err(e) => {
                         log::error!("Error updating recipient, skipping... {:?}", e);
-                        continue;
+                        log::error!("WARNING: After a database error the cache may be inconsistent, please restart the server!!!");
                     }
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use std::sync::Arc;
+
+    use repository::{mock::MockDataInserts, test_db::setup_all, NotificationType};
+    use telegram::{TelegramMessage, TelegramUpdate, TelegramUser};
+    use tokio::sync::mpsc::channel;
+    use util::uuid::uuid;
+
+    use crate::{
+        recipient::{self, create::CreateRecipient},
+        service_provider::{ServiceContext, ServiceProvider},
+        test_utils::get_test_settings,
+    };
+
+    const ASYNC_WAIT_MS: u64 = 10;
+
+    #[actix_rt::test]
+    async fn tes_handle_telegram_updates() {
+        let (_mock_data, _, connection_manager, _) =
+            setup_all("tes_handle_telegram_updates", MockDataInserts::none()).await;
+
+        let (tx, rx) = channel(100);
+
+        let service_provider = Arc::new(ServiceProvider::new(
+            connection_manager.clone(),
+            get_test_settings(""),
+        ));
+
+        let receive_context = ServiceContext::new(service_provider.clone()).unwrap();
+        let send_ctx = ServiceContext::new(service_provider.clone()).unwrap();
+
+        let update_handler = actix_rt::spawn(async move {
+            super::handle_telegram_updates(receive_context, rx).await;
+        });
+
+        // Test things don't break if we have an empty update to process (e.g. no chat)
+
+        let empty_update = TelegramUpdate {
+            update_id: serde_json::Value::from(1),
+            message: None,
+            my_chat_member: None,
+        };
+
+        tx.send(empty_update).await.unwrap();
+
+        // wait 10ms to allow processing to happen
+        tokio::time::sleep(tokio::time::Duration::from_millis(ASYNC_WAIT_MS)).await;
+
+        // Should be no new recipients...
+        let recipients = service_provider
+            .recipient_service
+            .get_recipients(&send_ctx, None, None, None)
+            .unwrap();
+        assert_eq!(recipients.count, 0);
+
+        let message_update = TelegramUpdate {
+            update_id: serde_json::Value::from(2),
+            message: Some(TelegramMessage {
+                message_id: serde_json::Value::from(1),
+                from: TelegramUser {
+                    id: serde_json::Value::from(1),
+                    is_bot: false,
+                    username: None,
+                },
+                chat: telegram::TelegramChat {
+                    id: serde_json::Value::from(1234),
+                    title: "telegram_chat_name".to_string(),
+                    r#type: "group".to_string(),
+                },
+                text: None,
+            }),
+            my_chat_member: None,
+        };
+
+        tx.send(message_update).await.unwrap();
+
+        // wait 10ms to allow processing to happen
+        tokio::time::sleep(tokio::time::Duration::from_millis(ASYNC_WAIT_MS)).await;
+
+        // Should now be 1 recipient...
+        let recipients = service_provider
+            .recipient_service
+            .get_recipients(&send_ctx, None, None, None)
+            .unwrap();
+        assert_eq!(recipients.count, 1);
+
+        // Check we update the title if it changes with a message
+        let title_change_update = TelegramUpdate {
+            update_id: serde_json::Value::from(3),
+            message: Some(TelegramMessage {
+                message_id: serde_json::Value::from(1),
+                from: TelegramUser {
+                    id: serde_json::Value::from(1),
+                    is_bot: false,
+                    username: None,
+                },
+                chat: telegram::TelegramChat {
+                    id: serde_json::Value::from(1234),
+                    title: "telegram_chat_name_changed".to_string(),
+                    r#type: "group".to_string(),
+                },
+                text: None,
+            }),
+            my_chat_member: None,
+        };
+
+        tx.send(title_change_update).await.unwrap();
+
+        // wait 10ms to allow processing to happen
+        tokio::time::sleep(tokio::time::Duration::from_millis(ASYNC_WAIT_MS)).await;
+
+        // Should still be only 1 recipient
+        let recipients = service_provider
+            .recipient_service
+            .get_recipients(&send_ctx, None, None, None)
+            .unwrap();
+        assert_eq!(recipients.count, 1);
+
+        // Should be able to find the recipient using the new name
+        let recipient_filter =
+            recipient::RecipientFilter::new().search("telegram_chat_name_changed".to_string());
+        let recipients = service_provider
+            .recipient_service
+            .get_recipients(&send_ctx, None, Some(recipient_filter), None)
+            .unwrap();
+        assert_eq!(recipients.count, 1);
+
+        // check we update the name when we receive a chat member update
+        let title_change_update = TelegramUpdate {
+            update_id: serde_json::Value::from(3),
+            message: None,
+            my_chat_member: Some(telegram::TelegramMyChatMember {
+                chat: telegram::TelegramChat {
+                    id: serde_json::Value::from(1234),
+                    title: "telegram_chat_name_changed_again".to_string(),
+                    r#type: "group".to_string(),
+                },
+                from: TelegramUser {
+                    id: serde_json::Value::from(1),
+                    is_bot: false,
+                    username: None,
+                },
+                date: serde_json::Value::String("UTCDATETIME".to_string()),
+            }),
+        };
+
+        tx.send(title_change_update).await.unwrap();
+
+        // wait 10ms to allow processing to happen
+        tokio::time::sleep(tokio::time::Duration::from_millis(ASYNC_WAIT_MS)).await;
+
+        // Should still be only 1 recipient
+        let recipients = service_provider
+            .recipient_service
+            .get_recipients(&send_ctx, None, None, None)
+            .unwrap();
+        assert_eq!(recipients.count, 1);
+
+        // Should be able to find the recipient using the new name
+        let recipient_filter = recipient::RecipientFilter::new()
+            .search("telegram_chat_name_changed_again".to_string());
+        let recipients = service_provider
+            .recipient_service
+            .get_recipients(&send_ctx, None, Some(recipient_filter), None)
+            .unwrap();
+        assert_eq!(recipients.count, 1);
+
+        // create a telegram recipient and put it in the db
+        let telegram_recipient = CreateRecipient {
+            id: uuid(),
+            name: "Notification Group 1".to_string(),
+            to_address: "-9999".to_string(),
+            notification_type: NotificationType::Telegram,
+        };
+
+        let result = service_provider
+            .recipient_service
+            .create_recipient(&send_ctx, telegram_recipient.clone());
+
+        assert!(result.is_ok());
+
+        // Test that we correctly update the receipt when we receive a message
+        let message_update = TelegramUpdate {
+            update_id: serde_json::Value::from(4),
+            message: Some(TelegramMessage {
+                message_id: serde_json::Value::from(1),
+                from: TelegramUser {
+                    id: serde_json::Value::from(1),
+                    is_bot: false,
+                    username: None,
+                },
+                chat: telegram::TelegramChat {
+                    id: serde_json::Value::from(-9999),
+                    title: "Notification Group 1a".to_string(),
+                    r#type: "group".to_string(),
+                },
+                text: None,
+            }),
+            my_chat_member: None,
+        };
+
+        tx.send(message_update).await.unwrap();
+
+        // wait 10ms to allow processing to happen
+        tokio::time::sleep(tokio::time::Duration::from_millis(ASYNC_WAIT_MS)).await;
+
+        let filter = recipient::RecipientFilter::new().search("Notification Group 1a".to_string());
+        let recipients = service_provider
+            .recipient_service
+            .get_recipients(&send_ctx, None, Some(filter), None)
+            .unwrap();
+        assert_eq!(recipients.count, 1);
+        assert_eq!(recipients.rows[0].name, "Notification Group 1a");
+
+        update_handler.abort();
     }
 }
