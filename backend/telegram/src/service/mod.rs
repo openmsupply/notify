@@ -272,6 +272,47 @@ mod test {
     }
 
     #[tokio::test]
+    async fn test_handle_json_updates_empty_message() {
+        let json = r#"        [
+         {
+            "update_id": 1111,
+            "something_else": {
+                "date": 1691536034,
+                "text": "We don't know what this is, but we do have a update_id"
+            }
+        }
+        ]"#;
+        let updates: Vec<serde_json::Value> = serde_json::from_str(json).unwrap();
+        const TELEGRAM_UPDATE_BUFFER_SIZE: usize = 8;
+        let (tx, _rx) = tokio::sync::mpsc::channel::<TelegramUpdate>(TELEGRAM_UPDATE_BUFFER_SIZE);
+
+        let last_update_id = handle_json_updates(updates, &tx).await;
+
+        assert!(last_update_id == Some(1111));
+    }
+
+    #[tokio::test]
+    async fn test_handle_json_updates_invalid_message() {
+        let json = r#"        [
+         {
+            "update_id": 1111,
+             "message": {
+                "message_id": 4444,
+                "date": 1691536034,
+                "text": "This is a direct message message..."
+            }
+        }
+        ]"#;
+        let updates: Vec<serde_json::Value> = serde_json::from_str(json).unwrap();
+        const TELEGRAM_UPDATE_BUFFER_SIZE: usize = 8;
+        let (tx, _rx) = tokio::sync::mpsc::channel::<TelegramUpdate>(TELEGRAM_UPDATE_BUFFER_SIZE);
+
+        let last_update_id = handle_json_updates(updates, &tx).await;
+
+        assert_eq!(last_update_id, Some(1111));
+    }
+
+    #[tokio::test]
     async fn test_handle_json_updates_single_private_message() {
         let json = r#"
         [
