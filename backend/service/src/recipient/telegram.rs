@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 
-use repository::{NotificationType, Recipient};
-use repository::{RecipientRow, RecipientRowRepository};
-use telegram::TelegramId;
+use repository::{NotificationType, Recipient, RecipientRow, RecipientRowRepository};
 use telegram::TelegramUpdate;
 use util::uuid::uuid;
 
@@ -32,7 +30,7 @@ pub async fn handle_telegram_updates(
         log::debug!("Received Telegram Update: {:?}", update);
 
         if let Some(chat) = update.chat() {
-            let chat_id = chat.id();
+            let chat_id = chat.id.to_string();
             let cached_recipient = recipient_cache.entry(chat_id.clone()).or_insert_with(|| {
                 match recipient_repo
                     .find_one_by_to_address_and_type(&chat_id, NotificationType::Telegram)
@@ -57,14 +55,14 @@ pub async fn handle_telegram_updates(
                     "Chat title doesn't match recipient name, updating recipient: {:?}",
                     chat
                 );
-                cached_recipient.to_address = chat.id();
+                cached_recipient.to_address = chat.id.to_string();
                 cached_recipient.name = chat.title.clone();
 
                 let new_recipient = CreateRecipient {
                     id: cached_recipient.id.clone(),
                     name: chat.title.clone(),
                     notification_type: NotificationType::Telegram,
-                    to_address: chat.id(),
+                    to_address: chat.id.to_string(),
                 };
 
                 match upsert_recipient(&ctx, new_recipient) {
@@ -118,7 +116,7 @@ mod test {
         // Test things don't break if we have an empty update to process (e.g. no chat)
 
         let empty_update = TelegramUpdate {
-            update_id: serde_json::Value::from(1),
+            update_id: 1,
             message: None,
             my_chat_member: None,
         };
@@ -136,16 +134,16 @@ mod test {
         assert_eq!(recipients.count, 0);
 
         let message_update = TelegramUpdate {
-            update_id: serde_json::Value::from(2),
+            update_id: 2,
             message: Some(TelegramMessage {
-                message_id: serde_json::Value::from(1),
+                message_id: 1,
                 from: TelegramUser {
-                    id: serde_json::Value::from(1),
+                    id: 1,
                     is_bot: false,
                     username: None,
                 },
                 chat: telegram::TelegramChat {
-                    id: serde_json::Value::from(1234),
+                    id: 1234,
                     title: "telegram_chat_name".to_string(),
                     r#type: "group".to_string(),
                 },
@@ -168,16 +166,16 @@ mod test {
 
         // Check we update the title if it changes with a message
         let title_change_update = TelegramUpdate {
-            update_id: serde_json::Value::from(3),
+            update_id: 3,
             message: Some(TelegramMessage {
-                message_id: serde_json::Value::from(1),
+                message_id: 1,
                 from: TelegramUser {
-                    id: serde_json::Value::from(1),
+                    id: 1,
                     is_bot: false,
                     username: None,
                 },
                 chat: telegram::TelegramChat {
-                    id: serde_json::Value::from(1234),
+                    id: 1234,
                     title: "telegram_chat_name_changed".to_string(),
                     r#type: "group".to_string(),
                 },
@@ -209,16 +207,16 @@ mod test {
 
         // check we update the name when we receive a chat member update
         let title_change_update = TelegramUpdate {
-            update_id: serde_json::Value::from(3),
+            update_id: 3,
             message: None,
             my_chat_member: Some(telegram::TelegramMyChatMember {
                 chat: telegram::TelegramChat {
-                    id: serde_json::Value::from(1234),
+                    id: 1234,
                     title: "telegram_chat_name_changed_again".to_string(),
                     r#type: "group".to_string(),
                 },
                 from: TelegramUser {
-                    id: serde_json::Value::from(1),
+                    id: 1,
                     is_bot: false,
                     username: None,
                 },
@@ -263,16 +261,16 @@ mod test {
 
         // Test that we correctly update the receipt when we receive a message
         let message_update = TelegramUpdate {
-            update_id: serde_json::Value::from(4),
+            update_id: 4,
             message: Some(TelegramMessage {
-                message_id: serde_json::Value::from(1),
+                message_id: 1,
                 from: TelegramUser {
-                    id: serde_json::Value::from(1),
+                    id: 1,
                     is_bot: false,
                     username: None,
                 },
                 chat: telegram::TelegramChat {
-                    id: serde_json::Value::from(-9999),
+                    id: -9999,
                     title: "Notification Group 1a".to_string(),
                     r#type: "group".to_string(),
                 },

@@ -9,14 +9,6 @@ use serde::{Deserialize, Serialize};
 // We use serde to deserialize the json responses from telegram into structs with fields relevant to our application
 //  - This comes with run-time risks if json can't be serialised. Hopefully the key edge cases are handled.
 
-// Get a telegram id from a struct as a String
-// We store ids from telegram as a JSON::Value in the struct to reduce risk of deserialisation issues, but we generally want to use it as a String
-// (Telegram treats ids as a Numbers)
-// This could possibly be a derive macro eventually, but one thing at at time!
-pub trait TelegramId {
-    fn id(&self) -> String;
-}
-
 /*
 "chat": {
     "id": -903279238,
@@ -27,15 +19,9 @@ pub trait TelegramId {
  */
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct TelegramChat {
-    pub id: serde_json::Value,
+    pub id: i64,
     pub title: String,
     pub r#type: String,
-}
-
-impl TelegramId for TelegramChat {
-    fn id(&self) -> String {
-        self.id.to_string()
-    }
 }
 
 /*
@@ -49,15 +35,9 @@ impl TelegramId for TelegramChat {
 */
 #[derive(Debug, Deserialize, Serialize)]
 pub struct TelegramUser {
-    pub id: serde_json::Value,
+    pub id: i64,
     pub username: Option<String>,
     pub is_bot: bool,
-}
-
-impl TelegramId for TelegramUser {
-    fn id(&self) -> String {
-        self.id.to_string()
-    }
 }
 
 /*
@@ -83,15 +63,10 @@ impl TelegramId for TelegramUser {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct TelegramMessage {
-    pub message_id: serde_json::Value,
+    pub message_id: u64,
     pub text: Option<String>,
     pub from: TelegramUser,
     pub chat: TelegramChat,
-}
-impl TelegramId for TelegramMessage {
-    fn id(&self) -> String {
-        self.message_id.to_string()
-    }
 }
 
 /*
@@ -140,15 +115,11 @@ pub struct TelegramMyChatMember {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct TelegramUpdate {
-    pub update_id: serde_json::Value,
+    pub update_id: i64,
     pub message: Option<TelegramMessage>,
     pub my_chat_member: Option<TelegramMyChatMember>,
 }
-impl TelegramId for TelegramUpdate {
-    fn id(&self) -> String {
-        self.update_id.to_string()
-    }
-}
+
 impl TelegramUpdate {
     // Returns the relevant chat for the update if available
     pub fn chat(&self) -> Option<TelegramChat> {
