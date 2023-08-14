@@ -41,6 +41,10 @@ pub async fn handle_telegram_updates(
                     Ok(None) => blank_telegram_recipient(),
                     Err(e) => {
                         log::error!("Error looking up recipient in database {}", e);
+                        // Because we are returning a new UUID for this telegram chat id, when there's a db error, there is a potential bug here!
+                        // With sqlite, it's likely that the whole service will have problems if we can't re-write from the database but we log a warning to restart at least.
+                        // Handling this error nicely would required more complex code, making it hard to read and reason about.
+                        // Adding caching to the repository layer might also be a good solution.
                         log::error!("WARNING: After a database error the cache may be inconsistent, please restart the server!!! {}", e);
                         blank_telegram_recipient()
                     }
