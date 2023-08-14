@@ -14,6 +14,7 @@ mod tests;
 pub mod create;
 pub mod delete;
 pub mod query;
+pub mod telegram;
 pub mod update;
 pub mod validate;
 

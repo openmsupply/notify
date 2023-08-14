@@ -1,9 +1,10 @@
 use repository::{
     EqualFilter, PaginationOption, RecipientListFilter, RecipientListRepository, RecipientListSort,
 };
+use util::number_conversions::i64_to_u32;
 
 use crate::{
-    get_default_pagination, i64_to_u32, service_provider::ServiceContext, ListError, ListResult,
+    get_default_pagination, service_provider::ServiceContext, ListError, ListResult,
     SingleRecordError,
 };
 

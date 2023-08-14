@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use repository::{RepositoryError, StorageConnection, StorageConnectionManager};
+use telegram::TelegramClient;
 
 use crate::{
     auth::{AuthService, AuthServiceTrait},
@@ -20,6 +21,7 @@ pub struct ServiceProvider {
     pub recipient_service: Box<dyn RecipientServiceTrait>,
     pub recipient_list_service: Box<dyn RecipientListServiceTrait>,
     pub settings: Settings,
+    pub telegram: Option<TelegramClient>,
 }
 
 pub struct ServiceContext {
@@ -64,6 +66,11 @@ impl ServiceContext {
 
 impl ServiceProvider {
     pub fn new(connection_manager: StorageConnectionManager, settings: Settings) -> Self {
+        let telegram = match &settings.telegram.token {
+            Some(token) => Some(TelegramClient::new(token.clone())),
+            None => None,
+        };
+
         ServiceProvider {
             connection_manager,
             email_service: Box::new(EmailService::new(settings.clone())),
@@ -73,6 +80,7 @@ impl ServiceProvider {
             recipient_service: Box::new(RecipientService {}),
             recipient_list_service: Box::new(RecipientListService {}),
             settings: settings,
+            telegram: telegram,
         }
     }
 

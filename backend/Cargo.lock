@@ -716,9 +716,9 @@ checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
 
 [[package]]
 name = "bitflags"
-version = "2.3.3"
+version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "630be753d4e58660abd17930c71b647fe46c27ea6b63cc59e1e3851406972e42"
+checksum = "b4682ae6287fcf752ecaabbfcc7b6f9b72aa33933dc23a554d853aea8eea8635"
 
 [[package]]
 name = "block-buffer"
@@ -1167,7 +1167,7 @@ version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f7a532c1f99a0f596f6960a60d1e119e91582b24b39e2d83a190e61262c3ef0c"
 dependencies = [
- "bitflags 2.3.3",
+ "bitflags 2.4.0",
  "byteorder",
  "diesel_derives 2.1.0",
  "itoa 1.0.1",
@@ -1565,6 +1565,7 @@ dependencies = [
  "graphql_general",
  "graphql_recipient",
  "graphql_recipient_list",
+ "graphql_telegram",
  "graphql_types",
  "graphql_user_account",
  "log",
@@ -1649,6 +1650,22 @@ dependencies = [
  "repository",
  "serde_json",
  "service",
+ "util",
+]
+
+[[package]]
+name = "graphql_telegram"
+version = "0.1.0"
+dependencies = [
+ "actix-rt",
+ "actix-web",
+ "assert-json-diff",
+ "async-graphql",
+ "graphql_core",
+ "graphql_types",
+ "repository",
+ "service",
+ "telegram",
  "util",
 ]
 
@@ -3099,6 +3116,7 @@ dependencies = [
  "sanitize-filename",
  "serde",
  "service",
+ "telegram",
  "tokio",
  "util",
 ]
@@ -3121,6 +3139,7 @@ dependencies = [
  "repository",
  "serde",
  "serde_json",
+ "telegram",
  "tera",
  "tokio",
  "util",
@@ -3271,6 +3290,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "telegram"
+version = "0.1.0"
+dependencies = [
+ "http",
+ "log",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "tempfile"
 version = "3.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3399,6 +3430,7 @@ dependencies = [
  "bytes",
  "libc",
  "mio",
+ "num_cpus",
  "parking_lot 0.12.0",
  "pin-project-lite",
  "signal-hook-registry",

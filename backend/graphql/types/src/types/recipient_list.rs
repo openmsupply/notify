@@ -6,7 +6,8 @@ use graphql_core::{
     ContextExt,
 };
 use repository::RecipientList;
-use service::{usize_to_u32, ListResult};
+use service::ListResult;
+use util::usize_to_u32;
 
 #[derive(Union)]
 pub enum RecipientListsResponse {

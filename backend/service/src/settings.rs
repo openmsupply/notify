@@ -4,6 +4,7 @@ pub struct Settings {
     pub server: ServerSettings,
     pub database: DatabaseSettings,
     pub mail: MailSettings,
+    pub telegram: TelegramSettings,
 }
 
 #[derive(serde::Deserialize, Clone)]
@@ -37,4 +38,8 @@ pub struct MailSettings {
     pub username: String,
     pub password: String,
     pub from: String,
+}
+#[derive(serde::Deserialize, Clone)]
+pub struct TelegramSettings {
+    pub token: Option<String>,
 }
