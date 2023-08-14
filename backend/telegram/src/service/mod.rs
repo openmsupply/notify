@@ -268,7 +268,7 @@ mod test {
 
         let last_update_id = handle_json_updates(updates, &tx).await;
 
-        assert!(last_update_id == -2);
+        assert!(last_update_id == None);
     }
 
     #[tokio::test]
@@ -304,7 +304,7 @@ mod test {
 
         let last_update_id = handle_json_updates(updates, &tx).await;
 
-        assert!(last_update_id == 1111);
+        assert!(last_update_id == Some(1111));
 
         // Get the message from the channel
         let telegram_update = rx.recv().await.unwrap();
@@ -353,7 +353,7 @@ mod test {
 
         let last_update_id = handle_json_updates(updates, &tx).await;
 
-        assert!(last_update_id == 794348052);
+        assert!(last_update_id == Some(794348052));
 
         // Get the message from the channel
         let telegram_update = rx.recv().await.unwrap();
@@ -420,7 +420,7 @@ mod test {
 
         let last_update_id = handle_json_updates(updates, &tx).await;
 
-        assert!(last_update_id == 794348049);
+        assert!(last_update_id == Some(794348049));
     }
 
     #[tokio::test]
@@ -596,7 +596,7 @@ mod test {
 
         let last_update_id = handle_json_updates(updates, &tx).await;
 
-        assert!(last_update_id == 794348053);
+        assert!(last_update_id == Some(794348053));
     }
 
     #[tokio::test]
@@ -636,6 +636,6 @@ mod test {
         let last_update_id = handle_json_updates(updates, &tx).await;
 
         // We quietly skip the bad update_id
-        assert_eq!(last_update_id, 794348052);
+        assert_eq!(last_update_id, Some(794348052));
     }
 }
