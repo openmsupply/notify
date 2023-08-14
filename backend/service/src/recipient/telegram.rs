@@ -95,9 +95,9 @@ mod test {
     const ASYNC_WAIT_MS: u64 = 10;
 
     #[actix_rt::test]
-    async fn tes_handle_telegram_updates() {
+    async fn test_handle_telegram_updates() {
         let (_mock_data, _, connection_manager, _) =
-            setup_all("tes_handle_telegram_updates", MockDataInserts::none()).await;
+            setup_all("test_handle_telegram_updates", MockDataInserts::none()).await;
 
         let (tx, rx) = channel(100);
 

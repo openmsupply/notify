@@ -3,7 +3,6 @@ pub mod service;
 
 pub use client::*;
 use serde::{Deserialize, Serialize};
-
 // Rather than use an existing Telegram Client, we've implemented a minimal one in this crate.
 // If we need more functionality we can flesh out this crate, or refactor using another library.
 // We use serde to deserialize the json responses from telegram into structs with fields relevant to our application
@@ -278,15 +277,9 @@ mod test {
         "#;
 
         let update: super::TelegramUpdate = serde_json::from_str(json).unwrap();
-        assert_eq!(
-            update.update_id,
-            serde_json::Value::Number(794348060.into())
-        );
+        assert_eq!(update.update_id, 794348060);
         let my_chat_member = update.my_chat_member.unwrap();
-        assert_eq!(
-            my_chat_member.chat.id,
-            serde_json::Value::Number((-903279238).into())
-        );
+        assert_eq!(my_chat_member.chat.id, -903279238);
     }
 
     #[test]
