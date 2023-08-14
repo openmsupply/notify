@@ -157,6 +157,15 @@ impl TelegramUpdate {
     }
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct TelegramApiResponse {
+    pub ok: bool,
+    pub description: Option<String>,
+    pub result: serde_json::Value,
+    pub error_code: Option<i64>,
+    pub retry_after: Option<i64>,
+}
+
 // Test cases for the TelegramUpdate struct
 #[cfg(test)]
 mod test {

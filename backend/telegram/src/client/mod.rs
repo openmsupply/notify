@@ -1,9 +1,9 @@
 use std::time::Duration;
 
 use serde::Serialize;
-use serde_json;
+use serde_json::{self, Value};
 
-use crate::{TelegramChat, TelegramMessage};
+use crate::{TelegramApiResponse, TelegramChat, TelegramMessage};
 
 const DEFAULT_REQUEST_TIMEOUT: u64 = 60;
 
@@ -78,11 +78,16 @@ impl TelegramClient {
         let url = format!("{}/getMyName", self.base_url);
         let response = self.http_client.get(&url).send().await?;
         let response_text = response.text().await?;
-        response_text
-            .parse::<serde_json::Value>()
-            .map_err(|e| TelegramError::Fatal(e.to_string()))?
-            .get("result")
-            .ok_or_else(|| TelegramError::Fatal("No result in response".to_string()))?
+
+        let telegram_response: TelegramApiResponse = serde_json::from_str(&response_text)
+            .map_err(|e| TelegramError::Fatal(e.to_string()))?;
+
+        if !telegram_response.ok {
+            return Err(TelegramError::Fatal(response_text));
+        }
+
+        telegram_response
+            .result
             .get("name")
             .ok_or_else(|| TelegramError::Fatal("No name in response".to_string()))?
             .as_str()
@@ -97,28 +102,14 @@ impl TelegramClient {
         let response = self.http_client.post(&url).form(&params).send().await?;
         let response_text = response.text().await?;
 
-        let response_json = response_text
-            .parse::<serde_json::Value>()
+        let telegram_response: TelegramApiResponse = serde_json::from_str(&response_text)
             .map_err(|e| TelegramError::Fatal(e.to_string()))?;
 
-        // If telegram gets an error we get a response something like this
-        // {\"ok\":false,\"error_code\":400,\"description\":\"Bad Request: chat not found\"}
-        if let Some(error_code) = response_json.get("error_code") {
-            let error_message = match response_json.get("description") {
-                Some(description) => description.to_string(),
-                None => "Unknown error".to_string(),
-            };
-            return Err(TelegramError::Fatal(format!(
-                "Error code {} : {}",
-                error_code, error_message
-            )));
+        if !telegram_response.ok {
+            return Err(TelegramError::Fatal(response_text));
         }
 
-        let chat = response_json
-            .get("result")
-            .ok_or_else(|| TelegramError::Fatal("No result in response".to_string()))?;
-
-        let chat: TelegramChat = serde_json::from_value(chat.clone())
+        let chat: TelegramChat = serde_json::from_value(telegram_response.result)
             .map_err(|e| TelegramError::Fatal(e.to_string()))?;
 
         Ok(chat)
@@ -135,35 +126,15 @@ impl TelegramClient {
         let response = self.http_client.post(&url).form(&params).send().await?;
         let response_text = response.text().await?;
 
-        let response_json = response_text
-            .parse::<serde_json::Value>()
+        let telegram_response: TelegramApiResponse = serde_json::from_str(&response_text)
             .map_err(|e| TelegramError::Fatal(e.to_string()))?;
 
-        // If telegram gets an error we get a response something like this
-        // {\"ok\":false,\"error_code\":400,\"description\":\"Bad Request: chat not found\"}
-        if let Some(error_code) = response_json.get("error_code") {
-            let error_message = match response_json.get("description") {
-                Some(description) => description.to_string(),
-                None => format!(
-                    "Error: {} - Description missing in telegram API response",
-                    error_code
-                ),
-            };
-
-            return Err(TelegramError::Fatal(error_message));
+        if !telegram_response.ok {
+            return Err(TelegramError::Fatal(response_text));
         }
-        // Otherwise we should have a json something like this:
-        // "{\"ok\":true,\"result\":{\"message_id\":23,\"from\":{\"id\":6544022299,\"is_bot\":true,\"first_name\":\"jmb-notify\",\"username\":\"jmb_notify_bot\"},\"chat\":{\"id\":-914917543,\"title\":\"James & jmb-notify\",\"type\":\"group\",\"all_members_are_administrators\":true},\"date\":1691470973,\"text\":\"This is a test message from notify\"}}"
-        // We want to make a TelegramMessage from this 'result' object
-        let message: TelegramMessage = match response_json.get("result") {
-            Some(result) => serde_json::from_value(result.to_owned()).map_err(|e| {
-                TelegramError::Fatal(format!(
-                    "Unable to interpret telegram response. {}",
-                    e.to_string()
-                ))
-            })?,
-            None => return Err(TelegramError::Fatal("No result in response".to_string())),
-        };
+
+        let message: TelegramMessage = serde_json::from_value(telegram_response.result)
+            .map_err(|e| TelegramError::Fatal(e.to_string()))?;
 
         Ok(message)
     }
@@ -176,7 +147,7 @@ impl TelegramClient {
         &self,
         last_confirmed_id: Option<i64>,
         timeout: i64,
-    ) -> Result<Vec<serde_json::Value>, TelegramError> {
+    ) -> Result<Vec<Value>, TelegramError> {
         let url = format!("{}/getUpdates", self.base_url);
         // We add one to the last update_id so we don't get the same updates again
         let params = GetUpdatesParams {
@@ -187,28 +158,14 @@ impl TelegramClient {
         let response = self.http_client.get(&url).form(&params).send().await?;
         let response_text = response.text().await?;
 
-        let response_json = response_text
-            .parse::<serde_json::Value>()
+        let telegram_response: TelegramApiResponse = serde_json::from_str(&response_text)
             .map_err(|e| TelegramError::Fatal(e.to_string()))?;
 
-        // If telegram gets an error I assume we get a response something like this
-        // {\"ok\":false,\"error_code\":400,\"description\":\"Bad Request: chat not found\"}
-        if let Some(error_code) = response_json.get("error_code") {
-            let error_message = match response_json.get("description") {
-                Some(description) => description.to_string(),
-                None => "Unknown error".to_string(),
-            };
-            return Err(TelegramError::Fatal(format!(
-                "Error code {} : {}",
-                error_code, error_message
-            )));
+        if !telegram_response.ok {
+            return Err(TelegramError::Fatal(response_text));
         }
 
-        let updates = response_json
-            .get("result")
-            .ok_or_else(|| TelegramError::Fatal("No result in response".to_string()))?;
-
-        let updates: Vec<serde_json::Value> = serde_json::from_value(updates.clone())
+        let updates: Vec<Value> = serde_json::from_value(telegram_response.result)
             .map_err(|e| TelegramError::Fatal(e.to_string()))?;
 
         Ok(updates)
