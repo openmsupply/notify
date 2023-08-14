@@ -8,7 +8,7 @@ export interface FilterByConditionByType {
   boolean: 'equalTo';
 }
 
-type FilterRule = {
+export type FilterRule = {
   [P in
     | FilterByConditionByType['boolean']
     | FilterByConditionByType['string']

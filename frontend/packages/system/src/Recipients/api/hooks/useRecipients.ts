@@ -9,12 +9,12 @@ import { RecipientRowFragment, getSdk } from './../operations.generated';
 import { RECIPIENTS } from '../../../cacheKeys';
 
 export const useRecipients = ({
-  filter,
+  filterBy,
   sortBy,
   first,
   offset,
 }: {
-  filter?: FilterBy | null;
+  filterBy?: FilterBy | null;
   sortBy?: SortBy<RecipientRowFragment>;
   first?: number;
   offset?: number;
@@ -22,10 +22,12 @@ export const useRecipients = ({
   const { client } = useGql();
   const sdk = getSdk(client);
 
-  return useQuery(RECIPIENTS, async () => {
+  const cacheKeys = [RECIPIENTS, first, offset, filterBy, sortBy];
+
+  return useQuery(cacheKeys, async () => {
     const response = await sdk.Recipients({
-      filter,
-      sort: sortBy
+      filter: filterBy,
+      sort: sortBy?.key
         ? {
             desc: sortBy.isDesc ?? false,
             key: sortBy.key as RecipientSortFieldInput,
