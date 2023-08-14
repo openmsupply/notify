@@ -37,6 +37,14 @@ mutation createRecipient($input: CreateRecipientInput!) {
   }
 }
 
+mutation updateRecipient($input: UpdateRecipientInput!) {
+  updateRecipient(input: $input) {
+    ... on RecipientNode {
+      ...RecipientRow
+    }
+  }
+}
+
 mutation deleteRecipient($recipientId: String!) {
   deleteRecipient(recipientId: $recipientId) {
     ... on DeleteResponse {

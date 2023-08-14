@@ -27,14 +27,15 @@ export const ListView = () => {
     useEditModal<RecipientRowFragment>();
 
   // TODO: sort
-  const columns = useColumns([
+  const columns = useColumns<RecipientRowFragment>([
     { key: 'name', label: 'label.name' },
     { key: 'notificationType', label: 'label.type' },
     { key: 'toAddress', label: 'label.address' },
     'selection',
   ]);
 
-  const { data: recipients, isError, isLoading } = useRecipients(queryParams);
+  const { data, isError, isLoading } = useRecipients(queryParams);
+  const recipients = data?.nodes ?? [];
 
   const { mutateAsync: deleteRecipient } = useDeleteRecipient();
 
@@ -66,18 +67,19 @@ export const ListView = () => {
 
       <TableProvider createStore={createTableStore}>
         <SearchAndDeleteToolbar
-          data={recipients?.nodes ?? []}
+          data={recipients}
           filter={filter}
           deleteItem={deleteRecipient}
         />
 
         <DataTable
           columns={columns}
-          data={recipients?.nodes ?? []}
+          data={recipients}
           isError={isError}
           isLoading={isLoading}
+          onRowClick={onOpen}
           noDataElement={<NothingHere body={t('error.no-recipients')} />}
-          pagination={{ ...pagination, total: recipients?.totalCount }}
+          pagination={{ ...pagination, total: data?.totalCount }}
           onChangePage={updatePaginationQuery}
         />
       </TableProvider>

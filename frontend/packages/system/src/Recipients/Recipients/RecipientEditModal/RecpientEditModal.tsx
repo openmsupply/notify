@@ -5,7 +5,11 @@ import {
   FnUtils,
   NotificationTypeNode,
 } from '@notify-frontend/common';
-import { RecipientRowFragment, useCreateRecipient } from '../../api';
+import {
+  RecipientRowFragment,
+  useCreateRecipient,
+  useUpdateRecipient,
+} from '../../api';
 import { RecipientEditForm } from './RecipientEditForm';
 import { DraftRecipient } from './types';
 import { EditModal } from 'packages/system/src/shared/EditModal';
@@ -35,14 +39,16 @@ export const RecipientEditModal = ({
 
   const { mutateAsync: create, isLoading: createIsLoading } =
     useCreateRecipient();
-  // const { mutateAsync: update, isLoading: updateIsLoading } =
-  //   useUserAccount.document.update();
+  const { mutateAsync: update, isLoading: updateIsLoading } =
+    useUpdateRecipient();
 
   const onSave = async (draft: DraftRecipient) => {
     if (mode === ModalMode.Create) {
       await create({ input: draft });
     } else {
-      //   await update();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id, name, toAddress } = draft;
+      await update({ input: { id, name, toAddress } });
     }
   };
 
@@ -53,7 +59,7 @@ export const RecipientEditModal = ({
 
   return (
     <EditModal
-      isLoading={createIsLoading}
+      isLoading={createIsLoading || updateIsLoading}
       isOpen={isOpen}
       checkIsInvalid={checkIsInvalid}
       mode={mode}
@@ -64,7 +70,7 @@ export const RecipientEditModal = ({
           : t('label.edit-recipient')
       }
       onClose={onClose}
-      createDraft={createRecipient}
+      createDraft={() => createRecipient(recipient)}
       onSave={onSave}
       EditForm={RecipientEditForm}
     />
