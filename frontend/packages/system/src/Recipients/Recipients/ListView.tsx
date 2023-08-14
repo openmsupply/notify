@@ -10,18 +10,23 @@ import {
 import { useRecipients } from '../api';
 import { useQueryParamsState } from '@common/hooks';
 import { SearchAndDeleteToolbar } from '../../shared/SearchAndDeleteToolbar';
+import { useDeleteRecipient } from '../api/hooks/useDeleteRecipient';
 
 export const ListView = () => {
   const t = useTranslation('system');
   const { filter, queryParams, updatePaginationQuery } = useQueryParamsState();
 
+  // TODO: sort
   const columns = useColumns([
     { key: 'name', label: 'label.name' },
     { key: 'notificationType', label: 'label.type' },
     { key: 'toAddress', label: 'label.address' },
+    'selection',
   ]);
 
   const { data: recipients, isError, isLoading } = useRecipients(queryParams);
+
+  const { mutateAsync: deleteRecipient } = useDeleteRecipient();
 
   const pagination = {
     page: queryParams.page,
@@ -34,7 +39,7 @@ export const ListView = () => {
       <SearchAndDeleteToolbar
         data={recipients?.nodes ?? []}
         filter={filter}
-        deleteItem={() => Promise.resolve(undefined)}
+        deleteItem={deleteRecipient}
       />
       <DataTable
         columns={columns}

@@ -29,7 +29,7 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
 }: {
   data: T[];
   filter: FilterController;
-  deleteItem: (item: T) => Promise<void>;
+  deleteItem: (id: string) => Promise<unknown>;
   searchFilterKey?: string;
 }) => {
   const t = useTranslation(['system']);
@@ -49,7 +49,7 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
       const errors: DeleteError[] = [];
       Promise.all(
         selectedRows.map(async item => {
-          await deleteItem(item).catch(err => {
+          await deleteItem(item.id).catch(err => {
             errors.push({
               id: item.id,
               message: err.message,

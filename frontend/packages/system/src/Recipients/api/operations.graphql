@@ -22,3 +22,11 @@ query Recipients(
     }
   }
 }
+
+mutation deleteRecipient($recipientId: String!) {
+  deleteRecipient(recipientId: $recipientId) {
+    ... on DeleteResponse {
+      id
+    }
+  }
+}
