@@ -50,19 +50,19 @@ pub async fn handle_telegram_updates(
             });
 
             // Check if we need to update the recipient name (e.g if the chat title has changed or if we just created the recipient)
-            if cached_recipient.name != chat.title {
+            if cached_recipient.name != chat.name() {
                 log::debug!(
                     "Chat title doesn't match recipient name, updating recipient: {:?}",
                     chat
                 );
                 cached_recipient.to_address = chat.id.to_string();
-                cached_recipient.name = chat.title.clone();
+                cached_recipient.name = chat.name();
 
                 let new_recipient = CreateRecipient {
                     id: cached_recipient.id.clone(),
-                    name: chat.title.clone(),
+                    name: cached_recipient.name.clone(),
                     notification_type: NotificationType::Telegram,
-                    to_address: chat.id.to_string(),
+                    to_address: cached_recipient.to_address.clone(),
                 };
 
                 match upsert_recipient(&ctx, new_recipient) {
@@ -141,11 +141,13 @@ mod test {
                     id: 1,
                     is_bot: false,
                     username: None,
+                    ..Default::default()
                 },
                 chat: telegram::TelegramChat {
                     id: 1234,
-                    title: "telegram_chat_name".to_string(),
+                    title: Some("telegram_chat_name".to_string()),
                     r#type: "group".to_string(),
+                    ..Default::default()
                 },
                 text: None,
             }),
@@ -173,11 +175,13 @@ mod test {
                     id: 1,
                     is_bot: false,
                     username: None,
+                    ..Default::default()
                 },
                 chat: telegram::TelegramChat {
                     id: 1234,
-                    title: "telegram_chat_name_changed".to_string(),
+                    title: Some("telegram_chat_name_changed".to_string()),
                     r#type: "group".to_string(),
+                    ..Default::default()
                 },
                 text: None,
             }),
@@ -212,15 +216,16 @@ mod test {
             my_chat_member: Some(telegram::TelegramMyChatMember {
                 chat: telegram::TelegramChat {
                     id: 1234,
-                    title: "telegram_chat_name_changed_again".to_string(),
+                    title: Some("telegram_chat_name_changed_again".to_string()),
                     r#type: "group".to_string(),
+                    ..Default::default()
                 },
                 from: TelegramUser {
                     id: 1,
                     is_bot: false,
                     username: None,
+                    ..Default::default()
                 },
-                date: serde_json::Value::String("UTCDATETIME".to_string()),
             }),
         };
 
@@ -268,11 +273,13 @@ mod test {
                     id: 1,
                     is_bot: false,
                     username: None,
+                    ..Default::default()
                 },
                 chat: telegram::TelegramChat {
                     id: -9999,
-                    title: "Notification Group 1a".to_string(),
+                    title: Some("Notification Group 1a".to_string()),
                     r#type: "group".to_string(),
+                    ..Default::default()
                 },
                 text: None,
             }),

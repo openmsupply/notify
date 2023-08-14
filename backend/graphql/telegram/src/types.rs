@@ -19,7 +19,7 @@ impl From<TelegramMessage> for TelegramMessageNode {
         TelegramMessageNode {
             username: message.from.username.unwrap_or_default(),
             message: message.text.unwrap_or_default(),
-            chat_name: message.chat.title,
+            chat_name: message.chat.name(),
             chat_id: message.chat.id.to_string(),
         }
     }

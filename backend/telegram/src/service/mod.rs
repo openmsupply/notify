@@ -289,6 +289,55 @@ mod test {
     }
 
     #[tokio::test]
+    async fn test_handle_json_updates_single_private_message() {
+        let json = r#"
+        [
+         {
+            "update_id": 1111,
+            "message": {
+                "message_id": 4444,
+                "from": {
+                    "id": 5555,
+                    "is_bot": false,
+                    "first_name": "User1",
+                    "last_name": "Last1",
+                    "language_code": "en"
+                },
+                "chat": {
+                    "id": 5068627745,
+                    "first_name": "User1",
+                    "last_name": "Last1",
+                    "type": "private"
+                },
+                "date": 1691536034,
+                "text": "This is a direct message message..."
+            }
+        }
+        ]"#;
+        let updates: Vec<serde_json::Value> = serde_json::from_str(json).unwrap();
+        const TELEGRAM_UPDATE_BUFFER_SIZE: usize = 8;
+        let (tx, mut rx) =
+            tokio::sync::mpsc::channel::<TelegramUpdate>(TELEGRAM_UPDATE_BUFFER_SIZE);
+
+        let last_update_id = handle_json_updates(updates, &tx).await;
+
+        assert!(last_update_id == 1111);
+
+        // Get the message from the channel
+        let telegram_update = rx.recv().await.unwrap();
+        assert!(telegram_update.message.is_some());
+        let message = telegram_update.clone().message.unwrap();
+        assert_eq!(message.message_id, 4444);
+        assert_eq!(message.from.id, 5555);
+        assert!(message.from.is_bot == false);
+        assert_eq!(
+            telegram_update.chat().unwrap().name(),
+            "Telegram: User1 Last1".to_string()
+        );
+        assert_eq!(message.text.unwrap(), "This is a direct message message...");
+    }
+
+    #[tokio::test]
     async fn test_handle_json_updates_single_message() {
         let json = r#"
         [
@@ -316,11 +365,28 @@ mod test {
         ]"#;
         let updates: Vec<serde_json::Value> = serde_json::from_str(json).unwrap();
         const TELEGRAM_UPDATE_BUFFER_SIZE: usize = 8;
-        let (tx, _rx) = tokio::sync::mpsc::channel::<TelegramUpdate>(TELEGRAM_UPDATE_BUFFER_SIZE);
+        let (tx, mut rx) =
+            tokio::sync::mpsc::channel::<TelegramUpdate>(TELEGRAM_UPDATE_BUFFER_SIZE);
 
         let last_update_id = handle_json_updates(updates, &tx).await;
 
         assert!(last_update_id == 794348052);
+
+        // Get the message from the channel
+        let telegram_update = rx.recv().await.unwrap();
+        assert!(telegram_update.message.is_some());
+        let message = telegram_update.clone().message.unwrap();
+        assert_eq!(message.message_id, 33);
+        assert_eq!(message.from.id, 5068627745);
+        assert!(message.from.is_bot == false);
+        assert_eq!(
+            telegram_update.chat().unwrap().name(),
+            "User1 & bot-name".to_string()
+        );
+        assert_eq!(
+            message.text.unwrap(),
+            "This is a normal non direct message message..."
+        );
     }
 
     #[tokio::test]

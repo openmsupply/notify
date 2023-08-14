@@ -17,11 +17,35 @@ use serde::{Deserialize, Serialize};
     "all_members_are_administrators": true
 },
  */
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone, Default)]
 pub struct TelegramChat {
     pub id: i64,
-    pub title: String,
+    pub title: Option<String>,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
     pub r#type: String,
+}
+
+impl TelegramChat {
+    pub fn name(&self) -> String {
+        let prefix = "Telegram:";
+
+        match &self.title {
+            Some(title) => title.clone(),
+            None => {
+                if let Some(first_name) = &self.first_name {
+                    if let Some(last_name) = &self.last_name {
+                        format!("{} {} {}", prefix, first_name, last_name)
+                    } else {
+                        first_name.clone()
+                    }
+                } else {
+                    // If we don't have a title, first_name or last_name, we'll just use the id
+                    format!("{} {}", prefix, self.id)
+                }
+            }
+        }
+    }
 }
 
 /*
@@ -33,10 +57,12 @@ pub struct TelegramChat {
                   "language_code": "en"
    },
 */
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Default, Clone)]
 pub struct TelegramUser {
     pub id: i64,
     pub username: Option<String>,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
     pub is_bot: bool,
 }
 
@@ -61,7 +87,7 @@ pub struct TelegramUser {
            }
 */
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct TelegramMessage {
     pub message_id: u64,
     pub text: Option<String>,
@@ -106,14 +132,13 @@ pub struct TelegramMessage {
             }
 */
 // Note: TelegramMyChatMember is triggered when the bot is first added to a chat group
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct TelegramMyChatMember {
     pub chat: TelegramChat,
     pub from: TelegramUser,
-    pub date: serde_json::Value,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct TelegramUpdate {
     pub update_id: i64,
     pub message: Option<TelegramMessage>,
@@ -340,7 +365,7 @@ mod test {
         let update: super::TelegramUpdate = serde_json::from_str(json).unwrap();
         let chat = update.chat().unwrap();
         assert_eq!(chat.id, -903279238);
-        assert_eq!(chat.title, "Bob & notify (East)".to_string());
+        assert_eq!(chat.title, Some("Bob & notify (East)".to_string()));
 
         let json = r#"
         {
@@ -384,6 +409,6 @@ mod test {
         let update = serde_json::from_str::<super::TelegramUpdate>(json).unwrap();
         let chat = update.chat().unwrap();
         assert_eq!(chat.id, -903279238);
-        assert_eq!(chat.title, "Bob & notify (East)".to_string());
+        assert_eq!(chat.title, Some("Bob & notify (East)".to_string()));
     }
 }
