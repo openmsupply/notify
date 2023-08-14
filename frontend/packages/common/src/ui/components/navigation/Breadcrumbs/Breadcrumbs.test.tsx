@@ -17,7 +17,7 @@ describe('Breadcrumbs', () => {
           initialEntries={[
             RouteBuilder.create(AppRoute.UserAccounts)
               .addPart(AppRoute.Admin)
-              .addPart(AppRoute.MyAccount)
+              .addPart(AppRoute.ForgotPassword)
               .build(),
           ]}
         >
@@ -27,6 +27,6 @@ describe('Breadcrumbs', () => {
     );
 
     expect(getByText(/admin/i)).toBeInTheDocument();
-    expect(getByText(/my account/i)).toBeInTheDocument();
+    expect(getByText(/forgot/i)).toBeInTheDocument();
   });
 });

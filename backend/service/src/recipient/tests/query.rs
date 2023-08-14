@@ -2,6 +2,7 @@
 mod recipient_query_test {
     use std::sync::Arc;
 
+    use repository::mock::{mock_recipient_a, mock_recipient_aa};
     use repository::{
         mock::MockDataInserts, test_db::setup_all, RecipientFilter, RecipientSortField,
     };
@@ -74,10 +75,10 @@ mod recipient_query_test {
         );
 
         let db_recipient = service
-            .get_recipient(&context, "id_recipient_a".to_owned())
+            .get_recipient(&context, mock_recipient_a().id.clone())
             .unwrap();
 
-        assert_eq!(db_recipient.id, "id_recipient_a");
+        assert_eq!(db_recipient.id, mock_recipient_a().id.clone());
     }
 
     #[actix_rt::test]
@@ -99,13 +100,13 @@ mod recipient_query_test {
             .get_recipients(
                 &context,
                 None,
-                Some(RecipientFilter::new().id(EqualFilter::equal_to("id_recipient_a"))),
+                Some(RecipientFilter::new().id(EqualFilter::equal_to(&mock_recipient_a().id))),
                 None,
             )
             .unwrap();
 
         assert_eq!(db_recipients.count, 1);
-        assert_eq!(db_recipients.rows[0].id, "id_recipient_a");
+        assert_eq!(db_recipients.rows[0].id, mock_recipient_a().id.clone());
     }
 
     #[actix_rt::test]
@@ -138,11 +139,11 @@ mod recipient_query_test {
         assert_eq!(to_address_search_db_recipients.count, 2);
         assert_eq!(
             to_address_search_db_recipients.rows[0].to_address,
-            "a@openmsupply.foundation".to_string()
+            mock_recipient_a().to_address.clone()
         );
         assert_eq!(
             to_address_search_db_recipients.rows[1].to_address,
-            "aa@openmsupply.foundation".to_string()
+            mock_recipient_aa().to_address.clone()
         );
 
         let name_search_db_recipients = service
@@ -160,11 +161,11 @@ mod recipient_query_test {
         assert_eq!(name_search_db_recipients.count, 2);
         assert_eq!(
             name_search_db_recipients.rows[0].name,
-            "recipient_a".to_string()
+            mock_recipient_a().name.clone()
         );
         assert_eq!(
             name_search_db_recipients.rows[1].name,
-            "recipient_aa".to_string()
+            mock_recipient_aa().name.clone()
         );
     }
 

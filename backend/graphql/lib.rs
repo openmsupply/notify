@@ -13,6 +13,7 @@ use graphql_core::{refresh_token_from_cookie, RefreshTokenData, SelfRequest};
 use graphql_general::GeneralQueries;
 
 use graphql_recipient::{RecipientMutations, RecipientQueries};
+use graphql_recipient_list::{RecipientListMutations, RecipientListQueries};
 use graphql_telegram::mutations::TelegramMutations;
 use graphql_telegram::TelegramQueries;
 use graphql_user_account::{UserAccountMutations, UserAccountQueries};
@@ -29,6 +30,7 @@ pub struct FullQuery(
     pub GeneralQueries,
     pub UserAccountQueries,
     pub RecipientQueries,
+    pub RecipientListQueries,
     pub TelegramQueries,
 );
 
@@ -36,6 +38,7 @@ pub struct FullQuery(
 pub struct FullMutation(
     pub UserAccountMutations,
     pub RecipientMutations,
+    pub RecipientListMutations,
     pub TelegramMutations,
 );
 
@@ -47,12 +50,18 @@ pub fn full_query() -> FullQuery {
         GeneralQueries,
         UserAccountQueries,
         RecipientQueries,
+        RecipientListQueries,
         TelegramQueries,
     )
 }
 
 pub fn full_mutation() -> FullMutation {
-    FullMutation(UserAccountMutations, RecipientMutations, TelegramMutations)
+    FullMutation(
+        UserAccountMutations,
+        RecipientMutations,
+        RecipientListMutations,
+        TelegramMutations,
+    )
 }
 
 pub fn schema_builder() -> Builder {

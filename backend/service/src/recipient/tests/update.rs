@@ -3,6 +3,7 @@ mod recipient_update_tests {
 
     use std::sync::Arc;
 
+    use repository::mock::{mock_recipient_a, mock_recipient_b};
     use repository::NotificationType;
     use repository::{mock::MockDataInserts, test_db::setup_all};
 
@@ -15,7 +16,7 @@ mod recipient_update_tests {
 
     #[actix_rt::test]
     async fn recipient_service_update_errors() {
-        let (mock_data, _, connection_manager, _) = setup_all(
+        let (_, _, connection_manager, _) = setup_all(
             "recipient_service_update_errors",
             MockDataInserts::none().recipients(),
         )
@@ -46,8 +47,8 @@ mod recipient_update_tests {
             service.update_recipient(
                 &context,
                 UpdateRecipient {
-                    id: mock_data["base"].recipients[0].id.clone(),
-                    to_address: Some(mock_data["base"].recipients[1].to_address.clone()),
+                    id: mock_recipient_a().id.clone(),
+                    to_address: Some(mock_recipient_b().to_address.clone()),
                     name: None,
                 },
             ),

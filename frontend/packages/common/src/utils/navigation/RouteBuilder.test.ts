@@ -8,17 +8,17 @@ describe('Formatters', () => {
         .addPart(AppRoute.Admin)
         .addWildCard()
         .build()
-    ).toBe('/Users/admin/*');
+    ).toBe('/users/admin/*');
   });
 
   it('builds a route', () => {
     expect(
       RouteBuilder.create(AppRoute.UserAccounts).addPart(AppRoute.Admin).build()
-    ).toBe('/Users/admin');
+    ).toBe('/users/admin');
   });
 
   it('can be used to create multiple routes from the same builder', () => {
     expect(RouteBuilder.create(AppRoute.Admin).build()).toBe('/admin');
-    expect(RouteBuilder.create(AppRoute.UserAccounts).build()).toBe('/Users');
+    expect(RouteBuilder.create(AppRoute.UserAccounts).build()).toBe('/users');
   });
 });

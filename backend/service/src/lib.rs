@@ -1,6 +1,5 @@
 use repository::RepositoryError;
 use repository::{Pagination, PaginationOption, DEFAULT_PAGINATION_LIMIT};
-use std::convert::TryInto;
 
 #[macro_use]
 extern crate lazy_static;
@@ -12,6 +11,7 @@ pub mod email;
 pub mod filters;
 pub mod login;
 pub mod recipient;
+pub mod recipient_list;
 pub mod service_provider;
 pub mod settings;
 pub mod static_files;
@@ -125,28 +125,4 @@ pub fn get_default_pagination(
     };
 
     Ok(result)
-}
-
-// TODO move the following methods to util
-
-pub fn i32_to_u32(num: i32) -> u32 {
-    num.try_into().unwrap_or(0)
-}
-
-pub fn i64_to_u32(num: i64) -> u32 {
-    num.try_into().unwrap_or(0)
-}
-
-pub fn usize_to_u32(num: usize) -> u32 {
-    num.try_into().unwrap_or(0)
-}
-
-pub fn u32_to_i32(num: u32) -> i32 {
-    num.try_into().unwrap_or(0)
-}
-
-#[derive(Debug, PartialEq)]
-pub struct InputWithResult<I, R> {
-    pub input: I,
-    pub result: R,
 }

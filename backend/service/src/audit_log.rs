@@ -4,11 +4,12 @@ use repository::{
     LogType, StorageConnectionManager,
 };
 use repository::{PaginationOption, RepositoryError};
+use util::i64_to_u32;
 use util::uuid::uuid;
 
 use crate::service_provider::ServiceContext;
 
-use super::{get_default_pagination, i64_to_u32, ListError, ListResult};
+use super::{get_default_pagination, ListError, ListResult};
 
 pub const MAX_LIMIT: u32 = 1000;
 pub const MIN_LIMIT: u32 = 1;

@@ -7,6 +7,7 @@ use crate::{
     auth::{AuthService, AuthServiceTrait},
     email::{EmailService, EmailServiceTrait},
     recipient::{RecipientService, RecipientServiceTrait},
+    recipient_list::{RecipientListService, RecipientListServiceTrait},
     settings::Settings,
     user_account::{UserAccountService, UserAccountServiceTrait},
 };
@@ -18,6 +19,7 @@ pub struct ServiceProvider {
     pub general_service: Box<dyn GeneralServiceTrait>,
     pub user_account_service: Box<dyn UserAccountServiceTrait>,
     pub recipient_service: Box<dyn RecipientServiceTrait>,
+    pub recipient_list_service: Box<dyn RecipientListServiceTrait>,
     pub settings: Settings,
     pub telegram: Option<TelegramClient>,
 }
@@ -76,6 +78,7 @@ impl ServiceProvider {
             general_service: Box::new(GeneralService {}),
             user_account_service: Box::new(UserAccountService {}),
             recipient_service: Box::new(RecipientService {}),
+            recipient_list_service: Box::new(RecipientListService {}),
             settings: settings,
             telegram: telegram,
         }

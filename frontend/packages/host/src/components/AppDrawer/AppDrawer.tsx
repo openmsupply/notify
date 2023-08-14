@@ -18,7 +18,6 @@ import {
   UsersIcon,
   ExternalNavLink,
   BookIcon,
-  UserIcon,
   LogoutIcon,
   SuppliersIcon,
   RouteBuilder,
@@ -211,11 +210,6 @@ export const AppDrawer: React.FC = () => {
               to={AppRoute.Admin}
               icon={<SettingsIcon fontSize="small" color="primary" />}
               text={t('admin')}
-            />
-            <AppNavLink
-              to={AppRoute.MyAccount}
-              icon={<UserIcon fontSize="small" color="primary" />}
-              text={t('my-account')}
             />
             <AppNavLink
               to={AppRoute.Login}
