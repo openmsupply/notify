@@ -15,6 +15,7 @@ pub struct TelegramClient {
 #[derive(Debug)]
 pub enum TemporaryErrorType {
     TimedOut(String),
+    ConnectionError(String),
     TooManyRequests,
     InternalServerError(String),
     Other(String),
@@ -36,6 +37,11 @@ impl From<reqwest::Error> for TelegramError {
     fn from(error: reqwest::Error) -> TelegramError {
         if error.is_timeout() {
             return TelegramError::Temporary(TemporaryErrorType::TimedOut(error.to_string()));
+        }
+        if error.is_connect() {
+            return TelegramError::Temporary(TemporaryErrorType::ConnectionError(
+                error.to_string(),
+            ));
         }
         if let Some(status) = error.status() {
             match status {
