@@ -1172,6 +1172,7 @@ dependencies = [
  "diesel_derives 2.1.0",
  "itoa 1.0.1",
  "pq-sys",
+ "serde_json",
 ]
 
 [[package]]
