@@ -209,7 +209,7 @@ pub async fn poll_get_updates(
                 let num = updates.len();
                 log::debug!("Got {} updates", num);
                 if num > 0 {
-                    last_update_id = Some(handle_json_updates(updates, tx_updates).await);
+                    last_update_id = handle_json_updates(updates, tx_updates).await;
                 }
             }
             Err(error) => {
@@ -224,8 +224,8 @@ pub async fn poll_get_updates(
 async fn handle_json_updates(
     updates: Vec<serde_json::Value>,
     tx_updates: &tokio::sync::mpsc::Sender<TelegramUpdate>,
-) -> i64 {
-    let mut last_update_id: i64 = -2;
+) -> Option<i64> {
+    let mut last_update_id = None;
     for update in updates {
         // Now try to parse the update using serde_json
         let telegram_update: TelegramUpdate = match serde_json::from_value(update.clone()) {
@@ -236,9 +236,10 @@ async fn handle_json_updates(
             }
         };
 
-        if telegram_update.update_id > last_update_id {
-            last_update_id = telegram_update.update_id;
-        }
+        last_update_id = match last_update_id {
+            Some(id) if id > telegram_update.update_id => Some(id),
+            _ => Some(telegram_update.update_id),
+        };
 
         // Send the update on the channel so other processors can handle it.
         let result = tx_updates.send(telegram_update).await;
