@@ -1,7 +1,7 @@
-use std::time::Duration;
-
+use http::StatusCode;
 use serde::Serialize;
 use serde_json::{self, Value};
+use std::time::Duration;
 
 use crate::{TelegramApiResponse, TelegramChat, TelegramMessage};
 
@@ -16,8 +16,8 @@ pub struct TelegramClient {
 pub enum TemporaryErrorType {
     TimedOut(String),
     ConnectionError(String),
-    TooManyRequests,
     InternalServerError(String),
+    Flood(String),
     Other(String),
 }
 
@@ -43,12 +43,15 @@ impl From<reqwest::Error> for TelegramError {
                 error.to_string(),
             ));
         }
+
+        // https://core.telegram.org/api/errors
         if let Some(status) = error.status() {
+            // Flood errors mean we should wait before creating new requests
+            if status == StatusCode::from_u16(420).unwrap_or_default() {
+                return TelegramError::Temporary(TemporaryErrorType::Flood(error.to_string()));
+            }
             match status {
-                reqwest::StatusCode::TOO_MANY_REQUESTS => {
-                    return TelegramError::Temporary(TemporaryErrorType::TooManyRequests);
-                }
-                reqwest::StatusCode::INTERNAL_SERVER_ERROR => {
+                StatusCode::INTERNAL_SERVER_ERROR => {
                     return TelegramError::Temporary(TemporaryErrorType::InternalServerError(
                         error.to_string(),
                     ));
@@ -56,7 +59,6 @@ impl From<reqwest::Error> for TelegramError {
                 _ => return TelegramError::Fatal(error.to_string()),
             }
         }
-
         TelegramError::Fatal(error.to_string())
     }
 }
