@@ -187,7 +187,7 @@ https://core.telegram.org/bots/api#getupdates
 }
 */
 
-use crate::{TelegramClient, TelegramUpdate};
+use crate::{TelegramClient, TelegramUpdate, TelegramUpdateOrId};
 use log::{self};
 
 static TELEGRAM_POLL_TIMEOUT_SECONDS: i64 = 30;
@@ -228,7 +228,7 @@ async fn handle_json_updates(
     let mut last_update_id = None;
     for update in updates {
         // Now try to parse the update using serde_json
-        let telegram_update: TelegramUpdate = match serde_json::from_value(update.clone()) {
+        let telegram_update: TelegramUpdateOrId = match serde_json::from_value(update.clone()) {
             Ok(telegram_update) => telegram_update,
             Err(error) => {
                 log::error!("Error parsing update: {:?} update: {:?}", error, update);
@@ -236,20 +236,28 @@ async fn handle_json_updates(
             }
         };
 
-        last_update_id = match last_update_id {
-            Some(id) if id > telegram_update.update_id => Some(id),
-            _ => Some(telegram_update.update_id),
+        let update_id = match telegram_update {
+            TelegramUpdateOrId::Update(telegram_update) => {
+                let update_id = telegram_update.update_id;
+                // Send the update on the channel so other processors can handle it.
+                let result = tx_updates.send(telegram_update).await;
+                match result {
+                    Ok(_) => {
+                        log::debug!("Sent update to tx_updates");
+                    }
+                    Err(error) => {
+                        log::error!("Error sending message to tx_updates: {:?}", error);
+                    }
+                };
+                update_id
+            }
+            TelegramUpdateOrId::Id(id) => id.update_id,
         };
 
-        // Send the update on the channel so other processors can handle it.
-        let result = tx_updates.send(telegram_update).await;
-        match result {
-            Ok(_) => {
-                log::debug!("Sent update to tx_updates");
-            }
-            Err(error) => {
-                log::error!("Error sending message to tx_updates: {:?}", error);
-            }
+        // Update the last_update_id if it is bigger that the one we just saw
+        last_update_id = match last_update_id {
+            Some(id) if id > update_id => Some(id),
+            _ => Some(update_id),
         };
     }
     last_update_id

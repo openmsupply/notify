@@ -138,6 +138,18 @@ pub struct TelegramMyChatMember {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
+#[serde(untagged)]
+pub enum TelegramUpdateOrId {
+    Update(TelegramUpdate),
+    Id(TelegramUpdateWithId),
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct TelegramUpdateWithId {
+    pub update_id: i64,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct TelegramUpdate {
     pub update_id: i64,
     pub message: Option<TelegramMessage>,
