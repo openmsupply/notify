@@ -141,11 +141,11 @@ pub struct TelegramMyChatMember {
 #[serde(untagged)]
 pub enum TelegramUpdateOrId {
     Update(TelegramUpdate),
-    Id(TelegramUpdateWithId),
+    Id(TelegramUpdateJustId),
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct TelegramUpdateWithId {
+pub struct TelegramUpdateJustId {
     pub update_id: i64,
 }
 
