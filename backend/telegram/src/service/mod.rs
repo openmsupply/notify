@@ -227,28 +227,6 @@ async fn handle_json_updates(
 ) -> i64 {
     let mut last_update_id: i64 = -2;
     for update in updates {
-        // First handle the update_id, if something goes wrong with parsing the JSON, we don't want to end up re-processing in an infinite loop
-        let update_id = match update.get("update_id") {
-            Some(update_id) => update_id,
-            None => {
-                log::error!(
-                    "Error update doesn't include an update_id!!!!: {:?}",
-                    update
-                );
-                continue;
-            }
-        };
-        let update_id = match update_id.as_i64() {
-            Some(update_id) => update_id,
-            None => {
-                log::error!("Error parsing update_id as i64: {:?}", update);
-                continue;
-            }
-        };
-        if update_id > last_update_id {
-            last_update_id = update_id;
-        }
-
         // Now try to parse the update using serde_json
         let telegram_update: TelegramUpdate = match serde_json::from_value(update.clone()) {
             Ok(telegram_update) => telegram_update,
@@ -257,6 +235,10 @@ async fn handle_json_updates(
                 continue;
             }
         };
+
+        if telegram_update.update_id > last_update_id {
+            last_update_id = telegram_update.update_id;
+        }
 
         // Send the update on the channel so other processors can handle it.
         let result = tx_updates.send(telegram_update).await;
