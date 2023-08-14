@@ -47,7 +47,9 @@ export const RecipientEditModal = ({
   };
 
   const checkIsInvalid = (draft: DraftRecipient) =>
-    !draft.toAddress || !draft.name;
+    !draft.toAddress ||
+    !draft.name ||
+    draft.notificationType !== NotificationTypeNode.Email;
 
   return (
     <EditModal
@@ -58,8 +60,8 @@ export const RecipientEditModal = ({
       logs={recipient?.auditLogs ?? []}
       title={
         mode === ModalMode.Create
-          ? t('label.new-recipient', { ns: 'system' })
-          : t('label.edit-recipient', { ns: 'system' })
+          ? t('label.new-recipient')
+          : t('label.edit-recipient')
       }
       onClose={onClose}
       createDraft={createRecipient}

@@ -26,6 +26,7 @@
   "label.phone-number": "Phone Number",
   "label.primary-email": "Primary Email",
   "label.send-password-reset": "Send Password Reset",
+  "label.telegram": "Telegram",
   "label.update-contact": "Update Contact",
   "label.update-details": "Update Details",
   "label.update-profile": "Update Profile",
@@ -38,7 +39,10 @@
   "messages.password-weak": "Weak",
   "not-logged-in": "Not logged in",
   "password-reset.initiate": "Initiate Password Reset",
+  "text.here": "here",
   "text.no-description": "No description",
   "text.no-website": "No website",
+  "text.telegram-recipient-creation-1": "Telegram Recipients are created automatically when you add your Notify Bot to a Telegram group.",
+  "text.telegram-recipient-creation-2": "For instructions on how to set up your bot and add it to a group, see the docs",
   "tooltip.manage-recipient-list": "Manage Recipient List"
 }
