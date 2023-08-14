@@ -1,20 +1,30 @@
 import React from 'react';
 import { useTranslation } from '@common/intl';
 import {
+  AppBarButtonsPortal,
   DataTable,
+  LoadingButton,
   NothingHere,
+  PlusCircleIcon,
   TableProvider,
   createTableStore,
   useColumns,
 } from '@common/ui';
-import { useRecipients } from '../api';
-import { useQueryParamsState } from '@common/hooks';
+import {
+  RecipientRowFragment,
+  useDeleteRecipient,
+  useRecipients,
+} from '../api';
+import { useEditModal, useQueryParamsState } from '@common/hooks';
 import { SearchAndDeleteToolbar } from '../../shared/SearchAndDeleteToolbar';
-import { useDeleteRecipient } from '../api/hooks/useDeleteRecipient';
+import { RecipientEditModal } from './RecipientEditModal';
 
 export const ListView = () => {
   const t = useTranslation('system');
   const { filter, queryParams, updatePaginationQuery } = useQueryParamsState();
+
+  const { isOpen, entity, mode, onClose, onOpen } =
+    useEditModal<RecipientRowFragment>();
 
   // TODO: sort
   const columns = useColumns([
@@ -35,21 +45,42 @@ export const ListView = () => {
   };
 
   return (
-    <TableProvider createStore={createTableStore}>
-      <SearchAndDeleteToolbar
-        data={recipients?.nodes ?? []}
-        filter={filter}
-        deleteItem={deleteRecipient}
-      />
-      <DataTable
-        columns={columns}
-        data={recipients?.nodes ?? []}
-        isError={isError}
-        isLoading={isLoading}
-        noDataElement={<NothingHere body={t('error.no-recipients')} />}
-        pagination={{ ...pagination, total: recipients?.totalCount }}
-        onChangePage={updatePaginationQuery}
-      />
-    </TableProvider>
+    <>
+      {isOpen && (
+        <RecipientEditModal
+          mode={mode}
+          isOpen={isOpen}
+          onClose={onClose}
+          recipient={entity}
+        />
+      )}
+      <AppBarButtonsPortal>
+        <LoadingButton
+          isLoading={false}
+          startIcon={<PlusCircleIcon />}
+          onClick={() => onOpen()}
+        >
+          {t('label.new-recipient')}
+        </LoadingButton>
+      </AppBarButtonsPortal>
+
+      <TableProvider createStore={createTableStore}>
+        <SearchAndDeleteToolbar
+          data={recipients?.nodes ?? []}
+          filter={filter}
+          deleteItem={deleteRecipient}
+        />
+
+        <DataTable
+          columns={columns}
+          data={recipients?.nodes ?? []}
+          isError={isError}
+          isLoading={isLoading}
+          noDataElement={<NothingHere body={t('error.no-recipients')} />}
+          pagination={{ ...pagination, total: recipients?.totalCount }}
+          onChangePage={updatePaginationQuery}
+        />
+      </TableProvider>
+    </>
   );
 };

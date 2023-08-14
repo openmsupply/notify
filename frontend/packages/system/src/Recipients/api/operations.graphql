@@ -1,9 +1,17 @@
 fragment RecipientRow on RecipientNode {
-  __typename
   id
   name
   toAddress
   notificationType
+  auditLogs {
+    datetime
+    id
+    recordId
+    recordType
+    user {
+      username
+    }
+  }
 }
 
 query Recipients(
@@ -12,13 +20,19 @@ query Recipients(
   $sort: [RecipientSortInput!]
 ) {
   recipients(filter: $filter, page: $page, sort: $sort) {
-    __typename
     ... on RecipientConnector {
-      __typename
       totalCount
       nodes {
         ...RecipientRow
       }
+    }
+  }
+}
+
+mutation createRecipient($input: CreateRecipientInput!) {
+  createRecipient(input: $input) {
+    ... on RecipientNode {
+      ...RecipientRow
     }
   }
 }
