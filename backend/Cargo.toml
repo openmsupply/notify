@@ -9,5 +9,6 @@ members = [
     "repository",
     "service",
     "graphql",
-    "telegram"
+    "telegram",
+    "datasource"
 ]
