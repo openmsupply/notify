@@ -3,13 +3,12 @@ use diesel::prelude::*;
 use diesel::result::Error as DieselError;
 use diesel::sql_types::*;
 use diesel::{sql_query, RunQueryDsl};
-use serde_json::Value;
 
 #[derive(QueryableByName, Debug, PartialEq)]
 #[diesel(table_name = json_data)]
 pub struct JsonDataRow {
-    #[diesel(sql_type = Text)]
-    data: String,
+    #[diesel(sql_type = Json)]
+    data: serde_json::Value,
 }
 
 pub fn pg_sql_query_as_json(
@@ -20,18 +19,9 @@ pub fn pg_sql_query_as_json(
 
     let json_row_sql_query = format!("WITH provided_query AS({}) SELECT row_to_json(provided_query) as data FROM provided_query;", sql_select_query);
 
-    let results: Vec<JsonDataRow> = sql_query(&json_row_sql_query).load(connection)?;
+    let json_results: Vec<JsonDataRow> = sql_query(&json_row_sql_query).load(connection)?;
 
-    let json_results = results
-        .iter()
-        .map(|row| {
-            // Mapping to default on serde error should be fine, as we shouldn't be able to get invalid JSON from postgres...
-            let json_value: Value = serde_json::from_str(&row.data).unwrap_or_default();
-            return json_value;
-        })
-        .collect();
-
-    Ok(json_results)
+    Ok(json_results.into_iter().map(|r| r.data).collect())
 }
 
 #[cfg(test)]
