@@ -117,7 +117,7 @@ pub fn get_configuration() -> Result<Settings, SettingsError> {
     copy_example_environment_configuration_file_if_required()?;
 
     let base_file = get_configuration_base_file()?;
-    let app_file = get_configuration_base_file()?;
+    let app_file = get_configuration_app_file()?;
     let configuration: Config = Config::builder()
         .set_default("default", 1)?
         .add_source(base_file)

@@ -1,0 +1,11 @@
+[package]
+name = "datasource"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+doctest = false
+
+[dependencies]
+diesel = { version = "2.1", features = ["postgres", "serde_json"] }
+serde_json = {version="1.0.66"}

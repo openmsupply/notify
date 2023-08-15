@@ -7,7 +7,8 @@ use graphql_core::{
 };
 use repository::{Permission, UserAccount, UserAccountRow};
 use serde::Serialize;
-use service::{usize_to_u32, ListResult};
+use service::ListResult;
+use util::usize_to_u32;
 
 #[derive(Union)]
 pub enum UserAccountsResponse {

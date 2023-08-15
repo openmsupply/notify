@@ -12,12 +12,7 @@ use diesel::{
 use futures_util::Future;
 use log::error;
 
-// feature sqlite
-#[cfg(not(feature = "postgres"))]
 const BEGIN_TRANSACTION_STATEMENT: &str = "BEGIN IMMEDIATE;";
-// feature postgres
-#[cfg(feature = "postgres")]
-const BEGIN_TRANSACTION_STATEMENT: &str = "BEGIN";
 
 pub struct StorageConnection {
     pub connection: DBConnection,

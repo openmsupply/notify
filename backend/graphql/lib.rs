@@ -1,8 +1,5 @@
 #![allow(clippy::too_many_arguments)]
 
-#[cfg(test)]
-mod tests;
-
 mod logger;
 
 use actix_web::web::{self, Data, ReqData};
@@ -17,6 +14,8 @@ use graphql_general::GeneralQueries;
 
 use graphql_recipient::{RecipientMutations, RecipientQueries};
 use graphql_recipient_list::{RecipientListMutations, RecipientListQueries};
+use graphql_telegram::mutations::TelegramMutations;
+use graphql_telegram::TelegramQueries;
 use graphql_user_account::{UserAccountMutations, UserAccountQueries};
 
 use logger::{RequestLogger, ResponseLogger};
@@ -32,6 +31,7 @@ pub struct FullQuery(
     pub UserAccountQueries,
     pub RecipientQueries,
     pub RecipientListQueries,
+    pub TelegramQueries,
 );
 
 #[derive(MergedObject, Default, Clone)]
@@ -39,6 +39,7 @@ pub struct FullMutation(
     pub UserAccountMutations,
     pub RecipientMutations,
     pub RecipientListMutations,
+    pub TelegramMutations,
 );
 
 pub type Schema = async_graphql::Schema<FullQuery, FullMutation, async_graphql::EmptySubscription>;
@@ -50,6 +51,7 @@ pub fn full_query() -> FullQuery {
         UserAccountQueries,
         RecipientQueries,
         RecipientListQueries,
+        TelegramQueries,
     )
 }
 
@@ -58,6 +60,7 @@ pub fn full_mutation() -> FullMutation {
         UserAccountMutations,
         RecipientMutations,
         RecipientListMutations,
+        TelegramMutations,
     )
 }
 

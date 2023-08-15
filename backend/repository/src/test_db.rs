@@ -30,8 +30,6 @@ fn find_test_migration_directory() -> PathBuf {
     search_for_migrations_directory(Path::new(&env::current_dir().unwrap())).unwrap()
 }
 
-// feature sqlite
-#[cfg(not(feature = "postgres"))]
 pub async fn setup(db_settings: &DatabaseSettings) -> StorageConnectionManager {
     use crate::database_settings::SqliteConnectionOptions;
     use std::fs;

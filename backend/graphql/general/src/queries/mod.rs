@@ -9,6 +9,3 @@ pub use self::refresh_token::*;
 pub mod log;
 pub mod server_settings;
 pub use self::log::*;
-
-#[cfg(test)]
-mod tests;

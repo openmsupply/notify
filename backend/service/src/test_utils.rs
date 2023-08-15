@@ -3,7 +3,7 @@ use repository::{test_db::get_test_db_settings, StorageConnectionManager};
 use crate::{
     email::{EmailServiceError, EmailServiceTrait},
     service_provider::{ServiceContext, ServiceProvider},
-    settings::{MailSettings, ServerSettings, Settings},
+    settings::{MailSettings, ServerSettings, Settings, TelegramSettings},
 };
 
 // The following settings work for PG and Sqlite (username, password, host and port are
@@ -12,9 +12,9 @@ pub fn get_test_settings(db_name: &str) -> Settings {
     Settings {
         server: ServerSettings {
             port: 5432,
-            cors_origins: vec!["http://localhost:3003".to_string()],
+            cors_origins: vec!["http://localhost:3007".to_string()],
             base_dir: None,
-            app_url: "http://localhost:3003".to_string(),
+            app_url: "http://localhost:8007".to_string(),
         },
         database: get_test_db_settings(db_name),
         mail: MailSettings {
@@ -25,6 +25,7 @@ pub fn get_test_settings(db_name: &str) -> Settings {
             password: "".to_string(),
             from: "no-reply@msupply.foundation".to_string(),
         },
+        telegram: TelegramSettings { token: None },
     }
 }
 
