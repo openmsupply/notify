@@ -29,6 +29,14 @@ const createRecipient = (seed?: DraftRecipient | null): DraftRecipient => ({
   ...seed,
 });
 
+export const checkIsInvalid = (draft: DraftRecipient, mode: ModalMode | null) =>
+  !draft.toAddress.trim() ||
+  (draft.notificationType === NotificationTypeNode.Email &&
+    !draft.toAddress.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) ||
+  !draft.name.trim() ||
+  (mode === ModalMode.Create &&
+    draft.notificationType !== NotificationTypeNode.Email);
+
 export const RecipientEditModal = ({
   mode,
   isOpen,
@@ -51,14 +59,6 @@ export const RecipientEditModal = ({
       await update({ input: { id, name, toAddress } });
     }
   };
-
-  const checkIsInvalid = (draft: DraftRecipient) =>
-    !draft.toAddress.trim() ||
-    (draft.notificationType === NotificationTypeNode.Email &&
-      !draft.toAddress.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) ||
-    !draft.name.trim() ||
-    (mode === ModalMode.Create &&
-      draft.notificationType !== NotificationTypeNode.Email);
 
   return (
     <EditModal

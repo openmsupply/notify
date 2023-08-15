@@ -22,7 +22,7 @@ interface EditModalProps<T extends RecordWithId> {
   isOpen: boolean;
   logs: LogRowFragment[];
   isLoading: boolean;
-  checkIsInvalid: (draft: T) => boolean;
+  checkIsInvalid: (draft: T, mode: ModalMode | null) => boolean;
   onClose: () => void;
   createDraft: () => T;
   onSave: (item: T) => Promise<unknown>;
@@ -74,7 +74,7 @@ export const EditModal = <T extends RecordWithId>({
       : []),
   ];
 
-  const isInvalid = checkIsInvalid(draft);
+  const isInvalid = checkIsInvalid(draft, mode);
 
   return (
     <Modal
