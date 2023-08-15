@@ -18,7 +18,7 @@ export const AllLists = () => {
   const {
     // filter,
     queryParams,
-    // updatePaginationQuery,
+    updatePaginationQuery,
     // updateSortQuery
   } = useQueryParamsState();
 
@@ -42,12 +42,18 @@ export const AllLists = () => {
   const { data, isError, isLoading } = useRecipientLists(queryParams);
   const recipientLists = data?.nodes ?? [];
 
+  const pagination = {
+    page: queryParams.page,
+    offset: queryParams.offset,
+    first: queryParams.first,
+  };
+
   return (
     <>
       <TableProvider createStore={createTableStore}>
         <DataTable
-          // pagination={{ ...pagination, total: data?.totalCount }}
-          // onChangePage={updatePaginationQuery}
+          pagination={{ ...pagination, total: data?.totalCount }}
+          onChangePage={updatePaginationQuery}
           columns={columns}
           data={recipientLists}
           isError={isError}
