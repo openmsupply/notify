@@ -6,6 +6,7 @@ import {
   LoadingButton,
   NothingHere,
   PlusCircleIcon,
+  SearchAndDeleteToolbar,
   TableProvider,
   Typography,
   createTableStore,
@@ -17,7 +18,6 @@ import {
   useRecipients,
 } from '../api';
 import { useEditModal, useQueryParamsState } from '@common/hooks';
-import { SearchAndDeleteToolbar } from '../../shared/SearchAndDeleteToolbar';
 import { RecipientEditModal } from './RecipientEditModal';
 
 export const ListView = () => {
