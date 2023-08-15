@@ -87,7 +87,7 @@ describe('String matching for object properties', () => {
       expect(RegexUtils.isValidEmail('x.mail.com')).toBeFalsy();
       expect(RegexUtils.isValidEmail('x@mail.')).toBeFalsy();
     });
-    it('returns false for invalid emails', () => {
+    it('returns true for valid emails', () => {
       expect(RegexUtils.isValidEmail('email@mail.com')).toBeTruthy();
       expect(RegexUtils.isValidEmail('test@msupply.foundation')).toBeTruthy();
       expect(RegexUtils.isValidEmail('yep@x.com')).toBeTruthy();
