@@ -52,7 +52,8 @@ export const RecipientEditModal = ({
 
   const onSave = async (draft: DraftRecipient) => {
     if (mode === ModalMode.Create) {
-      await create({ input: draft });
+      const { id, name, toAddress, notificationType } = draft;
+      await create({ input: { id, name, toAddress, notificationType } });
     } else {
       const { id, name, toAddress } = draft;
       await update({ input: { id, name, toAddress } });
