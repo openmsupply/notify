@@ -1,5 +1,5 @@
 use crate::{
-    database_settings::DatabaseSettings,
+    database_settings::SqliteSettings,
     db_diesel::{DBBackendConnection, StorageConnection, StorageConnectionManager},
     mock::{insert_all_mock_data, insert_mock_data, MockData, MockDataCollection, MockDataInserts},
 };
@@ -30,7 +30,7 @@ fn find_test_migration_directory() -> PathBuf {
     search_for_migrations_directory(Path::new(&env::current_dir().unwrap())).unwrap()
 }
 
-pub async fn setup(db_settings: &DatabaseSettings) -> StorageConnectionManager {
+pub async fn setup(db_settings: &SqliteSettings) -> StorageConnectionManager {
     use crate::database_settings::SqliteConnectionOptions;
     use std::fs;
 
@@ -71,12 +71,8 @@ pub async fn setup(db_settings: &DatabaseSettings) -> StorageConnectionManager {
 }
 
 // sqlite (username, password, host and port are ignored)
-pub fn get_test_db_settings(db_name: &str) -> DatabaseSettings {
-    DatabaseSettings {
-        username: "sqlite".to_string(),
-        password: "nopassword".to_string(),
-        port: 0,
-        host: "localhost".to_string(),
+pub fn get_test_db_settings(db_name: &str) -> SqliteSettings {
+    SqliteSettings {
         // put DB test files into a test directory (also works for in-memory)
         database_name: format!("test_output/{}.sqlite", db_name),
         init_sql: None,
@@ -94,7 +90,7 @@ pub async fn setup_all(
     MockDataCollection,
     StorageConnection,
     StorageConnectionManager,
-    DatabaseSettings,
+    SqliteSettings,
 ) {
     setup_all_with_data(db_name, inserts, MockData::default()).await
 }
@@ -107,7 +103,7 @@ pub async fn setup_all_with_data(
     MockDataCollection,
     StorageConnection,
     StorageConnectionManager,
-    DatabaseSettings,
+    SqliteSettings,
 ) {
     let settings = get_test_db_settings(db_name);
     let connection_manager = setup(&settings).await;

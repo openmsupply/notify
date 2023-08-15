@@ -4,6 +4,11 @@ use diesel::result::Error as DieselError;
 use diesel::sql_types::*;
 use diesel::{sql_query, RunQueryDsl};
 
+pub mod database_settings;
+pub use database_settings::*;
+pub mod connection_pool;
+pub use connection_pool::*;
+
 #[derive(QueryableByName, Debug, PartialEq)]
 #[diesel(table_name = json_data)]
 pub struct JsonDataRow {
