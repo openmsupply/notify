@@ -36,6 +36,7 @@ export const AllLists = () => {
       {
         key: 'description',
         label: 'label.description',
+        maxWidth: 300,
         sortable: false,
       },
       'selection',
