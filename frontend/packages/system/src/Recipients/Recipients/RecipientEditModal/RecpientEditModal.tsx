@@ -4,6 +4,7 @@ import {
   useTranslation,
   FnUtils,
   NotificationTypeNode,
+  RegexUtils,
 } from '@notify-frontend/common';
 import {
   RecipientRowFragment,
@@ -32,7 +33,7 @@ const createRecipient = (seed?: DraftRecipient | null): DraftRecipient => ({
 export const checkIsInvalid = (draft: DraftRecipient, mode: ModalMode | null) =>
   !draft.toAddress.trim() ||
   (draft.notificationType === NotificationTypeNode.Email &&
-    !draft.toAddress.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) ||
+    !RegexUtils.isValidEmail(draft.toAddress)) ||
   !draft.name.trim() ||
   (mode === ModalMode.Create &&
     draft.notificationType !== NotificationTypeNode.Email);

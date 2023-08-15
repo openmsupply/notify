@@ -78,4 +78,19 @@ describe('String matching for object properties', () => {
     expect(RegexUtils.escapeChars('a')).toBe('a');
     expect(RegexUtils.escapeChars('about[ ]time')).toBe('about\\[ \\]time');
   });
+
+  describe('isValidEmail', () => {
+    it('returns false for invalid emails', () => {
+      expect(RegexUtils.isValidEmail('not an email')).toBeFalsy();
+      expect(RegexUtils.isValidEmail('not@email')).toBeFalsy();
+      expect(RegexUtils.isValidEmail('almost@email.com ')).toBeFalsy();
+      expect(RegexUtils.isValidEmail('x.mail.com')).toBeFalsy();
+      expect(RegexUtils.isValidEmail('x@mail.')).toBeFalsy();
+    });
+    it('returns false for invalid emails', () => {
+      expect(RegexUtils.isValidEmail('email@mail.com')).toBeTruthy();
+      expect(RegexUtils.isValidEmail('test@msupply.foundation')).toBeTruthy();
+      expect(RegexUtils.isValidEmail('yep@x.com')).toBeTruthy();
+    });
+  });
 });

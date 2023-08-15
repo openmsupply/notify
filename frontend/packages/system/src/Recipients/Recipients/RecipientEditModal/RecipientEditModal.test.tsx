@@ -42,24 +42,31 @@ describe('checkIsInvalid', () => {
       )
     ).toBeTruthy();
   });
-  it.each([
-    'not an email',
-    'not@email',
-    'almost@email.com ',
-    '.mail.com',
-    'x@mail.',
-  ])('returns true when email is not valid (%s)', email => {
+  it('returns true when email is not valid', () => {
     expect(
       checkIsInvalid(
         {
           id: 'some-id',
           name: 'some-name',
-          toAddress: email,
+          toAddress: 'not an email',
           notificationType: NotificationTypeNode.Email,
         },
         null
       )
     ).toBeTruthy();
+  });
+  it('returns false when email is valid', () => {
+    expect(
+      checkIsInvalid(
+        {
+          id: 'some-id',
+          name: 'some-name',
+          toAddress: 'test@msupply.foundation',
+          notificationType: NotificationTypeNode.Email,
+        },
+        null
+      )
+    ).toBeFalsy();
   });
   it('returns true when creating telegram recipient', () => {
     expect(
