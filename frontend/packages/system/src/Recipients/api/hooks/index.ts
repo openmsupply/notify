@@ -5,3 +5,4 @@ export * from './useCreateRecipientList';
 export * from './useDeleteRecipient';
 export * from './useDeleteRecipientList';
 export * from './useUpdateRecipient';
+export * from './useUpdateRecipientList';

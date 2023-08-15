@@ -4,7 +4,7 @@ import { RecipientListEditForm } from './RecipientListEditForm';
 import { DraftRecipientList } from './types';
 import { EditModal } from 'packages/system/src/shared/EditModal';
 import { RecipientListRowFragment } from '../../api/operations.generated';
-import { useCreateRecipientList } from '../../api';
+import { useCreateRecipientList, useUpdateRecipientList } from '../../api';
 
 interface RecipientListEditModalProps {
   mode: ModalMode | null;
@@ -35,22 +35,20 @@ export const RecipientListEditModal = ({
 
   const { mutateAsync: create, isLoading: createIsLoading } =
     useCreateRecipientList();
-  // const { mutateAsync: update, isLoading: updateIsLoading } =
-  //   useUpdateRecipientList();
+  const { mutateAsync: update, isLoading: updateIsLoading } =
+    useUpdateRecipientList();
 
   const onSave = async (draft: DraftRecipientList) => {
-    if (mode === ModalMode.Create) {
-      await create({ input: draft });
-    } else {
-      // const { id, name, toAddress } = draft;
-      // await update({ input: { id, name, toAddress } });
-    }
+    const { id, name, description } = draft;
+    const input = { id, name, description };
+
+    if (mode === ModalMode.Create) await create({ input });
+    else await update({ input });
   };
 
   return (
     <EditModal
-      // isLoading={createIsLoading || updateIsLoading}
-      isLoading={createIsLoading}
+      isLoading={createIsLoading || updateIsLoading}
       isOpen={isOpen}
       checkIsInvalid={checkIsInvalid}
       mode={mode}

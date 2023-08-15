@@ -1,9 +1,16 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from '@common/intl';
-import { useBreadcrumbs, useQueryParamsState } from '@common/hooks';
+import {
+  ModalMode,
+  useBreadcrumbs,
+  useEditModal,
+  useQueryParamsState,
+} from '@common/hooks';
 import {
   Box,
   DataTable,
+  EditIcon,
+  LoadingButton,
   NothingHere,
   Paper,
   TableProvider,
@@ -13,11 +20,15 @@ import {
 } from '@common/ui';
 import { useRecipientLists } from '../api';
 import { useParams } from 'packages/common/src';
+import { RecipientListEditModal } from './RecipientListEditModal';
+import { RecipientListRowFragment } from '../api/operations.generated';
 
 export const DetailView = () => {
   const t = useTranslation('system');
   const urlParams = useParams();
   const { suffix, setSuffix } = useBreadcrumbs();
+  const { isOpen, onClose, onOpen, entity } =
+    useEditModal<RecipientListRowFragment>();
 
   const { queryParams } = useQueryParamsState({
     initialFilter: {
@@ -45,6 +56,14 @@ export const DetailView = () => {
 
   return (
     <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+      {isOpen && (
+        <RecipientListEditModal
+          mode={ModalMode.Update}
+          isOpen={isOpen}
+          onClose={onClose}
+          recipientList={entity}
+        />
+      )}
       <Paper
         sx={{
           borderRadius: '16px',
@@ -55,6 +74,7 @@ export const DetailView = () => {
           backgroundColor: 'background.menu',
           display: 'flex',
           justifyContent: 'space-between',
+          gap: '14px',
         }}
       >
         <Box>
@@ -71,6 +91,14 @@ export const DetailView = () => {
             {list?.description}
           </Typography>
         </Box>
+        <LoadingButton
+          variant="outlined"
+          isLoading={false}
+          startIcon={<EditIcon />}
+          onClick={() => onOpen(list)}
+        >
+          {t('label.edit')}
+        </LoadingButton>
       </Paper>
       <Box sx={{ flex: '1', overflow: 'auto' }}>
         <TableProvider createStore={createTableStore}>

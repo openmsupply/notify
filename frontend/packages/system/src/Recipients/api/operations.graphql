@@ -94,6 +94,14 @@ mutation createRecipientList($input: CreateRecipientListInput!) {
   }
 }
 
+mutation updateRecipientList($input: UpdateRecipientListInput!) {
+  updateRecipientList(input: $input) {
+    ... on RecipientListNode {
+      ...RecipientListRow
+    }
+  }
+}
+
 mutation deleteRecipientList($recipientListId: String!) {
   deleteRecipientList(recipientListId: $recipientListId) {
     ... on DeleteResponse {
