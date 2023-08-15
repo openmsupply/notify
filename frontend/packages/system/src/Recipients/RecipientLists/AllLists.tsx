@@ -2,6 +2,7 @@ import { useTranslation } from '@common/intl';
 import {
   DataTable,
   NothingHere,
+  SearchAndDeleteToolbar,
   TableProvider,
   createTableStore,
   useColumns,
@@ -15,12 +16,8 @@ export const AllLists = () => {
   const t = useTranslation('system');
   const navigate = useNavigate();
 
-  const {
-    // filter,
-    queryParams,
-    updatePaginationQuery,
-    updateSortQuery,
-  } = useQueryParamsState();
+  const { filter, queryParams, updatePaginationQuery, updateSortQuery } =
+    useQueryParamsState();
 
   const columns = useColumns<RecipientListRowFragment>(
     [
@@ -39,6 +36,9 @@ export const AllLists = () => {
     [updateSortQuery, queryParams.sortBy]
   );
 
+  const deleteRecipientList = async () => null;
+  // const { mutateAsync: deleteRecipientList } = useDeleteRecipientList();
+
   const { data, isError, isLoading } = useRecipientLists(queryParams);
   const recipientLists = data?.nodes ?? [];
 
@@ -51,6 +51,11 @@ export const AllLists = () => {
   return (
     <>
       <TableProvider createStore={createTableStore}>
+        <SearchAndDeleteToolbar
+          data={recipientLists}
+          filter={filter}
+          deleteItem={deleteRecipientList}
+        />
         <DataTable
           pagination={{ ...pagination, total: data?.totalCount }}
           onChangePage={updatePaginationQuery}
