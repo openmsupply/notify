@@ -1,16 +1,25 @@
 import { useTranslation } from '@common/intl';
 import {
+  AppBarButtonsPortal,
   DataTable,
+  LoadingButton,
   NothingHere,
+  PlusCircleIcon,
   SearchAndDeleteToolbar,
   TableProvider,
   createTableStore,
   useColumns,
 } from '@common/ui';
-import { useNavigate, useQueryParamsState } from 'packages/common/src';
+import {
+  ModalMode,
+  useEditModal,
+  useNavigate,
+  useQueryParamsState,
+} from 'packages/common/src';
 import React from 'react';
 import { useDeleteRecipientList, useRecipientLists } from '../api';
 import { RecipientListRowFragment } from '../api/operations.generated';
+import { RecipientListEditModal } from './RecipientListEditModal';
 
 export const AllLists = () => {
   const t = useTranslation('system');
@@ -18,6 +27,8 @@ export const AllLists = () => {
 
   const { filter, queryParams, updatePaginationQuery, updateSortQuery } =
     useQueryParamsState();
+
+  const { isOpen, onClose, onOpen } = useEditModal<RecipientListRowFragment>();
 
   const columns = useColumns<RecipientListRowFragment>(
     [
@@ -49,6 +60,24 @@ export const AllLists = () => {
 
   return (
     <>
+      {isOpen && (
+        <RecipientListEditModal
+          mode={ModalMode.Create}
+          isOpen={isOpen}
+          onClose={onClose}
+          recipientList={null}
+        />
+      )}
+      <AppBarButtonsPortal>
+        <LoadingButton
+          isLoading={false}
+          startIcon={<PlusCircleIcon />}
+          onClick={() => onOpen()}
+        >
+          {t('label.new-recipient-list')}
+        </LoadingButton>
+      </AppBarButtonsPortal>
+
       <TableProvider createStore={createTableStore}>
         <SearchAndDeleteToolbar
           data={recipientLists}
