@@ -187,7 +187,7 @@ https://core.telegram.org/bots/api#getupdates
 }
 */
 
-use crate::{TelegramClient, TelegramUpdate};
+use crate::{TelegramClient, TelegramUpdate, TelegramUpdateOrId};
 use log::{self};
 
 static TELEGRAM_POLL_TIMEOUT_SECONDS: i64 = 30;
@@ -228,7 +228,7 @@ async fn handle_json_updates(
     let mut last_update_id = None;
     for update in updates {
         // Now try to parse the update using serde_json
-        let telegram_update: TelegramUpdate = match serde_json::from_value(update.clone()) {
+        let telegram_update: TelegramUpdateOrId = match serde_json::from_value(update.clone()) {
             Ok(telegram_update) => telegram_update,
             Err(error) => {
                 log::error!("Error parsing update: {:?} update: {:?}", error, update);
@@ -236,20 +236,28 @@ async fn handle_json_updates(
             }
         };
 
-        last_update_id = match last_update_id {
-            Some(id) if id > telegram_update.update_id => Some(id),
-            _ => Some(telegram_update.update_id),
+        let update_id = match telegram_update {
+            TelegramUpdateOrId::Update(telegram_update) => {
+                let update_id = telegram_update.update_id;
+                // Send the update on the channel so other processors can handle it.
+                let result = tx_updates.send(telegram_update).await;
+                match result {
+                    Ok(_) => {
+                        log::debug!("Sent update to tx_updates");
+                    }
+                    Err(error) => {
+                        log::error!("Error sending message to tx_updates: {:?}", error);
+                    }
+                };
+                update_id
+            }
+            TelegramUpdateOrId::Id(id) => id.update_id,
         };
 
-        // Send the update on the channel so other processors can handle it.
-        let result = tx_updates.send(telegram_update).await;
-        match result {
-            Ok(_) => {
-                log::debug!("Sent update to tx_updates");
-            }
-            Err(error) => {
-                log::error!("Error sending message to tx_updates: {:?}", error);
-            }
+        // Update the last_update_id if it is bigger that the one we just saw
+        last_update_id = match last_update_id {
+            Some(id) if id > update_id => Some(id),
+            _ => Some(update_id),
         };
     }
     last_update_id
@@ -269,6 +277,47 @@ mod test {
         let last_update_id = handle_json_updates(updates, &tx).await;
 
         assert!(last_update_id == None);
+    }
+
+    #[tokio::test]
+    async fn test_handle_json_updates_empty_message() {
+        let json = r#"        [
+         {
+            "update_id": 1111,
+            "something_else": {
+                "date": 1691536034,
+                "text": "We don't know what this is, but we do have a update_id"
+            }
+        }
+        ]"#;
+        let updates: Vec<serde_json::Value> = serde_json::from_str(json).unwrap();
+        const TELEGRAM_UPDATE_BUFFER_SIZE: usize = 8;
+        let (tx, _rx) = tokio::sync::mpsc::channel::<TelegramUpdate>(TELEGRAM_UPDATE_BUFFER_SIZE);
+
+        let last_update_id = handle_json_updates(updates, &tx).await;
+
+        assert!(last_update_id == Some(1111));
+    }
+
+    #[tokio::test]
+    async fn test_handle_json_updates_invalid_message() {
+        let json = r#"        [
+         {
+            "update_id": 1111,
+             "message": {
+                "message_id": 4444,
+                "date": 1691536034,
+                "text": "This is a direct message message..."
+            }
+        }
+        ]"#;
+        let updates: Vec<serde_json::Value> = serde_json::from_str(json).unwrap();
+        const TELEGRAM_UPDATE_BUFFER_SIZE: usize = 8;
+        let (tx, _rx) = tokio::sync::mpsc::channel::<TelegramUpdate>(TELEGRAM_UPDATE_BUFFER_SIZE);
+
+        let last_update_id = handle_json_updates(updates, &tx).await;
+
+        assert_eq!(last_update_id, Some(1111));
     }
 
     #[tokio::test]
