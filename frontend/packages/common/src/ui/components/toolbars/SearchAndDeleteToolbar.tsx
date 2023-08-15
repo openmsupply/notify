@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   useNotification,
   DropdownMenu,
@@ -11,62 +11,57 @@ import {
   AlertModal,
   useConfirmationModal,
   SearchBar,
-  UserAccountNode,
   LocalStorage,
-  FilterRule,
+  RecordWithId,
 } from '@notify-frontend/common';
-import { UserAccountRowFragment, useUserAccount } from '../api';
 
-type DeleteError = {
-  userAccountName: string;
-  message: string;
-};
-
-export const Toolbar: FC<{
-  data: UserAccountRowFragment[];
+export const SearchAndDeleteToolbar = <T extends RecordWithId>({
+  data,
+  filter,
+  deleteItem,
+  invalidateQueries,
+  searchFilterKey = 'search',
+}: {
+  data: T[];
   filter: FilterController;
-}> = ({ data, filter }) => {
+  deleteItem: (id: string) => Promise<unknown>;
+  invalidateQueries: () => Promise<void>;
+  searchFilterKey?: string;
+}) => {
   const t = useTranslation(['system']);
-  const { mutateAsync: deleteUserAccount } = useUserAccount.document.delete();
   const { success, info } = useNotification();
-  const [deleteErrors, setDeleteErrors] = React.useState<DeleteError[]>([]);
+
+  const [errorCount, setErrorCount] = React.useState(0);
+
   const { selectedRows } = useTableStore(state => ({
     selectedRows: Object.keys(state.rowState)
       .filter(id => state.rowState[id]?.isSelected)
       .map(selectedId => data?.find(({ id }) => selectedId === id))
-      .filter(Boolean) as UserAccountRowFragment[],
+      .filter(Boolean) as T[],
   }));
 
-  const key = 'username' as keyof UserAccountNode;
-  const filterString =
-    ((filter.filterBy?.[key] as FilterRule)?.like as string) || '';
   const deleteAction = () => {
-    const numberSelected = selectedRows.length;
-    if (selectedRows && numberSelected > 0) {
-      const errors: DeleteError[] = [];
+    if (selectedRows.length) {
+      let deleteErrorCount = 0;
       Promise.all(
-        selectedRows.map(async userAccount => {
-          await deleteUserAccount(userAccount).catch(err => {
-            errors.push({
-              userAccountName: userAccount.username,
-              message: err.message,
-            });
+        selectedRows.map(async item => {
+          await deleteItem(item.id).catch(() => {
+            deleteErrorCount += 1;
           });
         })
       ).then(() => {
-        setDeleteErrors(errors);
-        // Separate check for authorisation error, as this is
-        // handled globally i.e. not caught above.
-        // Not using useLocalStorage here, as hook result only updates
-        // on re-render (after this function finishes running!)
+        setErrorCount(deleteErrorCount);
+        // Separate check for authorisation error, as this is handled globally i.e. not caught above.
+        // Not using useLocalStorage here, as hook result only updates on re-render (after this function finishes running!)
         const authError = LocalStorage.getItem('/auth/error');
-        if (errors.length === 0 && !authError) {
+        if (deleteErrorCount === 0 && !authError) {
           const deletedMessage = t('messages.deleted-generic', {
-            count: numberSelected,
+            count: selectedRows.length,
           });
           const successSnack = success(deletedMessage);
           successSnack();
         }
+        invalidateQueries();
       });
     } else {
       const selectRowsSnack = info(t('messages.select-rows-to-delete'));
@@ -88,6 +83,8 @@ export const Toolbar: FC<{
     ref.current = deleteAction;
   }, [selectedRows]);
 
+  const filterString = (filter.filterBy?.[searchFilterKey] as string) || '';
+
   return (
     <AppBarContentPortal
       sx={{
@@ -98,26 +95,18 @@ export const Toolbar: FC<{
       }}
     >
       <AlertModal
-        message={
-          <ul>
-            {deleteErrors.map(({ userAccountName, message }) => (
-              <li key={userAccountName}>
-                {userAccountName}: {message}
-              </li>
-            ))}
-          </ul>
-        }
-        title={t('messages.error-deleting-generic', {
-          count: deleteErrors.length,
+        title={t('error.something-wrong')}
+        message={t('messages.error-deleting-generic', {
+          count: errorCount,
         })}
-        open={deleteErrors.length > 0}
-        onOk={() => setDeleteErrors([])}
+        open={errorCount > 0}
+        onOk={() => setErrorCount(0)}
       />
       <SearchBar
         placeholder={t('placeholder.search')}
         value={filterString}
         onChange={newValue => {
-          filter.onChangeStringFilterRule('search', 'like', newValue);
+          filter.onChangeStringRule(searchFilterKey, newValue);
         }}
       />
       <DropdownMenu label={t('label.select')}>

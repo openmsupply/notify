@@ -1,1 +1,1 @@
-export const USER_ACCOUNT = 'userAccount';
+export const RECIPIENTS = 'recipients';

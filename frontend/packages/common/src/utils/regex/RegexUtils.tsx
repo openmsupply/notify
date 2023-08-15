@@ -46,4 +46,5 @@ export const RegexUtils = {
   },
   escapeChars: (regexString: string) =>
     regexString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+  isValidEmail: (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
 };

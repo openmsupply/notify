@@ -31,6 +31,7 @@ export * from './popover';
 export * from './charts';
 export * from './steppers';
 export * from './text';
+export * from './toolbars';
 
 export {
   Accordion,

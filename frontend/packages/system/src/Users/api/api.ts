@@ -65,7 +65,6 @@ export const userAccountParsers = {
 export const userAccountInviteParsers = {
   toInvite: (userAccount: InviteUserModalInput): InviteUserInput => ({
     email: userAccount?.email,
-    organisationId: 'TODO to remove',
     permissions: userAccount?.permissions,
     username: userAccount?.username,
     displayName: userAccount?.displayName,

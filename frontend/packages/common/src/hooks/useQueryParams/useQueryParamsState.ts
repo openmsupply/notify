@@ -59,6 +59,13 @@ export const useQueryParamsState = ({
   };
 
   const filter: FilterController = {
+    onChangeStringRule: (key, value) => {
+      if (value === '') {
+        filter.onClearFilterRule(key);
+      } else {
+        updateFilterQuery({ [key]: value });
+      }
+    },
     onChangeStringFilterRule: (key, condition, value) => {
       if (value === '') {
         filter.onClearFilterRule(key);

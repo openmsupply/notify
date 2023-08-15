@@ -192,6 +192,8 @@ export const useUrlQueryParams = ({
   };
 
   const filter: FilterController = {
+    onChangeStringRule: (key: string, value: string) =>
+      updateFilterQuery(key, value),
     onChangeStringFilterRule: (key: string, _, value: string | string[]) =>
       updateFilterQuery(key, value),
     onChangeStringArrayFilterRule: (key: string, _, value: string[]) =>
