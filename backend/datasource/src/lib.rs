@@ -25,16 +25,24 @@ pub fn pg_sql_query_as_json(
 }
 
 #[cfg(test)]
+#[cfg(feature = "datasource-tests")]
 mod tests {
-    use serde_json::json;
-
     use super::*;
+    use serde_json::json;
     use std::env;
 
     /*
-    Currently these tests rely on a DATABASE_URL environment variable to be set
+    These tests rely on a DATABASE_URL environment variable to be set
     e.g export DATABASE_URL=postgres://postgres:postgres@localhost/postgres;
     or DATABASE_URL=postgres://postgres:postgres@localhost/postgres cargo test -- --nocapture
+
+    To use an environment variable from vs code set the URL in your settings
+    "rust-analyzer.runnableEnv": {
+        "DATABASE_URL": postgres://postgres:postgres@localhost/postgres"
+    }
+
+    Finally if you want to disable these tests use
+    `cargo test --no-default-features`
     */
 
     #[test]
