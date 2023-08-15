@@ -55,6 +55,8 @@ export const AllLists = () => {
           data={recipientLists}
           filter={filter}
           deleteItem={deleteRecipientList}
+          searchFilterKey="name"
+          asStringFilterRule
         />
         <DataTable
           pagination={{ ...pagination, total: data?.totalCount }}

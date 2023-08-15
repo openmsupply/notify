@@ -13,6 +13,7 @@ import {
   SearchBar,
   LocalStorage,
   RecordWithId,
+  FilterRule,
 } from '@notify-frontend/common';
 
 export const SearchAndDeleteToolbar = <T extends RecordWithId>({
@@ -20,11 +21,14 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
   filter,
   deleteItem,
   searchFilterKey = 'search',
+  asStringFilterRule: asStringFilter = false,
 }: {
   data: T[];
   filter: FilterController;
   deleteItem: (id: string) => Promise<unknown>;
   searchFilterKey?: string;
+  /** Add the search term as a StringFilterRule rather than just a StringRule */
+  asStringFilterRule?: boolean;
 }) => {
   const t = useTranslation(['system']);
   const { success, info } = useNotification();
@@ -80,7 +84,10 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
     ref.current = deleteAction;
   }, [selectedRows]);
 
-  const filterString = (filter.filterBy?.[searchFilterKey] as string) || '';
+  const filterString =
+    (asStringFilter
+      ? ((filter.filterBy?.[searchFilterKey] as FilterRule)?.like as string)
+      : (filter.filterBy?.[searchFilterKey] as string)) || '';
 
   return (
     <AppBarContentPortal
@@ -103,7 +110,9 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
         placeholder={t('placeholder.search')}
         value={filterString}
         onChange={newValue => {
-          filter.onChangeStringRule(searchFilterKey, newValue);
+          if (asStringFilter) {
+            filter.onChangeStringFilterRule(searchFilterKey, 'like', newValue);
+          } else filter.onChangeStringRule(searchFilterKey, newValue);
         }}
       />
       <DropdownMenu label={t('label.select')}>
