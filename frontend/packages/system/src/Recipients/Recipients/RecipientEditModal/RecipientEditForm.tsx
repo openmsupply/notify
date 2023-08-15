@@ -63,7 +63,6 @@ export const RecipientEditForm = ({
             InputLabelProps={{ shrink: true }}
           />
 
-          {/* TODO: Validate email address */}
           <BasicTextInput
             value={draft.toAddress}
             onChange={e => onUpdate({ toAddress: e.target.value })}

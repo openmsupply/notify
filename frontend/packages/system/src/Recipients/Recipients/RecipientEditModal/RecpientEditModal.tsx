@@ -54,6 +54,8 @@ export const RecipientEditModal = ({
 
   const checkIsInvalid = (draft: DraftRecipient) =>
     !draft.toAddress.trim() ||
+    (draft.notificationType === NotificationTypeNode.Email &&
+      !draft.toAddress.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) ||
     !draft.name.trim() ||
     (mode === ModalMode.Create &&
       draft.notificationType !== NotificationTypeNode.Email);
