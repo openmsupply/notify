@@ -8,7 +8,7 @@ export interface FilterByConditionByType {
   boolean: 'equalTo';
 }
 
-type FilterRule = {
+export type FilterRule = {
   [P in
     | FilterByConditionByType['boolean']
     | FilterByConditionByType['string']
@@ -16,10 +16,12 @@ type FilterRule = {
     | FilterByConditionByType['date']]?: unknown;
 };
 
-export type FilterBy = Record<string, FilterRule | null>;
+export type FilterBy = Record<string, FilterRule | string | null>;
 
 export interface FilterController {
   filterBy: FilterBy | null;
+
+  onChangeStringRule: (key: string, value: string) => void;
 
   onChangeDateFilterRule: (
     key: string,
