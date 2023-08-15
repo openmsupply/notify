@@ -30,13 +30,11 @@ const createRecipient = (seed?: DraftRecipient | null): DraftRecipient => ({
   ...seed,
 });
 
-export const checkIsInvalid = (draft: DraftRecipient, mode: ModalMode | null) =>
+export const checkIsInvalid = (draft: DraftRecipient) =>
   !draft.toAddress.trim() ||
-  (draft.notificationType === NotificationTypeNode.Email &&
-    !RegexUtils.isValidEmail(draft.toAddress)) ||
   !draft.name.trim() ||
-  (mode === ModalMode.Create &&
-    draft.notificationType !== NotificationTypeNode.Email);
+  draft.notificationType !== NotificationTypeNode.Email ||
+  !RegexUtils.isValidEmail(draft.toAddress);
 
 export const RecipientEditModal = ({
   mode,
