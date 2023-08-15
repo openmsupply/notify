@@ -21,6 +21,8 @@
   "label.invite-user": "Invite User",
   "label.new-recipient": "New Recipient",
   "label.new-user": "New User",
+  "label.notification-type-EMAIL": "Email",
+  "label.notification-type-TELEGRAM": "Telegram",
   "label.password-strength": "Password Strength",
   "label.password-warning": "Warning",
   "label.phone-number": "Phone Number",

@@ -7,6 +7,7 @@ import {
   NothingHere,
   PlusCircleIcon,
   TableProvider,
+  Typography,
   createTableStore,
   useColumns,
 } from '@common/ui';
@@ -30,7 +31,16 @@ export const ListView = () => {
   const columns = useColumns<RecipientRowFragment>(
     [
       { key: 'name', label: 'label.name' },
-      { key: 'notificationType', label: 'label.type', sortable: false },
+      {
+        key: 'notificationType',
+        label: 'label.type',
+        sortable: false,
+        Cell: props => (
+          <Typography>
+            {t(`label.notification-type-${props.rowData.notificationType}`)}
+          </Typography>
+        ),
+      },
       { key: 'toAddress', label: 'label.address' },
       'selection',
     ],
