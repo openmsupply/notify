@@ -19,7 +19,7 @@ export const AllLists = () => {
     // filter,
     queryParams,
     updatePaginationQuery,
-    // updateSortQuery
+    updateSortQuery,
   } = useQueryParamsState();
 
   const columns = useColumns<RecipientListRowFragment>(
@@ -30,13 +30,13 @@ export const AllLists = () => {
         label: 'label.description',
         sortable: false,
       },
-      // 'selection',
-    ]
-    // {
-    //   onChangeSortBy: updateSortQuery,
-    //   sortBy,
-    // },
-    // [updateSortQuery, sortBy]
+      'selection',
+    ],
+    {
+      onChangeSortBy: updateSortQuery,
+      sortBy: queryParams.sortBy,
+    },
+    [updateSortQuery, queryParams.sortBy]
   );
 
   const { data, isError, isLoading } = useRecipientLists(queryParams);
