@@ -85,3 +85,11 @@ query RecipientLists(
     }
   }
 }
+
+mutation deleteRecipientList($recipientListId: String!) {
+  deleteRecipientList(recipientListId: $recipientListId) {
+    ... on DeleteResponse {
+      id
+    }
+  }
+}

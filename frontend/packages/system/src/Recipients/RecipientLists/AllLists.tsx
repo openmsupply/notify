@@ -9,7 +9,7 @@ import {
 } from '@common/ui';
 import { useNavigate, useQueryParamsState } from 'packages/common/src';
 import React from 'react';
-import { useRecipientLists } from '../api';
+import { useDeleteRecipientList, useRecipientLists } from '../api';
 import { RecipientListRowFragment } from '../api/operations.generated';
 
 export const AllLists = () => {
@@ -36,8 +36,7 @@ export const AllLists = () => {
     [updateSortQuery, queryParams.sortBy]
   );
 
-  const deleteRecipientList = async () => null;
-  // const { mutateAsync: deleteRecipientList } = useDeleteRecipientList();
+  const { mutateAsync: deleteRecipientList } = useDeleteRecipientList();
 
   const { data, isError, isLoading } = useRecipientLists(queryParams);
   const recipientLists = data?.nodes ?? [];
