@@ -21,18 +21,22 @@ import { RecipientEditModal } from './RecipientEditModal';
 
 export const ListView = () => {
   const t = useTranslation('system');
-  const { filter, queryParams, updatePaginationQuery } = useQueryParamsState();
+  const { filter, queryParams, updatePaginationQuery, updateSortQuery } =
+    useQueryParamsState();
 
   const { isOpen, entity, mode, onClose, onOpen } =
     useEditModal<RecipientRowFragment>();
 
-  // TODO: sort
-  const columns = useColumns<RecipientRowFragment>([
-    { key: 'name', label: 'label.name' },
-    { key: 'notificationType', label: 'label.type' },
-    { key: 'toAddress', label: 'label.address' },
-    'selection',
-  ]);
+  const columns = useColumns<RecipientRowFragment>(
+    [
+      { key: 'name', label: 'label.name' },
+      { key: 'notificationType', label: 'label.type', sortable: false },
+      { key: 'toAddress', label: 'label.address' },
+      'selection',
+    ],
+    { sortBy: queryParams.sortBy, onChangeSortBy: updateSortQuery },
+    [queryParams.sortBy, updateSortQuery]
+  );
 
   const { data, isError, isLoading } = useRecipients(queryParams);
   const recipients = data?.nodes ?? [];
