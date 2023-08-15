@@ -4,6 +4,7 @@
   "button.send-password-reset": "Send Password Reset",
   "error.email-invalid": "Invalid email",
   "error.no-recipient-list-members": "No Recipient List Members",
+  "error.no-recipient-lists": "No recipient lists",
   "error.no-users": "No Users",
   "error.unknown-error": "Unknown Error",
   "error.username-invalid-characters": "Username must not contain any special characters or spaces",

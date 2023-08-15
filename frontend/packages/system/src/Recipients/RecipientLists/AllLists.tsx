@@ -1,11 +1,10 @@
 import { useTranslation } from '@common/intl';
 import {
-  Box,
-  ButtonWithIcon,
-  Grid,
-  Paper,
-  SettingsIcon,
-  Typography,
+  DataTable,
+  NothingHere,
+  TableProvider,
+  createTableStore,
+  useColumns,
 } from '@common/ui';
 import { useNavigate } from 'packages/common/src';
 import React from 'react';
@@ -50,54 +49,38 @@ export const AllLists = () => {
   const t = useTranslation('system');
   const navigate = useNavigate();
 
+  // const columns = useColumns<RecipientListRowFragment>(
+  const columns = useColumns(
+    [
+      { key: 'name', label: 'label.name' },
+      {
+        key: 'description',
+        label: 'label.description',
+        sortable: false,
+      },
+      // 'selection',
+    ]
+    // {
+    //   onChangeSortBy: updateSortQuery,
+    //   sortBy,
+    // },
+    // [updateSortQuery, sortBy]
+  );
+
   return (
-    <Grid
-      container
-      spacing={2}
-      sx={{
-        padding: '0 16px 16px 0',
-        maxWidth: '1200px',
-        margin: '0 auto',
-        height: 'min-content',
-      }}
-    >
-      {dummyData.map(list => (
-        <Grid item xs={12} md={6} key={list.id} sx={{ height: 'fit-content' }}>
-          <Paper
-            sx={{
-              borderRadius: '16px',
-              boxShadow: theme => theme.shadows[1],
-              padding: '24px 32px',
-              width: '100%',
-              backgroundColor: 'background.menu',
-              display: 'flex',
-              justifyContent: 'space-between',
-            }}
-            key={list.id}
-          >
-            <Box>
-              <Typography
-                sx={{
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  color: 'gray.dark',
-                }}
-              >
-                {list.name}
-              </Typography>
-              <Typography sx={{ color: 'gray.dark' }}>
-                {list.description}
-              </Typography>
-            </Box>
-            <ButtonWithIcon
-              Icon={<SettingsIcon />}
-              onClick={() => navigate(list.id)}
-              title={t('tooltip.manage-recipient-list')}
-              label={t('label.manage')}
-            />
-          </Paper>
-        </Grid>
-      ))}
-    </Grid>
+    <>
+      <TableProvider createStore={createTableStore}>
+        <DataTable
+          // pagination={{ ...pagination, total: data?.totalCount }}
+          // onChangePage={updatePaginationQuery}
+          columns={columns}
+          data={dummyData}
+          // isError={isError}
+          // isLoading={isLoading}
+          onRowClick={list => navigate(list.id)}
+          noDataElement={<NothingHere body={t('error.no-recipient-lists')} />}
+        />
+      </TableProvider>
+    </>
   );
 };
