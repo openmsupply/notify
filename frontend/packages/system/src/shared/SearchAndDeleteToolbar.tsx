@@ -15,12 +15,6 @@ import {
   RecordWithId,
 } from '@notify-frontend/common';
 
-type DeleteError = {
-  // TODO: name?
-  id: string;
-  message: string;
-};
-
 export const SearchAndDeleteToolbar = <T extends RecordWithId>({
   data,
   filter,
@@ -35,7 +29,7 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
   const t = useTranslation(['system']);
   const { success, info } = useNotification();
 
-  const [deleteErrors, setDeleteErrors] = React.useState<DeleteError[]>([]);
+  const [errorCount, setErrorCount] = React.useState(0);
 
   const { selectedRows } = useTableStore(state => ({
     selectedRows: Object.keys(state.rowState)
@@ -46,22 +40,19 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
 
   const deleteAction = () => {
     if (selectedRows.length) {
-      const errors: DeleteError[] = [];
+      let deleteErrorCount = 0;
       Promise.all(
         selectedRows.map(async item => {
-          await deleteItem(item.id).catch(err => {
-            errors.push({
-              id: item.id,
-              message: err.message,
-            });
+          await deleteItem(item.id).catch(() => {
+            deleteErrorCount += 1;
           });
         })
       ).then(() => {
-        setDeleteErrors(errors);
+        setErrorCount(deleteErrorCount);
         // Separate check for authorisation error, as this is handled globally i.e. not caught above.
         // Not using useLocalStorage here, as hook result only updates on re-render (after this function finishes running!)
         const authError = LocalStorage.getItem('/auth/error');
-        if (errors.length === 0 && !authError) {
+        if (deleteErrorCount === 0 && !authError) {
           const deletedMessage = t('messages.deleted-generic', {
             count: selectedRows.length,
           });
@@ -101,20 +92,12 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
       }}
     >
       <AlertModal
-        message={
-          <ul>
-            {deleteErrors.map(({ id, message }) => (
-              <li key={id}>
-                {id}: {message}
-              </li>
-            ))}
-          </ul>
-        }
-        title={t('messages.error-deleting-generic', {
-          count: deleteErrors.length,
+        title={t('error.something-wrong')}
+        message={t('messages.error-deleting-generic', {
+          count: errorCount,
         })}
-        open={deleteErrors.length > 0}
-        onOk={() => setDeleteErrors([])}
+        open={errorCount > 0}
+        onOk={() => setErrorCount(0)}
       />
       <SearchBar
         placeholder={t('placeholder.search')}
