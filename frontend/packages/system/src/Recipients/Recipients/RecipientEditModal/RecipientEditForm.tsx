@@ -7,6 +7,7 @@ import {
   ToggleButton,
   NotificationTypeNode,
   EnvUtils,
+  ModalMode,
 } from '@notify-frontend/common';
 import { DraftRecipient } from './types';
 import { ToggleButtonGroup } from '@mui/material';
@@ -14,11 +15,13 @@ import { ExternalURL } from 'packages/config/src';
 
 type RecipientEditFormProps = {
   draft: DraftRecipient;
+  mode: ModalMode | null;
   onUpdate: (patch: Partial<DraftRecipient>) => void;
 };
 
 export const RecipientEditForm = ({
   draft,
+  mode,
   onUpdate,
 }: RecipientEditFormProps) => {
   const t = useTranslation('system');
@@ -29,24 +32,26 @@ export const RecipientEditForm = ({
 
   return (
     <Grid flexDirection="column" display="flex" gap={2}>
-      <ToggleButtonGroup exclusive sx={{ margin: '0 auto' }}>
-        <ToggleButton
-          label={t('label.email')}
-          value={NotificationTypeNode.Email}
-          selected={draft.notificationType === NotificationTypeNode.Email}
-          onClick={() => {
-            onUpdate({ notificationType: NotificationTypeNode.Email });
-          }}
-        />
-        <ToggleButton
-          label={t('label.telegram')}
-          value={NotificationTypeNode.Telegram}
-          selected={draft.notificationType === NotificationTypeNode.Telegram}
-          onClick={() => {
-            onUpdate({ notificationType: NotificationTypeNode.Telegram });
-          }}
-        />
-      </ToggleButtonGroup>
+      {mode === ModalMode.Create && (
+        <ToggleButtonGroup exclusive sx={{ margin: '0 auto' }}>
+          <ToggleButton
+            label={t('label.email')}
+            value={NotificationTypeNode.Email}
+            selected={draft.notificationType === NotificationTypeNode.Email}
+            onClick={() => {
+              onUpdate({ notificationType: NotificationTypeNode.Email });
+            }}
+          />
+          <ToggleButton
+            label={t('label.telegram')}
+            value={NotificationTypeNode.Telegram}
+            selected={draft.notificationType === NotificationTypeNode.Telegram}
+            onClick={() => {
+              onUpdate({ notificationType: NotificationTypeNode.Telegram });
+            }}
+          />
+        </ToggleButtonGroup>
+      )}
       {draft.notificationType === NotificationTypeNode.Email ? (
         <>
           <BasicTextInput
@@ -58,7 +63,7 @@ export const RecipientEditForm = ({
             InputLabelProps={{ shrink: true }}
           />
 
-          {/* Validate email address */}
+          {/* TODO: Validate email address */}
           <BasicTextInput
             value={draft.toAddress}
             onChange={e => onUpdate({ toAddress: e.target.value })}
@@ -67,7 +72,7 @@ export const RecipientEditForm = ({
             required
           />
         </>
-      ) : (
+      ) : mode === ModalMode.Create ? (
         <>
           <Typography sx={{ color: 'gray.dark' }}>
             {t('text.telegram-recipient-creation-1')}
@@ -78,6 +83,19 @@ export const RecipientEditForm = ({
               {t('text.here')}
             </a>
             {'.'}
+          </Typography>
+        </>
+      ) : (
+        <>
+          <BasicTextInput
+            value={draft.name}
+            onChange={e => onUpdate({ name: e.target.value })}
+            label={t('label.name')}
+            InputLabelProps={{ shrink: true }}
+            required
+          />
+          <Typography sx={{ color: 'gray.dark' }}>
+            {t('text.telegram-recipient-edit-name')}
           </Typography>
         </>
       )}

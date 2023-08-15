@@ -44,5 +44,6 @@
   "text.no-website": "No website",
   "text.telegram-recipient-creation-1": "Telegram Recipients are created automatically when you add your Notify Bot to a Telegram group.",
   "text.telegram-recipient-creation-2": "For instructions on how to set up your bot and add it to a group, see the docs",
+  "text.telegram-recipient-edit-name": "You can change name of the recipient here in Notify - it won't rename your Telegram chat!",
   "tooltip.manage-recipient-list": "Manage Recipient List"
 }

@@ -13,6 +13,7 @@ import { renderHook } from '@testing-library/react';
 import i18next from 'i18next';
 import { initReactI18next, I18nextProvider } from 'react-i18next';
 import host from '@common/intl/locales/en/host.json';
+import system from '@common/intl/locales/en/system.json';
 import common from '@common/intl/locales/en/common.json';
 import hostFr from '@common/intl/locales/fr/host.json';
 import commonFr from '@common/intl/locales/fr/common.json';
@@ -31,9 +32,10 @@ interface IntlTestProviderProps {
 }
 
 const resources = {
-  en: { host, common },
+  en: { host, system, common },
   fr: {
     host: { ...host, ...hostFr },
+    system: { ...system },
     common: { ...common, ...commonFr },
   },
 };
@@ -52,7 +54,7 @@ export const IntlTestProvider: FC<PropsWithChildren<IntlTestProviderProps>> = ({
       debug: false,
       lng: locale,
       fallbackLng: 'en',
-      ns: ['host', 'common'],
+      ns: ['host', 'system', 'common'],
       defaultNS: 'common',
       fallbackNS: 'common',
       interpolation: {

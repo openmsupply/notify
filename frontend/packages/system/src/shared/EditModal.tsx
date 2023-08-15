@@ -26,7 +26,11 @@ interface EditModalProps<T extends RecordWithId> {
   onClose: () => void;
   createDraft: () => T;
   onSave: (item: T) => Promise<unknown>;
-  EditForm: React.FC<{ draft: T; onUpdate: (patch: Partial<T>) => void }>;
+  EditForm: React.FC<{
+    draft: T;
+    mode: ModalMode | null;
+    onUpdate: (patch: Partial<T>) => void;
+  }>;
 }
 
 export const EditModal = <T extends RecordWithId>({
@@ -53,7 +57,7 @@ export const EditModal = <T extends RecordWithId>({
 
   const tabs = [
     {
-      Component: <EditForm draft={draft} onUpdate={onUpdate} />,
+      Component: <EditForm draft={draft} onUpdate={onUpdate} mode={mode} />,
       value: t('label.details'),
     },
     ...(mode === ModalMode.Update

@@ -55,7 +55,8 @@ export const RecipientEditModal = ({
   const checkIsInvalid = (draft: DraftRecipient) =>
     !draft.toAddress.trim() ||
     !draft.name.trim() ||
-    draft.notificationType !== NotificationTypeNode.Email;
+    (mode === ModalMode.Create &&
+      draft.notificationType !== NotificationTypeNode.Email);
 
   return (
     <EditModal
