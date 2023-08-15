@@ -1,5 +1,10 @@
 import React from 'react';
-import { BasicTextInput, Grid, useTranslation } from '@notify-frontend/common';
+import {
+  BasicTextInput,
+  BufferedTextArea,
+  Grid,
+  useTranslation,
+} from '@notify-frontend/common';
 import { DraftRecipientList } from './types';
 
 type RecipientListEditFormProps = {
@@ -24,10 +29,11 @@ export const RecipientListEditForm = ({
         InputLabelProps={{ shrink: true }}
       />
 
-      <BasicTextInput
+      <BufferedTextArea
         value={draft.description}
         onChange={e => onUpdate({ description: e.target.value })}
         label={t('label.description')}
+        InputProps={{ sx: { backgroundColor: 'background.menu' } }}
         InputLabelProps={{ shrink: true }}
         required
       />
