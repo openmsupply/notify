@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from '@common/intl';
-import { useBreadcrumbs } from '@common/hooks';
+import { useBreadcrumbs, useQueryParamsState } from '@common/hooks';
 import {
   Box,
   DataTable,
@@ -11,68 +11,31 @@ import {
   createTableStore,
   useColumns,
 } from '@common/ui';
-
-const listDummyData = {
-  id: 'friends-id',
-  name: 'Friends',
-  description:
-    'These are some of my closest friends so they need all the notifications',
-};
-
-const recipientsDummyData = [
-  {
-    id: 'lache-id',
-    name: 'Laché',
-    notificationType: 'email',
-    address: 'lache@msupply.foundation',
-  },
-  {
-    id: 'james-id',
-    name: 'James',
-    notificationType: 'email',
-    toAddress: 'james@msupply.foundation',
-  },
-  {
-    id: 'mai-id',
-    name: 'Mai',
-    notificationType: 'email',
-    toAddress: 'mai@msupply.foundation',
-  },
-  {
-    id: 'telegram-id',
-    name: 'CC Notifications',
-    notificationType: 'telegram',
-    toAddress: 'abc123',
-  },
-  { id: '1-id', name: 'name', notificationType: 'telegram', toAddress: 'x' },
-  { id: '2-id', name: 'name', notificationType: 'telegram', toAddress: 'x' },
-  { id: '3-id', name: 'name', notificationType: 'telegram', toAddress: 'x' },
-  { id: '4-id', name: 'name', notificationType: 'telegram', toAddress: 'x' },
-  { id: '5-id', name: 'name', notificationType: 'telegram', toAddress: 'x' },
-  { id: '6-id', name: 'name', notificationType: 'telegram', toAddress: 'x' },
-  { id: '7-id', name: 'name', notificationType: 'telegram', toAddress: 'x' },
-  { id: '8-id', name: 'name', notificationType: 'telegram', toAddress: 'x' },
-  { id: '9-id', name: 'name', notificationType: 'telegram', toAddress: 'x' },
-  { id: '1-i', name: 'name', notificationType: 'telegram', toAddress: 'x' },
-  { id: '2-i', name: 'name', notificationType: 'telegram', toAddress: 'x' },
-  { id: '3-i', name: 'name', notificationType: 'telegram', toAddress: 'x' },
-  { id: '4-i', name: 'name', notificationType: 'telegram', toAddress: 'x' },
-  { id: '5-i', name: 'name', notificationType: 'telegram', toAddress: 'x' },
-  { id: '6-i', name: 'name', notificationType: 'telegram', toAddress: 'x' },
-  { id: '7-i', name: 'name', notificationType: 'telegram', toAddress: 'x' },
-  { id: '8-i', name: 'name', notificationType: 'telegram', toAddress: 'x' },
-  { id: '9-i', name: 'name', notificationType: 'telegram', toAddress: 'x' },
-];
+import { useRecipientLists } from '../api';
+import { useParams } from 'packages/common/src';
 
 export const DetailView = () => {
   const t = useTranslation('system');
-  const x = useBreadcrumbs();
+  const urlParams = useParams();
+  const { suffix, setSuffix } = useBreadcrumbs();
+
+  const { queryParams } = useQueryParamsState({
+    initialFilter: {
+      id: {
+        equalTo: urlParams['listId'],
+      },
+    },
+  });
+
+  const { data, isError, isLoading } = useRecipientLists(queryParams);
+  const list = data?.nodes[0];
 
   useEffect(() => {
-    if (!x.suffix) {
-      x.setSuffix(listDummyData.name);
+    const listName = list?.name;
+    if (!suffix && listName) {
+      setSuffix(listName);
     }
-  }, [x.suffix]);
+  }, [suffix, list]);
 
   const columns = useColumns([
     { key: 'name', label: 'label.name' },
@@ -102,10 +65,10 @@ export const DetailView = () => {
               color: 'gray.dark',
             }}
           >
-            {listDummyData.name}
+            {list?.name}
           </Typography>
           <Typography sx={{ color: 'gray.dark' }}>
-            {listDummyData.description}
+            {list?.description}
           </Typography>
         </Box>
       </Paper>
@@ -113,9 +76,9 @@ export const DetailView = () => {
         <TableProvider createStore={createTableStore}>
           <DataTable
             columns={columns}
-            data={recipientsDummyData}
-            isError={false}
-            isLoading={false}
+            data={list?.recipients}
+            isError={isError}
+            isLoading={isLoading}
             noDataElement={
               <NothingHere body={t('error.no-recipient-list-members')} />
             }
