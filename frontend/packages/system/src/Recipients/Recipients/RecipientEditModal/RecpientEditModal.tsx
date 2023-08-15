@@ -54,7 +54,6 @@ export const RecipientEditModal = ({
     if (mode === ModalMode.Create) {
       await create({ input: draft });
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id, name, toAddress } = draft;
       await update({ input: { id, name, toAddress } });
     }
