@@ -12,10 +12,25 @@ You can also tools such as GraphiQL (use the same URL as above): https://graphiq
 
 ## Tests
 
+By default our tests require a postgres database to be running.
+Set a database URL to a postgres database in your environment
+`export DATABASE_URL=postgres://postgres:postgres@localhost/postgres`
+
+From vs code set the URL in your rust-analyzer.runnableEnv settings
+"rust-analyzer.runnableEnv": {
+"DATABASE_URL": postgres://postgres:postgres@localhost/postgres"
+}
+
 - To run all standard tests:
 
 ```bash
 cargo test
+```
+
+- To disable database tests (if you don't have postgres setup):
+
+```bash
+    cargo test --no-default-features
 ```
 
 - To run email tests:
