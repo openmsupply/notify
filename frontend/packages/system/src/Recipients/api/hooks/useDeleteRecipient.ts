@@ -8,10 +8,11 @@ export const useDeleteRecipient = () => {
 
   const queryClient = useQueryClient();
 
-  return useMutation(
-    async (id: string) => sdk.deleteRecipient({ recipientId: id }),
-    {
-      onSettled: () => queryClient.invalidateQueries(RECIPIENTS),
-    }
+  const result = useMutation(async (id: string) =>
+    sdk.deleteRecipient({ recipientId: id })
   );
+  return {
+    ...result,
+    invalidateQueries: () => queryClient.invalidateQueries(RECIPIENTS),
+  };
 };

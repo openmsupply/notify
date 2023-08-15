@@ -19,11 +19,13 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
   data,
   filter,
   deleteItem,
+  invalidateQueries,
   searchFilterKey = 'search',
 }: {
   data: T[];
   filter: FilterController;
   deleteItem: (id: string) => Promise<unknown>;
+  invalidateQueries: () => Promise<void>;
   searchFilterKey?: string;
 }) => {
   const t = useTranslation(['system']);
@@ -59,6 +61,7 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
           const successSnack = success(deletedMessage);
           successSnack();
         }
+        invalidateQueries();
       });
     } else {
       const selectRowsSnack = info(t('messages.select-rows-to-delete'));
