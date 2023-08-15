@@ -86,6 +86,14 @@ query RecipientLists(
   }
 }
 
+mutation createRecipientList($input: CreateRecipientListInput!) {
+  createRecipientList(input: $input) {
+    ... on RecipientListNode {
+      ...RecipientListRow
+    }
+  }
+}
+
 mutation deleteRecipientList($recipientListId: String!) {
   deleteRecipientList(recipientListId: $recipientListId) {
     ... on DeleteResponse {
