@@ -35,6 +35,17 @@ export type DeleteRecipientMutationVariables = Types.Exact<{
 
 export type DeleteRecipientMutation = { __typename: 'FullMutation', deleteRecipient: { __typename: 'DeleteResponse', id: string } };
 
+export type RecipientListRowFragment = { __typename: 'RecipientListNode', id: string, name: string, description: string, recipients: Array<{ __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> };
+
+export type RecipientListsQueryVariables = Types.Exact<{
+  filter?: Types.InputMaybe<Types.RecipientListFilterInput>;
+  page?: Types.InputMaybe<Types.PaginationInput>;
+  sort?: Types.InputMaybe<Array<Types.RecipientListSortInput> | Types.RecipientListSortInput>;
+}>;
+
+
+export type RecipientListsQuery = { __typename: 'FullQuery', recipientLists: { __typename: 'RecipientListConnector', totalCount: number, nodes: Array<{ __typename: 'RecipientListNode', id: string, name: string, description: string, recipients: Array<{ __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }> } };
+
 export const RecipientRowFragmentDoc = gql`
     fragment RecipientRow on RecipientNode {
   id
@@ -52,6 +63,25 @@ export const RecipientRowFragmentDoc = gql`
   }
 }
     `;
+export const RecipientListRowFragmentDoc = gql`
+    fragment RecipientListRow on RecipientListNode {
+  id
+  name
+  description
+  recipients {
+    ...RecipientRow
+  }
+  auditLogs {
+    datetime
+    id
+    recordId
+    recordType
+    user {
+      username
+    }
+  }
+}
+    ${RecipientRowFragmentDoc}`;
 export const RecipientsDocument = gql`
     query Recipients($filter: RecipientFilterInput, $page: PaginationInput, $sort: [RecipientSortInput!]) {
   recipients(filter: $filter, page: $page, sort: $sort) {
@@ -91,6 +121,18 @@ export const DeleteRecipientDocument = gql`
   }
 }
     `;
+export const RecipientListsDocument = gql`
+    query RecipientLists($filter: RecipientListFilterInput, $page: PaginationInput, $sort: [RecipientListSortInput!]) {
+  recipientLists(filter: $filter, page: $page, sort: $sort) {
+    ... on RecipientListConnector {
+      totalCount
+      nodes {
+        ...RecipientListRow
+      }
+    }
+  }
+}
+    ${RecipientListRowFragmentDoc}`;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string) => Promise<T>;
 
@@ -110,6 +152,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     deleteRecipient(variables: DeleteRecipientMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<DeleteRecipientMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<DeleteRecipientMutation>(DeleteRecipientDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteRecipient', 'mutation');
+    },
+    RecipientLists(variables?: RecipientListsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<RecipientListsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<RecipientListsQuery>(RecipientListsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'RecipientLists', 'query');
     }
   };
 }

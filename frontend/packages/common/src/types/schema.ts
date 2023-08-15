@@ -131,6 +131,7 @@ export type FullMutation = {
   removeRecipientFromList: ModifyRecipientListMembersResponse;
   /** Resets the password for a user based on the password reset token */
   resetPasswordUsingToken: PasswordResetResponse;
+  sendTestTelegramMessage: TelegramMessageResponse;
   updateRecipient: UpdateRecipientResponse;
   updateRecipientList: ModifyRecipientListResponse;
   updateUserAccount: UpdateUserAccountResponse;
@@ -201,6 +202,11 @@ export type FullMutationResetPasswordUsingTokenArgs = {
 };
 
 
+export type FullMutationSendTestTelegramMessageArgs = {
+  chatId: Scalars['String']['input'];
+};
+
+
 export type FullMutationUpdateRecipientArgs = {
   input: UpdateRecipientInput;
 };
@@ -240,6 +246,7 @@ export type FullQuery = {
    * The refresh token is returned as a cookie
    */
   refreshToken: RefreshTokenResponse;
+  telegramBotName: Scalars['String']['output'];
   /** Query "user_accounts" entries */
   userAccounts: UserAccountsResponse;
 };
@@ -544,6 +551,16 @@ export type StringFilterInput = {
   notEqualTo?: InputMaybe<Scalars['String']['input']>;
   startsWith?: InputMaybe<Scalars['String']['input']>;
 };
+
+export type TelegramMessageNode = {
+  __typename: 'TelegramMessageNode';
+  chatId: Scalars['String']['output'];
+  chatName: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  username: Scalars['String']['output'];
+};
+
+export type TelegramMessageResponse = TelegramMessageNode;
 
 export type TokenExpired = RefreshTokenErrorInterface & {
   __typename: 'TokenExpired';

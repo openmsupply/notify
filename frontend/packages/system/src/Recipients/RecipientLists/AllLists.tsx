@@ -6,51 +6,23 @@ import {
   createTableStore,
   useColumns,
 } from '@common/ui';
-import { useNavigate } from 'packages/common/src';
+import { useNavigate, useQueryParamsState } from 'packages/common/src';
 import React from 'react';
-
-const dummyData = [
-  { id: 'friends-id', name: 'Friends', description: 'My good friends' },
-  { id: 'foes-id', name: 'Foes', description: 'Keep your enemies closer' },
-  { id: 'fries-id', name: 'Fries', description: 'With ketchup please' },
-  {
-    id: 'kids-id',
-    name: 'Kids',
-    description: 'This is a description about the list',
-  },
-  {
-    id: 'mates-id',
-    name: 'Mates',
-    description: 'This is a description about the list',
-  },
-  {
-    id: 'lads-id',
-    name: 'Lads',
-    description: 'This is a description about the list',
-  },
-  {
-    id: 'homies-id',
-    name: 'Homies',
-    description: 'This is a description about the list',
-  },
-  {
-    id: 'cuties-id',
-    name: 'Cuties',
-    description: 'This is a description about the list',
-  },
-  {
-    id: 'bros-id',
-    name: 'Bros',
-    description: 'This is a description about the list',
-  },
-];
+import { useRecipientLists } from '../api';
+import { RecipientListRowFragment } from '../api/operations.generated';
 
 export const AllLists = () => {
   const t = useTranslation('system');
   const navigate = useNavigate();
 
-  // const columns = useColumns<RecipientListRowFragment>(
-  const columns = useColumns(
+  const {
+    // filter,
+    queryParams,
+    // updatePaginationQuery,
+    // updateSortQuery
+  } = useQueryParamsState();
+
+  const columns = useColumns<RecipientListRowFragment>(
     [
       { key: 'name', label: 'label.name' },
       {
@@ -67,6 +39,9 @@ export const AllLists = () => {
     // [updateSortQuery, sortBy]
   );
 
+  const { data, isError, isLoading } = useRecipientLists(queryParams);
+  const recipientLists = data?.nodes ?? [];
+
   return (
     <>
       <TableProvider createStore={createTableStore}>
@@ -74,9 +49,9 @@ export const AllLists = () => {
           // pagination={{ ...pagination, total: data?.totalCount }}
           // onChangePage={updatePaginationQuery}
           columns={columns}
-          data={dummyData}
-          // isError={isError}
-          // isLoading={isLoading}
+          data={recipientLists}
+          isError={isError}
+          isLoading={isLoading}
           onRowClick={list => navigate(list.id)}
           noDataElement={<NothingHere body={t('error.no-recipient-lists')} />}
         />

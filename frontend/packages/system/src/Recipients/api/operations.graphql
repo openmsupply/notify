@@ -52,3 +52,36 @@ mutation deleteRecipient($recipientId: String!) {
     }
   }
 }
+
+fragment RecipientListRow on RecipientListNode {
+  id
+  name
+  description
+  recipients {
+    ...RecipientRow
+  }
+  auditLogs {
+    datetime
+    id
+    recordId
+    recordType
+    user {
+      username
+    }
+  }
+}
+
+query RecipientLists(
+  $filter: RecipientListFilterInput
+  $page: PaginationInput
+  $sort: [RecipientListSortInput!]
+) {
+  recipientLists(filter: $filter, page: $page, sort: $sort) {
+    ... on RecipientListConnector {
+      totalCount
+      nodes {
+        ...RecipientListRow
+      }
+    }
+  }
+}
