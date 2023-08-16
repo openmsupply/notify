@@ -45,12 +45,8 @@ export const DetailView = () => {
     onOpen: onOpenAdd,
   } = useEditModal();
 
-  const { filter, queryParams } = useQueryParamsState({
-    initialFilter: {
-      id: {
-        equalTo: urlParams['listId'],
-      },
-    },
+  const { queryParams } = useQueryParamsState({
+    initialFilter: { id: { equalTo: urlParams['listId'] } },
   });
 
   const { data, isError, isLoading } = useRecipientLists(queryParams);
@@ -68,6 +64,14 @@ export const DetailView = () => {
     { key: 'notificationType', label: 'label.type' },
     { key: 'toAddress', label: 'label.address' },
   ]);
+
+  // managing search in the frontend, seeing as all list members are already loaded
+  const { filter: searchFilter } = useQueryParamsState();
+
+  const searchString = (searchFilter.filterBy?.['search'] as string) ?? '';
+  const recipients = (list?.recipients ?? []).filter(
+    r => r.name.includes(searchString) || r.toAddress.includes(searchString)
+  );
 
   return (
     <TableProvider createStore={createTableStore}>
@@ -141,17 +145,17 @@ export const DetailView = () => {
             flexDirection: 'column',
           }}
         >
-          <Box sx={{ margin: '14px' }}>
+          <Box sx={{ margin: '16px 16px 0 16px' }}>
             <SearchAndDeleteToolbar
-              data={list?.recipients ?? []}
-              filter={filter}
+              data={recipients}
+              filter={searchFilter}
               deleteItem={async () => {}}
             />
           </Box>
           <Box sx={{ flex: '1', overflow: 'auto' }}>
             <DataTable
               columns={columns}
-              data={list?.recipients}
+              data={recipients}
               isError={isError}
               isLoading={isLoading}
               noDataElement={
