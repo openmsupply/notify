@@ -8,6 +8,7 @@ import {
 } from '@common/hooks';
 import {
   AppBarButtonsPortal,
+  AppBarContentPortal,
   Box,
   DataTable,
   EditIcon,
@@ -15,6 +16,7 @@ import {
   NothingHere,
   Paper,
   PlusCircleIcon,
+  SearchAndDeleteToolbar,
   TableProvider,
   Typography,
   createTableStore,
@@ -43,7 +45,7 @@ export const DetailView = () => {
     onOpen: onOpenAdd,
   } = useEditModal();
 
-  const { queryParams } = useQueryParamsState({
+  const { filter, queryParams } = useQueryParamsState({
     initialFilter: {
       id: {
         equalTo: urlParams['listId'],
@@ -68,80 +70,90 @@ export const DetailView = () => {
   ]);
 
   return (
-    <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
-      {list && addIsOpen && (
-        <ListMemberAddModal
-          isOpen={addIsOpen}
-          onClose={onCloseAdd}
-          recipientList={list}
-        />
-      )}{' '}
-      {editIsOpen && (
-        <RecipientListEditModal
-          mode={ModalMode.Update}
-          isOpen={editIsOpen}
-          onClose={onCloseEdit}
-          recipientList={listEntity}
-        />
-      )}
-      <AppBarButtonsPortal>
-        <LoadingButton
-          isLoading={false}
-          startIcon={<PlusCircleIcon />}
-          onClick={() => onOpenAdd()}
-        >
-          {t('label.add-members')}
-        </LoadingButton>
-      </AppBarButtonsPortal>
-      <Paper
-        sx={{
-          borderRadius: '16px',
-          boxShadow: theme => theme.shadows[1],
-          padding: '21px',
-          margin: '14px',
-          height: 'fit-content',
-          backgroundColor: 'background.menu',
-          display: 'flex',
-          justifyContent: 'space-between',
-          gap: '14px',
-        }}
-      >
-        <Box>
-          <Typography
+    <TableProvider createStore={createTableStore}>
+      <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+        {list && addIsOpen && (
+          <ListMemberAddModal
+            isOpen={addIsOpen}
+            onClose={onCloseAdd}
+            recipientList={list}
+          />
+        )}{' '}
+        {editIsOpen && (
+          <RecipientListEditModal
+            mode={ModalMode.Update}
+            isOpen={editIsOpen}
+            onClose={onCloseEdit}
+            recipientList={listEntity}
+          />
+        )}
+        <AppBarButtonsPortal>
+          <LoadingButton
+            isLoading={false}
+            startIcon={<PlusCircleIcon />}
+            onClick={() => onOpenAdd()}
+          >
+            {t('label.add-members')}
+          </LoadingButton>
+        </AppBarButtonsPortal>
+        <AppBarContentPortal sx={{ paddingBottom: '16px' }}>
+          <Paper
             sx={{
-              fontSize: '18px',
-              fontWeight: 'bold',
-              color: 'gray.dark',
+              borderRadius: '16px',
+              boxShadow: theme => theme.shadows[1],
+              padding: '21px',
+              height: 'fit-content',
+              backgroundColor: 'background.menu',
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: '16px',
             }}
           >
-            {list?.name}
-          </Typography>
-          <Typography sx={{ color: 'gray.dark' }}>
-            {list?.description}
-          </Typography>
-        </Box>
-        <LoadingButton
-          variant="outlined"
-          isLoading={false}
-          startIcon={<EditIcon />}
-          onClick={() => onOpenEdit(list)}
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  color: 'gray.dark',
+                }}
+              >
+                {list?.name}
+              </Typography>
+              <Typography sx={{ color: 'gray.dark' }}>
+                {list?.description}
+              </Typography>
+            </Box>
+            <LoadingButton
+              variant="outlined"
+              isLoading={false}
+              startIcon={<EditIcon />}
+              onClick={() => onOpenEdit(list)}
+            >
+              {t('label.edit')}
+            </LoadingButton>
+          </Paper>
+        </AppBarContentPortal>
+        <Box
+          sx={{
+            flex: '1',
+            overflow: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
         >
-          {t('label.edit')}
-        </LoadingButton>
-      </Paper>
-      <Box sx={{ flex: '1', overflow: 'auto' }}>
-        <TableProvider createStore={createTableStore}>
-          <DataTable
-            columns={columns}
-            data={list?.recipients}
-            isError={isError}
-            isLoading={isLoading}
-            noDataElement={
-              <NothingHere body={t('error.no-recipient-list-members')} />
-            }
-          />
-        </TableProvider>
+          <Box sx={{ flex: '1', overflow: 'auto' }}>
+            <DataTable
+              columns={columns}
+              data={list?.recipients}
+              isError={isError}
+              isLoading={isLoading}
+              noDataElement={
+                <NothingHere body={t('error.no-recipient-list-members')} />
+              }
+            />
+          </Box>
+        </Box>
       </Box>
-    </Box>
+    </TableProvider>
   );
 };
