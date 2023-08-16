@@ -1,9 +1,12 @@
-export * from './useAddRecipientToList';
-export * from './useRecipients';
-export * from './useRecipientLists';
 export * from './useCreateRecipient';
-export * from './useCreateRecipientList';
-export * from './useDeleteRecipient';
-export * from './useDeleteRecipientList';
+export * from './useRecipients';
 export * from './useUpdateRecipient';
+export * from './useDeleteRecipient';
+
+export * from './useCreateRecipientList';
+export * from './useRecipientLists';
 export * from './useUpdateRecipientList';
+export * from './useDeleteRecipientList';
+
+export * from './useAddRecipientToList';
+export * from './useRemoveRecipientFromList';

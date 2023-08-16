@@ -67,6 +67,13 @@ export type AddRecipientToListMutationVariables = Types.Exact<{
 
 export type AddRecipientToListMutation = { __typename: 'FullMutation', addRecipientToList: { __typename: 'IdResponse', id: string } };
 
+export type RemoveRecipientFromListMutationVariables = Types.Exact<{
+  input: Types.RemoveRecipientFromListInput;
+}>;
+
+
+export type RemoveRecipientFromListMutation = { __typename: 'FullMutation', removeRecipientFromList: { __typename: 'IdResponse', id: string } };
+
 export type DeleteRecipientListMutationVariables = Types.Exact<{
   recipientListId: Types.Scalars['String']['input'];
 }>;
@@ -188,6 +195,15 @@ export const AddRecipientToListDocument = gql`
   }
 }
     `;
+export const RemoveRecipientFromListDocument = gql`
+    mutation removeRecipientFromList($input: RemoveRecipientFromListInput!) {
+  removeRecipientFromList(input: $input) {
+    ... on IdResponse {
+      id
+    }
+  }
+}
+    `;
 export const DeleteRecipientListDocument = gql`
     mutation deleteRecipientList($recipientListId: String!) {
   deleteRecipientList(recipientListId: $recipientListId) {
@@ -228,6 +244,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     addRecipientToList(variables: AddRecipientToListMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<AddRecipientToListMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<AddRecipientToListMutation>(AddRecipientToListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'addRecipientToList', 'mutation');
+    },
+    removeRecipientFromList(variables: RemoveRecipientFromListMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<RemoveRecipientFromListMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<RemoveRecipientFromListMutation>(RemoveRecipientFromListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'removeRecipientFromList', 'mutation');
     },
     deleteRecipientList(variables: DeleteRecipientListMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<DeleteRecipientListMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<DeleteRecipientListMutation>(DeleteRecipientListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteRecipientList', 'mutation');

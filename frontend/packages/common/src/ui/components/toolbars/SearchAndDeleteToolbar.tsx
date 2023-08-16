@@ -21,6 +21,7 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
   filter,
   deleteItem,
   invalidateQueries,
+  deleteLabel,
   searchFilterKey = 'search',
   asStringFilterRule: asStringFilter = false,
   ActionButtons = () => <></>,
@@ -30,6 +31,7 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
   deleteItem: (id: string) => Promise<unknown>;
   invalidateQueries: () => Promise<void>;
   searchFilterKey?: string;
+  deleteLabel?: string;
   /** Add the search term as a StringFilterRule rather than just a StringRule */
   asStringFilterRule?: boolean;
   ActionButtons?: () => JSX.Element;
@@ -126,7 +128,7 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
             IconComponent={DeleteIcon}
             onClick={() => showDeleteConfirmation()}
           >
-            {t('button.delete-lines')}
+            {deleteLabel ?? t('button.delete-lines')}
           </DropdownMenuItem>
         </DropdownMenu>
       </Box>

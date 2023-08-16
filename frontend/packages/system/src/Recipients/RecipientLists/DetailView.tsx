@@ -21,7 +21,7 @@ import {
   createTableStore,
   useColumns,
 } from '@common/ui';
-import { useRecipientLists } from '../api';
+import { useRecipientLists, useRemoveRecipientFromList } from '../api';
 import { useParams } from 'packages/common/src';
 import { RecipientListEditModal } from './RecipientListEditModal';
 import { RecipientListRowFragment } from '../api/operations.generated';
@@ -51,6 +51,11 @@ export const DetailView = () => {
   const { data, isError, isLoading } = useRecipientLists(queryParams);
   const list = data?.nodes[0];
 
+  const { mutateAsync, invalidateQueries } = useRemoveRecipientFromList();
+
+  const removeRecipientFromList = (recipientId: string) =>
+    mutateAsync({ input: { recipientId, recipientListId: list?.id || '' } });
+
   useEffect(() => {
     const listName = list?.name;
     if (!suffix && listName) {
@@ -62,6 +67,7 @@ export const DetailView = () => {
     { key: 'name', label: 'label.name' },
     { key: 'notificationType', label: 'label.type' },
     { key: 'toAddress', label: 'label.address' },
+    'selection',
   ]);
 
   // managing search in the frontend, seeing as all list members are already loaded
@@ -139,8 +145,9 @@ export const DetailView = () => {
             <SearchAndDeleteToolbar
               data={recipients}
               filter={searchFilter}
-              deleteItem={async () => {}}
-              invalidateQueries={async () => {}}
+              deleteItem={removeRecipientFromList}
+              invalidateQueries={invalidateQueries}
+              deleteLabel={t('label.remove-members')}
               ActionButtons={() => (
                 <LoadingButton
                   isLoading={false}
