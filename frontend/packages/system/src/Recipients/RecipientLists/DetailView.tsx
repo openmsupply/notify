@@ -100,7 +100,7 @@ export const DetailView = () => {
             {t('label.add-members')}
           </LoadingButton>
         </AppBarButtonsPortal>
-        <AppBarContentPortal sx={{ paddingBottom: '16px' }}>
+        <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
           <Paper
             sx={{
               borderRadius: '16px',
