@@ -210,12 +210,9 @@ pub async fn start_server(
 
     let datasource_connection_pool = get_datasource_pool(&config_settings.datasource);
 
-    let test_connection = datasource_connection_pool.get();
-    if let Err(err) = test_connection {
-        let msg = format!("Failed to connect to datasource: {}", err);
-        error!("{}", msg);
-        panic!("{}", msg);
-    }
+    let _test_connection = datasource_connection_pool
+        .get()
+        .expect("Unable to connect to your datasource postgres database");
 
     // allow the off_switch to be passed around during multiple server stages
     let off_switch = Arc::new(Mutex::new(off_switch));
