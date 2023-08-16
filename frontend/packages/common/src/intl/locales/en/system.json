@@ -12,6 +12,7 @@
   "error.username-too-short": "Username must be at least 3 character long",
   "filename.users": "Users",
   "heading.import-tips": "Import Tips",
+  "helper-text.recipient-list-name": "List name must be between 3-75 characters, and only contain letters, numbers, spaces or these special characters: .-_:/+@()",
   "label.add-members": "Add Members",
   "label.add-to-list": "Add to list",
   "label.are-you-sure-you-want-to-disable-this-user-account": "Are you sure you want to disable this user account?",

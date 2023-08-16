@@ -22,7 +22,14 @@ const createRecipientList = (
   ...seed,
 });
 
-export const checkIsInvalid = (draft: DraftRecipientList) => !draft.name.trim();
+export const checkIsInvalid = (draft: DraftRecipientList) => {
+  const nameIncorrectLength = draft.name.length < 3 || draft.name.length > 75;
+  const nameContainsIllegalChars = draft.name.match(/[^ 0-9A-Za-z_\-@.+:/()]/);
+
+  return (
+    !draft.name.trim() || !!nameContainsIllegalChars || nameIncorrectLength
+  );
+};
 
 export const RecipientListEditModal = ({
   mode,

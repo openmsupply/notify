@@ -24,6 +24,7 @@ export const RecipientListEditForm = ({
         autoFocus
         required
         value={draft.name}
+        helperText={t('helper-text.recipient-list-name')}
         onChange={e => onUpdate({ name: e.target.value })}
         label={t('label.name')}
         InputLabelProps={{ shrink: true }}
