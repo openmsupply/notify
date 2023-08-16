@@ -5,6 +5,7 @@ pub fn mock_recipient_lists() -> Vec<RecipientListRow> {
         mock_recipient_list_with_recipient_members_a_and_b(),
         mock_recipient_list_with_no_members(),
         mock_recipient_list_c(),
+        mock_recipient_list_c2(),
     ]
 }
 
@@ -30,5 +31,13 @@ pub fn mock_recipient_list_c() -> RecipientListRow {
         id: String::from("id_recipient_list_c"),
         name: String::from("recipient_list_c"),
         description: String::from("This is Recipient List C"),
+    }
+}
+
+pub fn mock_recipient_list_c2() -> RecipientListRow {
+    RecipientListRow {
+        id: String::from("id_recipient_list_c2"),
+        name: String::from("recipient_list_c2"),
+        description: String::from("This is Recipient List C2"),
     }
 }

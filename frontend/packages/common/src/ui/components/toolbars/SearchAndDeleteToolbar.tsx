@@ -6,13 +6,13 @@ import {
   useTranslation,
   DeleteIcon,
   useTableStore,
-  AppBarContentPortal,
   FilterController,
   AlertModal,
   useConfirmationModal,
   SearchBar,
   LocalStorage,
   RecordWithId,
+  Box,
 } from '@notify-frontend/common';
 
 export const SearchAndDeleteToolbar = <T extends RecordWithId>({
@@ -20,13 +20,17 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
   filter,
   deleteItem,
   invalidateQueries,
+  deleteLabel,
   searchFilterKey = 'search',
+  ActionButtons = () => <></>,
 }: {
   data: T[];
   filter: FilterController;
   deleteItem: (id: string) => Promise<unknown>;
   invalidateQueries: () => Promise<void>;
   searchFilterKey?: string;
+  deleteLabel?: string;
+  ActionButtons?: () => JSX.Element;
 }) => {
   const t = useTranslation(['system']);
   const { success, info } = useNotification();
@@ -86,10 +90,8 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
   const filterString = (filter.filterBy?.[searchFilterKey] as string) || '';
 
   return (
-    <AppBarContentPortal
+    <Box
       sx={{
-        paddingBottom: '16px',
-        flex: 1,
         justifyContent: 'space-between',
         display: 'flex',
       }}
@@ -105,19 +107,22 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
       <SearchBar
         placeholder={t('placeholder.search')}
         value={filterString}
-        onChange={newValue => {
-          filter.onChangeStringRule(searchFilterKey, newValue);
-        }}
+        onChange={newValue =>
+          filter.onChangeStringRule(searchFilterKey, newValue)
+        }
       />
-      <DropdownMenu label={t('label.select')}>
-        <DropdownMenuItem
-          disabled={!selectedRows.length}
-          IconComponent={DeleteIcon}
-          onClick={() => showDeleteConfirmation()}
-        >
-          {t('button.delete-lines')}
-        </DropdownMenuItem>
-      </DropdownMenu>
-    </AppBarContentPortal>
+      <Box sx={{ gap: '10px', display: 'flex' }}>
+        <ActionButtons />
+        <DropdownMenu label={t('label.select')}>
+          <DropdownMenuItem
+            disabled={!selectedRows.length}
+            IconComponent={DeleteIcon}
+            onClick={() => showDeleteConfirmation()}
+          >
+            {deleteLabel ?? t('button.delete-lines')}
+          </DropdownMenuItem>
+        </DropdownMenu>
+      </Box>
+    </Box>
   );
 };

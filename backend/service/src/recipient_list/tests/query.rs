@@ -2,7 +2,7 @@
 mod recipient_list_query_test {
     use std::sync::Arc;
 
-    use repository::mock::mock_recipient_list_c;
+    use repository::mock::{mock_recipient_list_c, mock_recipient_list_c2};
     use repository::{
         mock::MockDataInserts, test_db::setup_all, RecipientListFilter, RecipientListSortField,
     };
@@ -112,6 +112,41 @@ mod recipient_list_query_test {
         assert_eq!(
             db_recipient_lists.rows[0].id,
             mock_recipient_list_c().id.clone()
+        );
+    }
+
+    #[actix_rt::test]
+    async fn recipient_list_service_filter_search() {
+        let (_, _, connection_manager, _) = setup_all(
+            "test_recipient_list_filter_search",
+            MockDataInserts::none().recipient_lists(),
+        )
+        .await;
+
+        let service_provider = Arc::new(ServiceProvider::new(
+            connection_manager,
+            get_test_settings(""),
+        ));
+        let context = ServiceContext::new(service_provider).unwrap();
+        let service = &context.service_provider.recipient_list_service;
+
+        let db_recipient_lists = service
+            .get_recipient_lists(
+                &context,
+                None,
+                Some(RecipientListFilter::new().search("List C".to_string())),
+                None,
+            )
+            .unwrap();
+
+        assert_eq!(db_recipient_lists.count, 2);
+        assert_eq!(
+            db_recipient_lists.rows[0].id,
+            mock_recipient_list_c().id.clone()
+        );
+        assert_eq!(
+            db_recipient_lists.rows[1].id,
+            mock_recipient_list_c2().id.clone()
         );
     }
 

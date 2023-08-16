@@ -52,3 +52,76 @@ mutation deleteRecipient($recipientId: String!) {
     }
   }
 }
+
+fragment RecipientListRow on RecipientListNode {
+  id
+  name
+  description
+  recipients {
+    ...RecipientRow
+  }
+  auditLogs {
+    datetime
+    id
+    recordId
+    recordType
+    user {
+      username
+    }
+  }
+}
+
+query RecipientLists(
+  $filter: RecipientListFilterInput
+  $page: PaginationInput
+  $sort: [RecipientListSortInput!]
+) {
+  recipientLists(filter: $filter, page: $page, sort: $sort) {
+    ... on RecipientListConnector {
+      totalCount
+      nodes {
+        ...RecipientListRow
+      }
+    }
+  }
+}
+
+mutation createRecipientList($input: CreateRecipientListInput!) {
+  createRecipientList(input: $input) {
+    ... on RecipientListNode {
+      ...RecipientListRow
+    }
+  }
+}
+
+mutation updateRecipientList($input: UpdateRecipientListInput!) {
+  updateRecipientList(input: $input) {
+    ... on RecipientListNode {
+      ...RecipientListRow
+    }
+  }
+}
+
+mutation addRecipientToList($input: AddRecipientToListInput!) {
+  addRecipientToList(input: $input) {
+    ... on IdResponse {
+      id
+    }
+  }
+}
+
+mutation removeRecipientFromList($input: RemoveRecipientFromListInput!) {
+  removeRecipientFromList(input: $input) {
+    ... on IdResponse {
+      id
+    }
+  }
+}
+
+mutation deleteRecipientList($recipientListId: String!) {
+  deleteRecipientList(recipientListId: $recipientListId) {
+    ... on DeleteResponse {
+      id
+    }
+  }
+}
