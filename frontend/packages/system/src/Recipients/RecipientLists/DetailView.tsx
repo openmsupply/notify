@@ -52,7 +52,6 @@ export const DetailView = () => {
   const list = data?.nodes[0];
 
   const { mutateAsync, invalidateQueries } = useRemoveRecipientFromList();
-
   const removeRecipientFromList = (recipientId: string) =>
     mutateAsync({ input: { recipientId, recipientListId: list?.id || '' } });
 
@@ -79,68 +78,59 @@ export const DetailView = () => {
   );
 
   return (
-    <TableProvider createStore={createTableStore}>
-      <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
-        {list && addIsOpen && (
-          <ListMemberAddModal
-            isOpen={addIsOpen}
-            onClose={onCloseAdd}
-            recipientList={list}
-          />
-        )}{' '}
-        {editIsOpen && (
-          <RecipientListEditModal
-            mode={ModalMode.Update}
-            isOpen={editIsOpen}
-            onClose={onCloseEdit}
-            recipientList={listEntity}
-          />
-        )}
-        <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
-          <Paper
-            sx={{
-              borderRadius: '16px',
-              boxShadow: theme => theme.shadows[1],
-              padding: '21px',
-              height: 'fit-content',
-              backgroundColor: 'background.menu',
-              display: 'flex',
-              justifyContent: 'space-between',
-              gap: '16px',
-            }}
-          >
-            <Box>
-              <Typography
-                sx={{
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  color: 'gray.dark',
-                }}
-              >
-                {list?.name}
-              </Typography>
-              <Typography sx={{ color: 'gray.dark' }}>
-                {list?.description}
-              </Typography>
-            </Box>
-            <LoadingButton
-              variant="outlined"
-              isLoading={false}
-              startIcon={<EditIcon />}
-              onClick={() => onOpenEdit(list)}
-            >
-              {t('label.edit')}
-            </LoadingButton>
-          </Paper>
-        </AppBarContentPortal>
-        <Box
+    <>
+      {list && addIsOpen && (
+        <ListMemberAddModal
+          isOpen={addIsOpen}
+          onClose={onCloseAdd}
+          recipientList={list}
+        />
+      )}{' '}
+      {editIsOpen && (
+        <RecipientListEditModal
+          mode={ModalMode.Update}
+          isOpen={editIsOpen}
+          onClose={onCloseEdit}
+          recipientList={listEntity}
+        />
+      )}
+      {/* Description/Details section */}
+      <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
+        <Paper
           sx={{
-            flex: '1',
-            overflow: 'auto',
+            borderRadius: '16px',
+            boxShadow: theme => theme.shadows[1],
+            padding: '21px',
+            height: 'fit-content',
+            backgroundColor: 'background.menu',
             display: 'flex',
-            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '16px',
           }}
         >
+          <Box>
+            <Typography
+              sx={{ fontSize: '18px', fontWeight: 'bold', color: 'gray.dark' }}
+            >
+              {list?.name}
+            </Typography>
+            <Typography sx={{ color: 'gray.dark' }}>
+              {list?.description}
+            </Typography>
+          </Box>
+          <LoadingButton
+            variant="outlined"
+            isLoading={false}
+            startIcon={<EditIcon />}
+            onClick={() => onOpenEdit(list)}
+          >
+            {t('label.edit')}
+          </LoadingButton>
+        </Paper>
+      </AppBarContentPortal>
+      {/* Recipients table */}
+      <TableProvider createStore={createTableStore}>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
           <Box sx={{ margin: '16px' }}>
             <SearchAndDeleteToolbar
               data={recipients}
@@ -171,7 +161,7 @@ export const DetailView = () => {
             />
           </Box>
         </Box>
-      </Box>
-    </TableProvider>
+      </TableProvider>
+    </>
   );
 };
