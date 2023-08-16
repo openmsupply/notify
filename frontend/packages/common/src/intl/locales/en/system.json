@@ -34,6 +34,7 @@
   "label.update-profile": "Update Profile",
   "messages.error-deleting-generic_one": "{{count}} record could not be deleted",
   "messages.error-deleting-generic_other": "{{count}} records could not be deleted",
+  "messages.no-notifications": "No notifications configured",
   "messages.password-excellent": "Excellent",
   "messages.password-great": "Great!",
   "messages.password-notbad": "Not bad",
