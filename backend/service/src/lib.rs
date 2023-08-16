@@ -19,6 +19,7 @@ pub mod test_utils;
 pub mod token;
 pub mod token_bucket;
 pub mod user_account;
+pub mod tera;
 
 #[derive(PartialEq, Debug)]
 pub struct ListResult<T> {
