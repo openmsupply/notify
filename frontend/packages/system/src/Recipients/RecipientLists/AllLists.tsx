@@ -88,8 +88,6 @@ export const AllLists = () => {
             filter={filter}
             deleteItem={deleteRecipientList}
             invalidateQueries={invalidateQueries}
-            searchFilterKey="name"
-            asStringFilterRule
           />
         </AppBarContentPortal>
         <DataTable
