@@ -49,7 +49,8 @@ export const AllLists = () => {
     [updateSortQuery, queryParams.sortBy]
   );
 
-  const { mutateAsync: deleteRecipientList } = useDeleteRecipientList();
+  const { mutateAsync: deleteRecipientList, invalidateQueries } =
+    useDeleteRecipientList();
 
   const { data, isError, isLoading } = useRecipientLists(queryParams);
   const recipientLists = data?.nodes ?? [];
@@ -86,6 +87,7 @@ export const AllLists = () => {
             data={recipientLists}
             filter={filter}
             deleteItem={deleteRecipientList}
+            invalidateQueries={invalidateQueries}
             searchFilterKey="name"
             asStringFilterRule
           />

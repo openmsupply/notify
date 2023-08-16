@@ -85,18 +85,9 @@ export const RecipientEditForm = ({
           </Typography>
         </>
       ) : (
-        <>
-          <BasicTextInput
-            value={draft.name}
-            onChange={e => onUpdate({ name: e.target.value })}
-            label={t('label.name')}
-            InputLabelProps={{ shrink: true }}
-            required
-          />
-          <Typography sx={{ color: 'gray.dark' }}>
-            {t('text.telegram-recipient-edit-name')}
-          </Typography>
-        </>
+        <Typography sx={{ color: 'gray.dark' }}>
+          {t('text.telegram-recipient-edit-name')}
+        </Typography>
       )}
     </Grid>
   );

@@ -4,6 +4,7 @@ import {
   useTranslation,
   FnUtils,
   NotificationTypeNode,
+  RegexUtils,
 } from '@notify-frontend/common';
 import {
   RecipientRowFragment,
@@ -29,13 +30,11 @@ const createRecipient = (seed?: DraftRecipient | null): DraftRecipient => ({
   ...seed,
 });
 
-export const checkIsInvalid = (draft: DraftRecipient, mode: ModalMode | null) =>
+export const checkIsInvalid = (draft: DraftRecipient) =>
   !draft.toAddress.trim() ||
-  (draft.notificationType === NotificationTypeNode.Email &&
-    !draft.toAddress.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) ||
   !draft.name.trim() ||
-  (mode === ModalMode.Create &&
-    draft.notificationType !== NotificationTypeNode.Email);
+  draft.notificationType !== NotificationTypeNode.Email ||
+  !RegexUtils.isValidEmail(draft.toAddress);
 
 export const RecipientEditModal = ({
   mode,
@@ -52,9 +51,9 @@ export const RecipientEditModal = ({
 
   const onSave = async (draft: DraftRecipient) => {
     if (mode === ModalMode.Create) {
-      await create({ input: draft });
+      const { id, name, toAddress, notificationType } = draft;
+      await create({ input: { id, name, toAddress, notificationType } });
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id, name, toAddress } = draft;
       await update({ input: { id, name, toAddress } });
     }

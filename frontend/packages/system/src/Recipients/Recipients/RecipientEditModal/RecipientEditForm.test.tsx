@@ -81,11 +81,11 @@ describe('RecipientEditForm', () => {
 
     const nameInput = screen.queryByLabelText('Name *');
     expect(nameInput).not.toBeInTheDocument();
-
     expect(
       screen.getByText(/add your notify bot to a telegram group/i)
     ).toBeInTheDocument();
   });
+
   it('renders name input when updating Telegram recipient', () => {
     render(
       <TestingProvider>
@@ -97,7 +97,10 @@ describe('RecipientEditForm', () => {
       </TestingProvider>
     );
 
-    const nameInput = screen.getByLabelText('Name *');
-    expect(nameInput).toHaveValue('the telegram group');
+    const nameInput = screen.queryByLabelText('Name *');
+    expect(nameInput).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/update the chat name in telegram/i)
+    ).toBeInTheDocument();
   });
 });

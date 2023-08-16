@@ -193,7 +193,7 @@ export const useUrlQueryParams = ({
 
   const filter: FilterController = {
     onChangeStringRule: (key: string, value: string) =>
-      updateFilterQuery(key, value), // TODO: I think this will have the filterCondition input applied to it when parsed from the URL?
+      updateFilterQuery(key, value),
     onChangeStringFilterRule: (key: string, _, value: string | string[]) =>
       updateFilterQuery(key, value),
     onChangeStringArrayFilterRule: (key: string, _, value: string[]) =>

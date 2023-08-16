@@ -9,3 +9,7 @@ doctest = false
 [dependencies]
 diesel = { version = "2.1", features = ["postgres", "serde_json"] }
 serde_json = {version="1.0.66"}
+
+[features]
+default = ["datasource-tests"]
+datasource-tests = []

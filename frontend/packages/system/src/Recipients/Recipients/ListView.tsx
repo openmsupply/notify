@@ -52,7 +52,8 @@ export const ListView = () => {
   const { data, isError, isLoading } = useRecipients(queryParams);
   const recipients = data?.nodes ?? [];
 
-  const { mutateAsync: deleteRecipient } = useDeleteRecipient();
+  const { mutateAsync: deleteRecipient, invalidateQueries } =
+    useDeleteRecipient();
 
   const pagination = {
     page: queryParams.page,
@@ -86,6 +87,7 @@ export const ListView = () => {
             data={recipients}
             filter={filter}
             deleteItem={deleteRecipient}
+            invalidateQueries={invalidateQueries}
           />
         </AppBarContentPortal>
 

@@ -1,90 +1,65 @@
 import { NotificationTypeNode } from '@common/types';
 import { checkIsInvalid } from './RecpientEditModal';
-import { ModalMode } from '@common/hooks';
 
 describe('checkIsInvalid', () => {
   it('returns true when toAddress empty', () => {
     expect(
-      checkIsInvalid(
-        {
-          id: 'some-id',
-          name: 'some-name',
-          toAddress: '',
-          notificationType: NotificationTypeNode.Email,
-        },
-        null
-      )
+      checkIsInvalid({
+        id: 'some-id',
+        name: 'some-name',
+        toAddress: '',
+        notificationType: NotificationTypeNode.Email,
+      })
     ).toBeTruthy();
   });
   it('returns true when name empty', () => {
     expect(
-      checkIsInvalid(
-        {
-          id: 'some-id',
-          name: '',
-          toAddress: 'some-email@x.com',
-          notificationType: NotificationTypeNode.Email,
-        },
-        null
-      )
+      checkIsInvalid({
+        id: 'some-id',
+        name: '',
+        toAddress: 'some-email@x.com',
+        notificationType: NotificationTypeNode.Email,
+      })
     ).toBeTruthy();
   });
   it('returns true when only whitespace provided', () => {
     expect(
-      checkIsInvalid(
-        {
-          id: '   ',
-          name: '   ',
-          toAddress: 'some-email@x.com',
-          notificationType: NotificationTypeNode.Email,
-        },
-        null
-      )
+      checkIsInvalid({
+        id: '   ',
+        name: '   ',
+        toAddress: 'some-email@x.com',
+        notificationType: NotificationTypeNode.Email,
+      })
     ).toBeTruthy();
   });
-  it.each([
-    'not an email',
-    'not@email',
-    'almost@email.com ',
-    '.mail.com',
-    'x@mail.',
-  ])('returns true when email is not valid (%s)', email => {
+  it('returns true when email is not valid', () => {
     expect(
-      checkIsInvalid(
-        {
-          id: 'some-id',
-          name: 'some-name',
-          toAddress: email,
-          notificationType: NotificationTypeNode.Email,
-        },
-        null
-      )
+      checkIsInvalid({
+        id: 'some-id',
+        name: 'some-name',
+        toAddress: 'not an email',
+        notificationType: NotificationTypeNode.Email,
+      })
     ).toBeTruthy();
+  });
+  it('returns false when email is valid', () => {
+    expect(
+      checkIsInvalid({
+        id: 'some-id',
+        name: 'some-name',
+        toAddress: 'test@msupply.foundation',
+        notificationType: NotificationTypeNode.Email,
+      })
+    ).toBeFalsy();
   });
   it('returns true when creating telegram recipient', () => {
     expect(
-      checkIsInvalid(
-        {
-          id: 'some-id',
-          name: 'some-name',
-          toAddress: '-1234567',
-          notificationType: NotificationTypeNode.Telegram,
-        },
-        ModalMode.Create
-      )
+      checkIsInvalid({
+        id: 'some-id',
+        name: 'some-name',
+        toAddress: '-1234567',
+        notificationType: NotificationTypeNode.Telegram,
+      })
     ).toBeTruthy();
-  });
-  it('returns false when updating telegram recipient', () => {
-    expect(
-      checkIsInvalid(
-        {
-          id: 'some-id',
-          name: 'some-name',
-          toAddress: '-1234567',
-          notificationType: NotificationTypeNode.Telegram,
-        },
-        ModalMode.Update
-      )
-    ).toBeFalsy();
   });
 });

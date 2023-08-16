@@ -150,6 +150,7 @@ export const DetailView = () => {
               data={recipients}
               filter={searchFilter}
               deleteItem={async () => {}}
+              invalidateQueries={async () => {}}
             />
           </Box>
           <Box sx={{ flex: '1', overflow: 'auto' }}>
