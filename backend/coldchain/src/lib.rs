@@ -48,8 +48,8 @@ pub async fn send_high_temperature_alert_telegram(
                     println!("Successfully sent high temperature alert telegram");
                 }
                 Err(e) => {
-                    todo!();
                     panic!("Error sending high temperature alert telegram: {:?}", e);
+                    todo!();
                 }
             }
         }
@@ -63,6 +63,8 @@ pub async fn send_high_temperature_alert_telegram(
 #[cfg(test)]
 // #[cfg(feature = "telegram-tests")]
 mod tests {
+    use std::str::FromStr;
+
     use super::*;
 
     fn get_telegram_token_from_env() -> String {
@@ -87,7 +89,7 @@ mod tests {
             location_name: "Fridge 1".to_string(),
             sensor_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b3".to_string(),
             sensor_name: "E5:4G:D4:6D:A4".to_string(),
-            datetime: NaiveDateTime::default(),
+            datetime: NaiveDateTime::from_str("2023-07-17T17:04:00").unwrap(),
             temperature: 10.12345,
         };
 
