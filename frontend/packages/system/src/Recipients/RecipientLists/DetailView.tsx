@@ -7,7 +7,6 @@ import {
   useQueryParamsState,
 } from '@common/hooks';
 import {
-  AppBarButtonsPortal,
   AppBarContentPortal,
   Box,
   DataTable,
@@ -91,15 +90,6 @@ export const DetailView = () => {
             recipientList={listEntity}
           />
         )}
-        <AppBarButtonsPortal>
-          <LoadingButton
-            isLoading={false}
-            startIcon={<PlusCircleIcon />}
-            onClick={() => onOpenAdd()}
-          >
-            {t('label.add-members')}
-          </LoadingButton>
-        </AppBarButtonsPortal>
         <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
           <Paper
             sx={{
@@ -145,12 +135,21 @@ export const DetailView = () => {
             flexDirection: 'column',
           }}
         >
-          <Box sx={{ margin: '16px 16px 0 16px' }}>
+          <Box sx={{ margin: '16px' }}>
             <SearchAndDeleteToolbar
               data={recipients}
               filter={searchFilter}
               deleteItem={async () => {}}
               invalidateQueries={async () => {}}
+              ActionButtons={() => (
+                <LoadingButton
+                  isLoading={false}
+                  startIcon={<PlusCircleIcon />}
+                  onClick={() => onOpenAdd()}
+                >
+                  {t('label.add-members')}
+                </LoadingButton>
+              )}
             />
           </Box>
           <Box sx={{ flex: '1', overflow: 'auto' }}>

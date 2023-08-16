@@ -23,6 +23,7 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
   invalidateQueries,
   searchFilterKey = 'search',
   asStringFilterRule: asStringFilter = false,
+  ActionButtons = () => <></>,
 }: {
   data: T[];
   filter: FilterController;
@@ -31,6 +32,7 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
   searchFilterKey?: string;
   /** Add the search term as a StringFilterRule rather than just a StringRule */
   asStringFilterRule?: boolean;
+  ActionButtons?: () => JSX.Element;
 }) => {
   const t = useTranslation(['system']);
   const { success, info } = useNotification();
@@ -116,15 +118,18 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
           } else filter.onChangeStringRule(searchFilterKey, newValue);
         }}
       />
-      <DropdownMenu label={t('label.select')}>
-        <DropdownMenuItem
-          disabled={!selectedRows.length}
-          IconComponent={DeleteIcon}
-          onClick={() => showDeleteConfirmation()}
-        >
-          {t('button.delete-lines')}
-        </DropdownMenuItem>
-      </DropdownMenu>
+      <Box sx={{ gap: '10px', display: 'flex' }}>
+        <ActionButtons />
+        <DropdownMenu label={t('label.select')}>
+          <DropdownMenuItem
+            disabled={!selectedRows.length}
+            IconComponent={DeleteIcon}
+            onClick={() => showDeleteConfirmation()}
+          >
+            {t('button.delete-lines')}
+          </DropdownMenuItem>
+        </DropdownMenu>
+      </Box>
     </Box>
   );
 };
