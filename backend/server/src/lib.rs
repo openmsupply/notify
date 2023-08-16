@@ -27,6 +27,7 @@ use std::{
 };
 use tokio::sync::{oneshot, Mutex};
 
+use datasource::get_datasource_pool;
 use telegram::{service::poll_get_updates, TelegramClient, TelegramUpdate};
 
 pub mod configuration;
@@ -61,6 +62,7 @@ async fn run_server(
     );
 
     let (restart_switch, mut restart_switch_receiver) = tokio::sync::mpsc::channel::<bool>(1);
+
     let connection_manager_data_app = Data::new(connection_manager.clone());
 
     let service_provider =
@@ -205,6 +207,12 @@ pub async fn start_server(
             panic!("{}", msg);
         }
     };
+
+    let datasource_connection_pool = get_datasource_pool(&config_settings.datasource);
+
+    let _test_connection = datasource_connection_pool
+        .get()
+        .expect("Unable to connect to your datasource postgres database");
 
     // allow the off_switch to be passed around during multiple server stages
     let off_switch = Arc::new(Mutex::new(off_switch));

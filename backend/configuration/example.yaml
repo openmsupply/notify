@@ -3,3 +3,9 @@ server:
   app_url: "http://localhost:3007"
 telegram:
   token: "Your Telegram Bot Token"
+datasource:
+  host: "localhost"
+  port: 5432
+  username: "postgres"
+  password: "password"
+  database_name: "dashboard"
