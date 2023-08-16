@@ -6,7 +6,6 @@ import {
   useTranslation,
   DeleteIcon,
   useTableStore,
-  AppBarContentPortal,
   FilterController,
   AlertModal,
   useConfirmationModal,
@@ -14,6 +13,7 @@ import {
   LocalStorage,
   RecordWithId,
   FilterRule,
+  Box,
 } from '@notify-frontend/common';
 
 export const SearchAndDeleteToolbar = <T extends RecordWithId>({
@@ -90,10 +90,8 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
       : (filter.filterBy?.[searchFilterKey] as string)) || '';
 
   return (
-    <AppBarContentPortal
+    <Box
       sx={{
-        paddingBottom: '16px',
-        flex: 1,
         justifyContent: 'space-between',
         display: 'flex',
       }}
@@ -124,6 +122,6 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
           {t('button.delete-lines')}
         </DropdownMenuItem>
       </DropdownMenu>
-    </AppBarContentPortal>
+    </Box>
   );
 };

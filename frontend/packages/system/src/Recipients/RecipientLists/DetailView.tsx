@@ -141,6 +141,13 @@ export const DetailView = () => {
             flexDirection: 'column',
           }}
         >
+          <Box sx={{ margin: '14px' }}>
+            <SearchAndDeleteToolbar
+              data={list?.recipients ?? []}
+              filter={filter}
+              deleteItem={async () => {}}
+            />
+          </Box>
           <Box sx={{ flex: '1', overflow: 'auto' }}>
             <DataTable
               columns={columns}

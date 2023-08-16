@@ -1,6 +1,7 @@
 import { useTranslation } from '@common/intl';
 import {
   AppBarButtonsPortal,
+  AppBarContentPortal,
   DataTable,
   LoadingButton,
   NothingHere,
@@ -80,13 +81,15 @@ export const AllLists = () => {
       </AppBarButtonsPortal>
 
       <TableProvider createStore={createTableStore}>
-        <SearchAndDeleteToolbar
-          data={recipientLists}
-          filter={filter}
-          deleteItem={deleteRecipientList}
-          searchFilterKey="name"
-          asStringFilterRule
-        />
+        <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
+          <SearchAndDeleteToolbar
+            data={recipientLists}
+            filter={filter}
+            deleteItem={deleteRecipientList}
+            searchFilterKey="name"
+            asStringFilterRule
+          />
+        </AppBarContentPortal>
         <DataTable
           pagination={{ ...pagination, total: data?.totalCount }}
           onChangePage={updatePaginationQuery}
