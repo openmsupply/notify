@@ -4,7 +4,7 @@ import { CloseIcon, SearchIcon } from '@common/icons';
 import { useDebounceCallback } from '@common/hooks';
 import { InlineSpinner } from '../../loading';
 import { useTranslation } from '@common/intl';
-import { IconButton } from '@common/components';
+import { IconButton, InputAdornment } from '@common/components';
 
 interface SearchBarProps {
   value: string;
@@ -69,7 +69,7 @@ export const SearchBar: FC<SearchBarProps> = ({
             <SearchIcon sx={{ color: 'gray.main' }} fontSize="small" />
           ),
           endAdornment: isClearable ? (
-            clearInputButton
+            <InputAdornment position="end">{clearInputButton}</InputAdornment>
           ) : (
             <Spin isLoading={isLoading || loading} />
           ),
