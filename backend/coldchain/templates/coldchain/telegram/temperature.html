@@ -7,4 +7,4 @@ High temperature alert!
 <strong>Date</strong>: {{ datetime }}
 <strong>Time</strong>: {{ datetime }}
 
-<strong>Temperature</strong>: {{ temperature }}°C
+<strong>Temperature</strong>: {{ temperature | round(precision=2) }}°C

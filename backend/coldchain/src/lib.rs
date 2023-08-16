@@ -88,7 +88,7 @@ mod tests {
             sensor_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b3".to_string(),
             sensor_name: "E5:4G:D4:6D:A4".to_string(),
             datetime: NaiveDateTime::default(),
-            temperature: 10.0,
+            temperature: 10.12345,
         };
 
         let result = send_high_temperature_alert_telegram(
