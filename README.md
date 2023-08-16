@@ -43,6 +43,8 @@ Find further details about frontend and backend development in the respective RE
 - https://github.com/openmsupply/notify/blob/main/backend/README.md
 - https://github.com/openmsupply/notify/blob/main/frontend/README.md
 
+After setting up your environment, There are some quick start tutorials you can follow [here](./docs/tutorial/0.tutorials.md)
+
 ## Contributing
 
 To contribute, there are several key areas
