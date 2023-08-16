@@ -61,7 +61,7 @@ pub async fn send_high_temperature_alert_telegram(
 }
 
 #[cfg(test)]
-// #[cfg(feature = "telegram-tests")]
+#[cfg(feature = "telegram-tests")]
 mod tests {
     use std::str::FromStr;
 
