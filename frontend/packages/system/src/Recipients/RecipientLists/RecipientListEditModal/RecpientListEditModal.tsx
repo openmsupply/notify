@@ -22,8 +22,7 @@ const createRecipientList = (
   ...seed,
 });
 
-export const checkIsInvalid = (draft: DraftRecipientList) =>
-  !draft.description.trim() || !draft.name.trim();
+export const checkIsInvalid = (draft: DraftRecipientList) => !draft.name.trim();
 
 export const RecipientListEditModal = ({
   mode,

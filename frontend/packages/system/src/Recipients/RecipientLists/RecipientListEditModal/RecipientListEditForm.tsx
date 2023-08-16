@@ -35,7 +35,6 @@ export const RecipientListEditForm = ({
         label={t('label.description')}
         InputProps={{ sx: { backgroundColor: 'background.menu' } }}
         InputLabelProps={{ shrink: true }}
-        required
       />
     </Grid>
   );
