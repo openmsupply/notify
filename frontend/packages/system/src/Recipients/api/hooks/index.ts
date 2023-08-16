@@ -1,3 +1,4 @@
+export * from './useAddRecipientToList';
 export * from './useRecipients';
 export * from './useRecipientLists';
 export * from './useCreateRecipient';

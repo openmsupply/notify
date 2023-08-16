@@ -102,6 +102,14 @@ mutation updateRecipientList($input: UpdateRecipientListInput!) {
   }
 }
 
+mutation addRecipientToList($input: AddRecipientToListInput!) {
+  addRecipientToList(input: $input) {
+    ... on IdResponse {
+      id
+    }
+  }
+}
+
 mutation deleteRecipientList($recipientListId: String!) {
   deleteRecipientList(recipientListId: $recipientListId) {
     ... on DeleteResponse {

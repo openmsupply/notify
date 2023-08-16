@@ -60,6 +60,13 @@ export type UpdateRecipientListMutationVariables = Types.Exact<{
 
 export type UpdateRecipientListMutation = { __typename: 'FullMutation', updateRecipientList: { __typename: 'RecipientListNode', id: string, name: string, description: string, recipients: Array<{ __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> } };
 
+export type AddRecipientToListMutationVariables = Types.Exact<{
+  input: Types.AddRecipientToListInput;
+}>;
+
+
+export type AddRecipientToListMutation = { __typename: 'FullMutation', addRecipientToList: { __typename: 'IdResponse', id: string } };
+
 export type DeleteRecipientListMutationVariables = Types.Exact<{
   recipientListId: Types.Scalars['String']['input'];
 }>;
@@ -172,6 +179,15 @@ export const UpdateRecipientListDocument = gql`
   }
 }
     ${RecipientListRowFragmentDoc}`;
+export const AddRecipientToListDocument = gql`
+    mutation addRecipientToList($input: AddRecipientToListInput!) {
+  addRecipientToList(input: $input) {
+    ... on IdResponse {
+      id
+    }
+  }
+}
+    `;
 export const DeleteRecipientListDocument = gql`
     mutation deleteRecipientList($recipientListId: String!) {
   deleteRecipientList(recipientListId: $recipientListId) {
@@ -209,6 +225,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     updateRecipientList(variables: UpdateRecipientListMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<UpdateRecipientListMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateRecipientListMutation>(UpdateRecipientListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'updateRecipientList', 'mutation');
+    },
+    addRecipientToList(variables: AddRecipientToListMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<AddRecipientToListMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AddRecipientToListMutation>(AddRecipientToListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'addRecipientToList', 'mutation');
     },
     deleteRecipientList(variables: DeleteRecipientListMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<DeleteRecipientListMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<DeleteRecipientListMutation>(DeleteRecipientListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteRecipientList', 'mutation');

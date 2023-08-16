@@ -7,12 +7,14 @@ import {
   useQueryParamsState,
 } from '@common/hooks';
 import {
+  AppBarButtonsPortal,
   Box,
   DataTable,
   EditIcon,
   LoadingButton,
   NothingHere,
   Paper,
+  PlusCircleIcon,
   TableProvider,
   Typography,
   createTableStore,
@@ -22,13 +24,24 @@ import { useRecipientLists } from '../api';
 import { useParams } from 'packages/common/src';
 import { RecipientListEditModal } from './RecipientListEditModal';
 import { RecipientListRowFragment } from '../api/operations.generated';
+import { ListMemberAddModal } from './RecipientListMemberAddModal';
 
 export const DetailView = () => {
   const t = useTranslation('system');
   const urlParams = useParams();
   const { suffix, setSuffix } = useBreadcrumbs();
-  const { isOpen, onClose, onOpen, entity } =
-    useEditModal<RecipientListRowFragment>();
+  const {
+    isOpen: editIsOpen,
+    onClose: onCloseEdit,
+    onOpen: onOpenEdit,
+    entity: listEntity,
+  } = useEditModal<RecipientListRowFragment>();
+
+  const {
+    isOpen: addIsOpen,
+    onClose: onCloseAdd,
+    onOpen: onOpenAdd,
+  } = useEditModal();
 
   const { queryParams } = useQueryParamsState({
     initialFilter: {
@@ -56,14 +69,30 @@ export const DetailView = () => {
 
   return (
     <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
-      {isOpen && (
+      {list && addIsOpen && (
+        <ListMemberAddModal
+          isOpen={addIsOpen}
+          onClose={onCloseAdd}
+          recipientList={list}
+        />
+      )}{' '}
+      {editIsOpen && (
         <RecipientListEditModal
           mode={ModalMode.Update}
-          isOpen={isOpen}
-          onClose={onClose}
-          recipientList={entity}
+          isOpen={editIsOpen}
+          onClose={onCloseEdit}
+          recipientList={listEntity}
         />
       )}
+      <AppBarButtonsPortal>
+        <LoadingButton
+          isLoading={false}
+          startIcon={<PlusCircleIcon />}
+          onClick={() => onOpenAdd()}
+        >
+          {t('label.add-members')}
+        </LoadingButton>
+      </AppBarButtonsPortal>
       <Paper
         sx={{
           borderRadius: '16px',
@@ -95,7 +124,7 @@ export const DetailView = () => {
           variant="outlined"
           isLoading={false}
           startIcon={<EditIcon />}
-          onClick={() => onOpen(list)}
+          onClick={() => onOpenEdit(list)}
         >
           {t('label.edit')}
         </LoadingButton>
