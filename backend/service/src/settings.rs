@@ -1,10 +1,12 @@
-use repository::database_settings::DatabaseSettings;
+use datasource::database_settings::PostgresSettings;
+use repository::database_settings::SqliteSettings;
 #[derive(serde::Deserialize, Clone)]
 pub struct Settings {
     pub server: ServerSettings,
-    pub database: DatabaseSettings,
+    pub database: SqliteSettings,
     pub mail: MailSettings,
     pub telegram: TelegramSettings,
+    pub datasource: PostgresSettings,
 }
 
 #[derive(serde::Deserialize, Clone)]

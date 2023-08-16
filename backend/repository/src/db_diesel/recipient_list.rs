@@ -16,6 +16,7 @@ pub type RecipientList = RecipientListRow;
 pub struct RecipientListFilter {
     pub id: Option<EqualFilter<String>>,
     pub name: Option<StringFilter>,
+    pub search: Option<String>,
 }
 
 #[derive(PartialEq, Debug)]
@@ -93,10 +94,19 @@ fn create_filtered_query(filter: Option<RecipientListFilter>) -> BoxedRecipientQ
     let mut query = recipient_list_dsl::recipient_list.into_boxed();
 
     if let Some(f) = filter {
-        let RecipientListFilter { id, name } = f;
+        let RecipientListFilter { id, name, search } = f;
 
         apply_equal_filter!(query, id, recipient_list_dsl::id);
         apply_string_filter!(query, name, recipient_list_dsl::name);
+
+        if let Some(search) = search {
+            let search_term = format!("%{}%", search);
+            query = query.filter(
+                recipient_list_dsl::name
+                    .like(search_term.clone())
+                    .or(recipient_list_dsl::description.like(search_term)),
+            );
+        }
     }
 
     query
@@ -113,6 +123,11 @@ impl RecipientListFilter {
     }
     pub fn name(mut self, filter: StringFilter) -> Self {
         self.name = Some(filter);
+        self
+    }
+
+    pub fn search(mut self, filter: String) -> Self {
+        self.search = Some(filter);
         self
     }
 }

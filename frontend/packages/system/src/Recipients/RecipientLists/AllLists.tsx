@@ -1,103 +1,106 @@
 import { useTranslation } from '@common/intl';
 import {
-  Box,
-  ButtonWithIcon,
-  Grid,
-  Paper,
-  SettingsIcon,
-  Typography,
+  AppBarButtonsPortal,
+  AppBarContentPortal,
+  DataTable,
+  LoadingButton,
+  NothingHere,
+  PlusCircleIcon,
+  SearchAndDeleteToolbar,
+  TableProvider,
+  createTableStore,
+  useColumns,
 } from '@common/ui';
-import { useNavigate } from 'packages/common/src';
+import {
+  ModalMode,
+  useEditModal,
+  useNavigate,
+  useQueryParamsState,
+} from 'packages/common/src';
 import React from 'react';
-
-const dummyData = [
-  { id: 'friends-id', name: 'Friends', description: 'My good friends' },
-  { id: 'foes-id', name: 'Foes', description: 'Keep your enemies closer' },
-  { id: 'fries-id', name: 'Fries', description: 'With ketchup please' },
-  {
-    id: 'kids-id',
-    name: 'Kids',
-    description: 'This is a description about the list',
-  },
-  {
-    id: 'mates-id',
-    name: 'Mates',
-    description: 'This is a description about the list',
-  },
-  {
-    id: 'lads-id',
-    name: 'Lads',
-    description: 'This is a description about the list',
-  },
-  {
-    id: 'homies-id',
-    name: 'Homies',
-    description: 'This is a description about the list',
-  },
-  {
-    id: 'cuties-id',
-    name: 'Cuties',
-    description: 'This is a description about the list',
-  },
-  {
-    id: 'bros-id',
-    name: 'Bros',
-    description: 'This is a description about the list',
-  },
-];
+import { useDeleteRecipientList, useRecipientLists } from '../api';
+import { RecipientListRowFragment } from '../api/operations.generated';
+import { RecipientListEditModal } from './RecipientListEditModal';
 
 export const AllLists = () => {
   const t = useTranslation('system');
   const navigate = useNavigate();
 
+  const { filter, queryParams, updatePaginationQuery, updateSortQuery } =
+    useQueryParamsState();
+
+  const { isOpen, onClose, onOpen } = useEditModal<RecipientListRowFragment>();
+
+  const columns = useColumns<RecipientListRowFragment>(
+    [
+      { key: 'name', label: 'label.name' },
+      {
+        key: 'description',
+        label: 'label.description',
+        maxWidth: 300,
+        sortable: false,
+      },
+      'selection',
+    ],
+    {
+      onChangeSortBy: updateSortQuery,
+      sortBy: queryParams.sortBy,
+    },
+    [updateSortQuery, queryParams.sortBy]
+  );
+
+  const { mutateAsync: deleteRecipientList, invalidateQueries } =
+    useDeleteRecipientList();
+
+  const { data, isError, isLoading } = useRecipientLists(queryParams);
+  const recipientLists = data?.nodes ?? [];
+
+  const pagination = {
+    page: queryParams.page,
+    offset: queryParams.offset,
+    first: queryParams.first,
+  };
+
   return (
-    <Grid
-      container
-      spacing={2}
-      sx={{
-        padding: '0 16px 16px 0',
-        maxWidth: '1200px',
-        margin: '0 auto',
-        height: 'min-content',
-      }}
-    >
-      {dummyData.map(list => (
-        <Grid item xs={12} md={6} key={list.id} sx={{ height: 'fit-content' }}>
-          <Paper
-            sx={{
-              borderRadius: '16px',
-              boxShadow: theme => theme.shadows[1],
-              padding: '24px 32px',
-              width: '100%',
-              backgroundColor: 'background.menu',
-              display: 'flex',
-              justifyContent: 'space-between',
-            }}
-            key={list.id}
-          >
-            <Box>
-              <Typography
-                sx={{
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  color: 'gray.dark',
-                }}
-              >
-                {list.name}
-              </Typography>
-              <Typography sx={{ color: 'gray.dark' }}>
-                {list.description}
-              </Typography>
-            </Box>
-            <ButtonWithIcon
-              Icon={<SettingsIcon />}
-              onClick={() => navigate(list.id)}
-              title={t('tooltip.manage-recipient-list')}
-              label={t('label.manage')}
-            />
-          </Paper>
-        </Grid>
-      ))}
-    </Grid>
+    <>
+      {isOpen && (
+        <RecipientListEditModal
+          mode={ModalMode.Create}
+          isOpen={isOpen}
+          onClose={onClose}
+          recipientList={null}
+        />
+      )}
+      <AppBarButtonsPortal>
+        <LoadingButton
+          isLoading={false}
+          startIcon={<PlusCircleIcon />}
+          onClick={() => onOpen()}
+        >
+          {t('label.new-recipient-list')}
+        </LoadingButton>
+      </AppBarButtonsPortal>
+
+      <TableProvider createStore={createTableStore}>
+        <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
+          <SearchAndDeleteToolbar
+            data={recipientLists}
+            filter={filter}
+            deleteItem={deleteRecipientList}
+            invalidateQueries={invalidateQueries}
+          />
+        </AppBarContentPortal>
+        <DataTable
+          pagination={{ ...pagination, total: data?.totalCount }}
+          onChangePage={updatePaginationQuery}
+          columns={columns}
+          data={recipientLists}
+          isError={isError}
+          isLoading={isLoading}
+          onRowClick={list => navigate(list.id)}
+          noDataElement={<NothingHere body={t('error.no-recipient-lists')} />}
+        />
+      </TableProvider>
+    </>
   );
 };

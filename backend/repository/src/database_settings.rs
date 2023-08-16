@@ -7,23 +7,19 @@ use serde;
 
 use crate::db_diesel::{DBBackendConnection, StorageConnectionManager};
 
-//WAIT up to 5 SECONDS for lock in SQLITE (https://www.sqlite.org/c3ref/busy_timeout.html)
+// WAIT up to 5 SECONDS for lock in SQLITE (https://www.sqlite.org/c3ref/busy_timeout.html)
 const SQLITE_LOCKWAIT_MS: u32 = 5000;
 
 const SQLITE_WAL_PRAGMA: &str = "PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL;";
 
 #[derive(serde::Deserialize, Clone)]
-pub struct DatabaseSettings {
-    pub username: String,
-    pub password: String,
-    pub port: u16,
-    pub host: String,
+pub struct SqliteSettings {
     pub database_name: String,
     /// SQL run once at startup. For example, to run pragma statements
     pub init_sql: Option<String>,
 }
 
-impl DatabaseSettings {
+impl SqliteSettings {
     pub fn connection_string(&self) -> String {
         self.database_name.clone()
     }
@@ -63,9 +59,9 @@ impl diesel::r2d2::CustomizeConnection<SqliteConnection, diesel::r2d2::Error>
     }
 }
 
-pub fn get_storage_connection_manager(settings: &DatabaseSettings) -> StorageConnectionManager {
+pub fn get_storage_connection_manager(settings: &SqliteSettings) -> StorageConnectionManager {
     let connection_manager =
-        ConnectionManager::<DBBackendConnection>::new(&settings.connection_string());
+        ConnectionManager::<DBBackendConnection>::new(settings.connection_string());
     let pool = Pool::builder()
         .connection_customizer(Box::new(SqliteConnectionOptions {
             busy_timeout_ms: Some(SQLITE_LOCKWAIT_MS),
@@ -77,14 +73,10 @@ pub fn get_storage_connection_manager(settings: &DatabaseSettings) -> StorageCon
 
 #[cfg(test)]
 mod database_setting_test {
-    use super::DatabaseSettings;
+    use super::SqliteSettings;
 
-    pub fn empty_db_settings_with_init_sql(init_sql: Option<String>) -> DatabaseSettings {
-        DatabaseSettings {
-            username: "".to_string(),
-            password: "".to_string(),
-            port: 0,
-            host: "".to_string(),
+    pub fn empty_db_settings_with_init_sql(init_sql: Option<String>) -> SqliteSettings {
+        SqliteSettings {
             database_name: "".to_string(),
             init_sql,
         }

@@ -35,6 +35,52 @@ export type DeleteRecipientMutationVariables = Types.Exact<{
 
 export type DeleteRecipientMutation = { __typename: 'FullMutation', deleteRecipient: { __typename: 'DeleteResponse', id: string } };
 
+export type RecipientListRowFragment = { __typename: 'RecipientListNode', id: string, name: string, description: string, recipients: Array<{ __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> };
+
+export type RecipientListsQueryVariables = Types.Exact<{
+  filter?: Types.InputMaybe<Types.RecipientListFilterInput>;
+  page?: Types.InputMaybe<Types.PaginationInput>;
+  sort?: Types.InputMaybe<Array<Types.RecipientListSortInput> | Types.RecipientListSortInput>;
+}>;
+
+
+export type RecipientListsQuery = { __typename: 'FullQuery', recipientLists: { __typename: 'RecipientListConnector', totalCount: number, nodes: Array<{ __typename: 'RecipientListNode', id: string, name: string, description: string, recipients: Array<{ __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }> } };
+
+export type CreateRecipientListMutationVariables = Types.Exact<{
+  input: Types.CreateRecipientListInput;
+}>;
+
+
+export type CreateRecipientListMutation = { __typename: 'FullMutation', createRecipientList: { __typename: 'RecipientListNode', id: string, name: string, description: string, recipients: Array<{ __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> } };
+
+export type UpdateRecipientListMutationVariables = Types.Exact<{
+  input: Types.UpdateRecipientListInput;
+}>;
+
+
+export type UpdateRecipientListMutation = { __typename: 'FullMutation', updateRecipientList: { __typename: 'RecipientListNode', id: string, name: string, description: string, recipients: Array<{ __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> } };
+
+export type AddRecipientToListMutationVariables = Types.Exact<{
+  input: Types.AddRecipientToListInput;
+}>;
+
+
+export type AddRecipientToListMutation = { __typename: 'FullMutation', addRecipientToList: { __typename: 'IdResponse', id: string } };
+
+export type RemoveRecipientFromListMutationVariables = Types.Exact<{
+  input: Types.RemoveRecipientFromListInput;
+}>;
+
+
+export type RemoveRecipientFromListMutation = { __typename: 'FullMutation', removeRecipientFromList: { __typename: 'IdResponse', id: string } };
+
+export type DeleteRecipientListMutationVariables = Types.Exact<{
+  recipientListId: Types.Scalars['String']['input'];
+}>;
+
+
+export type DeleteRecipientListMutation = { __typename: 'FullMutation', deleteRecipientList: { __typename: 'DeleteResponse', id: string } };
+
 export const RecipientRowFragmentDoc = gql`
     fragment RecipientRow on RecipientNode {
   id
@@ -52,6 +98,25 @@ export const RecipientRowFragmentDoc = gql`
   }
 }
     `;
+export const RecipientListRowFragmentDoc = gql`
+    fragment RecipientListRow on RecipientListNode {
+  id
+  name
+  description
+  recipients {
+    ...RecipientRow
+  }
+  auditLogs {
+    datetime
+    id
+    recordId
+    recordType
+    user {
+      username
+    }
+  }
+}
+    ${RecipientRowFragmentDoc}`;
 export const RecipientsDocument = gql`
     query Recipients($filter: RecipientFilterInput, $page: PaginationInput, $sort: [RecipientSortInput!]) {
   recipients(filter: $filter, page: $page, sort: $sort) {
@@ -91,6 +156,63 @@ export const DeleteRecipientDocument = gql`
   }
 }
     `;
+export const RecipientListsDocument = gql`
+    query RecipientLists($filter: RecipientListFilterInput, $page: PaginationInput, $sort: [RecipientListSortInput!]) {
+  recipientLists(filter: $filter, page: $page, sort: $sort) {
+    ... on RecipientListConnector {
+      totalCount
+      nodes {
+        ...RecipientListRow
+      }
+    }
+  }
+}
+    ${RecipientListRowFragmentDoc}`;
+export const CreateRecipientListDocument = gql`
+    mutation createRecipientList($input: CreateRecipientListInput!) {
+  createRecipientList(input: $input) {
+    ... on RecipientListNode {
+      ...RecipientListRow
+    }
+  }
+}
+    ${RecipientListRowFragmentDoc}`;
+export const UpdateRecipientListDocument = gql`
+    mutation updateRecipientList($input: UpdateRecipientListInput!) {
+  updateRecipientList(input: $input) {
+    ... on RecipientListNode {
+      ...RecipientListRow
+    }
+  }
+}
+    ${RecipientListRowFragmentDoc}`;
+export const AddRecipientToListDocument = gql`
+    mutation addRecipientToList($input: AddRecipientToListInput!) {
+  addRecipientToList(input: $input) {
+    ... on IdResponse {
+      id
+    }
+  }
+}
+    `;
+export const RemoveRecipientFromListDocument = gql`
+    mutation removeRecipientFromList($input: RemoveRecipientFromListInput!) {
+  removeRecipientFromList(input: $input) {
+    ... on IdResponse {
+      id
+    }
+  }
+}
+    `;
+export const DeleteRecipientListDocument = gql`
+    mutation deleteRecipientList($recipientListId: String!) {
+  deleteRecipientList(recipientListId: $recipientListId) {
+    ... on DeleteResponse {
+      id
+    }
+  }
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string) => Promise<T>;
 
@@ -110,6 +232,24 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     deleteRecipient(variables: DeleteRecipientMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<DeleteRecipientMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<DeleteRecipientMutation>(DeleteRecipientDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteRecipient', 'mutation');
+    },
+    RecipientLists(variables?: RecipientListsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<RecipientListsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<RecipientListsQuery>(RecipientListsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'RecipientLists', 'query');
+    },
+    createRecipientList(variables: CreateRecipientListMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateRecipientListMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CreateRecipientListMutation>(CreateRecipientListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'createRecipientList', 'mutation');
+    },
+    updateRecipientList(variables: UpdateRecipientListMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<UpdateRecipientListMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<UpdateRecipientListMutation>(UpdateRecipientListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'updateRecipientList', 'mutation');
+    },
+    addRecipientToList(variables: AddRecipientToListMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<AddRecipientToListMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AddRecipientToListMutation>(AddRecipientToListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'addRecipientToList', 'mutation');
+    },
+    removeRecipientFromList(variables: RemoveRecipientFromListMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<RemoveRecipientFromListMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<RemoveRecipientFromListMutation>(RemoveRecipientFromListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'removeRecipientFromList', 'mutation');
+    },
+    deleteRecipientList(variables: DeleteRecipientListMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<DeleteRecipientListMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DeleteRecipientListMutation>(DeleteRecipientListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteRecipientList', 'mutation');
     }
   };
 }

@@ -14,6 +14,7 @@ struct Asset;
 
 const INDEX: &str = "index.html";
 
+#[allow(clippy::if_same_then_else)]
 // https://github.com/pyrossh/rust-embed/blob/master/examples/actix.rs
 fn server_frontend(path: &str) -> HttpResponse {
     if let Some(content) = Asset::get(path) {

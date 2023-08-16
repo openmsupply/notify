@@ -1,3 +1,4 @@
+use datasource::PostgresSettings;
 use repository::{test_db::get_test_db_settings, StorageConnectionManager};
 
 use crate::{
@@ -26,6 +27,13 @@ pub fn get_test_settings(db_name: &str) -> Settings {
             from: "no-reply@msupply.foundation".to_string(),
         },
         telegram: TelegramSettings { token: None },
+        datasource: PostgresSettings {
+            username: String::new(),
+            password: String::new(),
+            port: 0,
+            host: String::new(),
+            database_name: String::new(),
+        },
     }
 }
 

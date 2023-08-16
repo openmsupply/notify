@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from '@common/intl';
 import {
   AppBarButtonsPortal,
+  AppBarContentPortal,
   DataTable,
   LoadingButton,
   NothingHere,
@@ -81,12 +82,14 @@ export const ListView = () => {
       </AppBarButtonsPortal>
 
       <TableProvider createStore={createTableStore}>
-        <SearchAndDeleteToolbar
-          data={recipients}
-          filter={filter}
-          deleteItem={deleteRecipient}
-          invalidateQueries={invalidateQueries}
-        />
+        <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
+          <SearchAndDeleteToolbar
+            data={recipients}
+            filter={filter}
+            deleteItem={deleteRecipient}
+            invalidateQueries={invalidateQueries}
+          />
+        </AppBarContentPortal>
 
         <DataTable
           columns={columns}

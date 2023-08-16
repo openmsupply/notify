@@ -457,6 +457,7 @@ export type RecipientListConnector = {
 export type RecipientListFilterInput = {
   id?: InputMaybe<EqualFilterStringInput>;
   name?: InputMaybe<StringFilterInput>;
+  search?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type RecipientListNode = {
