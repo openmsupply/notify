@@ -12,7 +12,6 @@ import {
   SearchBar,
   LocalStorage,
   RecordWithId,
-  FilterRule,
   Box,
 } from '@notify-frontend/common';
 
@@ -23,7 +22,6 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
   invalidateQueries,
   deleteLabel,
   searchFilterKey = 'search',
-  asStringFilterRule: asStringFilter = false,
   ActionButtons = () => <></>,
 }: {
   data: T[];
@@ -32,8 +30,6 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
   invalidateQueries: () => Promise<void>;
   searchFilterKey?: string;
   deleteLabel?: string;
-  /** Add the search term as a StringFilterRule rather than just a StringRule */
-  asStringFilterRule?: boolean;
   ActionButtons?: () => JSX.Element;
 }) => {
   const t = useTranslation(['system']);
@@ -91,10 +87,7 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
     ref.current = deleteAction;
   }, [selectedRows]);
 
-  const filterString =
-    (asStringFilter
-      ? ((filter.filterBy?.[searchFilterKey] as FilterRule)?.like as string)
-      : (filter.filterBy?.[searchFilterKey] as string)) || '';
+  const filterString = (filter.filterBy?.[searchFilterKey] as string) || '';
 
   return (
     <Box
@@ -114,11 +107,9 @@ export const SearchAndDeleteToolbar = <T extends RecordWithId>({
       <SearchBar
         placeholder={t('placeholder.search')}
         value={filterString}
-        onChange={newValue => {
-          if (asStringFilter) {
-            filter.onChangeStringFilterRule(searchFilterKey, 'like', newValue);
-          } else filter.onChangeStringRule(searchFilterKey, newValue);
-        }}
+        onChange={newValue =>
+          filter.onChangeStringRule(searchFilterKey, newValue)
+        }
       />
       <Box sx={{ gap: '10px', display: 'flex' }}>
         <ActionButtons />
