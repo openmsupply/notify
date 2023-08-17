@@ -11,15 +11,17 @@ For MVP, we'll create of groups and members manually.
 erDiagram
     NOTIFICATION_EVENT {
         TEXT id PK "UNIQUE NOT NULL"
-        TEXT notification_group_id FK "NOT NULL"
+        TEXT notification_config_id FK "NULLABLE"
+        TEXT recipient_list_id FK "NULLABLE"
         TEXT notification_type "NOT NULL (TELEGRAM/EMAIL/ETC)"
         TEXT to_address "NOT NULL (Email address/Chat_id/ETC)"
+        TEXT title "NULLABLE"
+        TEXT message "NOT NULL"
         TEXT status "NOT NULL"
         TIMESTAMP created_at "NOT NULL"
         TIMESTAMP updated_at "NOT NULL"
-        TIMESTAMP send_at "NULLABLE"
-        INTEGER retries "DEFAULT 0"
-        TEXT message_content "NOT NULL (JSON?)"
+        TIMESTAMP sent_at "NULLABLE"
+        INTEGER retries "NOT NULL DEFAULT 0"
         TEXT error_message "NULLABLE"
     }
     RECIPIENT_LIST {
