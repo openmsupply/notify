@@ -13,6 +13,7 @@ table! {
         display_name -> Text,
         password_reset_token -> Nullable<Text>,
         password_reset_datetime -> Nullable<Timestamp>,
+        nickname -> Nullable<Text>,
     }
 }
 #[derive(
@@ -28,6 +29,7 @@ pub struct UserAccountRow {
     pub display_name: String,
     pub password_reset_token: Option<String>,
     pub password_reset_datetime: Option<NaiveDateTime>,
+    pub nickname: Option<String>,
 }
 
 pub struct UserAccountRowRepository<'a> {

@@ -42,6 +42,7 @@ pub struct CreateUserAccountInput {
     pub email: Option<String>,
     pub display_name: Option<String>,
     pub permissions: Vec<PermissionNode>,
+    pub nickname: Option<String>,
 }
 
 impl From<CreateUserAccountInput> for CreateUserAccount {
@@ -53,6 +54,7 @@ impl From<CreateUserAccountInput> for CreateUserAccount {
             email,
             display_name,
             permissions,
+            nickname,
         }: CreateUserAccountInput,
     ) -> Self {
         CreateUserAccount {
@@ -65,6 +67,7 @@ impl From<CreateUserAccountInput> for CreateUserAccount {
                 .into_iter()
                 .map(PermissionNode::to_domain)
                 .collect(),
+            nickname,
         }
     }
 }
@@ -262,6 +265,7 @@ mod test {
                 display_name: "Robert Jones".to_string(),
                 password_reset_token: None,
                 password_reset_datetime: None,
+                nickname: None,
             })
         }));
 

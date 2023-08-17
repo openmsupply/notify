@@ -38,6 +38,7 @@ mod user_account_update_tests {
                     email: None,
                     display_name: None,
                     permissions: None,
+                    nickname: None,
                 },
             ),
             Err(ModifyUserAccountError::UserAccountDoesNotExist)
@@ -54,6 +55,7 @@ mod user_account_update_tests {
                     email: None,
                     display_name: None,
                     permissions: None,
+                    nickname: None,
                 },
             ),
             Err(ModifyUserAccountError::UserAccountAlreadyExists)
@@ -70,6 +72,7 @@ mod user_account_update_tests {
                     email: None,
                     display_name: None,
                     permissions: None,
+                    nickname: None,
                 },
             ),
             Err(ModifyUserAccountError::UserAccountAlreadyExists)
@@ -86,6 +89,7 @@ mod user_account_update_tests {
                     email: None,
                     display_name: None,
                     permissions: None,
+                    nickname: None,
                 },
             ),
             Err(ModifyUserAccountError::InvalidPassword)
@@ -119,6 +123,7 @@ mod user_account_update_tests {
                     email: None,
                     display_name: None,
                     permissions: vec![Permission::ServerAdmin],
+                    nickname: None,
                 },
             )
             .unwrap();
@@ -136,6 +141,7 @@ mod user_account_update_tests {
                     email: None,
                     display_name: Some("name_for_id1".to_string()),
                     permissions: None,
+                    nickname: None,
                 },
             )
             .unwrap();
@@ -143,6 +149,29 @@ mod user_account_update_tests {
         assert_eq!(
             updated_user_account.display_name,
             "name_for_id1".to_string()
+        );
+
+        // Update Nickname
+        let updated_user_account = context
+            .service_provider
+            .user_account_service
+            .update_user_account(
+                &context,
+                UpdateUserAccount {
+                    id: "id1".to_string(),
+                    username: Some("username_for_id1".to_string()),
+                    password: None,
+                    email: None,
+                    display_name: Some("name_for_id1".to_string()),
+                    permissions: None,
+                    nickname: Some("nickname_for_id1".to_string()),
+                },
+            )
+            .unwrap();
+
+        assert_eq!(
+            updated_user_account.nickname,
+            Some("nickname_for_id1".to_string())
         );
 
         // Update email
@@ -158,6 +187,7 @@ mod user_account_update_tests {
                     email: Some("id1@example.com".to_string()),
                     display_name: None,
                     permissions: None,
+                    nickname: None,
                 },
             )
             .unwrap();
@@ -181,6 +211,7 @@ mod user_account_update_tests {
                     email: None,
                     display_name: None,
                     permissions: None,
+                    nickname: None,
                 },
             )
             .unwrap();
@@ -202,6 +233,7 @@ mod user_account_update_tests {
                     email: None,
                     display_name: None,
                     permissions: Some(vec![Permission::ServerAdmin]),
+                    nickname: None,
                 },
             )
             .unwrap();
@@ -227,6 +259,7 @@ mod user_account_update_tests {
                     email: None,
                     display_name: None,
                     permissions: Some(vec![Permission::ServerAdmin]),
+                    nickname: None,
                 },
             )
             .unwrap();
@@ -252,6 +285,7 @@ mod user_account_update_tests {
                     email: None,
                     display_name: None,
                     permissions: Some(vec![Permission::Reader]),
+                    nickname: None,
                 },
             )
             .unwrap();
@@ -277,6 +311,7 @@ mod user_account_update_tests {
                     email: None,
                     display_name: None,
                     permissions: Some(vec![Permission::Reader, Permission::ServerAdmin]),
+                    nickname: None,
                 },
             )
             .unwrap();
@@ -305,6 +340,7 @@ mod user_account_update_tests {
                     email: None,
                     display_name: None,
                     permissions: Some(vec![]),
+                    nickname: None,
                 },
             )
             .unwrap();

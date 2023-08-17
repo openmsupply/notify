@@ -24,6 +24,7 @@ pub struct UpdateUserAccount {
     pub email: Option<String>,
     pub display_name: Option<String>,
     pub permissions: Option<Vec<Permission>>,
+    pub nickname: Option<String>,
 }
 
 pub fn update_user_account(
@@ -125,6 +126,7 @@ pub fn generate(
         email,
         display_name,
         permissions: _, //Permissions are managed separately
+        nickname,
     }: UpdateUserAccount,
     current_user_account_row: UserAccountRow,
 ) -> Result<UserAccountRow, ModifyUserAccountError> {
@@ -140,6 +142,9 @@ pub fn generate(
     }
     if let Some(display_name) = display_name {
         new_user_account_row.display_name = display_name.trim().to_string();
+    }
+    if let Some(nickname) = nickname {
+        new_user_account_row.nickname = Some(nickname.trim().to_string());
     }
 
     Ok(new_user_account_row)

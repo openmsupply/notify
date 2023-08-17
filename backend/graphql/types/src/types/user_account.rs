@@ -31,6 +31,9 @@ impl UserAccountNode {
     pub async fn id(&self) -> &str {
         &self.row().id
     }
+    pub async fn nickname(&self) -> &Option<String> {
+        &self.row().nickname
+    }
     pub async fn username(&self) -> &str {
         &self.row().username
     }

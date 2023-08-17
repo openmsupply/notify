@@ -48,6 +48,7 @@ export const userAccountParsers = {
     displayName: userAccount?.displayName || userAccount?.username,
     email: userAccount?.email,
     permissions: userAccount?.permissions,
+    nickname: userAccount?.nickname,
   }),
   toUpdate: (
     userAccount: UserAccountRowFragment,
@@ -59,6 +60,7 @@ export const userAccountParsers = {
     displayName: userAccount?.displayName,
     email: userAccount?.email,
     permissions: userAccount?.permissions,
+    nickname: userAccount?.nickname,
   }),
 };
 
