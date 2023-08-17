@@ -28,6 +28,7 @@ export interface AutocompleteMultiListProps<T> {
   renderOption?: AutocompleteOptionRenderer<T>;
   width?: number;
   autoFocusSearch?: boolean;
+  showSelectedCount?: boolean;
   getOptionDisabled?: (option: T) => boolean;
 }
 
@@ -43,6 +44,7 @@ export const AutocompleteMultiList = <T extends { id: string }>({
   renderOption,
   getOptionDisabled = () => false,
   autoFocusSearch = true,
+  showSelectedCount = true,
   width = 600,
 }: AutocompleteMultiListProps<T>): JSX.Element => {
   const [selectedOptions, setSelectedOptions] = useState<T[]>([]);
@@ -100,14 +102,16 @@ export const AutocompleteMultiList = <T extends { id: string }>({
     return (
       <>
         <Box display="flex">
-          <Typography
-            flex={1}
-            style={{ verticalAlign: 'bottom' }}
-            display="flex"
-            alignItems="center"
-          >
-            {t('label.items-selected', { count: selectedOptions.length })}
-          </Typography>
+          {showSelectedCount && (
+            <Typography
+              flex={1}
+              style={{ verticalAlign: 'bottom' }}
+              display="flex"
+              alignItems="center"
+            >
+              {t('label.items-selected', { count: selectedOptions.length })}
+            </Typography>
+          )}
           {selectAllAllowed ? (
             <Typography textAlign="right" flex={1}>
               {t('label.select-all')}

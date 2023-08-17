@@ -33,11 +33,12 @@ export const useDraft = (mode: ModalMode | null) => {
   };
 
   const onSave = async () => {
-    // if (mode === ModalMode.Create) {
-    //   await insert();
-    // } else {
-    //   await update();
-    // }
+    console.log(draft);
+    if (mode === ModalMode.Create) {
+      //   await insert();
+      // } else {
+      //   await update();
+    }
   };
 
   return {
@@ -60,8 +61,13 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
 
   const isInvalid = !draft.name;
 
+  const modalHeight = Math.min(window.innerHeight - 50, 800);
+  const modalWidth = Math.min(window.innerWidth - 50, 1024);
+
   return (
     <Modal
+      height={modalHeight}
+      width={modalWidth}
       okButton={
         <LoadingButton
           disabled={isInvalid}
@@ -82,7 +88,8 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
       }
       cancelButton={<DialogButton variant="cancel" onClick={onClose} />}
       title={
-        t('label.new-notification')
+        'Setup Cold Chain Notification'
+        // t('label.new-notification')
         // mode === ModalMode.Create
         //   ? t('label.create-user')
         //   : t('label.edit-user')
