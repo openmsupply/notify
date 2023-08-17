@@ -17,14 +17,20 @@ import {
 } from '@notify-frontend/common';
 import { useRecipientLists, useRecipients } from '../../Recipients/api';
 
-type RecipientOption = {
+export interface CCNotification {
   id: string;
-  name: string;
-  detail: string;
-};
+  title: string;
+  highTemp: boolean;
+  lowTemp: boolean;
+  confirmOk: boolean;
+  remind: boolean;
+  reminderInterval: number;
+  reminderUnits: 'seconds' | 'minutes' | 'hours';
+}
 
 type CCNotificationEditFormProps = {
-  onUpdate: (patch: Record<string, unknown>) => void;
+  onUpdate: (patch: Partial<CCNotification>) => void;
+  draft: CCNotification;
 };
 
 // TODO: this is a hackkkkk can I make dropdown work?
@@ -48,6 +54,7 @@ const SelectButton = styled(Button)(({ theme }) => {
 
 export const CCNotificationEditForm = ({
   onUpdate,
+  draft,
 }: CCNotificationEditFormProps) => {
   const t = useTranslation(['system']);
   const [open, setOpen] = useState(false);
@@ -77,30 +84,52 @@ export const CCNotificationEditForm = ({
     <Grid flexDirection="column" display="flex" gap={2}>
       <BasicTextInput
         autoFocus
-        value={'Name'}
+          value={draft.title}
         required
-        onChange={e => onUpdate({ username: e.target.value })}
+          onChange={e => onUpdate({ title: e.target.value })}
         label={'Notification Title'}
         InputLabelProps={{ shrink: true }}
       />
       <ul style={{ listStyleType: 'none', padding: '0' }}>
         <li>
-          <Checkbox checked={false} />
+            <Checkbox
+              id="highTemp"
+              checked={draft.highTemp}
+              onClick={() => onUpdate({ highTemp: !draft.highTemp })}
+            />
+            <label htmlFor="highTemp">
           Send high temperature alerts (Limits are based on your mSupply
           configuration)
+            </label>
         </li>
         <li>
-          <Checkbox checked={false} />
+            <Checkbox
+              id="lowTemp"
+              checked={draft.lowTemp}
+              onClick={() => onUpdate({ lowTemp: !draft.lowTemp })}
+            />
+            <label htmlFor="lowTemp">
           Send low temperature alerts (Limits are based on your mSupply
           configuration)
+            </label>
         </li>
         <li>
-          <Checkbox checked={false} />
-          Send temperature OK confirmation
+            <Checkbox
+              id="confirmOk"
+              checked={draft.confirmOk}
+              onClick={() => onUpdate({ confirmOk: !draft.confirmOk })}
+            />
+            <label htmlFor="confirmOk">Send temperature OK confirmation</label>
         </li>
         <li>
-          <Checkbox checked={false} />
+            <Checkbox
+              id="remind"
+              checked={draft.remind}
+              onClick={() => onUpdate({ remind: !draft.remind })}
+            />
+            <label htmlFor="remind">
           Send follow-up reminders until alert resolved, every:
+            </label>
         </li>
         <Box
           sx={{
@@ -111,18 +140,28 @@ export const CCNotificationEditForm = ({
           }}
         >
           <PositiveNumberInput
+              disabled={!draft.remind}
             autoFocus
-            // value={1}
+              value={draft.reminderInterval}
             required
-            onChange={newValue => console.log(newValue)}
-            // onChange={e => onUpdate({ username: e.target.value })}
+              onChange={newValue => onUpdate({ reminderInterval: newValue })}
             sx={{ width: '60px' }}
           />
-          <DropdownMenu label={'interval'}>
-            <DropdownMenuItem onClick={() => {}}>Seconds</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => {}}>Minutes</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => {}}>Hours</DropdownMenuItem>
-          </DropdownMenu>
+            <Select
+              value={draft.reminderUnits}
+              disabled={!draft.remind}
+              onChange={e =>
+                onUpdate({
+                  reminderUnits: e.target
+                    .value as CCNotification['reminderUnits'],
+                })
+              }
+              options={[
+                { label: 'Seconds', value: 'seconds' },
+                { label: 'Minutes', value: 'minutes' },
+                { label: 'Hours', value: 'hours' },
+              ]}
+            />
         </Box>
       </ul>
       <SelectButton onClick={() => setOpen(!open)}>

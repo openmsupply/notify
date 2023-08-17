@@ -12,7 +12,7 @@ import {
   CheckIcon,
   InlineSpinner,
 } from '@notify-frontend/common';
-import { CCNotificationEditForm } from './NotificationEditForm';
+import { CCNotification, CCNotificationEditForm } from './NotificationEditForm';
 
 interface CCNotificationEditModalProps {
   mode: ModalMode | null;
@@ -20,15 +20,21 @@ interface CCNotificationEditModalProps {
   onClose: () => void;
 }
 
-const createCCNotifcation = () => ({
+const createCCNotifcation = (): CCNotification => ({
   id: FnUtils.generateUUID(),
-  name: '',
+  title: '',
+  highTemp: false,
+  lowTemp: false,
+  confirmOk: false,
+  remind: false,
+  reminderInterval: 5,
+  reminderUnits: 'minutes',
 });
 
-export const useDraft = (mode: ModalMode | null) => {
+export const useDraftCCNotification = (mode: ModalMode | null) => {
   const [draft, setDraft] = useState(() => createCCNotifcation());
 
-  const onUpdate = (patch: Partial<{ name: string }>) => {
+  const onUpdate = (patch: Partial<CCNotification>) => {
     setDraft({ ...draft, ...patch });
   };
 
@@ -57,9 +63,17 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
   const [errorMessage, setErrorMessage] = useState('');
   const { Modal } = useDialog({ isOpen, onClose });
   const t = useTranslation(['system']);
-  const { draft, onUpdate, onSave, isLoading } = useDraft(mode);
+  const { draft, onUpdate, onSave, isLoading } = useDraftCCNotification(mode);
+  // ugh;
+  const [recipientIds, setRecipientIds] = useState<string[]>([]);
+  const [recipientListIds, setRecipientListIds] = useState<string[]>([]);
 
-  const isInvalid = !draft.name;
+  const isInvalid =
+    !draft.title ||
+    // nothing selected
+    (!draft.confirmOk && !draft.highTemp && !draft.lowTemp && draft.remind) ||
+    // no recipients selected
+    !recipientIds.length;
 
   const modalHeight = Math.min(window.innerHeight - 50, 800);
   const modalWidth = Math.min(window.innerWidth - 50, 1024);
@@ -99,7 +113,7 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
         <InlineSpinner />
       ) : (
         <Grid flexDirection="column" display="flex" gap={2}>
-          <CCNotificationEditForm onUpdate={onUpdate} />
+          <CCNotificationEditForm onUpdate={onUpdate} draft={draft} />
           {errorMessage ? (
             <Grid item>
               <Alert
