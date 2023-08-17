@@ -1,14 +1,33 @@
 # Notify Schema
 
 Please look at the code to confirm schema as this might not be fully up to date.
-It should provide an overview of the concepts though...
+This file should be considerd a guide only.
 
-Conceptually, I'm thinking that notification groups could be created linking members from a query (e.g. all mSupply users with permission to a particular store)
-We might implement it different ways, e.g. with an SQL query in the group itself, or maybe there's a process that refreshes the group members from a query on a schedule?
-For MVP, we'll create of groups and members manually.
+## Notification Events
+Notification Events are used to record and track notifications sent by the system.
+Eventually we'll build a UI to view these events and their status.
+The system will also use this table to retry sending notifications that fail.
+Each record will relate to a single notification sent to a single recipient.
+> Note: Longer term we'll probably need to think about archiving old events.
+
+> Note: Each notification event can be linked to a Notification Config. I've made this nullable just incase we want to send a notification that isn't linked to a config for some reason. Maybe even test notifications will be recorded here, which feels like a possible use case.
+
+## Notification Config
+Notification Config is used to store the "common" configuration for a notification. This includes things like a title, and who the messages should be sent to. Conceptually we want to allow different notication types to be managed via plugins. Based on the notication type, the "plugin" will be able to save all it's configuration in the `configuration_data` field. This will allow us to add new notification types without having to change the schema.
+Some plugins might need or want to create and manage their own schema, but this should provide a good starting point.
+
 
 ```mermaid
 erDiagram
+    NOTIFICATION_CONFIG{
+        TEXT id PK "UNIQUE NOT NULL"
+        TEXT title "NOT NULL"
+        TEXT type "NOT NULL (COLD_CHAIN/ETC)"
+        TEXT recipient_ids "(JSON?)"
+        TEXT recipient_list_ids "(JSON?)"
+        TEXT configuration_data "NOT NULL (JSON)"
+
+    }
     NOTIFICATION_EVENT {
         TEXT id PK "UNIQUE NOT NULL"
         TEXT notification_group_id FK "NOT NULL"
@@ -51,6 +70,7 @@ erDiagram
         TEXT organisation_id FK ""
 	    TEXT permission "NOT NULL"
     }
+    NOTIFICATION_CONFIG ||--o{ NOTIFICATION_EVENT : has
     RECIPIENT_LIST ||--o{ NOTIFICATION_EVENT : has
     RECIPIENT_LIST ||--o{ RECIPIENT_LIST_MEMBER : has
     RECIPIENT_LIST_MEMBER ||--o{ RECIPIENT : has
