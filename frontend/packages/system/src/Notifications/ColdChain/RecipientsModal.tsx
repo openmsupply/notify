@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useMemo, useState } from 'react';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import { useDialog } from '@common/hooks';
@@ -17,9 +17,10 @@ import { Grid, NotificationTypeNode } from 'packages/common/src';
 import { useRecipientLists, useRecipients } from '../../Recipients/api';
 
 interface RecipientsModalProps {
-  // recipientList: RecipientListRowFragment;
   isOpen: boolean;
   onClose: () => void;
+  selectedIds: string[];
+  setSelectedIds: (ids: string[]) => void;
 }
 
 enum recipTypes {
@@ -37,13 +38,16 @@ interface RecipientOption {
 }
 
 export const RecipientsModal: FC<RecipientsModalProps> = ({
-  // recipientList,
   isOpen,
+  selectedIds,
   onClose,
+  setSelectedIds,
 }) => {
   const t = useTranslation('system');
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
+
+  console.log(selectedRecipients);
 
   const { Modal } = useDialog({ isOpen, onClose });
 
@@ -51,44 +55,40 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
   const { data: recipientLists, isLoading: recipientsListsIsLoading } =
     useRecipientLists();
 
-  const options: RecipientOption[] = [
-    {
-      id: 'recipientLists title',
-      name: '--- Recipient Lists ---',
-      detail: '',
-      type: recipTypes.Heading,
-    },
-    ...(recipientLists?.nodes ?? []).map(r => ({
-      id: r.id,
-      name: r.name,
-      detail: r.description,
-      type: recipTypes.List,
-    })),
-    {
-      id: 'recipients title',
-      name: '--- Recipients ---',
-      detail: '',
-      type: recipTypes.Heading,
-    },
-    ...(recipients?.nodes ?? []).map(r => ({
-      id: r.id,
-      name: r.name,
-      detail:
-        r.notificationType === NotificationTypeNode.Telegram
-          ? 'Telegram'
-          : r.toAddress,
-      type:
-        r.notificationType === NotificationTypeNode.Telegram
-          ? recipTypes.Telegram
-          : recipTypes.Email,
-    })),
-  ];
+  const options: RecipientOption[] = useMemo(
+    () => [
+      {
+        id: 'recipientLists-heading',
+        name: '--- Recipient Lists ---',
+        detail: '',
+        type: recipTypes.Heading,
+      },
+      ...(recipientLists?.nodes ?? []).map(r => ({
+        id: r.id,
+        name: r.name,
+        detail: r.description,
+        type: recipTypes.List,
+      })),
+      {
+        id: 'recipients-heading',
+        name: '--- Recipients ---',
+        detail: '',
+        type: recipTypes.Heading,
+      },
+      ...(recipients?.nodes ?? []).map(r => ({
+        id: r.id,
+        name: r.name,
+        detail: r.toAddress,
+        type:
+          r.notificationType === NotificationTypeNode.Telegram
+            ? recipTypes.Telegram
+            : recipTypes.Email,
+      })),
+    ],
+    [recipients, recipientLists]
+  );
 
   const onChangeSelectedRecipients = (ids: string[]) => {
-    // const filteredIds = ids.filter(
-    //   id => !recipientList.recipients.some(r => r.id === id)
-    // );
-    // setSelectedRecipients(filteredIds);
     setSelectedRecipients(ids);
   };
 
@@ -113,21 +113,25 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             width: 250,
+            minWidth: 250,
             marginRight: 10,
           }}
         >
           {option.name}
         </span>
       </Tooltip>
-      <span
-        style={{
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        }}
-      >
-        {option.detail}
-      </span>
+      <Tooltip title={option.detail}>
+        <span
+          style={{
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            // maxWidth: 300,
+          }}
+        >
+          {option.type === recipTypes.Telegram ? 'Telegram' : option.detail}
+        </span>
+      </Tooltip>
     </li>
   );
 
@@ -143,7 +147,10 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
           <span>
             <LoadingButton
               disabled={!selectedRecipients.length}
-              onClick={() => onClose()}
+              onClick={() => {
+                setSelectedIds(selectedRecipients);
+                onClose();
+              }}
               isLoading={recipientIsLoading || recipientsListsIsLoading}
               startIcon={<CheckIcon />}
             >
@@ -189,6 +196,7 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
               width={modalWidth - 50}
               height={modalHeight - 300}
               getOptionDisabled={o => o.type === recipTypes.Heading}
+              defaultSelection={options.filter(o => selectedIds.includes(o.id))}
             />
           </Grid>
         </Grid>

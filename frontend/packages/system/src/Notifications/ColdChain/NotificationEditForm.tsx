@@ -1,11 +1,11 @@
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useState } from 'react';
 import {
   BasicTextInput,
   Box,
   ButtonProps,
   Checkbox,
-  ChevronDownIcon,
   Grid,
+  PlusCircleIcon,
   PositiveNumberInput,
   Select,
   styled,
@@ -42,7 +42,7 @@ const SelectButton = styled(Button)(({ theme }) => {
     border: '1px',
     borderStyle: 'solid',
     borderColor: theme.palette.border,
-    padding: '7px 5px 7px 10px',
+    padding: '7px 10px',
     color: theme.palette.gray.main,
     cursor: 'pointer',
   };
@@ -54,9 +54,17 @@ export const CCNotificationEditForm = ({
 }: CCNotificationEditFormProps) => {
   const { isOpen, onClose, onOpen } = useEditModal();
 
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   return (
     <>
-      {isOpen && <RecipientsModal isOpen={isOpen} onClose={onClose} />}
+      {isOpen && (
+        <RecipientsModal
+          isOpen={isOpen}
+          onClose={onClose}
+          selectedIds={selectedIds}
+          setSelectedIds={setSelectedIds}
+        />
+      )}
       <Grid flexDirection="column" display="flex" gap={2}>
         <BasicTextInput
           autoFocus
@@ -142,7 +150,7 @@ export const CCNotificationEditForm = ({
         </ul>
         <SelectButton onClick={() => onOpen()}>
           <span>Select Recipients</span>
-          <ChevronDownIcon color="primary" />
+          <PlusCircleIcon color="primary" />
         </SelectButton>
       </Grid>
     </>

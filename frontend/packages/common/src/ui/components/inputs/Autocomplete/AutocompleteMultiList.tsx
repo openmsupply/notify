@@ -30,6 +30,7 @@ export interface AutocompleteMultiListProps<T> {
   autoFocusSearch?: boolean;
   showSelectedCount?: boolean;
   getOptionDisabled?: (option: T) => boolean;
+  defaultSelection?: T[];
 }
 
 export const AutocompleteMultiList = <T extends { id: string }>({
@@ -46,6 +47,7 @@ export const AutocompleteMultiList = <T extends { id: string }>({
   autoFocusSearch = true,
   showSelectedCount = true,
   width = 600,
+  defaultSelection,
 }: AutocompleteMultiListProps<T>): JSX.Element => {
   const [selectedOptions, setSelectedOptions] = useState<T[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -139,6 +141,12 @@ export const AutocompleteMultiList = <T extends { id: string }>({
       </>
     );
   };
+
+  useEffect(() => {
+    if (defaultSelection) {
+      setSelectedOptions(defaultSelection);
+    }
+  }, []);
 
   useEffect(() => {
     if (onChange) onChange(selectedOptions.map(({ id }) => id));
