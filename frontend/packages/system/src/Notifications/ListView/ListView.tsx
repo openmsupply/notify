@@ -11,7 +11,7 @@ import {
   useColumns,
 } from '@common/ui';
 import { useEditModal } from '@common/hooks';
-import { CCNotificationEditModal } from '../ColdChain/NotificationEditModal';
+import { CCNotificationEditModal } from '../ColdChain/CCNotificationEditModal';
 
 type Notification = {
   id: string;
