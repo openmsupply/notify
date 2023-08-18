@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, PropsWithChildren, useState } from 'react';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import {
@@ -11,8 +11,13 @@ import {
   LoadingButton,
   CheckIcon,
   InlineSpinner,
+  useEditModal,
+  PlusCircleIcon,
+  styled,
+  ButtonProps,
 } from '@notify-frontend/common';
 import { CCNotification, CCNotificationEditForm } from './NotificationEditForm';
+import { RecipientsModal } from './RecipientsModal';
 
 interface CCNotificationEditModalProps {
   mode: ModalMode | null;
@@ -77,58 +82,97 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
 
   const modalHeight = Math.min(window.innerHeight - 50, 800);
   const modalWidth = Math.min(window.innerWidth - 50, 1024);
+  const {
+    isOpen: recipientsIsOpen,
+    onClose: recipientsOnClose,
+    onOpen: onRecipientsOpen,
+  } = useEditModal();
 
   return (
-    <Modal
-      height={modalHeight}
-      width={modalWidth}
-      okButton={
-        <LoadingButton
-          disabled={isInvalid}
-          onClick={() => {
-            onSave().then(onClose, err => {
-              if (!err || !err.message) {
-                err = { message: t('messages.unknown-error') };
-              }
-              setErrorMessage(err.message);
-            });
-          }}
-          isLoading={isLoading}
-          startIcon={<CheckIcon />}
-          variant="contained"
-        >
-          {t('button.ok')}
-        </LoadingButton>
-      }
-      cancelButton={<DialogButton variant="cancel" onClick={onClose} />}
-      title={
-        'Setup Cold Chain Notification'
-        // t('label.new-notification')
-        // mode === ModalMode.Create
-        //   ? t('label.create-user')
-        //   : t('label.edit-user')
-      }
-    >
-      {isLoading ? (
-        <InlineSpinner />
-      ) : (
-        <Grid flexDirection="column" display="flex" gap={2}>
-          <CCNotificationEditForm onUpdate={onUpdate} draft={draft} />
-          {errorMessage ? (
-            <Grid item>
-              <Alert
-                severity="error"
-                onClose={() => {
-                  setErrorMessage('');
-                }}
-              >
-                <AlertTitle>{t('error')}</AlertTitle>
-                {errorMessage}
-              </Alert>
-            </Grid>
-          ) : null}
-        </Grid>
+    <>
+      {isOpen && (
+        <RecipientsModal
+          isOpen={recipientsIsOpen}
+          onClose={recipientsOnClose}
+          selectedIds={recipientIds}
+          setSelectedIds={setRecipientIds}
+        />
       )}
-    </Modal>
+      <Modal
+        height={modalHeight}
+        width={modalWidth}
+        okButton={
+          <LoadingButton
+            disabled={isInvalid}
+            onClick={() => {
+              onSave().then(onClose, err => {
+                if (!err || !err.message) {
+                  err = { message: t('messages.unknown-error') };
+                }
+                setErrorMessage(err.message);
+              });
+            }}
+            isLoading={isLoading}
+            startIcon={<CheckIcon />}
+            variant="contained"
+          >
+            {t('button.ok')}
+          </LoadingButton>
+        }
+        cancelButton={<DialogButton variant="cancel" onClick={onClose} />}
+        title={
+          'Setup Cold Chain Notification'
+          // t('label.new-notification')
+          // mode === ModalMode.Create
+          //   ? t('label.create-user')
+          //   : t('label.edit-user')
+        }
+      >
+        {isLoading ? (
+          <InlineSpinner />
+        ) : (
+          <Grid flexDirection="column" display="flex" gap={2}>
+            <CCNotificationEditForm onUpdate={onUpdate} draft={draft} />
+            <SelectButton onClick={() => onRecipientsOpen()}>
+              Select Recipients
+              <PlusCircleIcon color="primary" />
+            </SelectButton>
+            {errorMessage ? (
+              <Grid item>
+                <Alert
+                  severity="error"
+                  onClose={() => {
+                    setErrorMessage('');
+                  }}
+                >
+                  <AlertTitle>{t('error')}</AlertTitle>
+                  {errorMessage}
+                </Alert>
+              </Grid>
+            ) : null}
+          </Grid>
+        )}
+      </Modal>
+    </>
   );
 };
+
+const Button = ({ children, ...props }: PropsWithChildren<ButtonProps>) => (
+  <button {...props}>{children}</button>
+);
+const SelectButton = styled(Button)(({ theme }) => {
+  return {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderRadius: '8px',
+    backgroundColor: 'white',
+    border: '1px',
+    borderStyle: 'solid',
+    borderColor: theme.palette.border,
+    padding: '7px 10px',
+    color: theme.palette.gray.main,
+    cursor: 'pointer',
+    fontSize: '14px',
+  };
+});
