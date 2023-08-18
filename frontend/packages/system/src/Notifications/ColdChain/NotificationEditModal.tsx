@@ -18,6 +18,7 @@ import {
 } from '@notify-frontend/common';
 import { CCNotification, CCNotificationEditForm } from './NotificationEditForm';
 import { RecipientsModal } from './RecipientsModal';
+import { useRecipientLists, useRecipients } from '../../Recipients/api';
 
 interface CCNotificationEditModalProps {
   mode: ModalMode | null;
@@ -36,57 +37,92 @@ const createCCNotifcation = (): CCNotification => ({
   reminderUnits: 'minutes',
 });
 
-export const useDraftCCNotification = (mode: ModalMode | null) => {
+export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
+  mode,
+  isOpen,
+  onClose,
+}) => {
+  const t = useTranslation(['system']);
+
+  const [errorMessage, setErrorMessage] = useState('');
   const [draft, setDraft] = useState(() => createCCNotifcation());
+  const [recipientIds, setRecipientIds] = useState<string[]>([]);
+  const [recipientListIds, setRecipientListIds] = useState<string[]>([]);
+
+  const { Modal } = useDialog({ isOpen, onClose });
+  const {
+    isOpen: recipientsIsOpen,
+    onClose: recipientsOnClose,
+    onOpen: onRecipientsOpen,
+  } = useEditModal();
+
+  const setSelection = (input: {
+    recipients: string[];
+    recipientLists: string[];
+  }) => {
+    setRecipientIds(input.recipients);
+    setRecipientListIds(input.recipientLists);
+  };
 
   const onUpdate = (patch: Partial<CCNotification>) => {
     setDraft({ ...draft, ...patch });
   };
 
   const onSave = async () => {
-    console.log(draft);
+    const {
+      id,
+      title,
+      highTemp,
+      lowTemp,
+      confirmOk,
+      remind,
+      reminderInterval,
+      reminderUnits,
+    } = draft;
+    const input = {
+      id,
+      title,
+      highTemp,
+      lowTemp,
+      confirmOk,
+      remind,
+      reminderInterval,
+      reminderUnits,
+      recipientIds,
+      recipientListIds,
+    };
+    console.log(input);
     if (mode === ModalMode.Create) {
-      //   await insert();
+      //   await insert(input);
       // } else {
-      //   await update();
+      //   await update(input);
     }
   };
-
-  return {
-    draft,
-    onUpdate,
-    onSave,
-    isLoading: false,
-  };
-};
-
-export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
-  mode,
-  isOpen,
-  onClose,
-}) => {
-  const [errorMessage, setErrorMessage] = useState('');
-  const { Modal } = useDialog({ isOpen, onClose });
-  const t = useTranslation(['system']);
-  const { draft, onUpdate, onSave, isLoading } = useDraftCCNotification(mode);
-  // ugh;
-  const [recipientIds, setRecipientIds] = useState<string[]>([]);
-  const [recipientListIds, setRecipientListIds] = useState<string[]>([]);
 
   const isInvalid =
     !draft.title ||
     // nothing selected
     (!draft.confirmOk && !draft.highTemp && !draft.lowTemp && draft.remind) ||
     // no recipients selected
-    !recipientIds.length;
+    (!recipientListIds.length && !recipientIds.length);
+
+  const { data: recipients } = useRecipients();
+  const { data: recipientLists } = useRecipientLists();
+
+  const selectedRecipientLists = (recipientLists?.nodes ?? []).filter(list =>
+    recipientListIds.includes(list.id)
+  );
+  const selectedRecipients = (recipients?.nodes ?? []).filter(recipient =>
+    recipientIds.includes(recipient.id)
+  );
+  const selectedNames = [...selectedRecipientLists, ...selectedRecipients]
+    .map(r => r.name)
+    .join('; ');
+
+  const isLoading = false;
 
   const modalHeight = Math.min(window.innerHeight - 50, 800);
   const modalWidth = Math.min(window.innerWidth - 50, 1024);
-  const {
-    isOpen: recipientsIsOpen,
-    onClose: recipientsOnClose,
-    onOpen: onRecipientsOpen,
-  } = useEditModal();
 
   return (
     <>
@@ -94,8 +130,10 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
         <RecipientsModal
           isOpen={recipientsIsOpen}
           onClose={recipientsOnClose}
-          selectedIds={recipientIds}
-          setSelectedIds={setRecipientIds}
+          initialSelectedIds={[...recipientListIds, ...recipientIds]}
+          setSelection={setSelection}
+          recipientLists={recipientLists?.nodes ?? []}
+          recipients={recipients?.nodes ?? []}
         />
       )}
       <Modal
@@ -133,10 +171,10 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
         ) : (
           <Grid flexDirection="column" display="flex" gap={2}>
             <CCNotificationEditForm onUpdate={onUpdate} draft={draft} />
-            <SelectButton onClick={() => onRecipientsOpen()}>
-              Select Recipients
+            <StyledButton onClick={() => onRecipientsOpen()}>
+              {selectedNames || 'Select Recipients'}
               <PlusCircleIcon color="primary" />
-            </SelectButton>
+            </StyledButton>
             {errorMessage ? (
               <Grid item>
                 <Alert
@@ -160,7 +198,7 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
 const Button = ({ children, ...props }: PropsWithChildren<ButtonProps>) => (
   <button {...props}>{children}</button>
 );
-const SelectButton = styled(Button)(({ theme }) => {
+const StyledButton = styled(Button)(({ theme }) => {
   return {
     display: 'flex',
     justifyContent: 'space-between',
@@ -174,5 +212,8 @@ const SelectButton = styled(Button)(({ theme }) => {
     color: theme.palette.gray.main,
     cursor: 'pointer',
     fontSize: '14px',
+    textAlign: 'left',
+    gap: '10px',
+    lineHeight: 1.5,
   };
 });

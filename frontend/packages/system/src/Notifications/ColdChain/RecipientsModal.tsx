@@ -14,16 +14,22 @@ import {
 } from '@common/components';
 import { CheckIcon } from '@common/icons';
 import { Grid, NotificationTypeNode } from 'packages/common/src';
-import { useRecipientLists, useRecipients } from '../../Recipients/api';
+import { RecipientRowFragment } from '../../Recipients/api';
+import { RecipientListRowFragment } from '../../Recipients/api/operations.generated';
 
 interface RecipientsModalProps {
   isOpen: boolean;
+  recipients: RecipientRowFragment[];
+  recipientLists: RecipientListRowFragment[];
+  initialSelectedIds: string[];
   onClose: () => void;
-  selectedIds: string[];
-  setSelectedIds: (ids: string[]) => void;
+  setSelection: (input: {
+    recipients: string[];
+    recipientLists: string[];
+  }) => void;
 }
 
-enum recipTypes {
+enum RecipientOptionType {
   Telegram = 'telegram',
   Email = 'email',
   Heading = 'heading',
@@ -34,26 +40,22 @@ interface RecipientOption {
   id: string;
   name: string;
   detail: string;
-  type: recipTypes;
+  type: RecipientOptionType;
 }
 
 export const RecipientsModal: FC<RecipientsModalProps> = ({
+  recipientLists,
+  recipients,
   isOpen,
-  selectedIds,
+  initialSelectedIds,
   onClose,
-  setSelectedIds,
+  setSelection,
 }) => {
   const t = useTranslation('system');
   const [errorMessage, setErrorMessage] = useState('');
-  const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
-
-  console.log(selectedRecipients);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const { Modal } = useDialog({ isOpen, onClose });
-
-  const { data: recipients, isLoading: recipientIsLoading } = useRecipients();
-  const { data: recipientLists, isLoading: recipientsListsIsLoading } =
-    useRecipientLists();
 
   const options: RecipientOption[] = useMemo(
     () => [
@@ -61,79 +63,46 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
         id: 'recipientLists-heading',
         name: '--- Recipient Lists ---',
         detail: '',
-        type: recipTypes.Heading,
+        type: RecipientOptionType.Heading,
       },
-      ...(recipientLists?.nodes ?? []).map(r => ({
+      ...recipientLists.map(r => ({
         id: r.id,
         name: r.name,
         detail: r.description,
-        type: recipTypes.List,
+        type: RecipientOptionType.List,
       })),
       {
         id: 'recipients-heading',
         name: '--- Recipients ---',
         detail: '',
-        type: recipTypes.Heading,
+        type: RecipientOptionType.Heading,
       },
-      ...(recipients?.nodes ?? []).map(r => ({
+      ...recipients.map(r => ({
         id: r.id,
         name: r.name,
         detail: r.toAddress,
         type:
           r.notificationType === NotificationTypeNode.Telegram
-            ? recipTypes.Telegram
-            : recipTypes.Email,
+            ? RecipientOptionType.Telegram
+            : RecipientOptionType.Email,
       })),
     ],
     [recipients, recipientLists]
   );
 
   const onChangeSelectedRecipients = (ids: string[]) => {
-    setSelectedRecipients(ids);
+    setSelectedIds(ids);
   };
 
-  const renderOption: AutocompleteOptionRenderer<RecipientOption> = (
-    props,
-    option,
-    { selected }
-  ): JSX.Element => (
-    <li {...props}>
-      {option.type !== recipTypes.Heading && (
-        <Checkbox
-          checked={
-            selected // || recipientList.recipients.some(r => r.id === option.id)
-          }
-        />
-      )}
-      <Tooltip title={option.name}>
-        <span
-          style={{
-            fontWeight: 700,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            width: 250,
-            minWidth: 250,
-            marginRight: 10,
-          }}
-        >
-          {option.name}
-        </span>
-      </Tooltip>
-      <Tooltip title={option.detail}>
-        <span
-          style={{
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            // maxWidth: 300,
-          }}
-        >
-          {option.type === recipTypes.Telegram ? 'Telegram' : option.detail}
-        </span>
-      </Tooltip>
-    </li>
-  );
+  const submitSelection = () => {
+    setSelection({
+      recipients: selectedIds.filter(id => recipients.some(r => r.id === id)),
+      recipientLists: selectedIds.filter(id =>
+        recipientLists.some(r => r.id === id)
+      ),
+    });
+    onClose();
+  };
 
   const modalHeight = Math.min(window.innerHeight - 100, 700);
   const modalWidth = Math.min(window.innerWidth - 100, 924);
@@ -146,12 +115,9 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
         <Tooltip title={t('label.add-to-list')}>
           <span>
             <LoadingButton
-              disabled={!selectedRecipients.length}
-              onClick={() => {
-                setSelectedIds(selectedRecipients);
-                onClose();
-              }}
-              isLoading={recipientIsLoading || recipientsListsIsLoading}
+              disabled={!selectedIds.length}
+              onClick={submitSelection}
+              isLoading={false}
               startIcon={<CheckIcon />}
             >
               {t('button.ok')}
@@ -163,44 +129,83 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
       title={t('label.add-members')}
       slideAnimation={false}
     >
-      {recipientIsLoading ? (
-        <></>
-      ) : (
-        <Grid
-          flexDirection="column"
-          display="flex"
-          justifyContent="center"
-          gap={2}
-        >
-          {errorMessage ? (
-            <Grid item>
-              <Alert
-                severity="error"
-                onClose={() => {
-                  setErrorMessage('');
-                }}
-              >
-                <AlertTitle>{t('error')}</AlertTitle>
-                {errorMessage}
-              </Alert>
-            </Grid>
-          ) : null}
+      <Grid
+        flexDirection="column"
+        display="flex"
+        justifyContent="center"
+        gap={2}
+      >
+        {errorMessage ? (
           <Grid item>
-            <AutocompleteMultiList
-              options={options}
-              onChange={onChangeSelectedRecipients}
-              getOptionLabel={option => `${option.detail} ${option.name}`}
-              renderOption={renderOption}
-              filterProperties={['name', 'detail']}
-              filterPlaceholder={t('placeholder.search')}
-              width={modalWidth - 50}
-              height={modalHeight - 300}
-              getOptionDisabled={o => o.type === recipTypes.Heading}
-              defaultSelection={options.filter(o => selectedIds.includes(o.id))}
-            />
+            <Alert
+              severity="error"
+              onClose={() => {
+                setErrorMessage('');
+              }}
+            >
+              <AlertTitle>{t('error')}</AlertTitle>
+              {errorMessage}
+            </Alert>
           </Grid>
+        ) : null}
+        <Grid item>
+          <AutocompleteMultiList
+            options={options}
+            onChange={onChangeSelectedRecipients}
+            getOptionLabel={option => `${option.detail} ${option.name}`}
+            renderOption={renderOption}
+            filterProperties={['name', 'detail']}
+            filterPlaceholder={t('placeholder.search')}
+            width={modalWidth - 50}
+            height={modalHeight - 300}
+            getOptionDisabled={o => o.type === RecipientOptionType.Heading}
+            /// initialSelectedIds.recipients.map(() => )
+            defaultSelection={options.filter(o =>
+              initialSelectedIds.includes(o.id)
+            )}
+          />
         </Grid>
-      )}
+      </Grid>
     </Modal>
   );
 };
+
+const renderOption: AutocompleteOptionRenderer<RecipientOption> = (
+  props,
+  option,
+  { selected }
+): JSX.Element => (
+  <li {...props}>
+    {option.type !== RecipientOptionType.Heading && (
+      <Checkbox checked={selected} />
+    )}
+    <Tooltip title={option.name}>
+      <span
+        style={{
+          fontWeight: 700,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          width: 250,
+          minWidth: 250,
+          marginRight: 10,
+        }}
+      >
+        {option.name}
+      </span>
+    </Tooltip>
+    <Tooltip title={option.detail}>
+      <span
+        style={{
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}
+      >
+        {option.type === RecipientOptionType.Telegram
+          ? 'Telegram'
+          : option.detail}
+      </span>
+    </Tooltip>
+  </li>
+);
