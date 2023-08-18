@@ -6,6 +6,7 @@ import {
   Grid,
   PositiveNumberInput,
   Select,
+  useTranslation,
 } from '@notify-frontend/common';
 
 export interface CCNotification {
@@ -28,6 +29,7 @@ export const CCNotificationEditForm = ({
   onUpdate,
   draft,
 }: CCNotificationEditFormProps) => {
+  const t = useTranslation('system');
   return (
     <>
       <Grid flexDirection="column" display="flex" gap={2}>
@@ -36,7 +38,7 @@ export const CCNotificationEditForm = ({
           value={draft.title}
           required
           onChange={e => onUpdate({ title: e.target.value })}
-          label={'Notification Title'}
+          label={t('label.notification-title')}
           InputLabelProps={{ shrink: true }}
         />
         <ul style={{ listStyleType: 'none', padding: '0' }}>
@@ -47,8 +49,7 @@ export const CCNotificationEditForm = ({
               onClick={() => onUpdate({ highTemp: !draft.highTemp })}
             />
             <label htmlFor="highTemp">
-              Send high temperature alerts (Limits are based on your mSupply
-              configuration)
+              {t('label.coldchain-high-temp-alerts')}
             </label>
           </li>
           <li>
@@ -58,8 +59,7 @@ export const CCNotificationEditForm = ({
               onClick={() => onUpdate({ lowTemp: !draft.lowTemp })}
             />
             <label htmlFor="lowTemp">
-              Send low temperature alerts (Limits are based on your mSupply
-              configuration)
+              {t('label.coldchain-high-temp-alerts')}
             </label>
           </li>
           <li>
@@ -68,7 +68,9 @@ export const CCNotificationEditForm = ({
               checked={draft.confirmOk}
               onClick={() => onUpdate({ confirmOk: !draft.confirmOk })}
             />
-            <label htmlFor="confirmOk">Send temperature OK confirmation</label>
+            <label htmlFor="confirmOk">
+              {t('label.coldchain-confirm-ok-alerts')}
+            </label>
           </li>
           <li>
             <Checkbox
@@ -77,7 +79,7 @@ export const CCNotificationEditForm = ({
               onClick={() => onUpdate({ remind: !draft.remind })}
             />
             <label htmlFor="remind">
-              Send follow-up reminders until alert resolved, every:
+              {t('label.coldchain-reminder-alerts')}
             </label>
           </li>
           <Box
@@ -106,9 +108,9 @@ export const CCNotificationEditForm = ({
                 })
               }
               options={[
-                { label: 'Seconds', value: 'seconds' },
-                { label: 'Minutes', value: 'minutes' },
-                { label: 'Hours', value: 'hours' },
+                { label: t('label.seconds'), value: 'seconds' },
+                { label: t('label.minutes'), value: 'minutes' },
+                { label: t('label.hours'), value: 'hours' },
               ]}
             />
           </Box>

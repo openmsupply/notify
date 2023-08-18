@@ -158,13 +158,7 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
           </LoadingButton>
         }
         cancelButton={<DialogButton variant="cancel" onClick={onClose} />}
-        title={
-          'Setup Cold Chain Notification'
-          // t('label.new-notification')
-          // mode === ModalMode.Create
-          //   ? t('label.create-user')
-          //   : t('label.edit-user')
-        }
+        title={t('label.setup-notification', { type: 'Cold Chain' })}
       >
         {isLoading ? (
           <InlineSpinner />
@@ -172,7 +166,7 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
           <Grid flexDirection="column" display="flex" gap={2}>
             <CCNotificationEditForm onUpdate={onUpdate} draft={draft} />
             <StyledButton onClick={() => onRecipientsOpen()}>
-              {selectedNames || 'Select Recipients'}
+              {selectedNames || t('label.select-recipients')}
               <PlusCircleIcon color="primary" />
             </StyledButton>
             {errorMessage ? (

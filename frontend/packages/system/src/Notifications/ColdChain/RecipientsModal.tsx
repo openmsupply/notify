@@ -51,7 +51,7 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
   onClose,
   setSelection,
 }) => {
-  const t = useTranslation('system');
+  const t = useTranslation(['system', 'host']);
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -61,7 +61,7 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
     () => [
       {
         id: 'recipientLists-heading',
-        name: '--- Recipient Lists ---',
+        name: `--- ${t('recipient-lists')} ---`,
         detail: '',
         type: RecipientOptionType.Heading,
       },
@@ -73,7 +73,7 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
       })),
       {
         id: 'recipients-heading',
-        name: '--- Recipients ---',
+        name: `--- ${t('recipients')} ---`,
         detail: '',
         type: RecipientOptionType.Heading,
       },
@@ -112,7 +112,7 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
       height={modalHeight}
       width={modalWidth}
       okButton={
-        <Tooltip title={t('label.add-to-list')}>
+        <Tooltip title={t('label.select-recipients')}>
           <span>
             <LoadingButton
               disabled={!selectedIds.length}
@@ -126,7 +126,7 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
         </Tooltip>
       }
       cancelButton={<DialogButton variant="cancel" onClick={onClose} />}
-      title={t('label.add-members')}
+      title={t('label.select-recipients')}
       slideAnimation={false}
     >
       <Grid
@@ -159,7 +159,6 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
             width={modalWidth - 50}
             height={modalHeight - 300}
             getOptionDisabled={o => o.type === RecipientOptionType.Heading}
-            /// initialSelectedIds.recipients.map(() => )
             defaultSelection={options.filter(o =>
               initialSelectedIds.includes(o.id)
             )}
