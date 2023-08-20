@@ -23,6 +23,7 @@ const createCCNotifcation = (): CCNotification => ({
   reminderUnits: 'minutes',
   recipientIds: [],
   recipientListIds: [],
+  locationIds: [],
 });
 
 export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
@@ -42,6 +43,7 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
       reminderUnits,
       recipientIds,
       recipientListIds,
+      locationIds,
     } = draft;
     const input = {
       id,
@@ -54,6 +56,7 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
       reminderUnits,
       recipientIds,
       recipientListIds,
+      locationIds,
     };
     console.log(input);
     if (mode === ModalMode.Create) {
@@ -67,6 +70,8 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
     !draft.title ||
     // nothing selected
     (!draft.confirmOk && !draft.highTemp && !draft.lowTemp && draft.remind) ||
+    // no locations selected
+    !draft.locationIds.length ||
     // no recipients selected
     (!draft.recipientListIds.length && !draft.recipientIds.length);
 
