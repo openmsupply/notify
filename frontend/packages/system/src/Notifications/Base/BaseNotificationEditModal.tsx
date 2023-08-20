@@ -13,7 +13,7 @@ import {
 import {
   BaseNotificationConfig,
   BaseNotificationEditForm,
-} from './NotificationEditForm';
+} from './BaseNotificationEditForm';
 
 interface BaseNotificationEditModalProps<T extends BaseNotificationConfig> {
   isOpen: boolean;

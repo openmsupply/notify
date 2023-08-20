@@ -4,7 +4,7 @@ import {
   CCNotification,
   CCNotificationEditForm,
 } from './CCNotificationEditForm';
-import { BaseNotificationEditModal } from '../Base/NotificationEditModal';
+import { BaseNotificationEditModal } from '../Base/BaseNotificationEditModal';
 
 interface CCNotificationEditModalProps {
   mode: ModalMode | null;
