@@ -23,3 +23,16 @@ impl IdResponse {
         &self.0
     }
 }
+
+#[derive(Union)]
+pub enum BasicStringResponse {
+    Response(StringResponse),
+}
+
+pub struct StringResponse(pub String);
+#[Object]
+impl StringResponse {
+    pub async fn result(&self) -> &str {
+        &self.0
+    }
+}

@@ -25,13 +25,26 @@ impl TelegramMutations {
         )?;
 
         let service_ctx = ctx.service_context(Some(&user))?;
+
+        let notification_service = &service_ctx.service_provider.notification_service;
+
+        let html = notification_service.render_no_params("test_message/telegram.html");
+        let html = match html {
+            Ok(html) => html,
+            Err(err) => {
+                return Err(StandardGraphqlError::InternalError(format!(
+                    "Unable to render `test_message/telegram.html` : {:?}",
+                    err
+                ))
+                .extend())
+            }
+        };
+
         let telegram_service = &service_ctx.service_provider.telegram;
 
         match telegram_service {
             Some(telegram_service) => {
-                let message = telegram_service
-                    .send_html_message(&chat_id, "This is a test message from notify")
-                    .await;
+                let message = telegram_service.send_html_message(&chat_id, &html).await;
                 match message {
                     Ok(message) => return Ok(TelegramMessageResponse::Response(message.into())),
                     Err(err) => {

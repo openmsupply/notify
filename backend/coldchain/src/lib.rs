@@ -1,7 +1,5 @@
 use chrono::NaiveDateTime;
 use serde::Serialize;
-use service::tera::render_template;
-use telegram::TelegramClient;
 
 /*
 
@@ -32,74 +30,67 @@ pub struct TemperatureAlert {
     pub temperature: f64,
 }
 
-pub async fn send_high_temperature_alert_telegram(
-    alert: TemperatureAlert,
-    telegram_client: TelegramClient,
-    telegram_chat_id: String,
-) -> () {
-    let result = render_template("coldchain/telegram/temperature.html", &alert);
-    match result {
-        Ok(html) => {
-            let result = telegram_client
-                .send_html_message(&telegram_chat_id, &html)
-                .await;
-            match result {
-                Ok(_) => {
-                    println!("Successfully sent high temperature alert telegram");
-                }
-                Err(e) => {
-                    panic!("Error sending high temperature alert telegram: {:?}", e);
-                    todo!();
-                }
-            }
-        }
-        Err(e) => {
-            panic!("Error rendering temperature alert template: {:?}", e);
-            todo!();
-        }
-    }
-}
+// pub async fn send_high_temperature_alert_telegram(
+//     alert: TemperatureAlert,
+//     telegram_client: TelegramClient,
+//     telegram_chat_id: String,
+// ) -> () {
+//     let result = render_template("coldchain/telegram/temperature.html", &alert);
+//     match result {
+//         Ok(html) => {
+//             let result = telegram_client
+//                 .send_html_message(&telegram_chat_id, &html)
+//                 .await;
+//             match result {
+//                 Ok(_) => {
+//                     println!("Successfully sent high temperature alert telegram");
+//                 }
+//                 Err(e) => {
+//                     panic!("Error sending high temperature alert telegram: {:?}", e);
+//                     todo!();
+//                 }
+//             }
+//         }
+//         Err(e) => {
+//             panic!("Error rendering temperature alert template: {:?}", e);
+//             todo!();
+//         }
+//     }
+// }
 
 #[cfg(test)]
-#[cfg(feature = "telegram-tests")]
+// #[cfg(feature = "telegram-tests")]
 mod tests {
-    use std::str::FromStr;
+    // use std::str::FromStr;
 
-    use super::*;
+    // use service::service_provider::ServiceProvider;
 
-    fn get_telegram_token_from_env() -> String {
-        std::env::var("TELEGRAM_TOKEN")
-            .expect("Please set the TELEGRAM_TOKEN environment variable to run the telegram tests")
-    }
+    // use super::*;
 
-    fn get_telegram_chat_id_from_env() -> String {
-        std::env::var("TELEGRAM_CHAT_ID").expect(
-            "Please set the TELEGRAM_CHAT_ID environment variable to run the telegram tests",
-        )
-    }
+    // use std::sync::Arc;
 
-    #[tokio::test]
-    async fn test_send_high_temperature_alert_telegram() {
-        let client = TelegramClient::new(get_telegram_token_from_env());
+    // #[tokio::test]
+    // async fn test_send_high_temperature_alert_telegram() {
+    //     let client = TelegramClient::new(get_telegram_token_from_env());
 
-        let example_alert = TemperatureAlert {
-            store_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b1".to_string(),
-            store_name: "Store A".to_string(),
-            location_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b2".to_string(),
-            location_name: "Fridge 1".to_string(),
-            sensor_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b3".to_string(),
-            sensor_name: "E5:4G:D4:6D:A4".to_string(),
-            datetime: NaiveDateTime::from_str("2023-07-17T17:04:00").unwrap(),
-            temperature: 10.12345,
-        };
+    //     let example_alert = TemperatureAlert {
+    //         store_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b1".to_string(),
+    //         store_name: "Store A".to_string(),
+    //         location_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b2".to_string(),
+    //         location_name: "Fridge 1".to_string(),
+    //         sensor_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b3".to_string(),
+    //         sensor_name: "E5:4G:D4:6D:A4".to_string(),
+    //         datetime: NaiveDateTime::from_str("2023-07-17T17:04:00").unwrap(),
+    //         temperature: 10.12345,
+    //     };
 
-        let result = send_high_temperature_alert_telegram(
-            example_alert,
-            client,
-            get_telegram_chat_id_from_env(),
-        )
-        .await;
+    //     let result = send_high_temperature_alert_telegram(
+    //         example_alert,
+    //         client,
+    //         get_telegram_chat_id_from_env(),
+    //     )
+    //     .await;
 
-        assert_eq!(result, ());
-    }
+    //     assert_eq!(result, ());
+    // }
 }

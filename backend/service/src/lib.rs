@@ -10,6 +10,7 @@ pub mod auth_data;
 pub mod email;
 pub mod filters;
 pub mod login;
+pub mod notification;
 pub mod recipient;
 pub mod recipient_list;
 pub mod service_provider;
@@ -19,7 +20,6 @@ pub mod test_utils;
 pub mod token;
 pub mod token_bucket;
 pub mod user_account;
-pub mod tera;
 
 #[derive(PartialEq, Debug)]
 pub struct ListResult<T> {

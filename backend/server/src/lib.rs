@@ -17,7 +17,6 @@ use service::{
     recipient::telegram::handle_telegram_updates,
     service_provider::{ServiceContext, ServiceProvider},
     settings::{is_develop, ServerSettings, Settings},
-    tera::TERA_TEMPLATES,
     token_bucket::TokenBucket,
 };
 
@@ -55,13 +54,6 @@ async fn run_server(
     token_secret: String,
     connection_manager: StorageConnectionManager,
 ) -> std::io::Result<bool> {
-    // Get the tera template context
-    let tera = TERA_TEMPLATES.clone();
-    println!(
-        "Tera templates: {:?}",
-        tera.get_template_names().collect::<Vec<_>>()
-    );
-
     let auth_data = auth_data(
         &config_settings.server,
         token_bucket.clone(),

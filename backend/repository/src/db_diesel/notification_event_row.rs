@@ -1,5 +1,5 @@
 use super::StorageConnection;
-use crate::repository_error::RepositoryError;
+use crate::{repository_error::RepositoryError, NotificationType};
 use diesel::prelude::*;
 use diesel_derive_enum::DbEnum;
 use notification_event::dsl as notification_event_dsl;
@@ -29,7 +29,7 @@ table! {
         id -> Text,
         notification_config_id -> Nullable<Text>,
         recipient_list_id -> Nullable<Text>,
-        notification_type -> Text,
+        notification_type -> crate::db_diesel::recipient_row::NotificationTypeMapping,
         to_address -> Text,
         title -> Nullable<Text>,
         message -> Text,
@@ -39,7 +39,7 @@ table! {
         sent_at -> Nullable<Timestamp>,
         retry_at -> Nullable<Timestamp>,
         retries -> Integer,
-        error -> Nullable<Text>,
+        error_message -> Nullable<Text>,
     }
 }
 
@@ -61,7 +61,7 @@ pub struct NotificationEventRow {
     pub id: String,
     pub notification_config_id: Option<String>,
     pub recipient_list_id: Option<String>,
-    pub notification_type: String, // TODO Enum?
+    pub notification_type: NotificationType,
     pub to_address: String,
     pub title: Option<String>,
     pub message: String,
@@ -71,7 +71,7 @@ pub struct NotificationEventRow {
     pub sent_at: Option<chrono::NaiveDateTime>,
     pub retry_at: Option<chrono::NaiveDateTime>,
     pub retries: i32,
-    pub error: Option<String>,
+    pub error_message: Option<String>,
 }
 
 pub struct NotificationEventRowRepository<'a> {

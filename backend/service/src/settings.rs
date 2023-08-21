@@ -13,7 +13,7 @@ pub struct ServerSettings {
     /// Allow to run the server in http mode
     /// Sets the allowed origin for cors requests
     pub cors_origins: Vec<String>,
-    /// Directory where the server stores its data, e.g. sqlite DB file or certs
+    /// Directory where the server stores its data, e.g. sqlite DB file, templates directory
     pub base_dir: Option<String>,
     /// Url to access the website via a web browser, e.g. http://localhost:3003
     pub app_url: String,
