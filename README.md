@@ -18,8 +18,6 @@ You'll need to install the following tools
 - For M1 Mac:
 
 `brew install libpq` and add the following to `~/.cargo/config.toml`
-You may also need to run
-`brew link --force libpq`
 
 ```
 [env]
@@ -28,6 +26,9 @@ MACOSX_DEPLOYMENT_TARGET = "10.7"
 [target.aarch64-apple-darwin]
 rustflags = "-L /opt/homebrew/opt/libpq/lib"
 ```
+
+You may also need to run
+`brew link --force libpq`
 
 ## Running Notify locally
 
