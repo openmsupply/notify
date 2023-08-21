@@ -80,9 +80,19 @@ impl<'a> RecipientRowRepository<'a> {
         Ok(())
     }
 
+    pub fn mark_deleted(&self, id: &str) -> Result<(), RepositoryError> {
+        let query = diesel::update(recipient_dsl::recipient)
+            .filter(recipient_dsl::id.eq(id))
+            .filter(recipient_dsl::deleted_datetime.is_null())
+            .set(recipient_dsl::deleted_datetime.eq(chrono::Utc::now().naive_utc()));
+        query.execute(&self.connection.connection)?;
+        Ok(())
+    }
+
     pub fn find_one_by_id(&self, id: &str) -> Result<Option<RecipientRow>, RepositoryError> {
         let result = recipient_dsl::recipient
             .filter(recipient_dsl::id.eq(id))
+            .filter(recipient_dsl::deleted_datetime.is_null())
             .first(&self.connection.connection)
             .optional()?;
         Ok(result)
@@ -95,6 +105,7 @@ impl<'a> RecipientRowRepository<'a> {
         let result = recipient_dsl::recipient
             .filter(recipient_dsl::to_address.eq(address))
             .filter(recipient_dsl::notification_type.eq(notification_type))
+            .filter(recipient_dsl::deleted_datetime.is_null())
             .first(&self.connection.connection)
             .optional()?;
         Ok(result)
