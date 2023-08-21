@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from '@common/intl';
 import {
   AppBarButtonsPortal,
@@ -10,8 +10,7 @@ import {
   createTableStore,
   useColumns,
 } from '@common/ui';
-import { useEditModal } from '@common/hooks';
-import { CCNotificationEditModal } from '../ColdChain/CCNotificationEditModal';
+import { NotificationsModal } from '../NotificationsModal';
 
 type Notification = {
   id: string;
@@ -25,27 +24,20 @@ const notifications: Notification[] = [
 ];
 export const ListView = () => {
   const t = useTranslation('system');
+  const [open, setOpen] = useState(false);
 
   const columns = useColumns<Notification>([
     { key: 'name', label: 'label.name' },
   ]);
 
-  const { isOpen, mode, onClose, onOpen } = useEditModal<Notification>();
-
   return (
     <>
-      {isOpen && (
-        <CCNotificationEditModal
-          mode={mode}
-          isOpen={isOpen}
-          onClose={onClose}
-        />
-      )}
+      <NotificationsModal isOpen={open} onClose={() => setOpen(false)} />
       <AppBarButtonsPortal>
         <LoadingButton
           isLoading={false}
           startIcon={<PlusCircleIcon />}
-          onClick={() => onOpen()}
+          onClick={() => setOpen(true)}
         >
           {t('label.new-notification')}
         </LoadingButton>

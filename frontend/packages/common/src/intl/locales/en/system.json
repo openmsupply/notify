@@ -40,6 +40,7 @@
   "label.phone-number": "Phone Number",
   "label.primary-email": "Primary Email",
   "label.remove-members": "Remove members from list",
+  "label.select-notification-type": "Select Notification Type",
   "label.select-recipients": "Select Recipients",
   "label.send-password-reset": "Send Password Reset",
   "label.setup-notification": "Setup {{type}} Notification",

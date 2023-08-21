@@ -120,7 +120,7 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
               isLoading={false}
               startIcon={<CheckIcon />}
             >
-              {t('button.ok')}
+              {t('label.select-recipients')}
             </LoadingButton>
           </span>
         </Tooltip>
