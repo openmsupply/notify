@@ -14,8 +14,8 @@ import {
 } from '@common/components';
 import { CheckIcon } from '@common/icons';
 import { Grid, NotificationTypeNode } from 'packages/common/src';
-import { RecipientRowFragment } from '../../Recipients/api';
-import { RecipientListRowFragment } from '../../Recipients/api/operations.generated';
+import { RecipientRowFragment } from '../../../Recipients/api';
+import { RecipientListRowFragment } from '../../../Recipients/api/operations.generated';
 
 interface RecipientsModalProps {
   isOpen: boolean;

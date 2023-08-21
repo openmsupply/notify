@@ -10,8 +10,8 @@ import {
   createTableStore,
   useColumns,
 } from '@common/ui';
-import { NotificationsModal } from '../NotificationsModal';
-import { NotificationConfigType } from '../SelectNotificationConfigModal';
+import { NotificationsModal } from '../Modals/NotificationsModal';
+import { NotificationConfigType } from '../Modals/SelectNotificationConfigModal';
 import { useEditModal } from '@common/hooks';
 
 // TODO: this will be backend NotificationConfig type?

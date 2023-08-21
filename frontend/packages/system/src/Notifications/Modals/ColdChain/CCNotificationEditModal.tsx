@@ -5,6 +5,7 @@ import {
   CCNotificationEditForm,
 } from './CCNotificationEditForm';
 import { BaseNotificationEditModal } from '../Base/BaseNotificationEditModal';
+import { NotificationConfigType } from '../SelectNotificationConfigModal';
 
 interface CCNotificationEditModalProps {
   mode: ModalMode | null;
@@ -82,7 +83,7 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
 
   return (
     <BaseNotificationEditModal
-      notificationType="Cold Chain"
+      notificationType={NotificationConfigType.ColdChain}
       isOpen={isOpen}
       isInvalid={isInvalid}
       onClose={onClose}

@@ -9,7 +9,7 @@ import {
   useTranslation,
 } from '@notify-frontend/common';
 import { RecipientsModal } from './RecipientsModal';
-import { useRecipientLists, useRecipients } from '../../Recipients/api';
+import { useRecipientLists, useRecipients } from '../../../Recipients/api';
 
 export interface BaseNotificationConfig {
   id: string;
