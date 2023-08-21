@@ -1,5 +1,6 @@
 use super::{recipient_row::recipient::dsl as recipient_dsl, StorageConnection};
 use crate::{repository_error::RepositoryError, EqualFilter};
+use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use diesel_derive_enum::DbEnum;
 
@@ -9,6 +10,7 @@ table! {
         name -> Text,
         notification_type -> crate::db_diesel::recipient_row::NotificationTypeMapping,
         to_address -> Text,
+        deleted_datetime -> Nullable<Timestamp>,
     }
 }
 
@@ -46,6 +48,7 @@ pub struct RecipientRow {
     pub name: String,
     pub notification_type: NotificationType,
     pub to_address: String,
+    pub deleted_datetime: Option<NaiveDateTime>,
 }
 
 pub struct RecipientRowRepository<'a> {

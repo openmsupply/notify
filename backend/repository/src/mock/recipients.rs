@@ -15,6 +15,7 @@ pub fn mock_recipient_a() -> RecipientRow {
         name: String::from("recipient_a"),
         notification_type: NotificationType::Email,
         to_address: String::from("a@openmsupply.foundation"),
+        deleted_datetime: None,
     }
 }
 
@@ -24,6 +25,7 @@ pub fn mock_recipient_aa() -> RecipientRow {
         name: String::from("recipient_aa"),
         notification_type: NotificationType::Email,
         to_address: String::from("aa@openmsupply.foundation"),
+        deleted_datetime: None,
     }
 }
 
@@ -33,6 +35,7 @@ pub fn mock_recipient_b() -> RecipientRow {
         name: String::from("recipient_b"),
         notification_type: NotificationType::Email,
         to_address: String::from("b@openmsupply.foundation"),
+        deleted_datetime: None,
     }
 }
 
@@ -42,5 +45,6 @@ pub fn mock_recipient_c() -> RecipientRow {
         name: String::from("recipient_c"),
         notification_type: NotificationType::Telegram,
         to_address: String::from("chat_id_c"),
+        deleted_datetime: None,
     }
 }

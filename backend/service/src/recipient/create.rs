@@ -116,5 +116,6 @@ pub fn generate(
         notification_type,
         name: name.trim().to_string(),
         to_address: to_address.trim().to_ascii_lowercase(),
+        deleted_datetime: None,
     })
 }

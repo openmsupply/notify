@@ -13,6 +13,7 @@ fn blank_telegram_recipient() -> RecipientRow {
         name: "".to_string(),
         notification_type: NotificationType::Telegram,
         to_address: "".to_string(),
+        deleted_datetime: None,
     }
 }
 

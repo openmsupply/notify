@@ -173,6 +173,7 @@ mod test {
                     name: "test_name".to_string(),
                     to_address: "email@x.com".to_string(),
                     notification_type: NotificationType::Email,
+                    ..Default::default()
                 }],
                 count: 1,
             })

@@ -236,6 +236,7 @@ mod test {
                 name: "rob".to_string(),
                 to_address: "rob@email.com".to_string(),
                 notification_type: NotificationType::Email,
+                ..Default::default()
             })
         }));
 
