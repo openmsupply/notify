@@ -61,7 +61,7 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
     () => [
       {
         id: 'recipientLists-heading',
-        name: `--- ${t('recipient-lists')} ---`,
+        name: `--- ${t('recipient-lists', { ns: 'host' })} ---`,
         detail: '',
         type: RecipientOptionType.Heading,
       },
@@ -73,7 +73,7 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
       })),
       {
         id: 'recipients-heading',
-        name: `--- ${t('recipients')} ---`,
+        name: `--- ${t('recipients', { ns: 'host' })} ---`,
         detail: '',
         type: RecipientOptionType.Heading,
       },
