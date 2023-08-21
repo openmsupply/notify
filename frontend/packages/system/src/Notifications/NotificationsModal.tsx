@@ -9,23 +9,36 @@ import {
 interface NotificationsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  // TODO: this will be backend NotificationConfig type?
+  entity: {
+    id: string;
+    title: string;
+    configType: NotificationConfigType;
+  } | null;
 }
 
 export const NotificationsModal = ({
   isOpen,
+  entity,
   onClose,
 }: NotificationsModalProps) => {
   const [type, setType] = useState<NotificationConfigType | ''>('');
 
   useEffect(() => {
-    if (isOpen) selectOnOpen();
+    if (isOpen) {
+      if (entity) {
+        setType(entity.configType);
+        configOnOpen(entity);
+      } else {
+        selectOnOpen();
+      }
+    }
   }, [isOpen]);
 
   const {
     isOpen: selectIsOpen,
     onClose: selectOnClose,
     onOpen: selectOnOpen,
-    entity: selectEntity,
   } = useEditModal<NotificationConfigType>();
 
   const {
@@ -33,6 +46,7 @@ export const NotificationsModal = ({
     mode: configMode,
     onClose: configOnClose,
     onOpen: configOnOpen,
+    entity: configEntity,
   } = useEditModal();
 
   const ConfigModal = (() => {
@@ -53,7 +67,6 @@ export const NotificationsModal = ({
             onClose();
             selectOnClose();
           }}
-          entity={selectEntity}
           submit={t => {
             setType(t);
             configOnOpen();
@@ -64,6 +77,9 @@ export const NotificationsModal = ({
         <ConfigModal
           mode={configMode}
           isOpen={configIsOpen}
+          // TODO: is there a better way than `as any` given this is generic?
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          entity={configEntity as any}
           onClose={() => {
             onClose();
             configOnClose();

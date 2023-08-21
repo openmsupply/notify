@@ -10,7 +10,6 @@ import {
 
 interface SelectNotificationTypeModalProps {
   isOpen: boolean;
-  entity: NotificationConfigType | null;
   submit: (type: NotificationConfigType) => void;
   onClose: () => void;
 }
@@ -22,12 +21,11 @@ export enum NotificationConfigType {
 
 export const SelectNotificationConfigModal = ({
   isOpen,
-  entity,
   onClose,
   submit,
 }: SelectNotificationTypeModalProps) => {
   const t = useTranslation(['system']);
-  const [type, setType] = useState<NotificationConfigType | ''>(entity ?? '');
+  const [type, setType] = useState<NotificationConfigType | ''>('');
 
   const { Modal } = useDialog({ isOpen, onClose });
 

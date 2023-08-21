@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from '@common/intl';
 import {
   AppBarButtonsPortal,
@@ -11,33 +11,52 @@ import {
   useColumns,
 } from '@common/ui';
 import { NotificationsModal } from '../NotificationsModal';
+import { NotificationConfigType } from '../SelectNotificationConfigModal';
+import { useEditModal } from '@common/hooks';
 
-type Notification = {
+// TODO: this will be backend NotificationConfig type?
+type NotificationConfig = {
   id: string;
-  name: string;
+  title: string;
+  configType: NotificationConfigType;
 };
 
-const notifications: Notification[] = [
-  { id: 'notification-1', name: 'CC Notifcation 1' },
-  { id: 'notification-2', name: 'CC Notifcation 2' },
-  { id: 'notification-3', name: 'CC Notifcation 3' },
+const notifications: NotificationConfig[] = [
+  {
+    id: 'notification-1',
+    title: 'CC Notification 1',
+    configType: NotificationConfigType.ColdChain,
+  },
+  {
+    id: 'notification-2',
+    title: 'CC Notification 2',
+    configType: NotificationConfigType.ColdChain,
+  },
+  {
+    id: 'notification-3',
+    title: 'CC Notification 3',
+    configType: NotificationConfigType.ColdChain,
+  },
 ];
 export const ListView = () => {
   const t = useTranslation('system');
-  const [open, setOpen] = useState(false);
 
-  const columns = useColumns<Notification>([
-    { key: 'name', label: 'label.name' },
+  const columns = useColumns<NotificationConfig>([
+    { key: 'title', label: 'label.title' },
+    { key: 'configType', label: 'label.type' },
   ]);
+
+  const { isOpen, onClose, entity, onOpen } =
+    useEditModal<NotificationConfig>();
 
   return (
     <>
-      <NotificationsModal isOpen={open} onClose={() => setOpen(false)} />
+      <NotificationsModal isOpen={isOpen} onClose={onClose} entity={entity} />
       <AppBarButtonsPortal>
         <LoadingButton
           isLoading={false}
           startIcon={<PlusCircleIcon />}
-          onClick={() => setOpen(true)}
+          onClick={() => onOpen()}
         >
           {t('label.new-notification')}
         </LoadingButton>
@@ -48,6 +67,7 @@ export const ListView = () => {
           data={notifications}
           isError={false}
           isLoading={false}
+          onRowClick={onOpen}
           noDataElement={<NothingHere body={t('messages.no-notifications')} />}
         />
       </TableProvider>

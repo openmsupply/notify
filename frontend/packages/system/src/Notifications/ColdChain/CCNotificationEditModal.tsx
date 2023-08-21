@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import { ModalMode, FnUtils } from '@notify-frontend/common';
 import {
   CCNotification,
@@ -10,9 +10,10 @@ interface CCNotificationEditModalProps {
   mode: ModalMode | null;
   isOpen: boolean;
   onClose: () => void;
+  entity: CCNotification | null;
 }
 
-const createCCNotifcation = (): CCNotification => ({
+const createCCNotifcation = (seed: CCNotification | null): CCNotification => ({
   id: FnUtils.generateUUID(),
   title: '',
   highTemp: false,
@@ -24,13 +25,17 @@ const createCCNotifcation = (): CCNotification => ({
   recipientIds: [],
   recipientListIds: [],
   locationIds: [],
+  ...seed,
 });
 
 export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
   mode,
   isOpen,
   onClose,
+  entity,
 }) => {
+  const [draft, setDraft] = useState(() => createCCNotifcation(entity));
+
   const onSave = async (draft: CCNotification) => {
     const {
       id,
@@ -66,7 +71,7 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
     }
   };
 
-  const isInvalid = (draft: CCNotification) =>
+  const isInvalid =
     !draft.title ||
     // nothing selected
     (!draft.confirmOk && !draft.highTemp && !draft.lowTemp && draft.remind) ||
@@ -82,7 +87,8 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
       isInvalid={isInvalid}
       onClose={onClose}
       onSave={onSave}
-      createDraft={createCCNotifcation}
+      draft={draft}
+      setDraft={setDraft}
       CustomForm={CCNotificationEditForm}
     />
   );

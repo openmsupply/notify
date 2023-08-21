@@ -18,10 +18,11 @@ import {
 interface BaseNotificationEditModalProps<T extends BaseNotificationConfig> {
   isOpen: boolean;
   notificationType: string;
-  isInvalid: (draft: T) => boolean;
+  isInvalid: boolean;
+  draft: T;
+  setDraft: (draft: T) => void;
   onClose: () => void;
   onSave: (draft: T) => Promise<void>;
-  createDraft: () => T;
   CustomForm: React.FC<{
     onUpdate: (patch: Partial<T>) => void;
     draft: T;
@@ -32,15 +33,15 @@ export const BaseNotificationEditModal = <T extends BaseNotificationConfig>({
   isOpen,
   notificationType,
   isInvalid,
+  draft,
   onClose,
   onSave,
-  createDraft,
+  setDraft,
   CustomForm,
 }: BaseNotificationEditModalProps<T>) => {
   const t = useTranslation(['system']);
 
   const [errorMessage, setErrorMessage] = useState('');
-  const [draft, setDraft] = useState(() => createDraft());
 
   const { Modal } = useDialog({ isOpen, onClose });
 
@@ -60,7 +61,7 @@ export const BaseNotificationEditModal = <T extends BaseNotificationConfig>({
         width={modalWidth}
         okButton={
           <LoadingButton
-            disabled={isInvalid(draft)}
+            disabled={isInvalid}
             onClick={() => {
               onSave(draft).then(onClose, err => {
                 if (!err || !err.message) {
