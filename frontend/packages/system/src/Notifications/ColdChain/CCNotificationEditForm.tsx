@@ -30,10 +30,7 @@ type CCNotificationEditFormProps = {
 };
 
 const dummyLocations = [
-  {
-    id: 'store-1-location-A',
-    name: 'Store 1, Location A, The cool as one that is like amazy',
-  },
+  { id: 'store-1-location-A', name: 'Store 1, Location A' },
   { id: 'store-1-location-B', name: 'Store 1, Location B' },
   { id: 'store-1-location-C', name: 'Store 1, Location C' },
   { id: 'store-2-location-A', name: 'Store 1, Location A' },
