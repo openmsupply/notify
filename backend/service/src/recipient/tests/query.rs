@@ -2,7 +2,7 @@
 mod recipient_query_test {
     use std::sync::Arc;
 
-    use repository::mock::{mock_recipient_a, mock_recipient_aa};
+    use repository::mock::{mock_recipient_a, mock_recipient_aa, mock_recipient_d_deleted};
     use repository::{
         mock::MockDataInserts, test_db::setup_all, RecipientFilter, RecipientSortField,
     };
@@ -110,6 +110,36 @@ mod recipient_query_test {
     }
 
     #[actix_rt::test]
+    async fn recipient_service_filters_deleted() {
+        let (_, _, connection_manager, _) = setup_all(
+            "recipient_service_filters_deleted",
+            MockDataInserts::none().recipients(),
+        )
+        .await;
+
+        let service_provider = Arc::new(ServiceProvider::new(
+            connection_manager,
+            get_test_settings(""),
+        ));
+        let context = ServiceContext::new(service_provider).unwrap();
+        let service = &context.service_provider.recipient_service;
+
+        let db_recipients = service
+            .get_recipients(
+                &context,
+                None,
+                Some(
+                    RecipientFilter::new()
+                        .id(EqualFilter::equal_to(&mock_recipient_d_deleted().id)),
+                ),
+                None,
+            )
+            .unwrap();
+
+        assert_eq!(db_recipients.count, 0);
+    }
+
+    #[actix_rt::test]
     async fn recipient_service_filter_search() {
         let (_, _, connection_manager, _) = setup_all(
             "test_recipient_filter_search",
@@ -204,6 +234,7 @@ mod recipient_query_test {
             .collect();
         let sorted_names: Vec<String> = recipients
             .into_iter()
+            .filter(|recipient| recipient.deleted_datetime.is_none())
             .map(|recipient| recipient.name)
             .collect();
 
@@ -232,6 +263,7 @@ mod recipient_query_test {
             .collect();
         let sorted_names: Vec<String> = recipients
             .into_iter()
+            .filter(|recipient| recipient.deleted_datetime.is_none())
             .map(|recipient| recipient.name)
             .collect();
 
