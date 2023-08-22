@@ -2,9 +2,12 @@
 mod recipient_query_test {
     use std::sync::Arc;
 
-    use repository::mock::{mock_recipient_a, mock_recipient_aa, mock_recipient_d_deleted};
+    use repository::mock::{
+        mock_recipient_a, mock_recipient_aa, mock_recipient_d_deleted, mock_recipients,
+    };
     use repository::{
-        mock::MockDataInserts, test_db::setup_all, RecipientFilter, RecipientSortField,
+        mock::MockDataInserts, test_db::setup_all, RecipientFilter, RecipientRow,
+        RecipientSortField,
     };
     use repository::{EqualFilter, PaginationOption, Sort};
 
@@ -12,10 +15,9 @@ mod recipient_query_test {
     use crate::test_utils::get_test_settings;
     use crate::{service_provider::ServiceProvider, ListError, SingleRecordError};
 
-    #[actix_rt::test]
-    async fn recipient_service_pagination() {
+    async fn get_service_context(db_name_suffix: &str) -> ServiceContext {
         let (_, _, connection_manager, _) = setup_all(
-            "test_recipient_service_pagination",
+            ("test_recipient_service_".to_string() + db_name_suffix).as_str(),
             MockDataInserts::none().recipients(),
         )
         .await;
@@ -25,6 +27,13 @@ mod recipient_query_test {
             get_test_settings(""),
         ));
         let context = ServiceContext::new(service_provider).unwrap();
+
+        context
+    }
+
+    #[actix_rt::test]
+    async fn recipient_service_pagination() {
+        let context = get_service_context("pagination").await;
         let service = &context.service_provider.recipient_service;
 
         assert_eq!(
@@ -56,17 +65,7 @@ mod recipient_query_test {
 
     #[actix_rt::test]
     async fn recipient_service_single_record() {
-        let (_, _, connection_manager, _) = setup_all(
-            "test_recipient_single_record",
-            MockDataInserts::none().recipients(),
-        )
-        .await;
-
-        let service_provider = Arc::new(ServiceProvider::new(
-            connection_manager,
-            get_test_settings(""),
-        ));
-        let context = ServiceContext::new(service_provider).unwrap();
+        let context = get_service_context("single_record").await;
         let service = &context.service_provider.recipient_service;
 
         assert_eq!(
@@ -83,17 +82,7 @@ mod recipient_query_test {
 
     #[actix_rt::test]
     async fn recipient_service_filter() {
-        let (_, _, connection_manager, _) = setup_all(
-            "test_recipient_filter",
-            MockDataInserts::none().recipients(),
-        )
-        .await;
-
-        let service_provider = Arc::new(ServiceProvider::new(
-            connection_manager,
-            get_test_settings(""),
-        ));
-        let context = ServiceContext::new(service_provider).unwrap();
+        let context = get_service_context("filter").await;
         let service = &context.service_provider.recipient_service;
 
         let db_recipients = service
@@ -111,17 +100,7 @@ mod recipient_query_test {
 
     #[actix_rt::test]
     async fn recipient_service_filters_deleted() {
-        let (_, _, connection_manager, _) = setup_all(
-            "recipient_service_filters_deleted",
-            MockDataInserts::none().recipients(),
-        )
-        .await;
-
-        let service_provider = Arc::new(ServiceProvider::new(
-            connection_manager,
-            get_test_settings(""),
-        ));
-        let context = ServiceContext::new(service_provider).unwrap();
+        let context = get_service_context("filter_deleted").await;
         let service = &context.service_provider.recipient_service;
 
         let db_recipients = service
@@ -141,17 +120,7 @@ mod recipient_query_test {
 
     #[actix_rt::test]
     async fn recipient_service_filter_search() {
-        let (_, _, connection_manager, _) = setup_all(
-            "test_recipient_filter_search",
-            MockDataInserts::none().recipients(),
-        )
-        .await;
-
-        let service_provider = Arc::new(ServiceProvider::new(
-            connection_manager,
-            get_test_settings(""),
-        ));
-        let context = ServiceContext::new(service_provider).unwrap();
+        let context = get_service_context("search").await;
         let service = &context.service_provider.recipient_service;
 
         let to_address_search_db_recipients = service
@@ -201,15 +170,15 @@ mod recipient_query_test {
 
     #[actix_rt::test]
     async fn recipient_service_sort() {
-        let (mock_data, _, connection_manager, _) =
-            setup_all("test_recipient_sort", MockDataInserts::none().recipients()).await;
-
-        let service_provider = Arc::new(ServiceProvider::new(
-            connection_manager,
-            get_test_settings(""),
-        ));
-        let context = ServiceContext::new(service_provider).unwrap();
+        let context = get_service_context("sort").await;
         let service = &context.service_provider.recipient_service;
+
+        let mock_data_names: Vec<String> = mock_recipients()
+            .clone()
+            .into_iter()
+            .filter(|recipient| recipient.deleted_datetime.is_none())
+            .map(|recipient| recipient.name)
+            .collect();
 
         // Test name sort with default sort order
         let db_recipients = service
@@ -224,21 +193,12 @@ mod recipient_query_test {
             )
             .unwrap();
 
-        let mut recipients = mock_data["base"].recipients.clone();
-        recipients.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+        let mut sorted_mock_names = mock_data_names.clone();
+        sorted_mock_names.sort_by(|a, b| a.to_lowercase().cmp(&b.to_lowercase()));
 
-        let db_names: Vec<String> = db_recipients
-            .rows
-            .into_iter()
-            .map(|recipient| recipient.name)
-            .collect();
-        let sorted_names: Vec<String> = recipients
-            .into_iter()
-            .filter(|recipient| recipient.deleted_datetime.is_none())
-            .map(|recipient| recipient.name)
-            .collect();
+        let db_names: Vec<String> = collect_names(db_recipients.rows);
 
-        assert_eq!(db_names, sorted_names);
+        assert_eq!(db_names, sorted_mock_names);
 
         // Test Name sort with desc sort
         let db_recipients = service
@@ -253,20 +213,15 @@ mod recipient_query_test {
             )
             .unwrap();
 
-        let mut recipients = mock_data["base"].recipients.clone();
-        recipients.sort_by(|a, b| b.name.to_lowercase().cmp(&a.name.to_lowercase()));
+        let mut sorted_mock_names = mock_data_names.clone();
+        sorted_mock_names.sort_by(|a, b| b.to_lowercase().cmp(&a.to_lowercase()));
 
-        let result_names: Vec<String> = db_recipients
-            .rows
-            .into_iter()
-            .map(|recipient| recipient.name)
-            .collect();
-        let sorted_names: Vec<String> = recipients
-            .into_iter()
-            .filter(|recipient| recipient.deleted_datetime.is_none())
-            .map(|recipient| recipient.name)
-            .collect();
+        let result_names: Vec<String> = collect_names(db_recipients.rows);
 
-        assert_eq!(result_names, sorted_names);
+        assert_eq!(result_names, sorted_mock_names);
+    }
+
+    fn collect_names(input: Vec<RecipientRow>) -> Vec<String> {
+        input.into_iter().map(|recipient| recipient.name).collect()
     }
 }
