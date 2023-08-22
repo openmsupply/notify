@@ -28,7 +28,9 @@ export interface AutocompleteMultiListProps<T> {
   renderOption?: AutocompleteOptionRenderer<T>;
   width?: number;
   autoFocusSearch?: boolean;
+  showSelectedCount?: boolean;
   getOptionDisabled?: (option: T) => boolean;
+  defaultSelection?: T[];
 }
 
 export const AutocompleteMultiList = <T extends { id: string }>({
@@ -43,7 +45,9 @@ export const AutocompleteMultiList = <T extends { id: string }>({
   renderOption,
   getOptionDisabled = () => false,
   autoFocusSearch = true,
+  showSelectedCount = true,
   width = 600,
+  defaultSelection,
 }: AutocompleteMultiListProps<T>): JSX.Element => {
   const [selectedOptions, setSelectedOptions] = useState<T[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -100,14 +104,16 @@ export const AutocompleteMultiList = <T extends { id: string }>({
     return (
       <>
         <Box display="flex">
-          <Typography
-            flex={1}
-            style={{ verticalAlign: 'bottom' }}
-            display="flex"
-            alignItems="center"
-          >
-            {t('label.items-selected', { count: selectedOptions.length })}
-          </Typography>
+          {showSelectedCount && (
+            <Typography
+              flex={1}
+              style={{ verticalAlign: 'bottom' }}
+              display="flex"
+              alignItems="center"
+            >
+              {t('label.items-selected', { count: selectedOptions.length })}
+            </Typography>
+          )}
           {selectAllAllowed ? (
             <Typography textAlign="right" flex={1}>
               {t('label.select-all')}
@@ -135,6 +141,12 @@ export const AutocompleteMultiList = <T extends { id: string }>({
       </>
     );
   };
+
+  useEffect(() => {
+    if (defaultSelection) {
+      setSelectedOptions(defaultSelection);
+    }
+  }, []);
 
   useEffect(() => {
     if (onChange) onChange(selectedOptions.map(({ id }) => id));

@@ -20,6 +20,7 @@ import { UserAccountRouter } from './routers';
 import { RequireAuthentication } from './components/Navigation/RequireAuthentication';
 import { QueryErrorHandler } from './QueryErrorHandler';
 import { RecipientsRouter } from './routers/RecipientsRouter';
+import { NotificationsRouter } from './routers/NotificationsRouter';
 
 export const Site: FC = () => {
   const location = useLocation();
@@ -57,8 +58,13 @@ export const Site: FC = () => {
                     .addWildCard()
                     .build()}
                   element={<RecipientsRouter />}
+                />{' '}
+                <Route
+                  path={RouteBuilder.create(AppRoute.Notifications)
+                    .addWildCard()
+                    .build()}
+                  element={<NotificationsRouter />}
                 />
-
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Box>
