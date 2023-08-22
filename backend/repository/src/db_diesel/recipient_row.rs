@@ -92,7 +92,6 @@ impl<'a> RecipientRowRepository<'a> {
     pub fn find_one_by_id(&self, id: &str) -> Result<Option<RecipientRow>, RepositoryError> {
         let result = recipient_dsl::recipient
             .filter(recipient_dsl::id.eq(id))
-            .filter(recipient_dsl::deleted_datetime.is_null())
             .first(&self.connection.connection)
             .optional()?;
         Ok(result)
