@@ -14,6 +14,7 @@ util = { path = "../util" }
 graphql_core = { path = "core" }
 graphql_types = { path = "types" }
 graphql_general = { path = "general" }
+graphql_notification_config = { path = "notification_config" }
 graphql_user_account = { path = "user_account" }
 graphql_recipient = { path = "recipient" }
 graphql_recipient_list = { path = "recipient_list" }

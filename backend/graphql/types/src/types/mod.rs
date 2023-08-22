@@ -1,3 +1,5 @@
+pub mod notification_config;
+pub use self::notification_config::*;
 pub mod recipient;
 pub use self::recipient::*;
 pub mod recipient_list;
