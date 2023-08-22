@@ -1,0 +1,1 @@
+ALTER TABLE recipient ADD COLUMN deleted_datetime TIMESTAMP;

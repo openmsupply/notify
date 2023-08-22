@@ -95,6 +95,7 @@ pub fn validate(
     if !check_to_address_is_unique(
         &new_recipient.id,
         Some(new_recipient.to_address.clone()),
+        new_recipient.notification_type.clone(),
         connection,
     )? {
         return Err(ModifyRecipientError::RecipientAlreadyExists);
@@ -116,5 +117,6 @@ pub fn generate(
         notification_type,
         name: name.trim().to_string(),
         to_address: to_address.trim().to_ascii_lowercase(),
+        deleted_datetime: None,
     })
 }

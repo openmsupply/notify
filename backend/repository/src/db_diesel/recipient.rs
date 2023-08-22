@@ -93,7 +93,9 @@ impl<'a> RecipientRepository<'a> {
 type BoxedRecipientQuery = IntoBoxed<'static, recipient::table, DBType>;
 
 fn create_filtered_query(filter: Option<RecipientFilter>) -> BoxedRecipientQuery {
-    let mut query = recipient_dsl::recipient.into_boxed();
+    let mut query = recipient_dsl::recipient
+        .into_boxed()
+        .filter(recipient_dsl::deleted_datetime.is_null());
 
     if let Some(f) = filter {
         let RecipientFilter {

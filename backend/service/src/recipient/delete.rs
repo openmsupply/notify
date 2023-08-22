@@ -18,7 +18,7 @@ pub fn delete_recipient(
             let recipient_row = validate(connection, recipient_id)?;
 
             let recipient_repo = RecipientRowRepository::new(connection);
-            match recipient_repo.delete(recipient_id) {
+            match recipient_repo.mark_deleted(recipient_id) {
                 Ok(_) => {}
                 Err(err) => {
                     return Err(DeleteRecipientError::from(err));
