@@ -51,6 +51,7 @@ pub fn validate(
     if !check_to_address_is_unique(
         &new_recipient.id,
         new_recipient.to_address.clone(),
+        recipient_row.notification_type.clone(),
         connection,
     )? {
         return Err(ModifyRecipientError::RecipientAlreadyExists);
