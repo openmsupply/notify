@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod recipient_create_test {
-    use repository::mock::mock_recipient_a;
+    use repository::mock::{mock_recipient_a, mock_recipient_d_deleted};
     use repository::{mock::MockDataInserts, test_db::setup_all};
     use repository::{NotificationType, RecipientRowRepository};
     use std::sync::Arc;
@@ -33,6 +33,20 @@ mod recipient_create_test {
                 &context,
                 CreateRecipient {
                     id: mock_recipient_a().id.clone(),
+                    name: "some name".to_string(),
+                    to_address: "some@address.com".to_string(),
+                    notification_type: NotificationType::Email,
+                },
+            ),
+            Err(ModifyRecipientError::RecipientAlreadyExists)
+        );
+
+        //Create for an id that already exists, but is soft deleted
+        assert_eq!(
+            service.create_recipient(
+                &context,
+                CreateRecipient {
+                    id: mock_recipient_d_deleted().id.clone(),
                     name: "some name".to_string(),
                     to_address: "some@address.com".to_string(),
                     notification_type: NotificationType::Email,
