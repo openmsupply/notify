@@ -11,43 +11,42 @@ import {
   useColumns,
 } from '@common/ui';
 import { NotificationsModal } from '../Modals/NotificationsModal';
-import { NotificationConfigType } from '../Modals/SelectNotificationConfigModal';
 import { useEditModal } from '@common/hooks';
+import { BaseNotificationConfig, NotificationConfigType } from '../types';
 
-// TODO: this will be backend NotificationConfig type?
-type NotificationConfig = {
-  id: string;
-  title: string;
-  configType: NotificationConfigType;
-};
-
-const notifications: NotificationConfig[] = [
+const notifications: BaseNotificationConfig[] = [
   {
     id: 'notification-1',
     title: 'CC Notification 1',
     configType: NotificationConfigType.ColdChain,
+    recipientIds: [],
+    recipientListIds: [],
   },
   {
     id: 'notification-2',
     title: 'CC Notification 2',
     configType: NotificationConfigType.ColdChain,
+    recipientIds: [],
+    recipientListIds: [],
   },
   {
     id: 'notification-3',
     title: 'CC Notification 3',
     configType: NotificationConfigType.ColdChain,
+    recipientIds: [],
+    recipientListIds: [],
   },
 ];
 export const ListView = () => {
   const t = useTranslation('system');
 
-  const columns = useColumns<NotificationConfig>([
+  const columns = useColumns<BaseNotificationConfig>([
     { key: 'title', label: 'label.title' },
     { key: 'configType', label: 'label.type' },
   ]);
 
   const { isOpen, onClose, entity, onOpen } =
-    useEditModal<NotificationConfig>();
+    useEditModal<BaseNotificationConfig>();
 
   return (
     <>

@@ -1,20 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useEditModal } from '@notify-frontend/common';
 import { CCNotificationEditModal } from './ColdChain/CCNotificationEditModal';
+import { SelectNotificationConfigModal } from './SelectNotificationConfigModal';
 import {
+  BaseNotificationConfig,
+  CCNotification,
   NotificationConfigType,
-  SelectNotificationConfigModal,
-} from './SelectNotificationConfigModal';
+} from '../types';
 
 interface NotificationsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  // TODO: this will be backend NotificationConfig type?
-  entity: {
-    id: string;
-    title: string;
-    configType: NotificationConfigType;
-  } | null;
+  entity: BaseNotificationConfig | null;
 }
 
 export const NotificationsModal = ({
@@ -47,16 +44,30 @@ export const NotificationsModal = ({
     onClose: configOnClose,
     onOpen: configOnOpen,
     entity: configEntity,
-  } = useEditModal();
+  } = useEditModal<BaseNotificationConfig>();
 
-  const ConfigModal = (() => {
+  const ConfigModal = () => {
+    const props = {
+      mode: configMode,
+      isOpen: configIsOpen,
+      onClose: () => {
+        configOnClose();
+        onClose();
+      },
+    };
+
     switch (type) {
       case NotificationConfigType.ColdChain:
-        return CCNotificationEditModal;
+        return (
+          <CCNotificationEditModal
+            {...props}
+            entity={configEntity as CCNotification}
+          />
+        );
       default:
-        return () => <></>;
+        return <></>;
     }
-  })();
+  };
 
   return (
     <>
@@ -73,19 +84,7 @@ export const NotificationsModal = ({
           }}
         />
       )}
-      {configIsOpen && (
-        <ConfigModal
-          mode={configMode}
-          isOpen={configIsOpen}
-          // TODO: is there a better way than `as any` given this is generic?
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          entity={configEntity as any}
-          onClose={() => {
-            onClose();
-            configOnClose();
-          }}
-        />
-      )}
+      {configIsOpen && <ConfigModal />}
     </>
   );
 };

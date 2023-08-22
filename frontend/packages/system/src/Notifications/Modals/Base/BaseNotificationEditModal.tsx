@@ -10,10 +10,8 @@ import {
   CheckIcon,
   InlineSpinner,
 } from '@notify-frontend/common';
-import {
-  BaseNotificationConfig,
-  BaseNotificationEditForm,
-} from './BaseNotificationEditForm';
+import { BaseNotificationEditForm } from './BaseNotificationEditForm';
+import { BaseNotificationConfig } from '../../types';
 
 interface BaseNotificationEditModalProps<T extends BaseNotificationConfig> {
   isOpen: boolean;

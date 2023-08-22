@@ -8,21 +8,7 @@ import {
   Typography,
   useTranslation,
 } from '@notify-frontend/common';
-
-export interface CCNotification {
-  id: string;
-  title: string;
-  recipientIds: string[];
-  recipientListIds: string[];
-  highTemp: boolean;
-  lowTemp: boolean;
-  confirmOk: boolean;
-  remind: boolean;
-  reminderInterval: number;
-  reminderUnits: 'seconds' | 'minutes' | 'hours';
-  // TODO: not sure what the best location structure is to pass to backend?
-  locationIds: string[];
-}
+import { CCNotification } from '../../types';
 
 type CCNotificationEditFormProps = {
   onUpdate: (patch: Partial<CCNotification>) => void;

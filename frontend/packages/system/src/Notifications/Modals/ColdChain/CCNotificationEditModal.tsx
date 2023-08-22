@@ -1,11 +1,8 @@
 import React, { FC, useState } from 'react';
 import { ModalMode, FnUtils } from '@notify-frontend/common';
-import {
-  CCNotification,
-  CCNotificationEditForm,
-} from './CCNotificationEditForm';
+import { CCNotificationEditForm } from './CCNotificationEditForm';
 import { BaseNotificationEditModal } from '../Base/BaseNotificationEditModal';
-import { NotificationConfigType } from '../SelectNotificationConfigModal';
+import { CCNotification, NotificationConfigType } from '../../types';
 
 interface CCNotificationEditModalProps {
   mode: ModalMode | null;
@@ -17,6 +14,7 @@ interface CCNotificationEditModalProps {
 const createCCNotifcation = (seed: CCNotification | null): CCNotification => ({
   id: FnUtils.generateUUID(),
   title: '',
+  configType: NotificationConfigType.ColdChain,
   highTemp: false,
   lowTemp: false,
   confirmOk: false,

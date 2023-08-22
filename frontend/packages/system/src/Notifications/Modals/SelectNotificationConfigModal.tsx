@@ -7,16 +7,12 @@ import {
   ArrowRightIcon,
   Select,
 } from '@notify-frontend/common';
+import { NotificationConfigType } from '../types';
 
 interface SelectNotificationTypeModalProps {
   isOpen: boolean;
   submit: (type: NotificationConfigType) => void;
   onClose: () => void;
-}
-
-// TODO: this will come from backend query
-export enum NotificationConfigType {
-  ColdChain = 'ColdChain',
 }
 
 export const SelectNotificationConfigModal = ({

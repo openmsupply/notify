@@ -10,13 +10,7 @@ import {
 } from '@notify-frontend/common';
 import { RecipientsModal } from './RecipientsModal';
 import { useRecipientLists, useRecipients } from '../../../Recipients/api';
-
-export interface BaseNotificationConfig {
-  id: string;
-  title: string;
-  recipientIds: string[];
-  recipientListIds: string[];
-}
+import { BaseNotificationConfig } from '../../types';
 
 type BaseNotificationEditFormProps<T extends BaseNotificationConfig> = {
   onUpdate: (patch: Partial<T>) => void;
