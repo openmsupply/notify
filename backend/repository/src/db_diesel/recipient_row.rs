@@ -69,10 +69,7 @@ impl<'a> RecipientRowRepository<'a> {
     }
 
     pub fn update_one(&self, row: &RecipientRow) -> Result<(), RepositoryError> {
-        let query = diesel::update(row).set(row);
-        // println!("{}", diesel::debug_query::<DBType, _>(&query).to_string());
-        query.execute(&self.connection.connection)?;
-        Ok(())
+        self.repository.update_one(row)
     }
 
     pub fn delete(&self, recipient_id: &str) -> Result<(), RepositoryError> {

@@ -2,7 +2,7 @@ use super::StorageConnection;
 use crate::repository_error::RepositoryError;
 use diesel::{
     prelude::*,
-    query_builder::InsertStatement,
+    query_builder::{AsChangeset, InsertStatement, IntoUpdateTarget, UpdateStatement},
     query_dsl::methods::ExecuteDsl,
     r2d2::{ConnectionManager, PooledConnection},
 };
@@ -31,6 +31,18 @@ where
     {
         diesel::insert_into(self.table)
             .values(row)
+            .execute(&self.connection.connection)?;
+        Ok(())
+    }
+
+    pub fn update_one<R>(&self, row: R) -> Result<(), RepositoryError>
+    where
+        R: AsChangeset<Target = R::Table> + IntoUpdateTarget + Copy,
+        UpdateStatement<R::Table, R::WhereClause, R::Changeset>:
+            ExecuteDsl<PooledConnection<ConnectionManager<SqliteConnection>>>,
+    {
+        diesel::update(row)
+            .set(row)
             .execute(&self.connection.connection)?;
         Ok(())
     }
