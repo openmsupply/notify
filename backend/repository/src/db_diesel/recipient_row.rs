@@ -1,5 +1,5 @@
 use super::{recipient_row::recipient::dsl as recipient_dsl, StorageConnection};
-use crate::{repository_error::RepositoryError, EqualFilter};
+use crate::{repository_error::RepositoryError, EqualFilter, RowRepository};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use diesel_derive_enum::DbEnum;
@@ -53,18 +53,19 @@ pub struct RecipientRow {
 
 pub struct RecipientRowRepository<'a> {
     connection: &'a StorageConnection,
+    repository: RowRepository<'a, recipient_dsl::recipient>,
 }
 
 impl<'a> RecipientRowRepository<'a> {
     pub fn new(connection: &'a StorageConnection) -> Self {
-        RecipientRowRepository { connection }
+        RecipientRowRepository {
+            connection,
+            repository: RowRepository::new(connection, recipient_dsl::recipient),
+        }
     }
 
     pub fn insert_one(&self, row: &RecipientRow) -> Result<(), RepositoryError> {
-        diesel::insert_into(recipient_dsl::recipient)
-            .values(row)
-            .execute(&self.connection.connection)?;
-        Ok(())
+        self.repository.insert_one(row)
     }
 
     pub fn update_one(&self, row: &RecipientRow) -> Result<(), RepositoryError> {
