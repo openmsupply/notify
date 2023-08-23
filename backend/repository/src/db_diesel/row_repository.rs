@@ -1,9 +1,12 @@
 use super::StorageConnection;
 use crate::repository_error::RepositoryError;
 use diesel::{
+    associations::HasTable,
     prelude::*,
-    query_builder::{AsChangeset, InsertStatement, IntoUpdateTarget, UpdateStatement},
-    query_dsl::methods::ExecuteDsl,
+    query_builder::{
+        AsChangeset, DeleteStatement, InsertStatement, IntoUpdateTarget, Query, UpdateStatement,
+    },
+    query_dsl::methods::{ExecuteDsl, FilterDsl},
     r2d2::{ConnectionManager, PooledConnection},
 };
 
@@ -44,6 +47,17 @@ where
         diesel::update(row)
             .set(row)
             .execute(&self.connection.connection)?;
+        Ok(())
+    }
+
+    pub fn delete<P>(&self, predicate: P) -> Result<(), RepositoryError>
+    where
+        T: FilterDsl<P>,
+        T::Output: HasTable + IntoUpdateTarget,
+        DeleteStatement<<T::Output as HasTable>::Table, P>:
+            ExecuteDsl<PooledConnection<ConnectionManager<SqliteConnection>>>,
+    {
+        diesel::delete(self.table.filter(predicate)).execute(&self.connection.connection)?;
         Ok(())
     }
 }
