@@ -2,21 +2,27 @@ import React from 'react';
 import { useTranslation } from '@common/intl';
 import {
   AppBarButtonsPortal,
+  AppBarContentPortal,
   DataTable,
   LoadingButton,
   NothingHere,
   PlusCircleIcon,
+  SearchAndDeleteToolbar,
   TableProvider,
   Typography,
   createTableStore,
   useColumns,
 } from '@common/ui';
 import { NotificationsModal } from '../Modals/NotificationsModal';
-import { useEditModal } from '@common/hooks';
+import { useEditModal, useQueryParamsState } from '@common/hooks';
 import { NotificationConfigRowFragment, useNotificationConfigs } from '../api';
+import { useDeleteNotificationConfig } from '../api/hooks/useDeleteNotificationConfig';
 
 export const ListView = () => {
   const t = useTranslation('system');
+
+  // const { filter, queryParams, updatePaginationQuery, updateSortQuery } =
+  const { filter } = useQueryParamsState();
 
   const columns = useColumns<NotificationConfigRowFragment>([
     { key: 'title', label: 'label.title' },
@@ -27,13 +33,14 @@ export const ListView = () => {
         <Typography>{t(`config-kind.${props.rowData.kind}`)}</Typography>
       ),
     },
+    'selection',
   ]);
 
-  const {
-    data: notificationConfigs,
-    isError,
-    isLoading,
-  } = useNotificationConfigs();
+  const { data, isError, isLoading } = useNotificationConfigs();
+  const notificationConfigs = data?.nodes ?? [];
+
+  const { mutateAsync: deleteNotificationConfig, invalidateQueries } =
+    useDeleteNotificationConfig();
 
   const { isOpen, onClose, entity, onOpen } =
     useEditModal<NotificationConfigRowFragment>();
@@ -51,9 +58,17 @@ export const ListView = () => {
         </LoadingButton>
       </AppBarButtonsPortal>
       <TableProvider createStore={createTableStore}>
+        <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
+          <SearchAndDeleteToolbar
+            data={notificationConfigs}
+            filter={filter}
+            deleteItem={deleteNotificationConfig}
+            invalidateQueries={invalidateQueries}
+          />
+        </AppBarContentPortal>
         <DataTable
           columns={columns}
-          data={notificationConfigs?.nodes ?? []}
+          data={notificationConfigs}
           isError={isError}
           isLoading={isLoading}
           onRowClick={onOpen}

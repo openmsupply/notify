@@ -28,6 +28,13 @@ export type UpdateNotificationConfigMutationVariables = Types.Exact<{
 
 export type UpdateNotificationConfigMutation = { __typename: 'FullMutation', updateNotificationConfig: { __typename: 'NotificationConfigNode', id: string, title: string, kind: Types.ConfigKind, configurationData: string, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> } };
 
+export type DeleteNotificationConfigMutationVariables = Types.Exact<{
+  id: Types.Scalars['String']['input'];
+}>;
+
+
+export type DeleteNotificationConfigMutation = { __typename: 'FullMutation', deleteNotificationConfig: { __typename: 'DeleteResponse', id: string } };
+
 export const NotificationConfigRowFragmentDoc = gql`
     fragment NotificationConfigRow on NotificationConfigNode {
   id
@@ -75,6 +82,15 @@ export const UpdateNotificationConfigDocument = gql`
   }
 }
     ${NotificationConfigRowFragmentDoc}`;
+export const DeleteNotificationConfigDocument = gql`
+    mutation deleteNotificationConfig($id: String!) {
+  deleteNotificationConfig(id: $id) {
+    ... on DeleteResponse {
+      id
+    }
+  }
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string) => Promise<T>;
 
@@ -91,6 +107,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     updateNotificationConfig(variables: UpdateNotificationConfigMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<UpdateNotificationConfigMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateNotificationConfigMutation>(UpdateNotificationConfigDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'updateNotificationConfig', 'mutation');
+    },
+    deleteNotificationConfig(variables: DeleteNotificationConfigMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<DeleteNotificationConfigMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DeleteNotificationConfigMutation>(DeleteNotificationConfigDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteNotificationConfig', 'mutation');
     }
   };
 }

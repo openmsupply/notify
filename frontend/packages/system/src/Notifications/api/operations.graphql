@@ -44,3 +44,11 @@ mutation updateNotificationConfig($input: UpdateNotificationConfigInput!) {
     }
   }
 }
+
+mutation deleteNotificationConfig($id: String!) {
+  deleteNotificationConfig(id: $id) {
+    ... on DeleteResponse {
+      id
+    }
+  }
+}
