@@ -1,3 +1,4 @@
+import { CreateNotificationConfigInput } from '@common/types';
 import { NotificationConfigRowFragment } from '../../api';
 import { CCNotification } from '../../types';
 
@@ -30,5 +31,38 @@ export function parseColdChainNotificationConfig(
     locationIds,
     recipientIds,
     recipientListIds,
+  };
+}
+
+export function buildCreateInput(
+  config: CCNotification
+): CreateNotificationConfigInput {
+  const {
+    highTemp,
+    lowTemp,
+    confirmOk,
+    remind,
+    reminderInterval,
+    reminderUnits,
+    locationIds,
+    recipientIds,
+    recipientListIds,
+  } = config;
+
+  return {
+    id: config.id,
+    title: config.title,
+    kind: config.kind,
+    configurationData: JSON.stringify({
+      highTemp,
+      lowTemp,
+      confirmOk,
+      remind,
+      reminderInterval,
+      reminderUnits,
+      locationIds,
+      recipientIds,
+      recipientListIds,
+    }),
   };
 }

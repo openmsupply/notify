@@ -3,6 +3,8 @@ import { ModalMode, FnUtils, ConfigKind } from '@notify-frontend/common';
 import { CCNotificationEditForm } from './CCNotificationEditForm';
 import { BaseNotificationEditModal } from '../Base/BaseNotificationEditModal';
 import { CCNotification } from '../../types';
+import { useCreateNotificationConfig } from '../../api/hooks/useCreateNotificationConfig';
+import { buildCreateInput } from './parseConfig';
 
 interface CCNotificationEditModalProps {
   mode: ModalMode | null;
@@ -35,36 +37,12 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
 }) => {
   const [draft, setDraft] = useState(() => createCCNotifcation(entity));
 
+  const { mutateAsync: create, isLoading: createIsLoading } =
+    useCreateNotificationConfig();
+
   const onSave = async (draft: CCNotification) => {
-    const {
-      id,
-      title,
-      highTemp,
-      lowTemp,
-      confirmOk,
-      remind,
-      reminderInterval,
-      reminderUnits,
-      recipientIds,
-      recipientListIds,
-      locationIds,
-    } = draft;
-    const input = {
-      id,
-      title,
-      highTemp,
-      lowTemp,
-      confirmOk,
-      remind,
-      reminderInterval,
-      reminderUnits,
-      recipientIds,
-      recipientListIds,
-      locationIds,
-    };
-    console.log(input);
     if (mode === ModalMode.Create) {
-      //   await insert(input);
+      await create({ input: buildCreateInput(draft) });
       // } else {
       //   await update(input);
     }
@@ -83,6 +61,7 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
     <BaseNotificationEditModal
       kind={ConfigKind.ColdChain}
       isOpen={isOpen}
+      isLoading={createIsLoading}
       isInvalid={isInvalid}
       onClose={onClose}
       onSave={onSave}

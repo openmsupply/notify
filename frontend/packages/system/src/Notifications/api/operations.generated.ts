@@ -14,6 +14,13 @@ export type NotificationConfigsQueryVariables = Types.Exact<{
 
 export type NotificationConfigsQuery = { __typename: 'FullQuery', notificationConfigs: { __typename: 'NotificationConfigConnector', totalCount: number, nodes: Array<{ __typename: 'NotificationConfigNode', id: string, title: string, kind: Types.ConfigKind, configurationData: string, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }> } };
 
+export type CreateNotificationConfigMutationVariables = Types.Exact<{
+  input: Types.CreateNotificationConfigInput;
+}>;
+
+
+export type CreateNotificationConfigMutation = { __typename: 'FullMutation', createNotificationConfig: { __typename: 'NotificationConfigNode', id: string, title: string, kind: Types.ConfigKind, configurationData: string, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> } };
+
 export const NotificationConfigRowFragmentDoc = gql`
     fragment NotificationConfigRow on NotificationConfigNode {
   id
@@ -43,6 +50,15 @@ export const NotificationConfigsDocument = gql`
   }
 }
     ${NotificationConfigRowFragmentDoc}`;
+export const CreateNotificationConfigDocument = gql`
+    mutation createNotificationConfig($input: CreateNotificationConfigInput!) {
+  createNotificationConfig(input: $input) {
+    ... on NotificationConfigNode {
+      ...NotificationConfigRow
+    }
+  }
+}
+    ${NotificationConfigRowFragmentDoc}`;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string) => Promise<T>;
 
@@ -53,6 +69,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
   return {
     NotificationConfigs(variables?: NotificationConfigsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<NotificationConfigsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<NotificationConfigsQuery>(NotificationConfigsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'NotificationConfigs', 'query');
+    },
+    createNotificationConfig(variables: CreateNotificationConfigMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateNotificationConfigMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CreateNotificationConfigMutation>(CreateNotificationConfigDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'createNotificationConfig', 'mutation');
     }
   };
 }

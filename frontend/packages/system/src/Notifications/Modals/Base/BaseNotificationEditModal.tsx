@@ -18,6 +18,7 @@ interface BaseNotificationEditModalProps<T extends BaseNotificationConfig> {
   isOpen: boolean;
   kind: ConfigKind;
   isInvalid: boolean;
+  isLoading: boolean;
   draft: T;
   setDraft: (draft: T) => void;
   onClose: () => void;
@@ -31,6 +32,7 @@ interface BaseNotificationEditModalProps<T extends BaseNotificationConfig> {
 export const BaseNotificationEditModal = <T extends BaseNotificationConfig>({
   isOpen,
   kind,
+  isLoading,
   isInvalid,
   draft,
   onClose,
@@ -47,8 +49,6 @@ export const BaseNotificationEditModal = <T extends BaseNotificationConfig>({
   const onUpdate = (patch: Partial<T>) => {
     setDraft({ ...draft, ...patch });
   };
-
-  const isLoading = false;
 
   const modalHeight = Math.min(window.innerHeight - 50, 800);
   const modalWidth = Math.min(window.innerWidth - 50, 1024);

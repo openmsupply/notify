@@ -28,3 +28,11 @@ query NotificationConfigs(
     }
   }
 }
+
+mutation createNotificationConfig($input: CreateNotificationConfigInput!) {
+  createNotificationConfig(input: $input) {
+    ... on NotificationConfigNode {
+      ...NotificationConfigRow
+    }
+  }
+}
