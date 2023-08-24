@@ -3,15 +3,6 @@ fragment NotificationConfigRow on NotificationConfigNode {
   title
   kind
   configurationData
-  auditLogs {
-    datetime
-    id
-    recordId
-    recordType
-    user {
-      username
-    }
-  }
 }
 
 query NotificationConfigs(

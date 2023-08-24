@@ -464,6 +464,7 @@ export type NotificationConfigConnector = {
 export type NotificationConfigFilterInput = {
   id?: InputMaybe<EqualFilterStringInput>;
   kind?: InputMaybe<EqualFilterConfigKindInput>;
+  search?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<StringFilterInput>;
 };
 
