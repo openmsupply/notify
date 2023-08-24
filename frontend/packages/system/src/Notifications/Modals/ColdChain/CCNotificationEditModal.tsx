@@ -15,19 +15,18 @@ interface CCNotificationEditModalProps {
 }
 
 const createCCNotifcation = (seed: CCNotification | null): CCNotification => ({
-  id: FnUtils.generateUUID(),
-  title: '',
-  kind: ConfigKind.ColdChain,
-  highTemp: false,
-  lowTemp: false,
-  confirmOk: false,
-  remind: false,
-  reminderInterval: 5,
-  reminderUnits: 'minutes',
-  locationIds: [],
-  recipientIds: [],
-  recipientListIds: [],
-  ...seed,
+  id: seed?.id ?? FnUtils.generateUUID(),
+  title: seed?.title ?? '',
+  kind: seed?.kind ?? ConfigKind.ColdChain,
+  highTemp: seed?.highTemp ?? false,
+  lowTemp: seed?.lowTemp ?? false,
+  confirmOk: seed?.confirmOk ?? false,
+  remind: seed?.remind ?? false,
+  reminderInterval: seed?.reminderInterval ?? 5,
+  reminderUnits: seed?.reminderUnits ?? 'minutes',
+  locationIds: seed?.locationIds ?? [],
+  recipientIds: seed?.recipientIds ?? [],
+  recipientListIds: seed?.recipientListIds ?? [],
 });
 
 export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
