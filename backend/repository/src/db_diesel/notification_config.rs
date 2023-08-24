@@ -19,6 +19,7 @@ pub struct NotificationConfigFilter {
     pub id: Option<EqualFilter<String>>,
     pub kind: Option<EqualFilter<NotificationConfigKind>>,
     pub title: Option<StringFilter>,
+    pub search: Option<String>,
 }
 
 #[derive(PartialEq, Debug)]
@@ -90,11 +91,21 @@ fn create_filtered_query(filter: Option<NotificationConfigFilter>) -> BoxedNotif
     let mut query = notification_config_dsl::notification_config.into_boxed();
 
     if let Some(f) = filter {
-        let NotificationConfigFilter { id, kind, title } = f;
+        let NotificationConfigFilter {
+            id,
+            kind,
+            title,
+            search,
+        } = f;
 
         apply_equal_filter!(query, id, notification_config_dsl::id);
         apply_equal_filter!(query, kind, notification_config_dsl::kind);
         apply_string_filter!(query, title, notification_config_dsl::title);
+
+        if let Some(search) = search {
+            let search_term = format!("%{}%", search);
+            query = query.filter(notification_config_dsl::title.like(search_term.clone()));
+        }
     }
 
     query
@@ -115,6 +126,10 @@ impl NotificationConfigFilter {
     }
     pub fn title(mut self, filter: StringFilter) -> Self {
         self.title = Some(filter);
+        self
+    }
+    pub fn search(mut self, filter: String) -> Self {
+        self.search = Some(filter);
         self
     }
 }

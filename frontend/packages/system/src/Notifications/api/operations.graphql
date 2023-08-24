@@ -1,0 +1,45 @@
+fragment NotificationConfigRow on NotificationConfigNode {
+  id
+  title
+  kind
+  configurationData
+}
+
+query NotificationConfigs(
+  $filter: NotificationConfigFilterInput
+  $page: PaginationInput
+  $sort: [NotificationConfigSortInput!]
+) {
+  notificationConfigs(filter: $filter, page: $page, sort: $sort) {
+    ... on NotificationConfigConnector {
+      totalCount
+      nodes {
+        ...NotificationConfigRow
+      }
+    }
+  }
+}
+
+mutation createNotificationConfig($input: CreateNotificationConfigInput!) {
+  createNotificationConfig(input: $input) {
+    ... on NotificationConfigNode {
+      ...NotificationConfigRow
+    }
+  }
+}
+
+mutation updateNotificationConfig($input: UpdateNotificationConfigInput!) {
+  updateNotificationConfig(input: $input) {
+    ... on NotificationConfigNode {
+      ...NotificationConfigRow
+    }
+  }
+}
+
+mutation deleteNotificationConfig($id: String!) {
+  deleteNotificationConfig(id: $id) {
+    ... on DeleteResponse {
+      id
+    }
+  }
+}

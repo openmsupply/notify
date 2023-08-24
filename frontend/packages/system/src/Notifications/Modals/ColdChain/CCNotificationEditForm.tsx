@@ -81,7 +81,6 @@ export const CCNotificationEditForm = ({
         >
           <PositiveNumberInput
             disabled={!draft.remind}
-            autoFocus
             value={draft.reminderInterval}
             required
             onChange={newValue => onUpdate({ reminderInterval: newValue })}

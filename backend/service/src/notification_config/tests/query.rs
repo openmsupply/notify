@@ -7,7 +7,10 @@ mod notification_config_query_test {
         mock::MockDataInserts, test_db::setup_all, NotificationConfigFilter,
         NotificationConfigSortField,
     };
-    use repository::{EqualFilter, PaginationOption, Sort};
+    use repository::{
+        EqualFilter, NotificationConfigRow, NotificationConfigRowRepository, PaginationOption, Sort,
+    };
+    use util::uuid::uuid;
 
     use crate::service_provider::ServiceContext;
     use crate::test_utils::get_test_settings;
@@ -116,6 +119,62 @@ mod notification_config_query_test {
             db_notification_configs.rows[0].id,
             mock_coldchain_notification_config_a().id.clone()
         );
+    }
+
+    #[actix_rt::test]
+    async fn notification_config_service_search() {
+        let (_, _, connection_manager, _) = setup_all(
+            "test_notification_config_search",
+            MockDataInserts::none().notification_configs(),
+        )
+        .await;
+
+        let connection = connection_manager.connection().unwrap();
+        let service_provider = Arc::new(ServiceProvider::new(
+            connection_manager,
+            get_test_settings(""),
+        ));
+        let context = ServiceContext::new(service_provider).unwrap();
+        let service = &context.service_provider.notification_config_service;
+
+        let repo = NotificationConfigRowRepository::new(&connection);
+
+        let id_1 = uuid();
+        let id_2 = uuid();
+        let id_3 = uuid();
+
+        // Insert 2 configs, 2 with "XXXX" as a substring and one without
+        repo.insert_one(&NotificationConfigRow {
+            id: id_1.clone(),
+            title: "title with XXXX as substr".to_string(),
+            ..Default::default()
+        })
+        .unwrap();
+        repo.insert_one(&NotificationConfigRow {
+            id: id_2.clone(),
+            title: "XXXXXXXXX".to_string(),
+            ..Default::default()
+        })
+        .unwrap();
+        repo.insert_one(&NotificationConfigRow {
+            id: id_3,
+            title: "non-matching title".to_string(),
+            ..Default::default()
+        })
+        .unwrap();
+
+        let db_notification_configs = service
+            .get_notification_configs(
+                &context,
+                None,
+                Some(NotificationConfigFilter::new().search("XXXX".to_string())),
+                None,
+            )
+            .unwrap();
+
+        assert_eq!(db_notification_configs.count, 2);
+        assert_eq!(db_notification_configs.rows[0].id, id_1);
+        assert_eq!(db_notification_configs.rows[1].id, id_2);
     }
 
     #[actix_rt::test]

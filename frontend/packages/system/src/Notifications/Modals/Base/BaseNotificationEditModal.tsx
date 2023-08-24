@@ -9,14 +9,16 @@ import {
   LoadingButton,
   CheckIcon,
   InlineSpinner,
+  ConfigKind,
 } from '@notify-frontend/common';
 import { BaseNotificationEditForm } from './BaseNotificationEditForm';
 import { BaseNotificationConfig } from '../../types';
 
 interface BaseNotificationEditModalProps<T extends BaseNotificationConfig> {
   isOpen: boolean;
-  notificationType: string;
+  kind: ConfigKind;
   isInvalid: boolean;
+  isLoading: boolean;
   draft: T;
   setDraft: (draft: T) => void;
   onClose: () => void;
@@ -29,7 +31,8 @@ interface BaseNotificationEditModalProps<T extends BaseNotificationConfig> {
 
 export const BaseNotificationEditModal = <T extends BaseNotificationConfig>({
   isOpen,
-  notificationType,
+  kind,
+  isLoading,
   isInvalid,
   draft,
   onClose,
@@ -46,8 +49,6 @@ export const BaseNotificationEditModal = <T extends BaseNotificationConfig>({
   const onUpdate = (patch: Partial<T>) => {
     setDraft({ ...draft, ...patch });
   };
-
-  const isLoading = false;
 
   const modalHeight = Math.min(window.innerHeight - 50, 800);
   const modalWidth = Math.min(window.innerWidth - 50, 1024);
@@ -76,7 +77,9 @@ export const BaseNotificationEditModal = <T extends BaseNotificationConfig>({
           </LoadingButton>
         }
         cancelButton={<DialogButton variant="cancel" onClick={onClose} />}
-        title={t('label.setup-notification', { type: notificationType })}
+        title={t('label.setup-notification', {
+          type: t(`config-kind.${kind}`),
+        })}
       >
         {isLoading ? (
           <InlineSpinner />
