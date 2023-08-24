@@ -4,7 +4,7 @@ import { CCNotificationEditForm } from './CCNotificationEditForm';
 import { BaseNotificationEditModal } from '../Base/BaseNotificationEditModal';
 import { CCNotification } from '../../types';
 import { useCreateNotificationConfig } from '../../api/hooks/useCreateNotificationConfig';
-import { buildCreateInput, buildUpdateInput } from './parseConfig';
+import { buildColdChainNotificationInputs } from './parseConfig';
 import { useUpdateNotificationConfig } from '../../api/hooks/useUpdateNotificationConfig';
 
 interface CCNotificationEditModalProps {
@@ -44,10 +44,12 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
     useUpdateNotificationConfig();
 
   const onSave = async (draft: CCNotification) => {
+    const inputs = buildColdChainNotificationInputs(draft);
+
     if (mode === ModalMode.Create) {
-      await create({ input: buildCreateInput(draft) });
+      await create({ input: inputs.create });
     } else {
-      await update({ input: buildUpdateInput(draft) });
+      await update({ input: inputs.update });
     }
   };
 

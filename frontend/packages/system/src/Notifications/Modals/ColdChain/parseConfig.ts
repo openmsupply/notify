@@ -6,57 +6,11 @@ import { NotificationConfigRowFragment } from '../../api';
 import { CCNotification } from '../../types';
 
 export function parseColdChainNotificationConfig(
-  config: NotificationConfigRowFragment
-): CCNotification {
-  const {
-    highTemp,
-    lowTemp,
-    confirmOk,
-    remind,
-    reminderInterval,
-    reminderUnits,
-    locationIds,
-    recipientIds,
-    recipientListIds,
-    // TODO: actually some checks/error handling here!
-  } = JSON.parse(config.configurationData);
-
-  return {
-    id: config.id,
-    title: config.title,
-    kind: config.kind,
-    highTemp,
-    lowTemp,
-    confirmOk,
-    remind,
-    reminderInterval,
-    reminderUnits,
-    locationIds,
-    recipientIds,
-    recipientListIds,
-  };
-}
-
-export function buildCreateInput(
-  config: CCNotification
-): CreateNotificationConfigInput {
-  const {
-    highTemp,
-    lowTemp,
-    confirmOk,
-    remind,
-    reminderInterval,
-    reminderUnits,
-    locationIds,
-    recipientIds,
-    recipientListIds,
-  } = config;
-
-  return {
-    id: config.id,
-    title: config.title,
-    kind: config.kind,
-    configurationData: JSON.stringify({
+  config: NotificationConfigRowFragment | null
+): CCNotification | null {
+  if (!config) return null;
+  try {
+    const {
       highTemp,
       lowTemp,
       confirmOk,
@@ -66,14 +20,40 @@ export function buildCreateInput(
       locationIds,
       recipientIds,
       recipientListIds,
-    }),
-  };
+    } = JSON.parse(config.configurationData);
+
+    return {
+      id: config.id,
+      title: config.title,
+      kind: config.kind,
+      highTemp,
+      lowTemp,
+      confirmOk,
+      remind,
+      reminderInterval,
+      reminderUnits,
+      locationIds,
+      recipientIds,
+      recipientListIds,
+    };
+  } catch (e) {
+    // TODO: should there be some kind of error loading data popup?
+    // This swallows any JSON parsing errors. There's not much the user can do, except input
+    // the data again (hopefully it would save in such a way that we can parse it next time!)
+    // The missing fields will be populated by default values in the edit modal, but we'll return
+    // the base NotificationConfig data that is still usable:
+    return {
+      id: config.id,
+      title: config.title,
+      kind: config.kind,
+    } as CCNotification;
+  }
 }
 
-// TODO: maybe merge with the above? very similar..
-export function buildUpdateInput(
-  config: CCNotification
-): UpdateNotificationConfigInput {
+export function buildColdChainNotificationInputs(config: CCNotification): {
+  create: CreateNotificationConfigInput;
+  update: UpdateNotificationConfigInput;
+} {
   const {
     highTemp,
     lowTemp,
@@ -86,7 +66,7 @@ export function buildUpdateInput(
     recipientListIds,
   } = config;
 
-  return {
+  const input = {
     id: config.id,
     title: config.title,
     configurationData: JSON.stringify({
@@ -100,5 +80,10 @@ export function buildUpdateInput(
       recipientIds,
       recipientListIds,
     }),
+  };
+
+  return {
+    create: { ...input, kind: config.kind },
+    update: input,
   };
 }
