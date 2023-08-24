@@ -1577,6 +1577,7 @@ dependencies = [
  "async-trait",
  "graphql_core",
  "graphql_general",
+ "graphql_notification_config",
  "graphql_recipient",
  "graphql_recipient_list",
  "graphql_telegram",
@@ -1626,6 +1627,24 @@ dependencies = [
  "repository",
  "reqwest",
  "serde",
+ "service",
+ "util",
+]
+
+[[package]]
+name = "graphql_notification_config"
+version = "0.1.0"
+dependencies = [
+ "actix-rt",
+ "actix-web",
+ "assert-json-diff",
+ "async-graphql",
+ "async-graphql-actix-web",
+ "async-trait",
+ "graphql_core",
+ "graphql_types",
+ "repository",
+ "serde_json",
  "service",
  "util",
 ]

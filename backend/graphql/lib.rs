@@ -12,6 +12,7 @@ use graphql_core::loader::LoaderRegistry;
 use graphql_core::{refresh_token_from_cookie, RefreshTokenData, SelfRequest};
 use graphql_general::GeneralQueries;
 
+use graphql_notification_config::{NotificationConfigMutations, NotificationConfigQueries};
 use graphql_recipient::{RecipientMutations, RecipientQueries};
 use graphql_recipient_list::{RecipientListMutations, RecipientListQueries};
 use graphql_telegram::mutations::TelegramMutations;
@@ -32,6 +33,7 @@ pub struct FullQuery(
     pub RecipientQueries,
     pub RecipientListQueries,
     pub TelegramQueries,
+    pub NotificationConfigQueries,
 );
 
 #[derive(MergedObject, Default, Clone)]
@@ -40,6 +42,7 @@ pub struct FullMutation(
     pub RecipientMutations,
     pub RecipientListMutations,
     pub TelegramMutations,
+    pub NotificationConfigMutations,
 );
 
 pub type Schema = async_graphql::Schema<FullQuery, FullMutation, async_graphql::EmptySubscription>;
@@ -52,6 +55,7 @@ pub fn full_query() -> FullQuery {
         RecipientQueries,
         RecipientListQueries,
         TelegramQueries,
+        NotificationConfigQueries,
     )
 }
 
@@ -61,6 +65,7 @@ pub fn full_mutation() -> FullMutation {
         RecipientMutations,
         RecipientListMutations,
         TelegramMutations,
+        NotificationConfigMutations,
     )
 }
 
