@@ -44,15 +44,6 @@ impl<'a> NotificationConfigRecipientListRowRepository<'a> {
         Ok(())
     }
 
-    pub fn update_one(
-        &self,
-        row: &NotificationConfigRecipientListRow,
-    ) -> Result<(), RepositoryError> {
-        let query = diesel::update(row).set(row);
-        query.execute(&self.connection.connection)?;
-        Ok(())
-    }
-
     pub fn delete(&self, id: &str) -> Result<(), RepositoryError> {
         diesel::delete(
             notification_config_recipient_list_dsl::notification_config_recipient_list
