@@ -1,4 +1,7 @@
-import { CreateNotificationConfigInput } from '@common/types';
+import {
+  CreateNotificationConfigInput,
+  UpdateNotificationConfigInput,
+} from '@common/types';
 import { NotificationConfigRowFragment } from '../../api';
 import { CCNotification } from '../../types';
 
@@ -53,6 +56,39 @@ export function buildCreateInput(
     id: config.id,
     title: config.title,
     kind: config.kind,
+    configurationData: JSON.stringify({
+      highTemp,
+      lowTemp,
+      confirmOk,
+      remind,
+      reminderInterval,
+      reminderUnits,
+      locationIds,
+      recipientIds,
+      recipientListIds,
+    }),
+  };
+}
+
+// TODO: maybe merge with the above? very similar..
+export function buildUpdateInput(
+  config: CCNotification
+): UpdateNotificationConfigInput {
+  const {
+    highTemp,
+    lowTemp,
+    confirmOk,
+    remind,
+    reminderInterval,
+    reminderUnits,
+    locationIds,
+    recipientIds,
+    recipientListIds,
+  } = config;
+
+  return {
+    id: config.id,
+    title: config.title,
     configurationData: JSON.stringify({
       highTemp,
       lowTemp,

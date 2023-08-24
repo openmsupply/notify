@@ -36,3 +36,11 @@ mutation createNotificationConfig($input: CreateNotificationConfigInput!) {
     }
   }
 }
+
+mutation updateNotificationConfig($input: UpdateNotificationConfigInput!) {
+  updateNotificationConfig(input: $input) {
+    ... on NotificationConfigNode {
+      ...NotificationConfigRow
+    }
+  }
+}
