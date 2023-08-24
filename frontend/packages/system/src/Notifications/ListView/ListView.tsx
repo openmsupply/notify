@@ -21,22 +21,27 @@ import { useDeleteNotificationConfig } from '../api/hooks/useDeleteNotificationC
 export const ListView = () => {
   const t = useTranslation('system');
 
-  // const { filter, queryParams, updatePaginationQuery, updateSortQuery } =
-  const { filter } = useQueryParamsState();
+  const { filter, queryParams, updatePaginationQuery, updateSortQuery } =
+    useQueryParamsState();
 
-  const columns = useColumns<NotificationConfigRowFragment>([
-    { key: 'title', label: 'label.title' },
-    {
-      key: 'kind',
-      label: 'label.kind',
-      Cell: props => (
-        <Typography>{t(`config-kind.${props.rowData.kind}`)}</Typography>
-      ),
-    },
-    'selection',
-  ]);
+  const columns = useColumns<NotificationConfigRowFragment>(
+    [
+      { key: 'title', label: 'label.title' },
+      {
+        key: 'kind',
+        label: 'label.kind',
+        sortable: false,
+        Cell: props => (
+          <Typography>{t(`config-kind.${props.rowData.kind}`)}</Typography>
+        ),
+      },
+      'selection',
+    ],
+    { sortBy: queryParams.sortBy, onChangeSortBy: updateSortQuery },
+    [queryParams.sortBy, updateSortQuery]
+  );
 
-  const { data, isError, isLoading } = useNotificationConfigs();
+  const { data, isError, isLoading } = useNotificationConfigs(queryParams);
   const notificationConfigs = data?.nodes ?? [];
 
   const { mutateAsync: deleteNotificationConfig, invalidateQueries } =
@@ -44,6 +49,12 @@ export const ListView = () => {
 
   const { isOpen, onClose, entity, onOpen } =
     useEditModal<NotificationConfigRowFragment>();
+
+  const pagination = {
+    page: queryParams.page,
+    offset: queryParams.offset,
+    first: queryParams.first,
+  };
 
   return (
     <>
@@ -73,6 +84,8 @@ export const ListView = () => {
           isLoading={isLoading}
           onRowClick={onOpen}
           noDataElement={<NothingHere body={t('messages.no-notifications')} />}
+          pagination={pagination}
+          onChangePage={updatePaginationQuery}
         />
       </TableProvider>
     </>
