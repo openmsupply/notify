@@ -2,7 +2,7 @@
 mod notification_config_query_test {
     use std::sync::Arc;
 
-    use repository::mock::mock_notification_config_a;
+    use repository::mock::{mock_notification_config_a, mock_notification_config_aa};
     use repository::{
         mock::MockDataInserts, test_db::setup_all, NotificationConfigFilter,
         NotificationConfigSortField,
@@ -116,6 +116,41 @@ mod notification_config_query_test {
         assert_eq!(
             db_notification_configs.rows[0].id,
             mock_notification_config_a().id.clone()
+        );
+    }
+
+    #[actix_rt::test]
+    async fn notification_config_service_search() {
+        let (_, _, connection_manager, _) = setup_all(
+            "test_notification_config_search",
+            MockDataInserts::none().notification_configs(),
+        )
+        .await;
+
+        let service_provider = Arc::new(ServiceProvider::new(
+            connection_manager,
+            get_test_settings(""),
+        ));
+        let context = ServiceContext::new(service_provider).unwrap();
+        let service = &context.service_provider.notification_config_service;
+
+        let db_notification_configs = service
+            .get_notification_configs(
+                &context,
+                None,
+                Some(NotificationConfigFilter::new().search("Config A".to_string())),
+                None,
+            )
+            .unwrap();
+
+        assert_eq!(db_notification_configs.count, 2);
+        assert_eq!(
+            db_notification_configs.rows[0].title,
+            mock_notification_config_a().title.clone()
+        );
+        assert_eq!(
+            db_notification_configs.rows[1].title,
+            mock_notification_config_aa().title.clone()
         );
     }
 
