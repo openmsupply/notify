@@ -6,9 +6,12 @@ use crate::{
     settings::{MailSettings, ServerSettings, Settings, TelegramSettings},
 };
 
+use self::telegram_test::get_telegram_token_from_env;
+
 // The following settings work for PG and Sqlite (username, password, host and port are
 // ignored for the later)
 pub fn get_test_settings(db_name: &str) -> Settings {
+    let telegram_token = get_telegram_token_from_env();
     Settings {
         server: ServerSettings {
             port: 5432,
@@ -25,7 +28,9 @@ pub fn get_test_settings(db_name: &str) -> Settings {
             password: "".to_string(),
             from: "no-reply@msupply.foundation".to_string(),
         },
-        telegram: TelegramSettings { token: None },
+        telegram: TelegramSettings {
+            token: telegram_token,
+        },
     }
 }
 
@@ -73,6 +78,24 @@ pub mod email_test {
 pub mod telegram_test {
     use crate::service_provider::ServiceContext;
 
+    pub fn get_default_telegram_chat_id() -> String {
+        std::env::var("TELEGRAM_CHAT_ID").expect(
+            "Please set the TELEGRAM_CHAT_ID environment variable to run the telegram tests",
+        )
+    }
+
+    pub fn get_telegram_token_from_env() -> Option<String> {
+        match std::env::var("TELEGRAM_TOKEN") {
+            Ok(token) => Some(token),
+            Err(_) => {
+                println!(
+                    "Please set the TELEGRAM_TOKEN environment variable to run the telegram tests"
+                );
+                None
+            }
+        }
+    }
+
     #[cfg(feature = "telegram-tests")]
     pub fn send_test_notifications(context: &ServiceContext) {
         context
@@ -84,6 +107,6 @@ pub mod telegram_test {
 
     #[cfg(not(feature = "telegram-tests"))]
     pub fn send_test_notifications(_context: &ServiceContext) {
-        println!("Skipping notification sending");
+        println!("Skipping notification sending2");
     }
 }

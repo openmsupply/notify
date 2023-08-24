@@ -65,6 +65,7 @@ mod tests {
         mock::MockDataInserts, test_db::setup_all, NotificationEventRowRepository, NotificationType,
     };
     use service::test_utils::get_test_settings;
+    use service::test_utils::telegram_test::get_default_telegram_chat_id;
     use service::test_utils::telegram_test::send_test_notifications;
 
     use crate::notification::enqueue::NotificationRecipient;
@@ -74,18 +75,6 @@ mod tests {
     use service::service_provider::ServiceProvider;
 
     use super::*;
-
-    fn get_telegram_chat_id_from_env() -> String {
-        let chat_id = std::env::var("TELEGRAM_CHAT_ID");
-
-        match chat_id {
-            Ok(id) => id,
-            Err(_) => {
-                println!("UNABLE TO FIND TELEGRAM_CHAT_ID FROM ENV");
-                "123456789".to_string()
-            }
-        }
-    }
 
     #[tokio::test]
     async fn test_send_high_temperature_alert_telegram() {
@@ -112,7 +101,7 @@ mod tests {
 
         let recipient = NotificationRecipient {
             name: "test".to_string(),
-            to_address: get_telegram_chat_id_from_env(),
+            to_address: get_default_telegram_chat_id(),
             notification_type: NotificationType::Telegram,
         };
 
@@ -128,7 +117,7 @@ mod tests {
         assert_eq!(notification_event_rows.len(), 1);
         assert_eq!(
             notification_event_rows[0].to_address,
-            get_telegram_chat_id_from_env()
+            get_default_telegram_chat_id()
         );
 
         send_test_notifications(&context);
