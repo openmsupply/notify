@@ -2,7 +2,7 @@
 mod notification_config_query_test {
     use std::sync::Arc;
 
-    use repository::mock::mock_notification_config_a;
+    use repository::mock::mock_coldchain_notification_config_a;
     use repository::{
         mock::MockDataInserts, test_db::setup_all, NotificationConfigFilter,
         NotificationConfigSortField,
@@ -76,12 +76,12 @@ mod notification_config_query_test {
         );
 
         let db_notification_config = service
-            .get_notification_config(&context, mock_notification_config_a().id.clone())
+            .get_notification_config(&context, mock_coldchain_notification_config_a().id.clone())
             .unwrap();
 
         assert_eq!(
             db_notification_config.id,
-            mock_notification_config_a().id.clone()
+            mock_coldchain_notification_config_a().id.clone()
         );
     }
 
@@ -104,10 +104,9 @@ mod notification_config_query_test {
             .get_notification_configs(
                 &context,
                 None,
-                Some(
-                    NotificationConfigFilter::new()
-                        .id(EqualFilter::equal_to(&mock_notification_config_a().id)),
-                ),
+                Some(NotificationConfigFilter::new().id(EqualFilter::equal_to(
+                    &mock_coldchain_notification_config_a().id,
+                ))),
                 None,
             )
             .unwrap();
@@ -115,7 +114,7 @@ mod notification_config_query_test {
         assert_eq!(db_notification_configs.count, 1);
         assert_eq!(
             db_notification_configs.rows[0].id,
-            mock_notification_config_a().id.clone()
+            mock_coldchain_notification_config_a().id.clone()
         );
     }
 

@@ -2,7 +2,7 @@
 mod notification_config_delete_test {
     use std::sync::Arc;
 
-    use repository::mock::mock_notification_config_b;
+    use repository::mock::mock_coldchain_notification_config_b;
     use repository::{mock::MockDataInserts, test_db::setup_all};
     use repository::{EqualFilter, NotificationConfigFilter, NotificationConfigRepository};
 
@@ -50,16 +50,16 @@ mod notification_config_delete_test {
         let service = &context.service_provider.notification_config_service;
 
         assert_eq!(
-            service.delete_notification_config(&context, &mock_notification_config_b().id),
-            Ok(mock_notification_config_b().id.clone())
+            service
+                .delete_notification_config(&context, &mock_coldchain_notification_config_b().id),
+            Ok(mock_coldchain_notification_config_b().id.clone())
         );
 
         assert_eq!(
             notification_config_repository
-                .query_by_filter(
-                    NotificationConfigFilter::new()
-                        .id(EqualFilter::equal_to(&mock_notification_config_b().id))
-                )
+                .query_by_filter(NotificationConfigFilter::new().id(EqualFilter::equal_to(
+                    &mock_coldchain_notification_config_b().id
+                )))
                 .unwrap(),
             vec![]
         );
