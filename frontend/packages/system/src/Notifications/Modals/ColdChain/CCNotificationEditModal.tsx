@@ -1,17 +1,27 @@
-import React, { FC, useState } from 'react';
-import { ModalMode, FnUtils, ConfigKind } from '@notify-frontend/common';
+import React, { FC, useEffect, useState } from 'react';
+import {
+  ModalMode,
+  FnUtils,
+  ConfigKind,
+  useTranslation,
+  useNotification,
+} from '@notify-frontend/common';
 import { CCNotificationEditForm } from './CCNotificationEditForm';
 import { BaseNotificationEditModal } from '../Base/BaseNotificationEditModal';
 import { CCNotification } from '../../types';
 import { useCreateNotificationConfig } from '../../api/hooks/useCreateNotificationConfig';
-import { buildColdChainNotificationInputs } from './parseConfig';
+import {
+  buildColdChainNotificationInputs,
+  parseColdChainNotificationConfig,
+} from './parseConfig';
 import { useUpdateNotificationConfig } from '../../api/hooks/useUpdateNotificationConfig';
+import { NotificationConfigRowFragment } from '../../api';
 
 interface CCNotificationEditModalProps {
   mode: ModalMode | null;
   isOpen: boolean;
   onClose: () => void;
-  entity: CCNotification | null;
+  entity: NotificationConfigRowFragment | null;
 }
 
 const createCCNotifcation = (seed: CCNotification | null): CCNotification => ({
@@ -35,7 +45,21 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
   onClose,
   entity,
 }) => {
-  const [draft, setDraft] = useState(() => createCCNotifcation(entity));
+  const t = useTranslation('system');
+  const { error } = useNotification();
+  const parsingErrorSnack = error(t('error.parsing-notification-config'));
+
+  const [draft, setDraft] = useState<CCNotification>(() =>
+    createCCNotifcation(null)
+  );
+
+  useEffect(() => {
+    const parsedDraft = parseColdChainNotificationConfig(
+      entity,
+      parsingErrorSnack
+    );
+    setDraft(createCCNotifcation(parsedDraft));
+  }, []);
 
   const { mutateAsync: create, isLoading: createIsLoading } =
     useCreateNotificationConfig();

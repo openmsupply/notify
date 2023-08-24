@@ -6,7 +6,8 @@ import { NotificationConfigRowFragment } from '../../api';
 import { CCNotification } from '../../types';
 
 export function parseColdChainNotificationConfig(
-  config: NotificationConfigRowFragment | null
+  config: NotificationConfigRowFragment | null,
+  showError: () => void
 ): CCNotification | null {
   if (!config) return null;
   try {
@@ -37,9 +38,9 @@ export function parseColdChainNotificationConfig(
       recipientListIds,
     };
   } catch (e) {
-    // TODO: should there be some kind of error loading data popup?
-    // This swallows any JSON parsing errors. There's not much the user can do, except input
-    // the data again (hopefully it would save in such a way that we can parse it next time!)
+    showError();
+    // There's not much the user can do, except contact support or input the data again
+    // and hope it saves in such a way that we can parse it next time!
     // The missing fields will be populated by default values in the edit modal, but we'll return
     // the base NotificationConfig data that is still usable:
     return {
