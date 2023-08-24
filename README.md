@@ -13,6 +13,23 @@ You'll need to install the following tools
   - Or install [node.js](https://nodejs.org/), preferably the version in `frontend/.nvmrc`
 - [Yarn](https://yarnpkg.com/getting-started/install)
 
+### Mac
+
+- For M1 Mac:
+
+`brew install libpq` and add the following to `~/.cargo/config.toml`
+
+```
+[env]
+MACOSX_DEPLOYMENT_TARGET = "10.7"
+
+[target.aarch64-apple-darwin]
+rustflags = "-L /opt/homebrew/opt/libpq/lib"
+```
+
+You may also need to run
+`brew link --force libpq`
+
 ## Running Notify locally
 
 To get the application running locally on your machine, run the following commands:
@@ -42,6 +59,8 @@ Find further details about frontend and backend development in the respective RE
 
 - https://github.com/openmsupply/notify/blob/main/backend/README.md
 - https://github.com/openmsupply/notify/blob/main/frontend/README.md
+
+After setting up your environment, There are some quick start tutorials you can follow [here](./docs/tutorial/0.tutorials.md)
 
 ## Contributing
 

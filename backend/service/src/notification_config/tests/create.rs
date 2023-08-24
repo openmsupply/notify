@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod notification_config_create_test {
-    use repository::mock::mock_notification_config_a;
+    use repository::mock::mock_coldchain_notification_config_a;
     use repository::{mock::MockDataInserts, test_db::setup_all};
     use repository::{NotificationConfigKind, NotificationConfigRowRepository};
     use std::sync::Arc;
@@ -32,10 +32,10 @@ mod notification_config_create_test {
             service.create_notification_config(
                 &context,
                 CreateNotificationConfig {
-                    id: mock_notification_config_a().id.clone(),
+                    id: mock_coldchain_notification_config_a().id.clone(),
                     title: "some title".to_string(),
                     kind: NotificationConfigKind::ColdChain,
-                    configuration_data: "{ \"data\": \"some data\" }".to_string()
+                    configuration_data: "{\"highTemp\":true}".to_string()
                 },
             ),
             Err(ModifyNotificationConfigError::NotificationConfigAlreadyExists)
@@ -66,7 +66,7 @@ mod notification_config_create_test {
                 id: new_notification_config_id.clone(),
                 title: "new_notification_config".to_string(),
                 kind: NotificationConfigKind::ColdChain,
-                configuration_data: "{ \"data\": \"some data\" }".to_string(),
+                configuration_data: "{\"highTemp\":true}".to_string(),
             },
         );
 

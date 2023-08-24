@@ -6,7 +6,7 @@ mod notification_config_update_tests {
     use crate::service_provider::{ServiceContext, ServiceProvider};
     use crate::test_utils::get_test_settings;
     use repository::{
-        mock::{mock_notification_config_a, MockDataInserts},
+        mock::{mock_coldchain_notification_config_a, MockDataInserts},
         test_db::setup_all,
     };
     use std::sync::Arc;
@@ -61,7 +61,7 @@ mod notification_config_update_tests {
             .update_notification_config(
                 &context,
                 UpdateNotificationConfig {
-                    id: mock_notification_config_a().id.clone(),
+                    id: mock_coldchain_notification_config_a().id.clone(),
                     title: Some("this is the new title".to_string()),
                     configuration_data: None,
                 },
@@ -80,16 +80,16 @@ mod notification_config_update_tests {
             .update_notification_config(
                 &context,
                 UpdateNotificationConfig {
-                    id: mock_notification_config_a().id.clone(),
+                    id: mock_coldchain_notification_config_a().id.clone(),
                     title: None,
-                    configuration_data: Some("{}".to_string()),
+                    configuration_data: Some("{\"confirmOk\":true}".to_string()),
                 },
             )
             .unwrap();
 
         assert_eq!(
             updated_notification_config.configuration_data,
-            "{}".to_string()
+            "{\"confirmOk\":true}".to_string()
         );
     }
 }
