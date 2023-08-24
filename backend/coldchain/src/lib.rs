@@ -1,5 +1,12 @@
 use chrono::NaiveDateTime;
 use serde::Serialize;
+use service::{
+    notification::{
+        self,
+        enqueue::{create_notification_events, NotificationContext, NotificationRecipient},
+    },
+    service_provider::ServiceContext,
+};
 
 /*
 
@@ -30,67 +37,100 @@ pub struct TemperatureAlert {
     pub temperature: f64,
 }
 
-// pub async fn send_high_temperature_alert_telegram(
-//     alert: TemperatureAlert,
-//     telegram_client: TelegramClient,
-//     telegram_chat_id: String,
-// ) -> () {
-//     let result = render_template("coldchain/telegram/temperature.html", &alert);
-//     match result {
-//         Ok(html) => {
-//             let result = telegram_client
-//                 .send_html_message(&telegram_chat_id, &html)
-//                 .await;
-//             match result {
-//                 Ok(_) => {
-//                     println!("Successfully sent high temperature alert telegram");
-//                 }
-//                 Err(e) => {
-//                     panic!("Error sending high temperature alert telegram: {:?}", e);
-//                     todo!();
-//                 }
-//             }
-//         }
-//         Err(e) => {
-//             panic!("Error rendering temperature alert template: {:?}", e);
-//             todo!();
-//         }
-//     }
-// }
+pub async fn send_high_temperature_alert_telegram(
+    ctx: &ServiceContext,
+    alert: TemperatureAlert,
+    recipients: Vec<NotificationRecipient>,
+) -> Result<(), notification::NotificationServiceError> {
+    let notification = NotificationContext {
+        title_template_name: None,
+        body_template_name: "coldchain/telegram/temperature.html".to_string(),
+        recipients,
+        template_data: serde_json::to_value(alert).map_err(|e| {
+            notification::NotificationServiceError::GenericError(format!(
+                "Error serializing template data: {}",
+                e
+            ))
+        })?,
+    };
+
+    create_notification_events(ctx, notification)
+}
 
 #[cfg(test)]
-// #[cfg(feature = "telegram-tests")]
 mod tests {
-    // use std::str::FromStr;
+    use std::sync::Arc;
 
-    // use service::service_provider::ServiceProvider;
+    use repository::{
+        mock::MockDataInserts, test_db::setup_all, NotificationEventRowRepository, NotificationType,
+    };
+    use service::test_utils::get_test_settings;
+    use service::test_utils::telegram_test::send_test_notifications;
 
-    // use super::*;
+    use crate::notification::enqueue::NotificationRecipient;
+    use std::str::FromStr;
 
-    // use std::sync::Arc;
+    use service::service_provider::ServiceContext;
+    use service::service_provider::ServiceProvider;
 
-    // #[tokio::test]
-    // async fn test_send_high_temperature_alert_telegram() {
-    //     let client = TelegramClient::new(get_telegram_token_from_env());
+    use super::*;
 
-    //     let example_alert = TemperatureAlert {
-    //         store_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b1".to_string(),
-    //         store_name: "Store A".to_string(),
-    //         location_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b2".to_string(),
-    //         location_name: "Fridge 1".to_string(),
-    //         sensor_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b3".to_string(),
-    //         sensor_name: "E5:4G:D4:6D:A4".to_string(),
-    //         datetime: NaiveDateTime::from_str("2023-07-17T17:04:00").unwrap(),
-    //         temperature: 10.12345,
-    //     };
+    fn get_telegram_chat_id_from_env() -> String {
+        let chat_id = std::env::var("TELEGRAM_CHAT_ID");
 
-    //     let result = send_high_temperature_alert_telegram(
-    //         example_alert,
-    //         client,
-    //         get_telegram_chat_id_from_env(),
-    //     )
-    //     .await;
+        match chat_id {
+            Ok(id) => id,
+            Err(_) => {
+                println!("UNABLE TO FIND TELEGRAM_CHAT_ID FROM ENV");
+                "123456789".to_string()
+            }
+        }
+    }
 
-    //     assert_eq!(result, ());
-    // }
+    #[tokio::test]
+    async fn test_send_high_temperature_alert_telegram() {
+        let (_, _, connection_manager, _) =
+            setup_all("test_enqueue_telegram", MockDataInserts::none()).await;
+
+        let connection = connection_manager.connection().unwrap();
+        let service_provider = Arc::new(ServiceProvider::new(
+            connection_manager,
+            get_test_settings(""),
+        ));
+        let context = ServiceContext::as_server_admin(service_provider).unwrap();
+
+        let example_alert = TemperatureAlert {
+            store_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b1".to_string(),
+            store_name: "Store A".to_string(),
+            location_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b2".to_string(),
+            location_name: "Fridge 1".to_string(),
+            sensor_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b3".to_string(),
+            sensor_name: "E5:4G:D4:6D:A4".to_string(),
+            datetime: NaiveDateTime::from_str("2023-07-17T17:04:00").unwrap(),
+            temperature: 10.12345,
+        };
+
+        let recipient = NotificationRecipient {
+            name: "test".to_string(),
+            to_address: get_telegram_chat_id_from_env(),
+            notification_type: NotificationType::Telegram,
+        };
+
+        let result =
+            send_high_temperature_alert_telegram(&context, example_alert, vec![recipient]).await;
+
+        assert!(result.is_ok());
+
+        // Check we have a notification event
+        let notification_event_row_repository = NotificationEventRowRepository::new(&connection);
+        let notification_event_rows = notification_event_row_repository.un_sent().unwrap();
+
+        assert_eq!(notification_event_rows.len(), 1);
+        assert_eq!(
+            notification_event_rows[0].to_address,
+            get_telegram_chat_id_from_env()
+        );
+
+        send_test_notifications(&context);
+    }
 }

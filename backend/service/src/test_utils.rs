@@ -69,3 +69,21 @@ pub mod email_test {
         println!("Skipping email sending");
     }
 }
+
+pub mod telegram_test {
+    use crate::service_provider::ServiceContext;
+
+    #[cfg(feature = "telegram-tests")]
+    pub fn send_test_notifications(context: &ServiceContext) {
+        context
+            .service_provider
+            .notification_service
+            .send_queued_notifications(&context)
+            .unwrap();
+    }
+
+    #[cfg(not(feature = "telegram-tests"))]
+    pub fn send_test_notifications(_context: &ServiceContext) {
+        println!("Skipping notification sending");
+    }
+}

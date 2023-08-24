@@ -925,7 +925,9 @@ name = "coldchain"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "repository",
  "serde",
+ "serde_json",
  "service",
  "telegram",
  "tokio",

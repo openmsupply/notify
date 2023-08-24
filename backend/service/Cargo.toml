@@ -26,7 +26,6 @@ rand = "0.8"
 tera = "1"
 nanohtml2text = "0.1"
 
-
 [dev-dependencies]
 actix-rt = "2.6.0"
 
