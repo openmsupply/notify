@@ -7,46 +7,36 @@ import {
   NothingHere,
   PlusCircleIcon,
   TableProvider,
+  Typography,
   createTableStore,
   useColumns,
 } from '@common/ui';
 import { NotificationsModal } from '../Modals/NotificationsModal';
 import { useEditModal } from '@common/hooks';
-import { BaseNotificationConfig, NotificationConfigType } from '../types';
+import { NotificationConfigRowFragment, useNotificationConfigs } from '../api';
 
-const notifications: BaseNotificationConfig[] = [
-  {
-    id: 'notification-1',
-    title: 'CC Notification 1',
-    configType: NotificationConfigType.ColdChain,
-    recipientIds: [],
-    recipientListIds: [],
-  },
-  {
-    id: 'notification-2',
-    title: 'CC Notification 2',
-    configType: NotificationConfigType.ColdChain,
-    recipientIds: [],
-    recipientListIds: [],
-  },
-  {
-    id: 'notification-3',
-    title: 'CC Notification 3',
-    configType: NotificationConfigType.ColdChain,
-    recipientIds: [],
-    recipientListIds: [],
-  },
-];
 export const ListView = () => {
   const t = useTranslation('system');
 
-  const columns = useColumns<BaseNotificationConfig>([
+  const columns = useColumns<NotificationConfigRowFragment>([
     { key: 'title', label: 'label.title' },
-    { key: 'configType', label: 'label.type' },
+    {
+      key: 'kind',
+      label: 'label.kind',
+      Cell: props => (
+        <Typography>{t(`config-kind.${props.rowData.kind}`)}</Typography>
+      ),
+    },
   ]);
 
+  const {
+    data: notificationConfigs,
+    isError,
+    isLoading,
+  } = useNotificationConfigs();
+
   const { isOpen, onClose, entity, onOpen } =
-    useEditModal<BaseNotificationConfig>();
+    useEditModal<NotificationConfigRowFragment>();
 
   return (
     <>
@@ -63,9 +53,9 @@ export const ListView = () => {
       <TableProvider createStore={createTableStore}>
         <DataTable
           columns={columns}
-          data={notifications}
-          isError={false}
-          isLoading={false}
+          data={notificationConfigs?.nodes ?? []}
+          isError={isError}
+          isLoading={isLoading}
           onRowClick={onOpen}
           noDataElement={<NothingHere body={t('messages.no-notifications')} />}
         />

@@ -1,17 +1,16 @@
-export enum NotificationConfigType {
-  ColdChain = 'ColdChain',
-}
+import { ConfigKind } from '@common/types';
+import { NotificationConfigRowFragment } from './api';
 
-export interface BaseNotificationConfig {
-  id: string;
-  title: string;
-  configType: NotificationConfigType;
+type BaseConfig = Pick<NotificationConfigRowFragment, 'id' | 'kind' | 'title'>;
+
+// TODO: this should go away once recipient/list ids come through from the backend on the base config
+export interface BaseNotificationConfig extends BaseConfig {
   recipientIds: string[];
   recipientListIds: string[];
 }
 
 export interface CCNotification extends BaseNotificationConfig {
-  configType: NotificationConfigType.ColdChain;
+  kind: ConfigKind.ColdChain;
   highTemp: boolean;
   lowTemp: boolean;
   confirmOk: boolean;

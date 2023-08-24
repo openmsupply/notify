@@ -1,0 +1,30 @@
+fragment NotificationConfigRow on NotificationConfigNode {
+  id
+  title
+  kind
+  configurationData
+  auditLogs {
+    datetime
+    id
+    recordId
+    recordType
+    user {
+      username
+    }
+  }
+}
+
+query NotificationConfigs(
+  $filter: NotificationConfigFilterInput
+  $page: PaginationInput
+  $sort: [NotificationConfigSortInput!]
+) {
+  notificationConfigs(filter: $filter, page: $page, sort: $sort) {
+    ... on NotificationConfigConnector {
+      totalCount
+      nodes {
+        ...NotificationConfigRow
+      }
+    }
+  }
+}

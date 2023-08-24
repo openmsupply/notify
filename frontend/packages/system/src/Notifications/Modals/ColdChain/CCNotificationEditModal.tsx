@@ -1,8 +1,8 @@
 import React, { FC, useState } from 'react';
-import { ModalMode, FnUtils } from '@notify-frontend/common';
+import { ModalMode, FnUtils, ConfigKind } from '@notify-frontend/common';
 import { CCNotificationEditForm } from './CCNotificationEditForm';
 import { BaseNotificationEditModal } from '../Base/BaseNotificationEditModal';
-import { CCNotification, NotificationConfigType } from '../../types';
+import { CCNotification } from '../../types';
 
 interface CCNotificationEditModalProps {
   mode: ModalMode | null;
@@ -14,16 +14,16 @@ interface CCNotificationEditModalProps {
 const createCCNotifcation = (seed: CCNotification | null): CCNotification => ({
   id: FnUtils.generateUUID(),
   title: '',
-  configType: NotificationConfigType.ColdChain,
+  kind: ConfigKind.ColdChain,
   highTemp: false,
   lowTemp: false,
   confirmOk: false,
   remind: false,
   reminderInterval: 5,
   reminderUnits: 'minutes',
+  locationIds: [],
   recipientIds: [],
   recipientListIds: [],
-  locationIds: [],
   ...seed,
 });
 
@@ -81,7 +81,7 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
 
   return (
     <BaseNotificationEditModal
-      notificationType={NotificationConfigType.ColdChain}
+      kind={ConfigKind.ColdChain}
       isOpen={isOpen}
       isInvalid={isInvalid}
       onClose={onClose}
