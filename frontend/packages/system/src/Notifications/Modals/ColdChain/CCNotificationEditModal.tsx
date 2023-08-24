@@ -1,30 +1,42 @@
-import React, { FC, useState } from 'react';
-import { ModalMode, FnUtils } from '@notify-frontend/common';
+import React, { FC, useEffect, useState } from 'react';
+import {
+  ModalMode,
+  FnUtils,
+  ConfigKind,
+  useTranslation,
+  useNotification,
+} from '@notify-frontend/common';
 import { CCNotificationEditForm } from './CCNotificationEditForm';
 import { BaseNotificationEditModal } from '../Base/BaseNotificationEditModal';
-import { CCNotification, NotificationConfigType } from '../../types';
+import { CCNotification } from '../../types';
+import { useCreateNotificationConfig } from '../../api/hooks/useCreateNotificationConfig';
+import {
+  buildColdChainNotificationInputs,
+  parseColdChainNotificationConfig,
+} from './parseConfig';
+import { useUpdateNotificationConfig } from '../../api/hooks/useUpdateNotificationConfig';
+import { NotificationConfigRowFragment } from '../../api';
 
 interface CCNotificationEditModalProps {
   mode: ModalMode | null;
   isOpen: boolean;
   onClose: () => void;
-  entity: CCNotification | null;
+  entity: NotificationConfigRowFragment | null;
 }
 
 const createCCNotifcation = (seed: CCNotification | null): CCNotification => ({
-  id: FnUtils.generateUUID(),
-  title: '',
-  configType: NotificationConfigType.ColdChain,
-  highTemp: false,
-  lowTemp: false,
-  confirmOk: false,
-  remind: false,
-  reminderInterval: 5,
-  reminderUnits: 'minutes',
-  recipientIds: [],
-  recipientListIds: [],
-  locationIds: [],
-  ...seed,
+  id: seed?.id ?? FnUtils.generateUUID(),
+  title: seed?.title ?? '',
+  kind: seed?.kind ?? ConfigKind.ColdChain,
+  highTemp: seed?.highTemp ?? false,
+  lowTemp: seed?.lowTemp ?? false,
+  confirmOk: seed?.confirmOk ?? false,
+  remind: seed?.remind ?? false,
+  reminderInterval: seed?.reminderInterval ?? 5,
+  reminderUnits: seed?.reminderUnits ?? 'minutes',
+  locationIds: seed?.locationIds ?? [],
+  recipientIds: seed?.recipientIds ?? [],
+  recipientListIds: seed?.recipientListIds ?? [],
 });
 
 export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
@@ -33,40 +45,35 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
   onClose,
   entity,
 }) => {
-  const [draft, setDraft] = useState(() => createCCNotifcation(entity));
+  const t = useTranslation('system');
+  const { error } = useNotification();
+  const parsingErrorSnack = error(t('error.parsing-notification-config'));
+
+  const [draft, setDraft] = useState<CCNotification>(() =>
+    createCCNotifcation(null)
+  );
+
+  useEffect(() => {
+    const parsedDraft = parseColdChainNotificationConfig(
+      entity,
+      parsingErrorSnack
+    );
+    setDraft(createCCNotifcation(parsedDraft));
+  }, []);
+
+  const { mutateAsync: create, isLoading: createIsLoading } =
+    useCreateNotificationConfig();
+
+  const { mutateAsync: update, isLoading: updateIsLoading } =
+    useUpdateNotificationConfig();
 
   const onSave = async (draft: CCNotification) => {
-    const {
-      id,
-      title,
-      highTemp,
-      lowTemp,
-      confirmOk,
-      remind,
-      reminderInterval,
-      reminderUnits,
-      recipientIds,
-      recipientListIds,
-      locationIds,
-    } = draft;
-    const input = {
-      id,
-      title,
-      highTemp,
-      lowTemp,
-      confirmOk,
-      remind,
-      reminderInterval,
-      reminderUnits,
-      recipientIds,
-      recipientListIds,
-      locationIds,
-    };
-    console.log(input);
+    const inputs = buildColdChainNotificationInputs(draft);
+
     if (mode === ModalMode.Create) {
-      //   await insert(input);
-      // } else {
-      //   await update(input);
+      await create({ input: inputs.create });
+    } else {
+      await update({ input: inputs.update });
     }
   };
 
@@ -81,8 +88,9 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
 
   return (
     <BaseNotificationEditModal
-      notificationType={NotificationConfigType.ColdChain}
+      kind={ConfigKind.ColdChain}
       isOpen={isOpen}
+      isLoading={createIsLoading || updateIsLoading}
       isInvalid={isInvalid}
       onClose={onClose}
       onSave={onSave}

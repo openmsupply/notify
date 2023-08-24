@@ -6,26 +6,26 @@ import {
   LoadingButton,
   ArrowRightIcon,
   Select,
+  ConfigKind,
 } from '@notify-frontend/common';
-import { NotificationConfigType } from '../types';
 
 interface SelectNotificationTypeModalProps {
   isOpen: boolean;
-  submit: (type: NotificationConfigType) => void;
+  submit: (kind: ConfigKind) => void;
   onClose: () => void;
 }
 
-export const SelectNotificationConfigModal = ({
+export const SelectConfigKindModal = ({
   isOpen,
   onClose,
   submit,
 }: SelectNotificationTypeModalProps) => {
   const t = useTranslation(['system']);
-  const [type, setType] = useState<NotificationConfigType | ''>('');
+  const [kind, setKind] = useState<ConfigKind | ''>('');
 
   const { Modal } = useDialog({ isOpen, onClose });
 
-  const isInvalid = !type;
+  const isInvalid = !kind;
 
   return (
     <>
@@ -34,8 +34,8 @@ export const SelectNotificationConfigModal = ({
           <LoadingButton
             disabled={isInvalid}
             onClick={() => {
-              if (type) {
-                submit(type);
+              if (kind) {
+                submit(kind);
                 onClose();
               }
             }}
@@ -52,11 +52,13 @@ export const SelectNotificationConfigModal = ({
         <Select
           fullWidth
           label={t('label.select-notification-type')}
-          value={type}
-          onChange={e => setType(e.target.value as NotificationConfigType)}
+          value={kind}
+          onChange={e => setKind(e.target.value as ConfigKind)}
           options={[
-            // TODO: these options come from backend
-            { label: 'Cold Chain', value: NotificationConfigType.ColdChain },
+            {
+              label: t(`config-kind.${ConfigKind.ColdChain}`),
+              value: ConfigKind.ColdChain,
+            },
           ]}
           InputLabelProps={{ shrink: true }}
         />

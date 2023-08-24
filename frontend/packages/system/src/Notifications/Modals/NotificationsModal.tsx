@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useEditModal } from '@notify-frontend/common';
+import { ConfigKind, useEditModal } from '@notify-frontend/common';
 import { CCNotificationEditModal } from './ColdChain/CCNotificationEditModal';
-import { SelectNotificationConfigModal } from './SelectNotificationConfigModal';
-import {
-  BaseNotificationConfig,
-  CCNotification,
-  NotificationConfigType,
-} from '../types';
+import { SelectConfigKindModal } from './SelectConfigKindModal';
+import { NotificationConfigRowFragment } from '../api';
 
 interface NotificationsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  entity: BaseNotificationConfig | null;
+  entity: NotificationConfigRowFragment | null;
 }
 
 export const NotificationsModal = ({
@@ -19,12 +15,12 @@ export const NotificationsModal = ({
   entity,
   onClose,
 }: NotificationsModalProps) => {
-  const [type, setType] = useState<NotificationConfigType | ''>('');
+  const [kind, setKind] = useState<ConfigKind | ''>('');
 
   useEffect(() => {
     if (isOpen) {
       if (entity) {
-        setType(entity.configType);
+        setKind(entity.kind);
         configOnOpen(entity);
       } else {
         selectOnOpen();
@@ -36,7 +32,7 @@ export const NotificationsModal = ({
     isOpen: selectIsOpen,
     onClose: selectOnClose,
     onOpen: selectOnOpen,
-  } = useEditModal<NotificationConfigType>();
+  } = useEditModal<ConfigKind>();
 
   const {
     isOpen: configIsOpen,
@@ -44,7 +40,7 @@ export const NotificationsModal = ({
     onClose: configOnClose,
     onOpen: configOnOpen,
     entity: configEntity,
-  } = useEditModal<BaseNotificationConfig>();
+  } = useEditModal<NotificationConfigRowFragment>();
 
   const ConfigModal = () => {
     const props = {
@@ -56,14 +52,9 @@ export const NotificationsModal = ({
       },
     };
 
-    switch (type) {
-      case NotificationConfigType.ColdChain:
-        return (
-          <CCNotificationEditModal
-            {...props}
-            entity={configEntity as CCNotification}
-          />
-        );
+    switch (kind) {
+      case ConfigKind.ColdChain:
+        return <CCNotificationEditModal {...props} entity={configEntity} />;
       default:
         return <></>;
     }
@@ -72,14 +63,14 @@ export const NotificationsModal = ({
   return (
     <>
       {selectIsOpen && (
-        <SelectNotificationConfigModal
+        <SelectConfigKindModal
           isOpen={selectIsOpen}
           onClose={() => {
             onClose();
             selectOnClose();
           }}
-          submit={t => {
-            setType(t);
+          submit={k => {
+            setKind(k);
             configOnOpen();
           }}
         />

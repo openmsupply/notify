@@ -73,7 +73,7 @@ export const BaseNotificationEditForm = <T extends BaseNotificationConfig>({
         />
         <CustomForm draft={draft} onUpdate={onUpdate} />
         <StyledButton onClick={() => onOpen()}>
-          {selectedNames || t('label.select-recipients')}
+          {selectedNames ? `${selectedNames};` : t('label.select-recipients')}
           <PlusCircleIcon color="primary" />
         </StyledButton>
       </Grid>

@@ -50,6 +50,7 @@ pub struct NotificationConfigFilterInput {
     pub id: Option<EqualFilterStringInput>,
     pub title: Option<StringFilterInput>,
     pub kind: Option<EqualFilterConfigKindInput>,
+    pub search: Option<String>,
 }
 
 impl From<NotificationConfigFilterInput> for NotificationConfigFilter {
@@ -58,6 +59,7 @@ impl From<NotificationConfigFilterInput> for NotificationConfigFilter {
             id: f.id.map(EqualFilter::from),
             title: f.title.map(StringFilter::from),
             kind: f.kind.map(|t| map_filter!(t, ConfigKind::to_domain)),
+            search: f.search,
         }
     }
 }
