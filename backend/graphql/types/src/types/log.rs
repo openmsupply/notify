@@ -27,6 +27,10 @@ pub enum LogNodeType {
     RecipientListUpdated,
     RecipientAddedToList,
     RecipientRemovedFromList,
+    RecipientAddedToNotificationConfig,
+    RecipientListAddedToNotificationConfig,
+    RecipientRemovedFromNotificationConfig,
+    RecipientListRemovedFromNotificationConfig,
     UserLoggedIn,
     UserAccountCreated,
     UserAccountUpdated,
@@ -87,6 +91,18 @@ impl LogNodeType {
             LogType::RecipientListUpdated => LogNodeType::RecipientListUpdated,
             LogType::RecipientAddedToList => LogNodeType::RecipientAddedToList,
             LogType::RecipientRemovedFromList => LogNodeType::RecipientRemovedFromList,
+            LogType::RecipientAddedToNotificationConfig => {
+                LogNodeType::RecipientAddedToNotificationConfig
+            }
+            LogType::RecipientRemovedFromNotificationConfig => {
+                LogNodeType::RecipientRemovedFromNotificationConfig
+            }
+            LogType::RecipientListAddedToNotificationConfig => {
+                LogNodeType::RecipientListAddedToNotificationConfig
+            }
+            LogType::RecipientListRemovedFromNotificationConfig => {
+                LogNodeType::RecipientListRemovedFromNotificationConfig
+            }
             LogType::UserLoggedIn => LogNodeType::UserLoggedIn,
             LogType::UserAccountCreated => LogNodeType::UserAccountCreated,
             LogType::UserAccountUpdated => LogNodeType::UserAccountUpdated,
@@ -106,6 +122,18 @@ impl LogNodeType {
             LogNodeType::RecipientListUpdated => LogType::RecipientListUpdated,
             LogNodeType::RecipientAddedToList => LogType::RecipientAddedToList,
             LogNodeType::RecipientRemovedFromList => LogType::RecipientRemovedFromList,
+            LogNodeType::RecipientAddedToNotificationConfig => {
+                LogType::RecipientAddedToNotificationConfig
+            }
+            LogNodeType::RecipientRemovedFromNotificationConfig => {
+                LogType::RecipientRemovedFromNotificationConfig
+            }
+            LogNodeType::RecipientListAddedToNotificationConfig => {
+                LogType::RecipientListAddedToNotificationConfig
+            }
+            LogNodeType::RecipientListRemovedFromNotificationConfig => {
+                LogType::RecipientListRemovedFromNotificationConfig
+            }
             LogNodeType::UserLoggedIn => LogType::UserLoggedIn,
             LogNodeType::UserAccountCreated => LogType::UserAccountCreated,
             LogNodeType::UserAccountUpdated => LogType::UserAccountUpdated,

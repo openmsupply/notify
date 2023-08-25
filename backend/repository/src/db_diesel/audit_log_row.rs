@@ -29,6 +29,10 @@ pub enum LogType {
     RecipientListUpdated,
     RecipientAddedToList,
     RecipientRemovedFromList,
+    RecipientAddedToNotificationConfig,
+    RecipientListAddedToNotificationConfig,
+    RecipientRemovedFromNotificationConfig,
+    RecipientListRemovedFromNotificationConfig,
     NotificationConfigCreated,
     NotificationConfigUpdated,
 }
