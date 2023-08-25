@@ -10,7 +10,6 @@ mod notification_config_query_test {
     use repository::{
         EqualFilter, NotificationConfigRow, NotificationConfigRowRepository, PaginationOption, Sort,
     };
-    use util::uuid::uuid;
 
     use crate::service_provider::ServiceContext;
     use crate::test_utils::get_test_settings;
@@ -139,25 +138,21 @@ mod notification_config_query_test {
 
         let repo = NotificationConfigRowRepository::new(&connection);
 
-        let id_1 = uuid();
-        let id_2 = uuid();
-        let id_3 = uuid();
-
         // Insert 2 configs, 2 with "XXXX" as a substring and one without
         repo.insert_one(&NotificationConfigRow {
-            id: id_1.clone(),
+            id: "some-id-1".to_string(),
             title: "title with XXXX as substr".to_string(),
             ..Default::default()
         })
         .unwrap();
         repo.insert_one(&NotificationConfigRow {
-            id: id_2.clone(),
+            id: "some-id-2".to_string(),
             title: "XXXXXXXXX".to_string(),
             ..Default::default()
         })
         .unwrap();
         repo.insert_one(&NotificationConfigRow {
-            id: id_3,
+            id: "some-id-3".to_string(),
             title: "non-matching title".to_string(),
             ..Default::default()
         })
@@ -173,8 +168,8 @@ mod notification_config_query_test {
             .unwrap();
 
         assert_eq!(db_notification_configs.count, 2);
-        assert_eq!(db_notification_configs.rows[0].id, id_1);
-        assert_eq!(db_notification_configs.rows[1].id, id_2);
+        assert_eq!(db_notification_configs.rows[0].id, "some-id-1".to_string());
+        assert_eq!(db_notification_configs.rows[1].id, "some-id-2".to_string());
     }
 
     #[actix_rt::test]
