@@ -1,30 +1,17 @@
 #[cfg(test)]
 mod recipient_create_test {
+    use repository::mock::MockDataInserts;
     use repository::mock::{mock_recipient_a, mock_recipient_d_deleted};
-    use repository::{mock::MockDataInserts, test_db::setup_all};
     use repository::{NotificationType, RecipientRowRepository};
-    use std::sync::Arc;
     use util::uuid::uuid;
 
     use crate::recipient::create::CreateRecipient;
     use crate::recipient::ModifyRecipientError;
-    use crate::service_provider::ServiceContext;
-    use crate::service_provider::ServiceProvider;
 
-    use crate::test_utils::get_test_settings;
+    use crate::test_utils::get_test_service_context;
     #[actix_rt::test]
     async fn create_recipient_service_errors() {
-        let (_, _, connection_manager, _) = setup_all(
-            "create_recipient_service_errors",
-            MockDataInserts::none().recipients(),
-        )
-        .await;
-
-        let service_provider = Arc::new(ServiceProvider::new(
-            connection_manager,
-            get_test_settings(""),
-        ));
-        let context = ServiceContext::new(service_provider).unwrap();
+        let (context, _) = get_test_service_context(MockDataInserts::none().recipients()).await;
         let service = &context.service_provider.recipient_service;
 
         //Create for a id that already exists
@@ -72,16 +59,9 @@ mod recipient_create_test {
 
     #[actix_rt::test]
     async fn create_recipient_service_success() {
-        let (_, _, connection_manager, _) =
-            setup_all("create_recipient_service_success", MockDataInserts::none()).await;
-
-        let connection = connection_manager.connection().unwrap();
+        let (context, connection) =
+            get_test_service_context(MockDataInserts::none().recipients()).await;
         let recipient_row_repository = RecipientRowRepository::new(&connection);
-        let service_provider = Arc::new(ServiceProvider::new(
-            connection_manager,
-            get_test_settings(""),
-        ));
-        let context = ServiceContext::as_server_admin(service_provider).unwrap();
         let service = &context.service_provider.recipient_service;
 
         let new_recipient_id = uuid();
@@ -113,19 +93,9 @@ mod recipient_create_test {
 
     #[actix_rt::test]
     async fn create_recipient_same_to_address_different_type_success() {
-        let (_, _, connection_manager, _) = setup_all(
-            "create_recipient_same_to_address_different_type_success",
-            MockDataInserts::none().recipients(),
-        )
-        .await;
-
-        let connection = connection_manager.connection().unwrap();
+        let (context, connection) =
+            get_test_service_context(MockDataInserts::none().recipients()).await;
         let recipient_row_repository = RecipientRowRepository::new(&connection);
-        let service_provider = Arc::new(ServiceProvider::new(
-            connection_manager,
-            get_test_settings(""),
-        ));
-        let context = ServiceContext::as_server_admin(service_provider).unwrap();
         let service = &context.service_provider.recipient_service;
 
         let new_recipient_id = uuid();

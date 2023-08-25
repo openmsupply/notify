@@ -11,7 +11,7 @@ mod recipient_query_test {
 
     #[actix_rt::test]
     async fn recipient_service_pagination() {
-        let context = get_test_service_context(MockDataInserts::none().recipients()).await;
+        let (context, _) = get_test_service_context(MockDataInserts::none().recipients()).await;
         let service = &context.service_provider.recipient_service;
 
         assert_eq!(
@@ -43,7 +43,7 @@ mod recipient_query_test {
 
     #[actix_rt::test]
     async fn recipient_service_single_record() {
-        let context = get_test_service_context(MockDataInserts::none().recipients()).await;
+        let (context, _) = get_test_service_context(MockDataInserts::none().recipients()).await;
         let service = &context.service_provider.recipient_service;
 
         assert_eq!(
@@ -60,7 +60,7 @@ mod recipient_query_test {
 
     #[actix_rt::test]
     async fn recipient_service_filter() {
-        let context = get_test_service_context(MockDataInserts::none().recipients()).await;
+        let (context, _) = get_test_service_context(MockDataInserts::none().recipients()).await;
         let service = &context.service_provider.recipient_service;
 
         let db_recipients = service
@@ -78,7 +78,7 @@ mod recipient_query_test {
 
     #[actix_rt::test]
     async fn recipient_service_filters_deleted() {
-        let context = get_test_service_context(MockDataInserts::none().recipients()).await;
+        let (context, _) = get_test_service_context(MockDataInserts::none().recipients()).await;
         let service = &context.service_provider.recipient_service;
 
         let db_recipients = service
@@ -98,7 +98,7 @@ mod recipient_query_test {
 
     #[actix_rt::test]
     async fn recipient_service_filter_search() {
-        let context = get_test_service_context(MockDataInserts::none().recipients()).await;
+        let (context, _) = get_test_service_context(MockDataInserts::none().recipients()).await;
         let service = &context.service_provider.recipient_service;
 
         let to_address_search_db_recipients = service
@@ -148,7 +148,7 @@ mod recipient_query_test {
 
     #[actix_rt::test]
     async fn recipient_service_sort() {
-        let context = get_test_service_context(MockDataInserts::none().recipients()).await;
+        let (context, _) = get_test_service_context(MockDataInserts::none().recipients()).await;
         let service = &context.service_provider.recipient_service;
 
         let mock_data_names: Vec<String> = mock_recipients()

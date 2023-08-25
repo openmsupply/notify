@@ -4,7 +4,7 @@ use datasource::PostgresSettings;
 use repository::{
     mock::MockDataInserts,
     test_db::{get_test_db_settings, setup_all},
-    StorageConnectionManager,
+    StorageConnection, StorageConnectionManager,
 };
 use util::uuid::uuid;
 
@@ -14,16 +14,18 @@ use crate::{
     settings::{MailSettings, ServerSettings, Settings, TelegramSettings},
 };
 
-pub async fn get_test_service_context(mock_data: MockDataInserts) -> ServiceContext {
+pub async fn get_test_service_context(
+    mock_data: MockDataInserts,
+) -> (ServiceContext, StorageConnection) {
     let (_, _, connection_manager, _) = setup_all(&uuid(), mock_data).await;
 
     let service_provider = Arc::new(ServiceProvider::new(
-        connection_manager,
+        connection_manager.clone(),
         get_test_settings(""),
     ));
     let context = ServiceContext::new(service_provider).unwrap();
 
-    context
+    (context, connection_manager.connection().unwrap())
 }
 
 // The following settings work for PG and Sqlite (username, password, host and port are
