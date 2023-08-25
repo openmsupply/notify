@@ -29,8 +29,8 @@ trap "rm -f ${LOCKFILE}; exit" INT TERM EXIT
 echo $$ > ${LOCKFILE}
 
 if [ "$(id -u)" = "0" ]; then
-  echo "Running as root. Switching to hsh user..."
-  sudo -S -u hsh GIT_BRANCH=$GIT_BRANCH DEB_BUILD_VERSION=$DEB_BUILD_VERSION bash -i -c "cd /home/notify/notify/; ./build_deb_package.sh" >> $LOGFILE 2>&1
+  echo "Running as root. Switching to notify user..."
+  sudo -S -u notify GIT_BRANCH=$GIT_BRANCH DEB_BUILD_VERSION=$DEB_BUILD_VERSION bash -i -c "cd /home/notify/notify/; ./build_deb_package.sh" >> $LOGFILE 2>&1
 else
   echo "Not running as root."
   time ./build_deb_test_package.sh >> $LOGFILE 2>&1
