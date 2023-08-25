@@ -81,6 +81,13 @@ export type DeleteRecipientListMutationVariables = Types.Exact<{
 
 export type DeleteRecipientListMutation = { __typename: 'FullMutation', deleteRecipientList: { __typename: 'DeleteResponse', id: string } };
 
+export type SendTestTelegramMessageMutationVariables = Types.Exact<{
+  chatId: Types.Scalars['String']['input'];
+}>;
+
+
+export type SendTestTelegramMessageMutation = { __typename: 'FullMutation', sendTestTelegramMessage: { __typename: 'TelegramMessageNode', chatName: string, message: string } };
+
 export const RecipientRowFragmentDoc = gql`
     fragment RecipientRow on RecipientNode {
   id
@@ -213,6 +220,17 @@ export const DeleteRecipientListDocument = gql`
   }
 }
     `;
+export const SendTestTelegramMessageDocument = gql`
+    mutation sendTestTelegramMessage($chatId: String!) {
+  sendTestTelegramMessage(chatId: $chatId) {
+    ... on TelegramMessageNode {
+      __typename
+      chatName
+      message
+    }
+  }
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string) => Promise<T>;
 
@@ -250,6 +268,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     deleteRecipientList(variables: DeleteRecipientListMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<DeleteRecipientListMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<DeleteRecipientListMutation>(DeleteRecipientListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteRecipientList', 'mutation');
+    },
+    sendTestTelegramMessage(variables: SendTestTelegramMessageMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<SendTestTelegramMessageMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<SendTestTelegramMessageMutation>(SendTestTelegramMessageDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'sendTestTelegramMessage', 'mutation');
     }
   };
 }
