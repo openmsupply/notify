@@ -1,6 +1,13 @@
 use super::{dataloader::DataLoader, LogNode};
 use async_graphql::{Context, Enum, Object, SimpleObject, Union};
-use graphql_core::{loader::AuditLogLoader, simple_generic_errors::NodeError, ContextExt};
+use graphql_core::{
+    loader::{
+        AuditLogLoader, NotificationConfigRecipientIdsLoader,
+        NotificationConfigRecipientListIdsLoader,
+    },
+    simple_generic_errors::NodeError,
+    ContextExt,
+};
 use repository::{NotificationConfig, NotificationConfigKind};
 use serde::Serialize;
 use service::ListResult;
@@ -35,6 +42,33 @@ impl NotificationConfigNode {
     }
     pub async fn configuration_data(&self) -> &str {
         &self.row().configuration_data
+    }
+    pub async fn recipient_ids(
+        &self,
+        ctx: &Context<'_>,
+    ) -> Result<Vec<String>, async_graphql::Error> {
+        let loader = ctx.get_loader::<DataLoader<NotificationConfigRecipientIdsLoader>>();
+
+        let result = loader
+            .load_one(self.row().id.to_string())
+            .await?
+            .unwrap_or_default();
+
+        Ok(result)
+    }
+
+    pub async fn recipient_list_ids(
+        &self,
+        ctx: &Context<'_>,
+    ) -> Result<Vec<String>, async_graphql::Error> {
+        let loader = ctx.get_loader::<DataLoader<NotificationConfigRecipientListIdsLoader>>();
+
+        let result = loader
+            .load_one(self.row().id.to_string())
+            .await?
+            .unwrap_or_default();
+
+        Ok(result)
     }
 
     pub async fn audit_logs(
