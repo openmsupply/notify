@@ -38,6 +38,8 @@ pub struct CreateNotificationConfigInput {
     pub id: String,
     pub title: String,
     pub kind: ConfigKind,
+    pub recipient_ids: Vec<String>,
+    pub recipient_list_ids: Vec<String>,
     pub configuration_data: String,
 }
 
@@ -48,6 +50,8 @@ impl From<CreateNotificationConfigInput> for CreateNotificationConfig {
             title,
             kind,
             configuration_data,
+            recipient_ids,
+            recipient_list_ids,
         }: CreateNotificationConfigInput,
     ) -> Self {
         CreateNotificationConfig {
@@ -55,6 +59,8 @@ impl From<CreateNotificationConfigInput> for CreateNotificationConfig {
             title,
             kind: ConfigKind::to_domain(kind),
             configuration_data,
+            recipient_ids,
+            recipient_list_ids,
         }
     }
 }

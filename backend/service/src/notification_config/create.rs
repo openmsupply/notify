@@ -7,7 +7,12 @@ use repository::{
 use crate::{audit_log::audit_log_entry, service_provider::ServiceContext};
 
 use super::{
-    query::get_notification_config, validate::check_notification_config_does_not_exist,
+    add_recipient::{add_recipient_to_notification_config, AddRecipientToNotificationConfig},
+    add_recipient_list::{
+        add_recipient_list_to_notification_config, AddRecipientListToNotificationConfig,
+    },
+    query::get_notification_config,
+    validate::check_notification_config_does_not_exist,
     ModifyNotificationConfigError,
 };
 
@@ -17,6 +22,8 @@ pub struct CreateNotificationConfig {
     pub title: String,
     pub kind: NotificationConfigKind,
     pub configuration_data: String,
+    pub recipient_ids: Vec<String>,
+    pub recipient_list_ids: Vec<String>,
 }
 
 pub fn create_notification_config(
@@ -30,6 +37,26 @@ pub fn create_notification_config(
             let new_config_row = generate(new_config.clone())?;
 
             NotificationConfigRowRepository::new(connection).insert_one(&new_config_row)?;
+
+            for id in new_config.recipient_ids.clone() {
+                add_recipient_to_notification_config(
+                    ctx,
+                    AddRecipientToNotificationConfig {
+                        notification_config_id: new_config.id.clone(),
+                        recipient_id: id,
+                    },
+                )?;
+            }
+
+            for id in new_config.recipient_list_ids.clone() {
+                add_recipient_list_to_notification_config(
+                    ctx,
+                    AddRecipientListToNotificationConfig {
+                        notification_config_id: new_config.id.clone(),
+                        recipient_list_id: id,
+                    },
+                )?;
+            }
 
             get_notification_config(ctx, new_config_row.id)
                 .map_err(ModifyNotificationConfigError::from)
@@ -62,6 +89,8 @@ pub fn generate(
         title,
         kind,
         configuration_data,
+        recipient_ids: _,      // managed separately
+        recipient_list_ids: _, // managed separately
     }: CreateNotificationConfig,
 ) -> Result<NotificationConfigRow, ModifyNotificationConfigError> {
     Ok(NotificationConfigRow {
