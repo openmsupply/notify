@@ -132,9 +132,12 @@ mod test {
     };
 
     #[actix_rt::test]
-    async fn test_create_notification_events() {
-        let (_, _, connection_manager, _) =
-            setup_all("test_enqueue_telegram", MockDataInserts::none()).await;
+    async fn test_create_notification_events_email() {
+        let (_, _, connection_manager, _) = setup_all(
+            "test_create_notification_events_email",
+            MockDataInserts::none(),
+        )
+        .await;
 
         let connection = connection_manager.connection().unwrap();
         let service_provider = Arc::new(ServiceProvider::new(
@@ -146,8 +149,8 @@ mod test {
         let result = create_notification_events(
             &context,
             NotificationContext {
-                title_template_name: None,
-                body_template_name: "email".to_string(),
+                title_template_name: Some("test_message/email_subject.html".to_string()),
+                body_template_name: "test_message/email.html".to_string(),
                 recipients: vec![NotificationRecipient {
                     name: "test".to_string(),
                     to_address: "test@example.com".to_string(),
@@ -167,6 +170,47 @@ mod test {
         assert_eq!(
             notification_event_rows[0].to_address,
             "test@example.com".to_string()
+        );
+        assert!(notification_event_rows[0].title.is_some());
+    }
+
+    #[actix_rt::test]
+    async fn test_create_notification_events_telegram() {
+        let (_, _, connection_manager, _) = setup_all(
+            "test_create_notification_events_telegram",
+            MockDataInserts::none(),
         )
+        .await;
+
+        let connection = connection_manager.connection().unwrap();
+        let service_provider = Arc::new(ServiceProvider::new(
+            connection_manager,
+            get_test_settings(""),
+        ));
+        let context = ServiceContext::as_server_admin(service_provider).unwrap();
+
+        let result = create_notification_events(
+            &context,
+            NotificationContext {
+                title_template_name: None,
+                body_template_name: "test_message/telegram.html".to_string(),
+                recipients: vec![NotificationRecipient {
+                    name: "telegram".to_string(),
+                    to_address: "-12345".to_string(),
+                    notification_type: NotificationType::Telegram,
+                }],
+                template_data: serde_json::json!({}),
+            },
+        );
+
+        assert!(result.is_ok());
+
+        // Check we have a notification event with no title but does have a message
+        let notification_event_row_repository = NotificationEventRowRepository::new(&connection);
+        let notification_event_rows = notification_event_row_repository.un_sent().unwrap();
+
+        assert_eq!(notification_event_rows.len(), 1);
+        assert_eq!(notification_event_rows[0].to_address, "-12345".to_string());
+        assert_ne!(notification_event_rows[0].message, "");
     }
 }
