@@ -56,13 +56,16 @@ pub fn render_template(
 
 #[cfg(test)]
 mod test {
+    use crate::test_utils::find_base_dir;
+
     use super::*;
 
     #[test]
     fn test_render_template() {
         let variables: serde_json::Value = serde_json::from_str("{\"name\": \"world\"}").unwrap();
-        let tera = tera_with_template(None);
-        let rendered = render_template(&tera, "index.html", variables).unwrap();
+        let test_templates_path = find_base_dir().to_str().unwrap().to_string();
+        let tera = tera_with_template(Some(format!("{}/templates/**/*", test_templates_path)));
+        let rendered = render_template(&tera, "hello_world.html", variables).unwrap();
         assert!(rendered.contains("Hello, world"));
     }
 }

@@ -25,7 +25,7 @@ Temperature: 10° C
 -----------------------
 */
 
-#[derive(Debug, Serialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct TemperatureAlert {
     pub store_id: String,
     pub store_name: String,
@@ -106,7 +106,8 @@ mod tests {
         };
 
         let result =
-            send_high_temperature_alert_telegram(&context, example_alert, vec![recipient]).await;
+            send_high_temperature_alert_telegram(&context, example_alert.clone(), vec![recipient])
+                .await;
 
         assert!(result.is_ok());
 
@@ -119,7 +120,11 @@ mod tests {
             notification_event_rows[0].to_address,
             get_default_telegram_chat_id()
         );
+        assert!(notification_event_rows[0].title.is_none());
+        assert!(notification_event_rows[0]
+            .message
+            .contains(&example_alert.store_name));
 
-        send_test_notifications(&context);
+        send_test_notifications(&context).await;
     }
 }

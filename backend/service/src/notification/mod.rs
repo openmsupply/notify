@@ -1,6 +1,7 @@
 use self::renderer::RenderError;
 use crate::service_provider::ServiceContext;
 use crate::settings::Settings;
+use async_trait::async_trait;
 use chrono::Utc;
 use lettre::address::AddressError;
 use repository::{
@@ -8,7 +9,6 @@ use repository::{
 };
 use serde_json::json;
 use tera::Tera;
-use tokio::runtime::Handle;
 
 pub mod enqueue;
 pub mod renderer;
@@ -16,6 +16,7 @@ pub mod renderer;
 pub static MAX_RETRIES: i32 = 3;
 
 // We use a trait for NotificationService to allow mocking in tests
+#[async_trait(?Send)]
 pub trait NotificationServiceTrait: Send + Sync {
     fn render(
         &self,
@@ -25,7 +26,7 @@ pub trait NotificationServiceTrait: Send + Sync {
 
     fn render_no_params(&self, template_name: &str) -> Result<String, NotificationServiceError>;
 
-    fn send_queued_notifications(
+    async fn send_queued_notifications(
         &self,
         ctx: &ServiceContext,
     ) -> Result<usize, NotificationServiceError>;
@@ -70,6 +71,7 @@ impl NotificationService {
     }
 }
 
+#[async_trait(?Send)]
 impl NotificationServiceTrait for NotificationService {
     fn render(
         &self,
@@ -83,30 +85,15 @@ impl NotificationServiceTrait for NotificationService {
         renderer::render_template(&self.tera, template_name, json!({})).map_err(|e| e.into())
     }
 
-    fn send_queued_notifications(
+    async fn send_queued_notifications(
         &self,
         ctx: &ServiceContext,
     ) -> Result<usize, NotificationServiceError> {
         log::debug!("Sending queued notifications");
 
-        // Create a tokio run time so we can run async code.
-        // Note we using a current thread runtime, so this will block the current thread until the async code is complete.
-        // Which is good in this case, as I think/hope it will prevent multiple copies of this running at once.
-        // TODO: Verify this is the case, or add a mutex
-        let rt = Handle::try_current();
-        let rt = match rt {
-            Ok(rt) => rt,
-            Err(e) => {
-                log::error!("Unable to get tokio runtime from actix: {:?}", e);
-                return Err(NotificationServiceError::GenericError(
-                    "Unable to get tokio runtime, are you calling this from an actix or tokio runtime?"
-                        .to_string(),
-                ));
-            }
-        };
-
         let repo = NotificationEventRowRepository::new(&ctx.connection);
         let queued_notifications = repo.un_sent()?;
+
         let mut error_count = 0;
         let mut sent_count = 0;
 
@@ -122,9 +109,10 @@ impl NotificationServiceTrait for NotificationService {
 
             // Try to send via telegram
             if let Some(telegram) = &ctx.service_provider.telegram {
-                let result = rt.block_on(
-                    telegram.send_html_message(&notification.to_address, &notification.message),
-                );
+                let result = telegram
+                    .send_html_message(&notification.to_address, &notification.message)
+                    .await;
+
                 match result {
                     Ok(_) => {
                         log::info!("Sent telegram message to {}", notification.to_address);

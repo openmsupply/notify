@@ -25,6 +25,7 @@ lettre = "0.10.1"
 rand = "0.8"
 tera = "1"
 nanohtml2text = "0.1"
+async-trait = "0.1.30"
 
 [dev-dependencies]
 actix-rt = "2.6.0"
