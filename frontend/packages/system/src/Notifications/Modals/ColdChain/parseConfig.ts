@@ -19,14 +19,14 @@ export function parseColdChainNotificationConfig(
       reminderInterval,
       reminderUnits,
       locationIds,
-      recipientIds,
-      recipientListIds,
     } = JSON.parse(config.configurationData);
 
     return {
       id: config.id,
       title: config.title,
       kind: config.kind,
+      recipientIds: config.recipientIds,
+      recipientListIds: config.recipientListIds,
       highTemp,
       lowTemp,
       confirmOk,
@@ -34,8 +34,6 @@ export function parseColdChainNotificationConfig(
       reminderInterval,
       reminderUnits,
       locationIds,
-      recipientIds,
-      recipientListIds,
     };
   } catch (e) {
     showError();
@@ -63,13 +61,13 @@ export function buildColdChainNotificationInputs(config: CCNotification): {
     reminderInterval,
     reminderUnits,
     locationIds,
-    recipientIds,
-    recipientListIds,
   } = config;
 
   const input = {
     id: config.id,
     title: config.title,
+    recipientIds: config.recipientIds,
+    recipientListIds: config.recipientListIds,
     configurationData: JSON.stringify({
       highTemp,
       lowTemp,
@@ -78,8 +76,6 @@ export function buildColdChainNotificationInputs(config: CCNotification): {
       reminderInterval,
       reminderUnits,
       locationIds,
-      recipientIds,
-      recipientListIds,
     }),
   };
 

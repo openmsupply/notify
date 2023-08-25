@@ -391,10 +391,14 @@ export enum LogNodeType {
   NotificationConfigCreated = 'NOTIFICATION_CONFIG_CREATED',
   NotificationConfigUpdated = 'NOTIFICATION_CONFIG_UPDATED',
   RecipientAddedToList = 'RECIPIENT_ADDED_TO_LIST',
+  RecipientAddedToNotificationConfig = 'RECIPIENT_ADDED_TO_NOTIFICATION_CONFIG',
   RecipientCreated = 'RECIPIENT_CREATED',
+  RecipientListAddedToNotificationConfig = 'RECIPIENT_LIST_ADDED_TO_NOTIFICATION_CONFIG',
   RecipientListCreated = 'RECIPIENT_LIST_CREATED',
+  RecipientListRemovedFromNotificationConfig = 'RECIPIENT_LIST_REMOVED_FROM_NOTIFICATION_CONFIG',
   RecipientListUpdated = 'RECIPIENT_LIST_UPDATED',
   RecipientRemovedFromList = 'RECIPIENT_REMOVED_FROM_LIST',
+  RecipientRemovedFromNotificationConfig = 'RECIPIENT_REMOVED_FROM_NOTIFICATION_CONFIG',
   RecipientUpdated = 'RECIPIENT_UPDATED',
   UserAccountCreated = 'USER_ACCOUNT_CREATED',
   UserAccountPasswordResetInitiated = 'USER_ACCOUNT_PASSWORD_RESET_INITIATED',
@@ -474,6 +478,8 @@ export type NotificationConfigNode = {
   configurationData: Scalars['String']['output'];
   id: Scalars['String']['output'];
   kind: ConfigKind;
+  recipientIds: Array<Scalars['String']['output']>;
+  recipientListIds: Array<Scalars['String']['output']>;
   title: Scalars['String']['output'];
 };
 
@@ -658,6 +664,8 @@ export type TokenExpired = RefreshTokenErrorInterface & {
 export type UpdateNotificationConfigInput = {
   configurationData?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
+  recipientIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  recipientListIds?: InputMaybe<Array<Scalars['String']['input']>>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
