@@ -33,7 +33,14 @@ pub fn map_error(error: ModifyNotificationConfigError) -> Result<ModifyNotificat
         ModifyNotificationConfigError::NotificationConfigRecipientAlreadyExists => {
             BadUserInput(formatted_error)
         }
+        ModifyNotificationConfigError::NotificationConfigRecipientListDoesNotExist => {
+            BadUserInput(formatted_error)
+        }
+        ModifyNotificationConfigError::NotificationConfigRecipientListAlreadyExists => {
+            BadUserInput(formatted_error)
+        }
         ModifyNotificationConfigError::RecipientDoesNotExist => BadUserInput(formatted_error),
+        ModifyNotificationConfigError::RecipientListDoesNotExist => BadUserInput(formatted_error),
         ModifyNotificationConfigError::ModifiedRecordNotFound => InternalError(formatted_error),
         ModifyNotificationConfigError::DatabaseError(_) => InternalError(formatted_error),
         ModifyNotificationConfigError::GenericError(s) => InternalError(s),

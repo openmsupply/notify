@@ -12,3 +12,6 @@ mod delete;
 
 #[cfg(test)]
 mod add_recipient;
+
+#[cfg(test)]
+mod add_recipient_list;
