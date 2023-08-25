@@ -1,11 +1,12 @@
 use repository::{
-    NotificationConfig, NotificationConfigFilter, NotificationConfigSort, PaginationOption,
-    RepositoryError,
+    NotificationConfig, NotificationConfigFilter, NotificationConfigRecipient,
+    NotificationConfigSort, PaginationOption, RepositoryError,
 };
 
 use crate::{service_provider::ServiceContext, ListError, ListResult, SingleRecordError};
 
 use self::{
+    add_recipient::{add_recipient_to_notification_config, AddRecipientToNotificationConfig},
     create::{create_notification_config, CreateNotificationConfig},
     delete::{delete_notification_config, DeleteNotificationConfigError},
     query::{get_notification_config, get_notification_configs},
@@ -14,6 +15,7 @@ use self::{
 
 mod tests;
 
+pub mod add_recipient;
 pub mod create;
 pub mod delete;
 pub mod query;
@@ -55,6 +57,14 @@ pub trait NotificationConfigServiceTrait: Sync + Send {
         update_notification_config(ctx, input)
     }
 
+    fn add_recipient_to_notification_config(
+        &self,
+        ctx: &ServiceContext,
+        input: AddRecipientToNotificationConfig,
+    ) -> Result<NotificationConfigRecipient, ModifyNotificationConfigError> {
+        add_recipient_to_notification_config(ctx, input)
+    }
+
     fn delete_notification_config(
         &self,
         ctx: &ServiceContext,
@@ -73,6 +83,9 @@ pub enum ModifyNotificationConfigError {
     ModifiedRecordNotFound,
     DatabaseError(RepositoryError),
     NotificationConfigDoesNotExist,
+    NotificationConfigRecipientDoesNotExist,
+    NotificationConfigRecipientAlreadyExists,
+    RecipientDoesNotExist,
     GenericError(String),
 }
 
@@ -97,6 +110,18 @@ impl PartialEq for ModifyNotificationConfigError {
             (
                 ModifyNotificationConfigError::NotificationConfigDoesNotExist,
                 ModifyNotificationConfigError::NotificationConfigDoesNotExist,
+            ) => true,
+            (
+                ModifyNotificationConfigError::NotificationConfigRecipientDoesNotExist,
+                ModifyNotificationConfigError::NotificationConfigRecipientDoesNotExist,
+            ) => true,
+            (
+                ModifyNotificationConfigError::NotificationConfigRecipientAlreadyExists,
+                ModifyNotificationConfigError::NotificationConfigRecipientAlreadyExists,
+            ) => true,
+            (
+                ModifyNotificationConfigError::RecipientDoesNotExist,
+                ModifyNotificationConfigError::RecipientDoesNotExist,
             ) => true,
             _ => false,
         }
