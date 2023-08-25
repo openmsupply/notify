@@ -13,6 +13,14 @@ You'll need to install the following tools
   - Or install [node.js](https://nodejs.org/), preferably the version in `frontend/.nvmrc`
 - [Yarn](https://yarnpkg.com/getting-started/install)
 
+### Linux
+
+- For Ubuntu:
+
+```bash
+  sudo apt-get install libpq-dev
+```
+
 ### Mac
 
 - For M1 Mac:
