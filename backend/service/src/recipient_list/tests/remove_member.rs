@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod recipient_list_member_remove_test {
     use repository::mock::{
-        mock_recipient_a, mock_recipient_list_with_no_members,
+        mock_recipient_a, mock_recipient_list_b_with_no_members,
         mock_recipient_list_with_recipient_members_a_and_b,
     };
     use repository::{mock::MockDataInserts, test_db::setup_all};
@@ -35,7 +35,7 @@ mod recipient_list_member_remove_test {
                 &context,
                 RemoveRecipientFromList {
                     recipient_id: mock_recipient_a().id.clone(),
-                    recipient_list_id: mock_recipient_list_with_no_members().id.clone(),
+                    recipient_list_id: mock_recipient_list_b_with_no_members().id.clone(),
                 },
             ),
             Err(ModifyRecipientListError::RecipientListMemberDoesNotExist)

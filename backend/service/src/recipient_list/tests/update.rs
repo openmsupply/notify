@@ -3,7 +3,7 @@ mod recipient_list_update_tests {
 
     use std::sync::Arc;
 
-    use repository::mock::{mock_recipient_list_c, mock_recipient_list_with_no_members};
+    use repository::mock::{mock_recipient_list_b_with_no_members, mock_recipient_list_c};
     use repository::{mock::MockDataInserts, test_db::setup_all};
 
     use crate::recipient_list::create::CreateRecipientList;
@@ -46,7 +46,7 @@ mod recipient_list_update_tests {
             service.update_recipient_list(
                 &context,
                 UpdateRecipientList {
-                    id: mock_recipient_list_with_no_members().id.clone(),
+                    id: mock_recipient_list_b_with_no_members().id.clone(),
                     name: Some(mock_recipient_list_c().name.clone() + "  "),
                     description: None,
                 },

@@ -3,7 +3,7 @@ use crate::RecipientListRow;
 pub fn mock_recipient_lists() -> Vec<RecipientListRow> {
     vec![
         mock_recipient_list_with_recipient_members_a_and_b(),
-        mock_recipient_list_with_no_members(),
+        mock_recipient_list_b_with_no_members(),
         mock_recipient_list_c(),
         mock_recipient_list_c2(),
     ]
@@ -18,7 +18,7 @@ pub fn mock_recipient_list_with_recipient_members_a_and_b() -> RecipientListRow 
     }
 }
 
-pub fn mock_recipient_list_with_no_members() -> RecipientListRow {
+pub fn mock_recipient_list_b_with_no_members() -> RecipientListRow {
     RecipientListRow {
         id: String::from("id_recipient_list_b"),
         name: String::from("recipient_list_b"),
