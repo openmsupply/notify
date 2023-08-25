@@ -26,7 +26,8 @@ assets = [
     ["target/release/notify_server", "/opt/notify/notify_server", "755"],
     ["debian/notify.service", "/lib/systemd/system/notify.service", "644"],
     ["../configuration/base.yaml", "/opt/notify/configuration/", "755"],
-    ["../configuration/example.yaml", "/opt/notify/configuration/", "755"]
+    ["../configuration/example.yaml", "/opt/notify/configuration/", "755"],
+    ["../templates/**/*", "/opt/notify/templates/", "755"]
 ]
 maintainer-scripts = "debian/scripts"
 

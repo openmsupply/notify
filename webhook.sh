@@ -7,7 +7,7 @@ set -e
 
 # Set this to the branch you want to build
 # Note: A future version of this script could get the code from a param from webhook
-export GIT_BRANCH="develop"
+export GIT_BRANCH="main"
 
 export DEB_BUILD_VERSION=0.99 # Use a static version for the deb package, so we know what version to install in the webhook
 export LOGFILE="/var/log/webhook/notify.log"
