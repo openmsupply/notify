@@ -8,10 +8,15 @@ import {
   NotificationTypeNode,
   EnvUtils,
   ModalMode,
+  ButtonWithIcon,
+  TelegramIcon,
+  Box,
+  LoadingButton,
 } from '@notify-frontend/common';
 import { DraftRecipient } from './types';
 import { ToggleButtonGroup } from '@mui/material';
 import { ExternalURL } from 'packages/config/src';
+import { useTelegramTestMessage } from '../../api/hooks/useTelegramTestMessage';
 
 type RecipientEditFormProps = {
   draft: DraftRecipient;
@@ -25,6 +30,9 @@ export const RecipientEditForm = ({
   onUpdate,
 }: RecipientEditFormProps) => {
   const t = useTranslation('system');
+
+  const { mutateAsync: sendTelegramTestMessage, isLoading: isMessageSending } =
+    useTelegramTestMessage();
 
   const docsUrl = `${ExternalURL.PublicDocs}${
     EnvUtils.mapRoute(location.pathname).docs
@@ -85,9 +93,24 @@ export const RecipientEditForm = ({
           </Typography>
         </>
       ) : (
-        <Typography sx={{ color: 'gray.dark' }}>
-          {t('text.telegram-recipient-edit-name')}
-        </Typography>
+        <>
+          <Box sx={{ textAlign: 'center', marginTop: 2, marginBottom: 2 }}>
+            <Typography variant="h5">{draft.name}</Typography>
+            <LoadingButton
+              startIcon={<TelegramIcon />}
+              onClick={() => {
+                sendTelegramTestMessage({ chatId: draft.toAddress });
+              }}
+              isLoading={isMessageSending}
+              sx={{ marginTop: 1 }}
+            >
+              {t('label.telegram-recipient-test-message')}
+            </LoadingButton>
+          </Box>
+          <Typography sx={{ color: 'gray.dark' }}>
+            {t('text.telegram-recipient-edit-name')}
+          </Typography>
+        </>
       )}
     </Grid>
   );

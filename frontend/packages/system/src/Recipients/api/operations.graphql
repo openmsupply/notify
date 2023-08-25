@@ -125,3 +125,13 @@ mutation deleteRecipientList($recipientListId: String!) {
     }
   }
 }
+
+mutation sendTestTelegramMessage($chatId: String!) {
+  sendTestTelegramMessage(chatId: $chatId) {
+    ... on TelegramMessageNode {
+      __typename
+      chatName
+      message
+    }
+  }
+}

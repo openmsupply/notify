@@ -50,6 +50,7 @@ export { ManufacturerIcon } from './Manufacturer';
 export { OrganisationIcon } from './Organisation';
 export { ToolsIcon } from './Tools';
 export { TranslateIcon } from './Translate';
+export { TelegramIcon } from './Telegram';
 export { TruckIcon } from './Truck';
 export { UnhappyMan } from './UnhappyMan';
 export { UserIcon } from './User';
