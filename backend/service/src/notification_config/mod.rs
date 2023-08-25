@@ -16,6 +16,9 @@ use self::{
     remove_recipient::{
         remove_recipient_from_notification_config, RemoveRecipientFromNotifcationConfig,
     },
+    remove_recipient_list::{
+        remove_recipient_list_from_notification_config, RemoveRecipientListFromNotifcationConfig,
+    },
     update::{update_notification_config, UpdateNotificationConfig},
 };
 
@@ -27,6 +30,7 @@ pub mod create;
 pub mod delete;
 pub mod query;
 pub mod remove_recipient;
+pub mod remove_recipient_list;
 pub mod update;
 pub mod validate;
 
@@ -87,6 +91,14 @@ pub trait NotificationConfigServiceTrait: Sync + Send {
         input: AddRecipientListToNotificationConfig,
     ) -> Result<NotificationConfigRecipientList, ModifyNotificationConfigError> {
         add_recipient_list_to_notification_config(ctx, input)
+    }
+
+    fn remove_recipient_list_from_notification_config(
+        &self,
+        ctx: &ServiceContext,
+        input: RemoveRecipientListFromNotifcationConfig,
+    ) -> Result<NotificationConfigRecipientList, ModifyNotificationConfigError> {
+        remove_recipient_list_from_notification_config(ctx, input)
     }
 
     fn delete_notification_config(

@@ -18,3 +18,6 @@ mod remove_recipient;
 
 #[cfg(test)]
 mod add_recipient_list;
+
+#[cfg(test)]
+mod remove_recipient_list;
