@@ -38,6 +38,7 @@ pub struct UpdateNotificationConfigInput {
     pub id: String,
     pub title: Option<String>,
     pub recipient_ids: Option<Vec<String>>,
+    pub recipient_list_ids: Option<Vec<String>>,
     pub configuration_data: Option<String>,
 }
 
@@ -48,6 +49,7 @@ impl From<UpdateNotificationConfigInput> for UpdateNotificationConfig {
             title,
             configuration_data,
             recipient_ids,
+            recipient_list_ids,
         }: UpdateNotificationConfigInput,
     ) -> Self {
         UpdateNotificationConfig {
@@ -55,6 +57,7 @@ impl From<UpdateNotificationConfigInput> for UpdateNotificationConfig {
             title,
             configuration_data,
             recipient_ids,
+            recipient_list_ids,
         }
     }
 }

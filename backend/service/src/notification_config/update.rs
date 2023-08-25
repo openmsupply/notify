@@ -1,8 +1,14 @@
 use super::{
     add_recipient::{add_recipient_to_notification_config, AddRecipientToNotificationConfig},
+    add_recipient_list::{
+        add_recipient_list_to_notification_config, AddRecipientListToNotificationConfig,
+    },
     query::get_notification_config,
     remove_recipient::{
         remove_recipient_from_notification_config, RemoveRecipientFromNotifcationConfig,
+    },
+    remove_recipient_list::{
+        remove_recipient_list_from_notification_config, RemoveRecipientListFromNotifcationConfig,
     },
     validate::check_notification_config_exists,
     ModifyNotificationConfigError,
@@ -11,6 +17,7 @@ use crate::{audit_log::audit_log_entry, service_provider::ServiceContext};
 use chrono::Utc;
 use repository::{
     EqualFilter, LogType, NotificationConfig, NotificationConfigRecipientFilter,
+    NotificationConfigRecipientListFilter, NotificationConfigRecipientListRepository,
     NotificationConfigRecipientRepository, NotificationConfigRow, NotificationConfigRowRepository,
     Pagination, StorageConnection,
 };
@@ -21,6 +28,7 @@ pub struct UpdateNotificationConfig {
     pub title: Option<String>,
     pub configuration_data: Option<String>,
     pub recipient_ids: Option<Vec<String>>,
+    pub recipient_list_ids: Option<Vec<String>>,
 }
 
 pub fn update_notification_config(
@@ -31,6 +39,7 @@ pub fn update_notification_config(
         .connection
         .transaction_sync(|connection| {
             let new_recipient_ids = updated_notification_config.recipient_ids.clone();
+            let new_recipient_list_ids = updated_notification_config.recipient_list_ids.clone();
 
             let notification_config_row = validate(connection, &updated_notification_config)?;
             let updated_notification_config_row =
@@ -42,6 +51,13 @@ pub fn update_notification_config(
             if new_recipient_ids.is_some() {
                 update_notification_config_recipients(
                     new_recipient_ids.unwrap(),
+                    &updated_notification_config.id,
+                    ctx,
+                )?;
+            }
+            if new_recipient_list_ids.is_some() {
+                update_notification_config_recipient_lists(
+                    new_recipient_list_ids.unwrap(),
                     &updated_notification_config.id,
                     ctx,
                 )?;
@@ -80,7 +96,8 @@ pub fn generate(
         id: _id, //ID is already used for look up so we can assume it's the same
         title,
         configuration_data,
-        recipient_ids: _, // managed separately
+        recipient_ids: _,      // managed separately
+        recipient_list_ids: _, // managed separately
     }: UpdateNotificationConfig,
     current_notification_config_row: NotificationConfigRow,
 ) -> Result<NotificationConfigRow, ModifyNotificationConfigError> {
@@ -141,6 +158,59 @@ fn update_notification_config_recipients(
             AddRecipientToNotificationConfig {
                 notification_config_id: notification_config_id.to_string(),
                 recipient_id: id,
+            },
+        )?;
+    }
+
+    Ok(())
+}
+
+fn update_notification_config_recipient_lists(
+    new_recipient_list_ids: Vec<String>,
+    notification_config_id: &str,
+    ctx: &ServiceContext,
+) -> Result<(), ModifyNotificationConfigError> {
+    let existing_recipient_list_ids: Vec<String> =
+        NotificationConfigRecipientListRepository::new(&ctx.connection)
+            .query(
+                Pagination::all(),
+                Some(
+                    NotificationConfigRecipientListFilter::new()
+                        .notification_config_id(EqualFilter::equal_to(&notification_config_id)),
+                ),
+            )?
+            .into_iter()
+            .map(|config_recipient_list| config_recipient_list.recipient_list_id)
+            .collect();
+
+    let recipient_lists_to_remove: Vec<String> = existing_recipient_list_ids
+        .clone()
+        .into_iter()
+        .filter(|id| !new_recipient_list_ids.clone().contains(id))
+        .collect();
+
+    for id in recipient_lists_to_remove {
+        remove_recipient_list_from_notification_config(
+            ctx,
+            RemoveRecipientListFromNotifcationConfig {
+                notification_config_id: notification_config_id.to_string(),
+                recipient_list_id: id,
+            },
+        )?;
+    }
+
+    let recipient_lists_to_add: Vec<String> = new_recipient_list_ids
+        .clone()
+        .into_iter()
+        .filter(|id| !existing_recipient_list_ids.clone().contains(id))
+        .collect();
+
+    for id in recipient_lists_to_add {
+        add_recipient_list_to_notification_config(
+            ctx,
+            AddRecipientListToNotificationConfig {
+                notification_config_id: notification_config_id.to_string(),
+                recipient_list_id: id,
             },
         )?;
     }
