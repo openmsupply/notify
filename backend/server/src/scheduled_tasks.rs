@@ -26,7 +26,8 @@ pub async fn scheduled_task_runner(service_context: ServiceContext) {
         let send_notifications = service_context
             .service_provider
             .notification_service
-            .send_queued_notifications(&service_context);
+            .send_queued_notifications(&service_context)
+            .await;
         match send_notifications {
             Ok(num) => {
                 if num > 0 {
