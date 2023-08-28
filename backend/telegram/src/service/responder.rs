@@ -30,7 +30,7 @@ pub async fn handle_telegram_updates(
             Some(message) => {
                 log::debug!("Received Telegram Message Ready to respond: {:?}", message);
                 let chat_id = message.chat.id.to_string();
-                let text = message.text.as_ref().unwrap();
+                let text = message.text.unwrap_or_default();
 
                 if text.contains("/hello") || text.contains("/chat") {
                     //TODO: Render template?
