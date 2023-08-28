@@ -3,24 +3,24 @@
 
 use crate::repository_error::RepositoryError;
 
-mod audit_log;
+pub mod audit_log;
 mod audit_log_row;
 pub mod diesel_schema;
 mod email_queue_row;
 mod filter_sort_pagination;
-mod key_value_store;
-mod notification_config;
+pub mod key_value_store;
+pub mod notification_config;
 mod notification_config_row;
-mod recipient;
-mod recipient_list;
-mod recipient_list_member;
+pub mod recipient;
+pub mod recipient_list;
+pub mod recipient_list_member;
 mod recipient_list_member_row;
 mod recipient_list_row;
 mod recipient_row;
 mod storage_connection;
-mod user_account;
+pub mod user_account;
 mod user_account_row;
-mod user_permission;
+pub mod user_permission;
 mod user_permission_row;
 pub use audit_log::*;
 pub use audit_log_row::*;
