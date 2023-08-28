@@ -5,7 +5,8 @@ use async_trait::async_trait;
 use chrono::Utc;
 use lettre::address::AddressError;
 use repository::{
-    NotificationEventRowRepository, NotificationEventStatus, NotificationType, RepositoryError,
+    NotificationEventRow, NotificationEventRowRepository, NotificationEventStatus,
+    NotificationType, RepositoryError,
 };
 use serde_json::json;
 use tera::Tera;
@@ -97,7 +98,7 @@ impl NotificationServiceTrait for NotificationService {
         let mut error_count = 0;
         let mut sent_count = 0;
 
-        for mut notification in queued_notifications {
+        for notification in queued_notifications {
             if notification.notification_type != NotificationType::Telegram {
                 log::error!(
                     "Skipping notification type {:?}",
@@ -107,8 +108,10 @@ impl NotificationServiceTrait for NotificationService {
                 continue;
             }
 
+            let now = Utc::now().naive_utc();
+
             // Try to send via telegram
-            if let Some(telegram) = &ctx.service_provider.telegram {
+            let updated_notification = if let Some(telegram) = &ctx.service_provider.telegram {
                 let result = telegram
                     .send_html_message(&notification.to_address, &notification.message)
                     .await;
@@ -116,35 +119,43 @@ impl NotificationServiceTrait for NotificationService {
                 match result {
                     Ok(_) => {
                         log::info!("Sent telegram message to {}", notification.to_address);
-                        notification.error_message = None;
-                        notification.status = NotificationEventStatus::Sent;
-                        notification.sent_at = Some(Utc::now().naive_utc());
-                        notification.updated_at = Utc::now().naive_utc();
-                        repo.update_one(&notification)?;
                         sent_count += 1;
+                        NotificationEventRow {
+                            error_message: None,
+                            status: NotificationEventStatus::Sent,
+                            sent_at: Some(now),
+                            ..notification
+                        }
                     }
                     Err(e) => {
+                        sent_count += 1;
+                        error_count += 1;
                         log::error!(
                             "Error sending telegram message to {}: {:?}",
                             notification.to_address,
                             e
                         );
-                        notification.error_message = Some(format!("{:?}", e));
-                        notification.status = NotificationEventStatus::Failed; //TODO check if this is permanent or temporary failure, retries, and exponential backoff etc
-                        notification.updated_at = Utc::now().naive_utc();
-                        repo.update_one(&notification)?;
-                        sent_count += 1;
-                        error_count += 1;
+                        NotificationEventRow {
+                            error_message: Some(format!("{:?}", e)),
+                            status: NotificationEventStatus::Failed, //TODO check if this is permanent or temporary failure, retries, and exponential backoff etc
+                            ..notification
+                        }
                     }
                 }
             } else {
                 log::error!("Telegram not configured, you are missing telegram notifications!!!!");
-                notification.error_message = Some("Telegram Not Configured".to_string());
-                notification.status = NotificationEventStatus::Errored;
-                notification.updated_at = Utc::now().naive_utc();
-                repo.update_one(&notification)?;
                 error_count += 1;
-            }
+                NotificationEventRow {
+                    error_message: Some("Telegram Not Configured".to_string()),
+                    status: NotificationEventStatus::Errored,
+                    ..notification
+                }
+            };
+
+            repo.update_one(&NotificationEventRow {
+                updated_at: now,
+                ..updated_notification
+            })?;
         }
 
         log::debug!("Sent {} notifications, {} errors", sent_count, error_count);
