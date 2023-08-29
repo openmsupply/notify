@@ -39,9 +39,12 @@ pub struct NotificationContext {
 
 pub fn create_notification_events(
     ctx: &ServiceContext,
+    config_id: Option<String>,
     notification: NotificationContext,
 ) -> Result<(), NotificationServiceError> {
     let repo = NotificationEventRowRepository::new(&ctx.connection);
+
+    // TODO: Should this function use a notification config to get the template, users, etc?
 
     // Loop through recipients and create a notification for each
     for recipient in notification.recipients {
@@ -77,7 +80,7 @@ pub fn create_notification_events(
                 retries: 0,
                 updated_at: Utc::now().naive_utc(),
                 status: NotificationEventStatus::Queued,
-                notification_config_id: None,
+                notification_config_id: config_id.clone(),
                 notification_type,
                 title,
                 message,
@@ -94,7 +97,7 @@ pub fn create_notification_events(
                     retries: 0,
                     updated_at: Utc::now().naive_utc(),
                     status: NotificationEventStatus::Failed,
-                    notification_config_id: None,
+                    notification_config_id: config_id.clone(),
                     notification_type,
                     title,
                     message: "".to_string(),
@@ -146,6 +149,7 @@ mod test {
 
         let result = create_notification_events(
             &context,
+            None,
             NotificationContext {
                 title_template_name: Some("test_message/email_subject.html".to_string()),
                 body_template_name: "test_message/email.html".to_string(),
@@ -189,6 +193,7 @@ mod test {
 
         let result = create_notification_events(
             &context,
+            None,
             NotificationContext {
                 title_template_name: None,
                 body_template_name: "test_message/telegram.html".to_string(),

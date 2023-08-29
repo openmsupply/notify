@@ -37,6 +37,7 @@ pub struct TemperatureAlert {
     pub temperature: f64,
 }
 
+// Later this function probably won't exist, but serves as a reminder/POC...
 pub async fn send_high_temperature_alert_telegram(
     ctx: &ServiceContext,
     alert: TemperatureAlert,
@@ -54,7 +55,9 @@ pub async fn send_high_temperature_alert_telegram(
         })?,
     };
 
-    create_notification_events(ctx, notification)
+    // TODO : Get the config ID for this notification
+
+    create_notification_events(ctx, None, notification)
 }
 
 #[cfg(test)]
