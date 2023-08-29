@@ -1,4 +1,4 @@
-use crate::types::TelegramMessageResponse;
+use crate::types::{TelegramMessageNode, TelegramMessageResponse};
 use async_graphql::*;
 use async_graphql::{Context, Object};
 use graphql_core::{
@@ -46,6 +46,8 @@ impl TelegramMutations {
             .map_err(|e| format!("Unable to send message : {:?}", e))
             .map_err(StandardGraphqlError::internal_error_from_string)?;
 
-        Ok(TelegramMessageResponse::Response(message.into()))
+        Ok(TelegramMessageResponse::Response(
+            TelegramMessageNode::from_domain(message),
+        ))
     }
 }
