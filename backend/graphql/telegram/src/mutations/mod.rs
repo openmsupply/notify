@@ -1,4 +1,4 @@
-use crate::types::TelegramMessageResponse;
+use crate::types::{TelegramMessageNode, TelegramMessageResponse};
 use async_graphql::*;
 use async_graphql::{Context, Object};
 use graphql_core::{
@@ -25,30 +25,29 @@ impl TelegramMutations {
         )?;
 
         let service_ctx = ctx.service_context(Some(&user))?;
-        let telegram_service = &service_ctx.service_provider.telegram;
 
-        match telegram_service {
-            Some(telegram_service) => {
-                let message = telegram_service
-                    .send_html_message(&chat_id, "This is a test message from notify")
-                    .await;
-                match message {
-                    Ok(message) => return Ok(TelegramMessageResponse::Response(message.into())),
-                    Err(err) => {
-                        return Err(StandardGraphqlError::InternalError(format!(
-                            "Unable to send message : {:?}",
-                            err
-                        ))
-                        .extend())
-                    }
-                }
-            }
-            None => {
-                return Err(StandardGraphqlError::InternalError(
-                    "Telegram service not configured".to_string(),
-                )
-                .extend())
-            }
-        }
+        let notification_service = &service_ctx.service_provider.notification_service;
+
+        let html = notification_service
+            .render_no_params("test_message/telegram.html")
+            .map_err(|e| format!("Unable to render `test_message/telegram.html` : {:?}", e))
+            .map_err(StandardGraphqlError::internal_error_from_string)?;
+
+        let telegram_service = &service_ctx
+            .service_provider
+            .telegram
+            .as_ref()
+            .ok_or("Telegram service not configured")
+            .map_err(StandardGraphqlError::internal_error_from_str)?;
+
+        let message = telegram_service
+            .send_html_message(&chat_id, &html)
+            .await
+            .map_err(|e| format!("Unable to send message : {:?}", e))
+            .map_err(StandardGraphqlError::internal_error_from_string)?;
+
+        Ok(TelegramMessageResponse::Response(
+            TelegramMessageNode::from_domain(message),
+        ))
     }
 }

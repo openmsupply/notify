@@ -10,6 +10,7 @@ pub mod auth_data;
 pub mod email;
 pub mod filters;
 pub mod login;
+pub mod notification;
 pub mod notification_config;
 pub mod recipient;
 pub mod recipient_list;
