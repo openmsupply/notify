@@ -1,4 +1,3 @@
-use self::renderer::RenderError;
 use crate::service_provider::ServiceContext;
 use crate::settings::Settings;
 use async_trait::async_trait;
@@ -39,7 +38,7 @@ pub struct NotificationService {
 #[derive(Debug)]
 pub enum NotificationServiceError {
     GenericError(String),
-    RenderError(renderer::RenderError),
+    RenderError(tera::Error),
     AddressError(AddressError),
     LettreError(lettre::error::Error),
     SmtpError(lettre::transport::smtp::Error),
@@ -52,22 +51,22 @@ impl From<RepositoryError> for NotificationServiceError {
     }
 }
 
-impl From<RenderError> for NotificationServiceError {
-    fn from(error: RenderError) -> Self {
+impl From<tera::Error> for NotificationServiceError {
+    fn from(error: tera::Error) -> Self {
         NotificationServiceError::RenderError(error)
     }
 }
 
 impl NotificationService {
     pub fn new(settings: Settings) -> Self {
-        NotificationService {
-            tera: renderer::tera_with_template(
-                settings
-                    .server
-                    .base_dir
-                    .map(|base_dir| format!("{}/templates/**/*", base_dir)),
-            ),
-        }
+        let template_path = match settings.server.base_dir {
+            Some(base_dir) => format!("{}/templates/**/*", base_dir),
+            None => "templates/**/*".to_string(), // Assume base dir relative to current dir
+        };
+        let tera = Tera::new(&template_path)
+            .expect(format!("Unable to create tera with path {}", template_path).as_str());
+
+        NotificationService { tera }
     }
 }
 
@@ -130,7 +129,7 @@ impl NotificationServiceTrait for NotificationService {
                             e
                         );
                         notification.error_message = Some(format!("{:?}", e));
-                        notification.status = NotificationEventStatus::Failed; //TODO check if this is permanent or temporary failure, retries, and exponential backoff etc
+                        notification.status = NotificationEventStatus::Failed; //TODO check if this is permanent or temporary failure, retries, and exponential backoff etc https://github.com/openmsupply/notify/issues/92
                         notification.updated_at = Utc::now().naive_utc();
                         repo.update_one(&notification)?;
                         sent_count += 1;
