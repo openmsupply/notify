@@ -12,7 +12,6 @@ erDiagram
     NOTIFICATION_EVENT {
         TEXT id PK "UNIQUE NOT NULL"
         TEXT notification_config_id FK "NULLABLE"
-        TEXT recipient_list_id FK "NULLABLE"
         TEXT notification_type "NOT NULL (TELEGRAM/EMAIL/ETC)"
         TEXT to_address "NOT NULL (Email address/Chat_id/ETC)"
         TEXT title "NULLABLE"

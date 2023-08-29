@@ -26,7 +26,7 @@ pub fn search_for_base_dir(path: &Path) -> Result<PathBuf, String> {
     } else {
         path.parent()
             .map(search_for_base_dir)
-            .unwrap_or_else(|| Err("Failed to locate migrations directory".to_string()))
+            .unwrap_or_else(|| Err("Failed to locate templates directory".to_string()))
     }
 }
 
