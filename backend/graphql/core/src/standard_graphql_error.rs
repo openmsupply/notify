@@ -58,12 +58,12 @@ impl StandardGraphqlError {
         StandardGraphqlError::from(error).extend()
     }
 
-    pub fn from_str(str_slice: &str) -> async_graphql::Error {
+    pub fn internal_error_from_str(str_slice: &str) -> async_graphql::Error {
         StandardGraphqlError::InternalError(str_slice.to_string()).extend()
     }
 
-    pub fn from_string(string: String) -> async_graphql::Error {
-        StandardGraphqlError::from_str(&string)
+    pub fn internal_error_from_string(string: String) -> async_graphql::Error {
+        StandardGraphqlError::internal_error_from_str(&string)
     }
 }
 
