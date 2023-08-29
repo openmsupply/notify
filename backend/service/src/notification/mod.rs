@@ -77,11 +77,19 @@ impl NotificationServiceTrait for NotificationService {
         template_name: &str,
         params: &serde_json::Value,
     ) -> Result<String, NotificationServiceError> {
-        renderer::render_template(&self.tera, template_name, params).map_err(|e| e.into())
+        Ok(renderer::render_template(
+            &self.tera,
+            template_name,
+            params,
+        )?)
     }
 
     fn render_no_params(&self, template_name: &str) -> Result<String, NotificationServiceError> {
-        renderer::render_template(&self.tera, template_name, json!({})).map_err(|e| e.into())
+        Ok(renderer::render_template(
+            &self.tera,
+            template_name,
+            json!({}),
+        )?)
     }
 
     async fn send_queued_notifications(

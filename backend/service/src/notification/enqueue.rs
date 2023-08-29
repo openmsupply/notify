@@ -68,46 +68,38 @@ pub fn create_notification_events(
             .notification_service
             .render(&notification.body_template_name.clone(), &template_context);
 
-        let notification_id = uuid();
+        let base_row = NotificationEventRow {
+            id: uuid(),
+            to_address: recipient.to_address,
+            created_at: Utc::now().naive_utc(),
+            sent_at: None,
+            error_message: None,
+            retries: 0,
+            updated_at: Utc::now().naive_utc(),
+            notification_config_id: config_id.clone(),
+            notification_type,
+            title,
+            retry_at: None,
+            ..Default::default()
+        };
 
         let notification_queue_row = match message {
             Ok(message) => NotificationEventRow {
-                id: notification_id,
-                to_address: recipient.to_address,
-                created_at: Utc::now().naive_utc(),
-                sent_at: None,
-                error_message: None,
-                retries: 0,
-                updated_at: Utc::now().naive_utc(),
                 status: NotificationEventStatus::Queued,
-                notification_config_id: config_id.clone(),
-                notification_type,
-                title,
                 message,
-                retry_at: None,
+                ..base_row
             },
             Err(e) => {
                 log::error!("Failed to render notification template: {:?}", e);
                 NotificationEventRow {
-                    id: notification_id,
-                    to_address: recipient.to_address,
-                    created_at: Utc::now().naive_utc(),
-                    sent_at: None,
+                    status: NotificationEventStatus::Failed, // Permanent Error TODO: check if this is permanent or temporary failure, retries, and exponential backoff etc
                     error_message: Some(format!("{:?}", e)),
-                    retries: 0,
-                    updated_at: Utc::now().naive_utc(),
-                    status: NotificationEventStatus::Failed,
-                    notification_config_id: config_id.clone(),
-                    notification_type,
-                    title,
-                    message: "".to_string(),
-                    retry_at: None,
+                    ..base_row
                 }
             }
         };
 
-        let _notification_queue_row = repo
-            .insert_one(&notification_queue_row)
+        repo.insert_one(&notification_queue_row)
             .map_err(|e| NotificationServiceError::DatabaseError(e))?;
 
         // TODO: trigger async notification send?
