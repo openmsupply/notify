@@ -10,6 +10,7 @@ use async_graphql::{EmptySubscription, MergedObject, SchemaBuilder};
 use async_graphql_actix_web::{GraphQLRequest, GraphQLResponse};
 use graphql_core::loader::LoaderRegistry;
 use graphql_core::{refresh_token_from_cookie, RefreshTokenData, SelfRequest};
+use graphql_datasource::DatasourceQueries;
 use graphql_general::GeneralQueries;
 
 use graphql_notification_config::{NotificationConfigMutations, NotificationConfigQueries};
@@ -34,6 +35,7 @@ pub struct FullQuery(
     pub RecipientListQueries,
     pub TelegramQueries,
     pub NotificationConfigQueries,
+    pub DatasourceQueries,
 );
 
 #[derive(MergedObject, Default, Clone)]
@@ -56,6 +58,7 @@ pub fn full_query() -> FullQuery {
         RecipientListQueries,
         TelegramQueries,
         NotificationConfigQueries,
+        DatasourceQueries,
     )
 }
 

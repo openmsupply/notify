@@ -7,6 +7,7 @@ extern crate lazy_static;
 pub mod audit_log;
 pub mod auth;
 pub mod auth_data;
+pub mod datasource;
 pub mod email;
 pub mod filters;
 pub mod login;

@@ -86,5 +86,6 @@ pub fn generate(
         id,
         name: name.trim().to_string(),
         description,
+        sql_query: None,
     })
 }

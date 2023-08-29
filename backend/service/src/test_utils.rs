@@ -2,6 +2,7 @@ use datasource::PostgresSettings;
 use repository::{test_db::get_test_db_settings, StorageConnectionManager};
 
 use crate::{
+    datasource::DatasourceServiceTrait,
     email::{EmailServiceError, EmailServiceTrait},
     service_provider::{ServiceContext, ServiceProvider},
     settings::{MailSettings, ServerSettings, Settings, TelegramSettings},
@@ -46,6 +47,16 @@ impl EmailServiceTrait for MockEmailService {
 
     fn send_queued_emails(&self, _ctx: &ServiceContext) -> Result<usize, EmailServiceError> {
         Ok(0)
+    }
+}
+
+pub struct MockDatasourceService {}
+impl DatasourceServiceTrait for MockDatasourceService {
+    fn run_sql_query(
+        &self,
+        sql_query: String,
+    ) -> Result<String, crate::datasource::DatasourceServiceError> {
+        todo!()
     }
 }
 

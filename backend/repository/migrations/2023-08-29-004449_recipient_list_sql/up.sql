@@ -1,0 +1,1 @@
+ALTER TABLE recipient_list ADD sql_query TEXT;

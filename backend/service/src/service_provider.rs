@@ -5,6 +5,7 @@ use telegram::TelegramClient;
 
 use crate::{
     auth::{AuthService, AuthServiceTrait},
+    datasource::{DatasourceService, DatasourceServiceTrait},
     email::{EmailService, EmailServiceTrait},
     notification_config::{NotificationConfigService, NotificationConfigServiceTrait},
     recipient::{RecipientService, RecipientServiceTrait},
@@ -15,9 +16,9 @@ use crate::{
 
 pub struct ServiceProvider {
     pub connection_manager: StorageConnectionManager,
+    pub datasource_service: Box<dyn DatasourceServiceTrait>,
     pub email_service: Box<dyn EmailServiceTrait>,
     pub validation_service: Box<dyn AuthServiceTrait>,
-    pub general_service: Box<dyn GeneralServiceTrait>,
     pub user_account_service: Box<dyn UserAccountServiceTrait>,
     pub notification_config_service: Box<dyn NotificationConfigServiceTrait>,
     pub recipient_service: Box<dyn RecipientServiceTrait>,
@@ -73,11 +74,18 @@ impl ServiceProvider {
             None => None,
         };
 
+        //TODO Rearrange this so we're not using port number to determine if we want to mock...
+        // Should move this logic somehow into the tests...
+        let datasource_service: Box<dyn DatasourceServiceTrait> = match &settings.datasource.port {
+            0 => Box::new(crate::test_utils::MockDatasourceService {}),
+            _ => Box::new(DatasourceService::new(settings.clone())),
+        };
+
         ServiceProvider {
             connection_manager,
             email_service: Box::new(EmailService::new(settings.clone())),
+            datasource_service: datasource_service,
             validation_service: Box::new(AuthService::new()),
-            general_service: Box::new(GeneralService {}),
             user_account_service: Box::new(UserAccountService {}),
             notification_config_service: Box::new(NotificationConfigService {}),
             recipient_service: Box::new(RecipientService {}),
@@ -92,9 +100,3 @@ impl ServiceProvider {
         self.connection_manager.connection()
     }
 }
-
-pub trait GeneralServiceTrait: Sync + Send {}
-
-pub struct GeneralService;
-
-impl GeneralServiceTrait for GeneralService {}
