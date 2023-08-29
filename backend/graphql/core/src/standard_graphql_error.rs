@@ -57,6 +57,14 @@ impl StandardGraphqlError {
     pub fn from_repository_error(error: RepositoryError) -> async_graphql::Error {
         StandardGraphqlError::from(error).extend()
     }
+
+    pub fn from_str(str_slice: &str) -> async_graphql::Error {
+        StandardGraphqlError::InternalError(str_slice.to_string()).extend()
+    }
+
+    pub fn from_string(string: String) -> async_graphql::Error {
+        StandardGraphqlError::from_str(&string)
+    }
 }
 
 /// Validates current user is authenticated and authorized

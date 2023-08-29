@@ -28,40 +28,24 @@ impl TelegramMutations {
 
         let notification_service = &service_ctx.service_provider.notification_service;
 
-        let html = notification_service.render_no_params("test_message/telegram.html");
-        let html = match html {
-            Ok(html) => html,
-            Err(err) => {
-                return Err(StandardGraphqlError::InternalError(format!(
-                    "Unable to render `test_message/telegram.html` : {:?}",
-                    err
-                ))
-                .extend())
-            }
-        };
+        let html = notification_service
+            .render_no_params("test_message/telegram.html")
+            .map_err(|e| format!("Unable to render `test_message/telegram.html` : {:?}", e))
+            .map_err(StandardGraphqlError::from_string)?;
 
-        let telegram_service = &service_ctx.service_provider.telegram;
+        let telegram_service = &service_ctx
+            .service_provider
+            .telegram
+            .as_ref()
+            .ok_or("Telegram service not configured")
+            .map_err(StandardGraphqlError::from_str)?;
 
-        match telegram_service {
-            Some(telegram_service) => {
-                let message = telegram_service.send_html_message(&chat_id, &html).await;
-                match message {
-                    Ok(message) => return Ok(TelegramMessageResponse::Response(message.into())),
-                    Err(err) => {
-                        return Err(StandardGraphqlError::InternalError(format!(
-                            "Unable to send message : {:?}",
-                            err
-                        ))
-                        .extend())
-                    }
-                }
-            }
-            None => {
-                return Err(StandardGraphqlError::InternalError(
-                    "Telegram service not configured".to_string(),
-                )
-                .extend())
-            }
-        }
+        let message = telegram_service
+            .send_html_message(&chat_id, &html)
+            .await
+            .map_err(|e| format!("Unable to send message : {:?}", e))
+            .map_err(StandardGraphqlError::from_string)?;
+
+        Ok(TelegramMessageResponse::Response(message.into()))
     }
 }
