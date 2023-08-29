@@ -9,7 +9,6 @@ CREATE TABLE
     IF NOT EXISTS notification_event (
         id TEXT PRIMARY KEY,
         notification_config_id TEXT NULL, -- Null as we allow plugins to create notifications without a config definition
-        recipient_list_id TEXT NULL, -- Nullable as we allow plugins to create notifications without a list
         notification_type TEXT NOT NULL,
         to_address TEXT NOT NULL, -- Telegram chatid, email address, something else in future?
         title TEXT NULL, -- May be null as some plugins might not need a title, mainly this is needed for email subjects, but could be used for other purposes
@@ -28,7 +27,6 @@ table! {
     notification_event (id) {
         id -> Text,
         notification_config_id -> Nullable<Text>,
-        recipient_list_id -> Nullable<Text>,
         notification_type -> crate::db_diesel::recipient_row::NotificationTypeMapping,
         to_address -> Text,
         title -> Nullable<Text>,
@@ -60,7 +58,6 @@ pub enum NotificationEventStatus {
 pub struct NotificationEventRow {
     pub id: String,
     pub notification_config_id: Option<String>,
-    pub recipient_list_id: Option<String>,
     pub notification_type: NotificationType,
     pub to_address: String,
     pub title: Option<String>,
