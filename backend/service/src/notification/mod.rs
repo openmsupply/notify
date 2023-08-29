@@ -102,7 +102,8 @@ impl NotificationServiceTrait for NotificationService {
                     "Skipping notification type {:?}",
                     notification.notification_type
                 );
-                //TODO! EMAIL SENDING
+                //TODO! EMAIL SENDING https://github.com/openmsupply/notify/issues/91
+                log::error!("Email notifications not implemented!!!!");
                 continue;
             }
 
@@ -132,7 +133,6 @@ impl NotificationServiceTrait for NotificationService {
                         notification.status = NotificationEventStatus::Failed; //TODO check if this is permanent or temporary failure, retries, and exponential backoff etc https://github.com/openmsupply/notify/issues/92
                         notification.updated_at = Utc::now().naive_utc();
                         repo.update_one(&notification)?;
-                        sent_count += 1;
                         error_count += 1;
                     }
                 }
