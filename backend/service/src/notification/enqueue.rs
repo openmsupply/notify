@@ -53,21 +53,6 @@ pub fn create_notification_events(
         let mut template_context: serde_json::Value = notification.template_data.clone();
         template_context["recipient"] = serde_json::to_value(recipient.clone()).unwrap_or_default();
 
-        let title = match notification.title_template_name.clone() {
-            Some(title_template_name) => Some(
-                ctx.service_provider
-                    .notification_service
-                    .render(&title_template_name, &template_context)
-                    .unwrap_or_default(),
-            ),
-            None => None,
-        };
-
-        let message = ctx
-            .service_provider
-            .notification_service
-            .render(&notification.body_template_name.clone(), &template_context);
-
         let base_row = NotificationEventRow {
             id: uuid(),
             to_address: recipient.to_address,
@@ -78,23 +63,57 @@ pub fn create_notification_events(
             updated_at: Utc::now().naive_utc(),
             notification_config_id: config_id.clone(),
             notification_type,
-            title,
             retry_at: None,
             ..Default::default()
         };
 
-        let notification_queue_row = match message {
-            Ok(message) => NotificationEventRow {
-                status: NotificationEventStatus::Queued,
-                message,
-                ..base_row
-            },
-            Err(e) => {
-                log::error!("Failed to render notification template: {:?}", e);
-                NotificationEventRow {
-                    status: NotificationEventStatus::Failed, // Permanent Error TODO: check if this is permanent or temporary failure, retries, and exponential backoff etc
-                    error_message: Some(format!("{:?}", e)),
-                    ..base_row
+        let base_row_with_title = match notification.title_template_name.clone() {
+            Some(title_template_name) => {
+                let title = ctx
+                    .service_provider
+                    .notification_service
+                    .render(&title_template_name, &template_context);
+
+                match title {
+                    Ok(title) => NotificationEventRow {
+                        title: Some(title),
+                        ..base_row
+                    },
+                    Err(e) => {
+                        log::error!("Failed to render notification title template: {:?}", e);
+                        NotificationEventRow {
+                            status: NotificationEventStatus::Errored,
+                            error_message: Some(format!("{:?}", e)),
+                            ..base_row
+                        }
+                    }
+                }
+            }
+            None => base_row,
+        };
+
+        let notification_queue_row = match base_row_with_title.status {
+            NotificationEventStatus::Errored => base_row_with_title,
+            _ => {
+                let message = ctx
+                    .service_provider
+                    .notification_service
+                    .render(&notification.body_template_name.clone(), &template_context);
+
+                match message {
+                    Ok(message) => NotificationEventRow {
+                        status: NotificationEventStatus::Queued,
+                        message,
+                        ..base_row_with_title
+                    },
+                    Err(e) => {
+                        log::error!("Failed to render notification template: {:?}", e);
+                        NotificationEventRow {
+                            status: NotificationEventStatus::Failed, // Permanent Error TODO: check if this is permanent or temporary failure, retries, and exponential backoff etc
+                            error_message: Some(format!("{:?}", e)),
+                            ..base_row_with_title
+                        }
+                    }
                 }
             }
         };
