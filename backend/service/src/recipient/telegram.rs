@@ -17,7 +17,7 @@ fn blank_telegram_recipient() -> RecipientRow {
     }
 }
 
-pub async fn handle_telegram_updates(
+pub async fn update_telegram_recipients(
     ctx: ServiceContext,
     channel: &tokio::sync::broadcast::Sender<TelegramUpdate>,
 ) {
@@ -127,7 +127,7 @@ mod test {
 
         let send_channel = tx.clone();
         let update_handler = actix_rt::spawn(async move {
-            super::handle_telegram_updates(receive_context, &send_channel).await;
+            super::update_telegram_recipients(receive_context, &send_channel).await;
         });
 
         // Test things don't break if we have an empty update to process (e.g. no chat)

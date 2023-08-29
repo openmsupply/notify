@@ -28,7 +28,7 @@ impl TelegramService {
         let responder_channel = self.updates_channel.clone();
         let responder_client = self.client.clone();
         tokio::spawn(async move {
-            responder::handle_telegram_updates(&responder_client, &responder_channel).await;
+            responder::handle_telegram_updates(responder_client, responder_channel).await;
         });
 
         let sender_channel = self.updates_channel.clone();
@@ -36,6 +36,6 @@ impl TelegramService {
             poll_get_updates(&self.client, &sender_channel).await;
         });
         // Return the channel so consumers can subscribe
-        self.updates_channel.clone()
+        self.updates_channel
     }
 }

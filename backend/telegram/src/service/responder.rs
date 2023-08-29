@@ -7,8 +7,8 @@
 use crate::{TelegramClient, TelegramUpdate};
 
 pub async fn handle_telegram_updates(
-    client: &TelegramClient,
-    tx_updates: &tokio::sync::broadcast::Sender<TelegramUpdate>,
+    client: TelegramClient,
+    tx_updates: tokio::sync::broadcast::Sender<TelegramUpdate>,
 ) {
     let mut rx = tx_updates.subscribe();
     loop {

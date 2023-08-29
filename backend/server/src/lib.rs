@@ -14,7 +14,7 @@ use repository::{get_storage_connection_manager, run_db_migrations, StorageConne
 
 use service::{
     auth_data::AuthData,
-    recipient::telegram::handle_telegram_updates,
+    recipient::telegram::update_telegram_recipients,
     service_provider::{ServiceContext, ServiceProvider},
     settings::{is_develop, ServerSettings, Settings},
     token_bucket::TokenBucket,
@@ -116,7 +116,7 @@ async fn run_server(
             }
         };
         let _telegram_update_handler = actix_web::rt::spawn(async move {
-            handle_telegram_updates(telegram_update_context, &telegram_update_channel).await
+            update_telegram_recipients(telegram_update_context, &telegram_update_channel).await
         });
     }
 
@@ -161,8 +161,6 @@ async fn run_server(
     };
 
     server_handle.stop(true).await;
-    // telegram_update_handler.abort();
-    // telegram_client_handle.abort();
     scheduled_task_handle.abort();
     Ok(restart)
 }
