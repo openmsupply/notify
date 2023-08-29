@@ -2,6 +2,7 @@ import React from 'react';
 import {
   LocaleKey,
   matchPath,
+  MessagesIcon,
   RouteBuilder,
   SettingsIcon,
   SuppliersIcon,
@@ -19,6 +20,8 @@ type Section = {
 
 const getIcon = (section?: AppRoute) => {
   switch (section) {
+    case AppRoute.Notifications:
+      return <MessagesIcon color="primary" fontSize="small" />;
     case AppRoute.UserAccounts:
       return <UsersIcon color="primary" fontSize="small" />;
     case AppRoute.Admin:
@@ -31,7 +34,12 @@ const getIcon = (section?: AppRoute) => {
 };
 
 const getSection = (): Section | undefined => {
-  const routes = [AppRoute.UserAccounts, AppRoute.Admin, AppRoute.Recipients];
+  const routes = [
+    AppRoute.UserAccounts,
+    AppRoute.Admin,
+    AppRoute.Recipients,
+    AppRoute.Notifications,
+  ];
   const location = useLocation();
 
   for (let i = 0; i < routes.length; i++) {

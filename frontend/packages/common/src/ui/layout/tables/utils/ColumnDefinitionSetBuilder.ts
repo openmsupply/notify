@@ -35,7 +35,7 @@ const getColumnLookup = <T extends RecordWithId>(): Record<
     width: 75,
   },
   description: {
-    label: 'heading.description',
+    label: 'label.description',
     key: 'description',
     width: 250,
   },

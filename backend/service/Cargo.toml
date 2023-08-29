@@ -8,6 +8,7 @@ path = "src/lib.rs"
 doctest = false
 
 [dependencies]
+datasource = { path = "../datasource" }
 repository = { path = "../repository" }
 telegram = { path = "../telegram" }
 util = { path = "../util" }

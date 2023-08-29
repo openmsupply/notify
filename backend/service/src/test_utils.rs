@@ -1,3 +1,4 @@
+use datasource::PostgresSettings;
 use std::{
     env,
     path::{Path, PathBuf},
@@ -52,6 +53,13 @@ pub fn get_test_settings(db_name: &str) -> Settings {
         },
         telegram: TelegramSettings {
             token: telegram_token,
+        },
+        datasource: PostgresSettings {
+            username: String::new(),
+            password: String::new(),
+            port: 0,
+            host: String::new(),
+            database_name: String::new(),
         },
     }
 }

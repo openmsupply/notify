@@ -50,9 +50,9 @@ export const useLoginForm = (
     if (!token) return;
 
     // navigate back, if redirected by the <RequireAuthentication /> component
-    // or to the dashboard as a default
+    // or to the notifications page as a default
     const state = location.state as State | undefined;
-    const from = state?.from?.pathname || `/${AppRoute.UserAccounts}`;
+    const from = state?.from?.pathname || `/${AppRoute.Notifications}`;
     navigate(from, { replace: true });
   };
 

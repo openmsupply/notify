@@ -1,0 +1,137 @@
+fragment RecipientRow on RecipientNode {
+  id
+  name
+  toAddress
+  notificationType
+  auditLogs {
+    datetime
+    id
+    recordId
+    recordType
+    user {
+      username
+    }
+  }
+}
+
+query Recipients(
+  $filter: RecipientFilterInput
+  $page: PaginationInput
+  $sort: [RecipientSortInput!]
+) {
+  recipients(filter: $filter, page: $page, sort: $sort) {
+    ... on RecipientConnector {
+      totalCount
+      nodes {
+        ...RecipientRow
+      }
+    }
+  }
+}
+
+mutation createRecipient($input: CreateRecipientInput!) {
+  createRecipient(input: $input) {
+    ... on RecipientNode {
+      ...RecipientRow
+    }
+  }
+}
+
+mutation updateRecipient($input: UpdateRecipientInput!) {
+  updateRecipient(input: $input) {
+    ... on RecipientNode {
+      ...RecipientRow
+    }
+  }
+}
+
+mutation deleteRecipient($recipientId: String!) {
+  deleteRecipient(recipientId: $recipientId) {
+    ... on DeleteResponse {
+      id
+    }
+  }
+}
+
+fragment RecipientListRow on RecipientListNode {
+  id
+  name
+  description
+  recipients {
+    ...RecipientRow
+  }
+  auditLogs {
+    datetime
+    id
+    recordId
+    recordType
+    user {
+      username
+    }
+  }
+}
+
+query RecipientLists(
+  $filter: RecipientListFilterInput
+  $page: PaginationInput
+  $sort: [RecipientListSortInput!]
+) {
+  recipientLists(filter: $filter, page: $page, sort: $sort) {
+    ... on RecipientListConnector {
+      totalCount
+      nodes {
+        ...RecipientListRow
+      }
+    }
+  }
+}
+
+mutation createRecipientList($input: CreateRecipientListInput!) {
+  createRecipientList(input: $input) {
+    ... on RecipientListNode {
+      ...RecipientListRow
+    }
+  }
+}
+
+mutation updateRecipientList($input: UpdateRecipientListInput!) {
+  updateRecipientList(input: $input) {
+    ... on RecipientListNode {
+      ...RecipientListRow
+    }
+  }
+}
+
+mutation addRecipientToList($input: AddRecipientToListInput!) {
+  addRecipientToList(input: $input) {
+    ... on IdResponse {
+      id
+    }
+  }
+}
+
+mutation removeRecipientFromList($input: RemoveRecipientFromListInput!) {
+  removeRecipientFromList(input: $input) {
+    ... on IdResponse {
+      id
+    }
+  }
+}
+
+mutation deleteRecipientList($recipientListId: String!) {
+  deleteRecipientList(recipientListId: $recipientListId) {
+    ... on DeleteResponse {
+      id
+    }
+  }
+}
+
+mutation sendTestTelegramMessage($chatId: String!) {
+  sendTestTelegramMessage(chatId: $chatId) {
+    ... on TelegramMessageNode {
+      __typename
+      chatName
+      message
+    }
+  }
+}

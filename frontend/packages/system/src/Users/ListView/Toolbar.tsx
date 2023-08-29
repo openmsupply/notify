@@ -13,6 +13,7 @@ import {
   SearchBar,
   UserAccountNode,
   LocalStorage,
+  FilterRule,
 } from '@notify-frontend/common';
 import { UserAccountRowFragment, useUserAccount } from '../api';
 
@@ -37,7 +38,8 @@ export const Toolbar: FC<{
   }));
 
   const key = 'username' as keyof UserAccountNode;
-  const filterString = (filter.filterBy?.[key]?.like as string) || '';
+  const filterString =
+    ((filter.filterBy?.[key] as FilterRule)?.like as string) || '';
   const deleteAction = () => {
     const numberSelected = selectedRows.length;
     if (selectedRows && numberSelected > 0) {

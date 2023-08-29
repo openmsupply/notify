@@ -26,7 +26,8 @@ assets = [
     ["target/release/notify_server", "/opt/notify/notify_server", "755"],
     ["debian/notify.service", "/lib/systemd/system/notify.service", "644"],
     ["../configuration/base.yaml", "/opt/notify/configuration/", "755"],
-    ["../configuration/example.yaml", "/opt/notify/configuration/", "755"]
+    ["../configuration/example.yaml", "/opt/notify/configuration/", "755"],
+    ["../templates/**/*.html", "/opt/notify/templates/", "755"]
 ]
 maintainer-scripts = "debian/scripts"
 
@@ -34,6 +35,7 @@ maintainer-scripts = "debian/scripts"
 graphql = { path = "../graphql" }
 graphql_core = { path = "../graphql/core" }
 graphql_types = { path = "../graphql/types" }
+datasource = {path = "../datasource"}
 repository = { path = "../repository" }
 service = { path = "../service" }
 telegram = { path = "../telegram" }

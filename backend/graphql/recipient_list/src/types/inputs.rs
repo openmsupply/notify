@@ -37,6 +37,7 @@ impl RecipientListSortInput {
 pub struct RecipientListFilterInput {
     pub id: Option<EqualFilterStringInput>,
     pub name: Option<StringFilterInput>,
+    pub search: Option<String>,
 }
 
 impl From<RecipientListFilterInput> for RecipientListFilter {
@@ -44,6 +45,7 @@ impl From<RecipientListFilterInput> for RecipientListFilter {
         RecipientListFilter {
             id: f.id.map(EqualFilter::from),
             name: f.name.map(StringFilter::from),
+            search: f.search,
         }
     }
 }

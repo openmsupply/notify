@@ -19,6 +19,8 @@ pub struct LogConnector {
 
 #[derive(Enum, Copy, Clone, PartialEq, Eq)]
 pub enum LogNodeType {
+    NotificationConfigCreated,
+    NotificationConfigUpdated,
     RecipientCreated,
     RecipientUpdated,
     RecipientListCreated,
@@ -77,6 +79,8 @@ impl LogNode {
 impl LogNodeType {
     pub fn from_domain(from: &LogType) -> LogNodeType {
         match from {
+            LogType::NotificationConfigCreated => LogNodeType::NotificationConfigCreated,
+            LogType::NotificationConfigUpdated => LogNodeType::NotificationConfigUpdated,
             LogType::RecipientCreated => LogNodeType::RecipientCreated,
             LogType::RecipientUpdated => LogNodeType::RecipientUpdated,
             LogType::RecipientListCreated => LogNodeType::RecipientListCreated,
@@ -94,6 +98,8 @@ impl LogNodeType {
 
     pub fn to_domain(self) -> LogType {
         match self {
+            LogNodeType::NotificationConfigCreated => LogType::NotificationConfigCreated,
+            LogNodeType::NotificationConfigUpdated => LogType::NotificationConfigUpdated,
             LogNodeType::RecipientCreated => LogType::RecipientCreated,
             LogNodeType::RecipientUpdated => LogType::RecipientUpdated,
             LogNodeType::RecipientListCreated => LogType::RecipientListCreated,

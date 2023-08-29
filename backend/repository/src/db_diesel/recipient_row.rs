@@ -1,5 +1,6 @@
 use super::{recipient_row::recipient::dsl as recipient_dsl, StorageConnection};
 use crate::{repository_error::RepositoryError, EqualFilter};
+use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use diesel_derive_enum::DbEnum;
 use serde::Serialize;
@@ -10,6 +11,7 @@ table! {
         name -> Text,
         notification_type -> crate::db_diesel::recipient_row::NotificationTypeMapping,
         to_address -> Text,
+        deleted_datetime -> Nullable<Timestamp>,
     }
 }
 
@@ -42,6 +44,7 @@ pub struct RecipientRow {
     pub name: String,
     pub notification_type: NotificationType,
     pub to_address: String,
+    pub deleted_datetime: Option<NaiveDateTime>,
 }
 
 pub struct RecipientRowRepository<'a> {
@@ -73,6 +76,15 @@ impl<'a> RecipientRowRepository<'a> {
         Ok(())
     }
 
+    pub fn mark_deleted(&self, id: &str) -> Result<(), RepositoryError> {
+        let query = diesel::update(recipient_dsl::recipient)
+            .filter(recipient_dsl::id.eq(id))
+            .filter(recipient_dsl::deleted_datetime.is_null())
+            .set(recipient_dsl::deleted_datetime.eq(chrono::Utc::now().naive_utc()));
+        query.execute(&self.connection.connection)?;
+        Ok(())
+    }
+
     pub fn find_one_by_id(&self, id: &str) -> Result<Option<RecipientRow>, RepositoryError> {
         let result = recipient_dsl::recipient
             .filter(recipient_dsl::id.eq(id))
@@ -88,6 +100,7 @@ impl<'a> RecipientRowRepository<'a> {
         let result = recipient_dsl::recipient
             .filter(recipient_dsl::to_address.eq(address))
             .filter(recipient_dsl::notification_type.eq(notification_type))
+            .filter(recipient_dsl::deleted_datetime.is_null())
             .first(&self.connection.connection)
             .optional()?;
         Ok(result)
