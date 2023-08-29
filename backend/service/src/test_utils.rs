@@ -21,10 +21,6 @@ pub fn find_base_dir() -> PathBuf {
 pub fn search_for_base_dir(path: &Path) -> Result<PathBuf, String> {
     // Strategy is to find the repository crate directory, then assume base path is the only one that contains a folder called repository
     let repository_path = path.join("repository");
-    // println!(
-    //     "Looking for base dir in - {:#?}",
-    //     repository_path.as_os_str()
-    // );
     if repository_path.is_dir() {
         Ok(path.to_path_buf())
     } else {
