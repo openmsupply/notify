@@ -10,7 +10,7 @@ export interface BaseNotificationConfig extends BaseConfig {
 }
 
 export interface CCNotification extends BaseNotificationConfig {
-  kind: ConfigKind.ColdChain;
+  kind: ConfigKind;
   highTemp: boolean;
   lowTemp: boolean;
   confirmOk: boolean;
@@ -18,4 +18,11 @@ export interface CCNotification extends BaseNotificationConfig {
   reminderInterval: number;
   reminderUnits: 'seconds' | 'minutes' | 'hours';
   locationIds: string[];
+}
+export interface ScheduledNotification extends BaseNotificationConfig {
+  kind: ConfigKind;
+  parameters: [];
+  scheduleFrequency: string;
+  subjectTemplate: string;
+  bodyTemplate: string;
 }

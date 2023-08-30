@@ -59,6 +59,10 @@ export const SelectConfigKindModal = ({
               label: t(`config-kind.${ConfigKind.ColdChain}`),
               value: ConfigKind.ColdChain,
             },
+            {
+              label: t(`config-kind.${ConfigKind.Scheduled}`),
+              value: ConfigKind.Scheduled,
+            },
           ]}
           InputLabelProps={{ shrink: true }}
         />

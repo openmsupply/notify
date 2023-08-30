@@ -18,6 +18,7 @@ table! {
 #[DbValueStyle = "SCREAMING_SNAKE_CASE"]
 pub enum NotificationConfigKind {
     ColdChain,
+    Scheduled,
 }
 
 impl Default for NotificationConfigKind {

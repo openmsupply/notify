@@ -96,18 +96,21 @@ impl NotificationConfigConnector {
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ConfigKind {
     ColdChain,
+    Scheduled,
 }
 
 impl ConfigKind {
     pub fn to_domain(self) -> NotificationConfigKind {
         match self {
             ConfigKind::ColdChain => NotificationConfigKind::ColdChain,
+            ConfigKind::Scheduled => NotificationConfigKind::Scheduled,
         }
     }
 
     pub fn from_domain(kind: &NotificationConfigKind) -> ConfigKind {
         match kind {
             NotificationConfigKind::ColdChain => ConfigKind::ColdChain,
+            NotificationConfigKind::Scheduled => ConfigKind::Scheduled,
         }
     }
 }

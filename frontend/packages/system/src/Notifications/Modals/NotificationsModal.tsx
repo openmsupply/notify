@@ -3,6 +3,7 @@ import { ConfigKind, useEditModal } from '@notify-frontend/common';
 import { CCNotificationEditModal } from './ColdChain/CCNotificationEditModal';
 import { SelectConfigKindModal } from './SelectConfigKindModal';
 import { NotificationConfigRowFragment } from '../api';
+import { ScheduledNotificationEditModal } from './Scheduled/ScheduledNotificationEditModal';
 
 interface NotificationsModalProps {
   isOpen: boolean;
@@ -55,6 +56,10 @@ export const NotificationsModal = ({
     switch (kind) {
       case ConfigKind.ColdChain:
         return <CCNotificationEditModal {...props} entity={configEntity} />;
+      case ConfigKind.Scheduled:
+        return (
+          <ScheduledNotificationEditModal {...props} entity={configEntity} />
+        );
       default:
         return <></>;
     }
