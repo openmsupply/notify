@@ -37,9 +37,7 @@ impl DatasourceServiceTrait for DatasourceService {
             DatasourceServiceError::BadUserInput(format!("Could not run query: {}", error))
         })?;
 
-        // TODO figure out what we acutally want!
-        // For now let's put this results into a json value
-
+        // Serialize result as json
         let json = serde_json::to_string(&result).map_err(|error| {
             DatasourceServiceError::InternalError(format!(
                 "Could not serialize query result: {}",
