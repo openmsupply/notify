@@ -178,9 +178,8 @@ export const DetailView = () => {
                       isLoading={sqlIsLoading}
                       startIcon={<ZapIcon />}
                       onClick={() => {
-                        runSqlQuery(
-                          list?.sqlQuery ?? "SELECT 'SQL QUERY MISSING' as name"
-                        )
+                        if (!list?.sqlQuery) return;
+                        runSqlQuery(list?.sqlQuery)
                           .then(result => {
                             console.log(result);
                             setSqlRecipients(result);
