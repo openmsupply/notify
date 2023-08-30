@@ -8,6 +8,7 @@ export interface BasicRecipientRow {
   toAddress: string;
 }
 
+// This interface should be removed after https://github.com/openmsupply/notify/issues/99
 interface LcRecipientRow {
   id: string;
   name: string;
@@ -25,6 +26,7 @@ export const useSQLRecipients = () => {
     });
     const recipients: LcRecipientRow[] = JSON.parse(result.runSqlQuery);
     // TODO: Refactor to use a specific endpoint and parse in backend for recipients...
+    // https://github.com/openmsupply/notify/issues/99
     return recipients.map(
       recipient =>
         ({
