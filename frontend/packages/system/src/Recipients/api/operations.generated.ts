@@ -3,6 +3,8 @@ import * as Types from '@notify-frontend/common';
 import { GraphQLClient } from 'graphql-request';
 import * as Dom from 'graphql-request/dist/types.dom';
 import gql from 'graphql-tag';
+export type BasicRecipientRowFragment = { __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode };
+
 export type RecipientRowFragment = { __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> };
 
 export type RecipientsQueryVariables = Types.Exact<{
@@ -13,6 +15,15 @@ export type RecipientsQueryVariables = Types.Exact<{
 
 
 export type RecipientsQuery = { __typename: 'FullQuery', recipients: { __typename: 'RecipientConnector', totalCount: number, nodes: Array<{ __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }> } };
+
+export type BasicRecipientsQueryVariables = Types.Exact<{
+  filter?: Types.InputMaybe<Types.RecipientFilterInput>;
+  page?: Types.InputMaybe<Types.PaginationInput>;
+  sort?: Types.InputMaybe<Array<Types.RecipientSortInput> | Types.RecipientSortInput>;
+}>;
+
+
+export type BasicRecipientsQuery = { __typename: 'FullQuery', recipients: { __typename: 'RecipientConnector', totalCount: number, nodes: Array<{ __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode }> } };
 
 export type CreateRecipientMutationVariables = Types.Exact<{
   input: Types.CreateRecipientInput;
@@ -35,7 +46,7 @@ export type DeleteRecipientMutationVariables = Types.Exact<{
 
 export type DeleteRecipientMutation = { __typename: 'FullMutation', deleteRecipient: { __typename: 'DeleteResponse', id: string } };
 
-export type RecipientListRowFragment = { __typename: 'RecipientListNode', id: string, name: string, description: string, recipients: Array<{ __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> };
+export type RecipientListRowFragment = { __typename: 'RecipientListNode', id: string, name: string, description: string, sqlQuery?: string | null, recipients: Array<{ __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> };
 
 export type RecipientListsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.RecipientListFilterInput>;
@@ -44,21 +55,21 @@ export type RecipientListsQueryVariables = Types.Exact<{
 }>;
 
 
-export type RecipientListsQuery = { __typename: 'FullQuery', recipientLists: { __typename: 'RecipientListConnector', totalCount: number, nodes: Array<{ __typename: 'RecipientListNode', id: string, name: string, description: string, recipients: Array<{ __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }> } };
+export type RecipientListsQuery = { __typename: 'FullQuery', recipientLists: { __typename: 'RecipientListConnector', totalCount: number, nodes: Array<{ __typename: 'RecipientListNode', id: string, name: string, description: string, sqlQuery?: string | null, recipients: Array<{ __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }> } };
 
 export type CreateRecipientListMutationVariables = Types.Exact<{
   input: Types.CreateRecipientListInput;
 }>;
 
 
-export type CreateRecipientListMutation = { __typename: 'FullMutation', createRecipientList: { __typename: 'RecipientListNode', id: string, name: string, description: string, recipients: Array<{ __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> } };
+export type CreateRecipientListMutation = { __typename: 'FullMutation', createRecipientList: { __typename: 'RecipientListNode', id: string, name: string, description: string, sqlQuery?: string | null, recipients: Array<{ __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> } };
 
 export type UpdateRecipientListMutationVariables = Types.Exact<{
   input: Types.UpdateRecipientListInput;
 }>;
 
 
-export type UpdateRecipientListMutation = { __typename: 'FullMutation', updateRecipientList: { __typename: 'RecipientListNode', id: string, name: string, description: string, recipients: Array<{ __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> } };
+export type UpdateRecipientListMutation = { __typename: 'FullMutation', updateRecipientList: { __typename: 'RecipientListNode', id: string, name: string, description: string, sqlQuery?: string | null, recipients: Array<{ __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> } };
 
 export type AddRecipientToListMutationVariables = Types.Exact<{
   input: Types.AddRecipientToListInput;
@@ -88,6 +99,21 @@ export type SendTestTelegramMessageMutationVariables = Types.Exact<{
 
 export type SendTestTelegramMessageMutation = { __typename: 'FullMutation', sendTestTelegramMessage: { __typename: 'TelegramMessageNode', chatName: string, message: string } };
 
+export type RecipientsViaSqlQueryVariables = Types.Exact<{
+  sqlQuery?: Types.InputMaybe<Types.Scalars['String']['input']>;
+}>;
+
+
+export type RecipientsViaSqlQuery = { __typename: 'FullQuery', runSqlQuery: string };
+
+export const BasicRecipientRowFragmentDoc = gql`
+    fragment BasicRecipientRow on RecipientNode {
+  id
+  name
+  toAddress
+  notificationType
+}
+    `;
 export const RecipientRowFragmentDoc = gql`
     fragment RecipientRow on RecipientNode {
   id
@@ -122,6 +148,7 @@ export const RecipientListRowFragmentDoc = gql`
       username
     }
   }
+  sqlQuery
 }
     ${RecipientRowFragmentDoc}`;
 export const RecipientsDocument = gql`
@@ -136,6 +163,18 @@ export const RecipientsDocument = gql`
   }
 }
     ${RecipientRowFragmentDoc}`;
+export const BasicRecipientsDocument = gql`
+    query BasicRecipients($filter: RecipientFilterInput, $page: PaginationInput, $sort: [RecipientSortInput!]) {
+  recipients(filter: $filter, page: $page, sort: $sort) {
+    ... on RecipientConnector {
+      totalCount
+      nodes {
+        ...BasicRecipientRow
+      }
+    }
+  }
+}
+    ${BasicRecipientRowFragmentDoc}`;
 export const CreateRecipientDocument = gql`
     mutation createRecipient($input: CreateRecipientInput!) {
   createRecipient(input: $input) {
@@ -231,6 +270,11 @@ export const SendTestTelegramMessageDocument = gql`
   }
 }
     `;
+export const RecipientsViaSqlDocument = gql`
+    query recipientsViaSQL($sqlQuery: String) {
+  runSqlQuery(sqlQuery: $sqlQuery)
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string) => Promise<T>;
 
@@ -241,6 +285,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
   return {
     Recipients(variables?: RecipientsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<RecipientsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<RecipientsQuery>(RecipientsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Recipients', 'query');
+    },
+    BasicRecipients(variables?: BasicRecipientsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<BasicRecipientsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<BasicRecipientsQuery>(BasicRecipientsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'BasicRecipients', 'query');
     },
     createRecipient(variables: CreateRecipientMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateRecipientMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateRecipientMutation>(CreateRecipientDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'createRecipient', 'mutation');
@@ -271,6 +318,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     sendTestTelegramMessage(variables: SendTestTelegramMessageMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<SendTestTelegramMessageMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<SendTestTelegramMessageMutation>(SendTestTelegramMessageDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'sendTestTelegramMessage', 'mutation');
+    },
+    recipientsViaSQL(variables?: RecipientsViaSqlQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<RecipientsViaSqlQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<RecipientsViaSqlQuery>(RecipientsViaSqlDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'recipientsViaSQL', 'query');
     }
   };
 }

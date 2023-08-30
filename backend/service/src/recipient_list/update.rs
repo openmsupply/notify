@@ -17,6 +17,7 @@ pub struct UpdateRecipientList {
     pub id: String,
     pub name: Option<String>,
     pub description: Option<String>,
+    pub sql_query: Option<String>,
 }
 
 pub fn update_recipient_list(
@@ -82,6 +83,7 @@ pub fn generate(
         id: _id, //ID is already used for look up so we can assume it's the same
         name,
         description,
+        sql_query,
     }: UpdateRecipientList,
     current_recipient_list_row: RecipientListRow,
 ) -> Result<RecipientListRow, ModifyRecipientListError> {
@@ -91,6 +93,9 @@ pub fn generate(
     }
     if let Some(description) = description {
         new_recipient_list_row.description = description;
+    }
+    if let Some(sql_query) = sql_query {
+        new_recipient_list_row.sql_query = Some(sql_query);
     }
 
     Ok(new_recipient_list_row)

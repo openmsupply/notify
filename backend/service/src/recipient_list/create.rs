@@ -19,6 +19,7 @@ pub struct CreateRecipientList {
     pub id: String,
     pub name: String,
     pub description: String,
+    pub sql_query: Option<String>,
 }
 
 pub fn create_recipient_list(
@@ -72,6 +73,8 @@ pub fn validate(
         return Err(ModifyRecipientListError::RecipientListAlreadyExists);
     }
 
+    // TODO: Query validation?
+
     Ok(())
 }
 
@@ -80,12 +83,13 @@ pub fn generate(
         id,
         name,
         description,
+        sql_query,
     }: CreateRecipientList,
 ) -> Result<RecipientListRow, ModifyRecipientListError> {
     Ok(RecipientListRow {
         id,
         name: name.trim().to_string(),
         description,
-        sql_query: None,
+        sql_query,
     })
 }
