@@ -74,17 +74,10 @@ impl ServiceProvider {
             None => None,
         };
 
-        //TODO Rearrange this so we're not using port number to determine if we want to mock...
-        // Should move this logic somehow into the tests...
-        let datasource_service: Box<dyn DatasourceServiceTrait> = match &settings.datasource.port {
-            0 => Box::new(crate::test_utils::MockDatasourceService {}),
-            _ => Box::new(DatasourceService::new(settings.clone())),
-        };
-
         ServiceProvider {
             connection_manager,
             email_service: Box::new(EmailService::new(settings.clone())),
-            datasource_service: datasource_service,
+            datasource_service: Box::new(DatasourceService::new(settings.clone())),
             validation_service: Box::new(AuthService::new()),
             user_account_service: Box::new(UserAccountService {}),
             notification_config_service: Box::new(NotificationConfigService {}),

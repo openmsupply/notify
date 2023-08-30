@@ -36,6 +36,7 @@ mod recipient_list_update_tests {
                     id: "new_id".to_string(),
                     name: Some("new_name".to_string()),
                     description: None,
+                    ..Default::default()
                 },
             ),
             Err(ModifyRecipientListError::RecipientListDoesNotExist)
@@ -49,6 +50,7 @@ mod recipient_list_update_tests {
                     id: mock_recipient_list_with_no_members().id.clone(),
                     name: Some(mock_recipient_list_c().name.clone() + "  "),
                     description: None,
+                    ..Default::default()
                 },
             ),
             Err(ModifyRecipientListError::RecipientListAlreadyExists)
@@ -62,6 +64,7 @@ mod recipient_list_update_tests {
                     id: mock_recipient_list_c().id.clone(),
                     name: Some("name'; DROP TABLE Students;--".to_string()),
                     description: None,
+                    ..Default::default()
                 },
             ),
             Err(ModifyRecipientListError::InvalidRecipientListName)
@@ -76,6 +79,7 @@ mod recipient_list_update_tests {
                     // less than 3 chars
                     name: Some("x".to_string()),
                     description: None,
+                    ..Default::default()
                 },
             ),
             Err(ModifyRecipientListError::InvalidRecipientListName)
@@ -87,6 +91,8 @@ mod recipient_list_update_tests {
                     id: mock_recipient_list_c().id.clone(),
                     name: Some("Why hello there this is an exceedingly large recipient list name that really isn't necessary given you can provide a description :)".to_string()),
                     description: None,
+                           ..Default::default()
+
                 },
             ),
             Err(ModifyRecipientListError::InvalidRecipientListName)
@@ -116,6 +122,7 @@ mod recipient_list_update_tests {
                     id: "id1".to_string(),
                     name: "new_recipient_list_1".to_string(),
                     description: "descrizzle".to_string(),
+                    ..Default::default()
                 },
             )
             .unwrap();
@@ -130,6 +137,7 @@ mod recipient_list_update_tests {
                     id: "id1".to_string(),
                     name: Some("name_for_id1".to_string()),
                     description: None,
+                    ..Default::default()
                 },
             )
             .unwrap();
@@ -149,6 +157,7 @@ mod recipient_list_update_tests {
                     id: "id1".to_string(),
                     name: None,
                     description: Some("A nice new description".to_string()),
+                    ..Default::default()
                 },
             )
             .unwrap();

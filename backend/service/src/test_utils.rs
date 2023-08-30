@@ -29,11 +29,11 @@ pub fn get_test_settings(db_name: &str) -> Settings {
         },
         telegram: TelegramSettings { token: None },
         datasource: PostgresSettings {
-            username: String::new(),
-            password: String::new(),
-            port: 0,
-            host: String::new(),
-            database_name: String::new(),
+            username: String::from("postgres"),
+            password: String::from("password"),
+            port: 5432,
+            host: "localhost".to_string(),
+            database_name: String::from("dashboard"),
         },
     }
 }

@@ -12,7 +12,7 @@ use repository::{
     LogType, RecipientList, RecipientListRow, RecipientListRowRepository, StorageConnection,
 };
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct UpdateRecipientList {
     pub id: String,
     pub name: Option<String>,

@@ -14,7 +14,7 @@ use repository::{
     LogType, RecipientList, RecipientListRow, RecipientListRowRepository, StorageConnection,
 };
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct CreateRecipientList {
     pub id: String,
     pub name: String,
