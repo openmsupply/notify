@@ -71,6 +71,7 @@ export type CreateRecipientListInput = {
   description: Scalars['String']['input'];
   id: Scalars['String']['input'];
   name: Scalars['String']['input'];
+  sqlQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreateRecipientResponse = RecipientNode;
@@ -284,6 +285,7 @@ export type FullQuery = {
    * The refresh token is returned as a cookie
    */
   refreshToken: RefreshTokenResponse;
+  runSqlQuery: Scalars['String']['output'];
   telegramBotName: Scalars['String']['output'];
   /** Query "user_accounts" entries */
   userAccounts: UserAccountsResponse;
@@ -321,6 +323,11 @@ export type FullQueryRecipientsArgs = {
   filter?: InputMaybe<RecipientFilterInput>;
   page?: InputMaybe<PaginationInput>;
   sort?: InputMaybe<Array<RecipientSortInput>>;
+};
+
+
+export type FullQueryRunSqlQueryArgs = {
+  sqlQuery: Scalars['String']['input'];
 };
 
 
@@ -554,6 +561,7 @@ export type RecipientListNode = {
   id: Scalars['String']['output'];
   name: Scalars['String']['output'];
   recipients: Array<RecipientNode>;
+  sqlQuery?: Maybe<Scalars['String']['output']>;
 };
 
 export enum RecipientListSortFieldInput {
@@ -671,6 +679,7 @@ export type UpdateRecipientListInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+  sqlQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateRecipientResponse = RecipientNode;

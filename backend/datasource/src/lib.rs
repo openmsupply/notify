@@ -16,7 +16,7 @@ pub struct JsonDataRow {
     data: serde_json::Value,
 }
 
-pub fn pg_sql_query_as_json(
+pub fn pg_sql_query_as_json_rows(
     connection: &mut PgConnection,
     sql_select_query: String,
 ) -> Result<Vec<serde_json::Value>, DieselError> {
@@ -62,7 +62,7 @@ mod tests {
                             UNION 
                             SELECT 2 as row_id, 'Row Two' as description"#;
 
-        let result = pg_sql_query_as_json(&mut connection, sql_query.to_string()).unwrap();
+        let result = pg_sql_query_as_json_rows(&mut connection, sql_query.to_string()).unwrap();
 
         assert_eq!(
             result,
@@ -83,7 +83,7 @@ mod tests {
         let sql_query = r#"WITH s1 as (SELECT 1 as row_id, 'Row One' as description), s2 as (SELECT 2 as row_id, 'Row Two' as description)
                            SELECT * from s1 UNION SELECT * from s2"#;
 
-        let result = pg_sql_query_as_json(&mut connection, sql_query.to_string()).unwrap();
+        let result = pg_sql_query_as_json_rows(&mut connection, sql_query.to_string()).unwrap();
 
         assert_eq!(
             result,
@@ -104,7 +104,7 @@ mod tests {
         // We probably don't want anyone running a query like this but still...
         let sql_query = r#"DROP TABLE users;"#;
 
-        let result = pg_sql_query_as_json(&mut connection, sql_query.to_string());
+        let result = pg_sql_query_as_json_rows(&mut connection, sql_query.to_string());
 
         assert!(result.is_err());
     }

@@ -7,6 +7,7 @@ use std::{
 use repository::{test_db::get_test_db_settings, StorageConnectionManager};
 
 use crate::{
+    datasource::DatasourceServiceTrait,
     email::{EmailServiceError, EmailServiceTrait},
     service_provider::{ServiceContext, ServiceProvider},
     settings::{MailSettings, ServerSettings, Settings, TelegramSettings},
@@ -55,11 +56,11 @@ pub fn get_test_settings(db_name: &str) -> Settings {
             token: telegram_token,
         },
         datasource: PostgresSettings {
-            username: String::new(),
-            password: String::new(),
-            port: 0,
-            host: String::new(),
-            database_name: String::new(),
+            username: String::from("postgres"),
+            password: String::from("password"),
+            port: 5432,
+            host: "localhost".to_string(),
+            database_name: String::from("dashboard"),
         },
     }
 }
@@ -73,6 +74,16 @@ impl EmailServiceTrait for MockEmailService {
 
     fn send_queued_emails(&self, _ctx: &ServiceContext) -> Result<usize, EmailServiceError> {
         Ok(0)
+    }
+}
+
+pub struct MockDatasourceService {}
+impl DatasourceServiceTrait for MockDatasourceService {
+    fn run_sql_query(
+        &self,
+        sql_query: String,
+    ) -> Result<String, crate::datasource::DatasourceServiceError> {
+        todo!()
     }
 }
 

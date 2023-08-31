@@ -19,6 +19,7 @@ const createRecipientList = (
   id: FnUtils.generateUUID(),
   name: '',
   description: '',
+  sqlQuery: '',
   ...seed,
 });
 
@@ -45,8 +46,8 @@ export const RecipientListEditModal = ({
     useUpdateRecipientList();
 
   const onSave = async (draft: DraftRecipientList) => {
-    const { id, name, description } = draft;
-    const input = { id, name, description };
+    const { id, name, description, sqlQuery } = draft;
+    const input = { id, name, description, sqlQuery };
 
     if (mode === ModalMode.Create) await create({ input });
     else await update({ input });

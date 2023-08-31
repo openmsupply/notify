@@ -1589,6 +1589,7 @@ dependencies = [
  "async-graphql-actix-web",
  "async-trait",
  "graphql_core",
+ "graphql_datasource",
  "graphql_general",
  "graphql_notification_config",
  "graphql_recipient",
@@ -1623,6 +1624,20 @@ dependencies = [
  "service",
  "thiserror",
  "tokio",
+ "util",
+]
+
+[[package]]
+name = "graphql_datasource"
+version = "0.1.0"
+dependencies = [
+ "actix-rt",
+ "actix-web",
+ "assert-json-diff",
+ "async-graphql",
+ "graphql_core",
+ "graphql_types",
+ "service",
  "util",
 ]
 
