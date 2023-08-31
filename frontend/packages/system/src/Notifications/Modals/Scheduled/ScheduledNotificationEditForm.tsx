@@ -3,26 +3,57 @@ import {
   BasicTextInput,
   Box,
   BufferedTextArea,
+  DateTimeInput,
   Select,
   Typography,
   useTranslation,
 } from '@notify-frontend/common';
 import { ScheduledNotification } from '../../types';
+import { SqlQuerySelector } from '../../components';
+
+const dummySqlQueries = [
+  {
+    id: '1',
+    name: 'Last Sync By Province',
+    query: `SELECT 
+  category3 AS project, category1_level2 AS province,
+  COUNT(last_sync_date) AS num_of_stores_synced_once 
+FROM store_categories sc 
+JOIN store s ON sc.code = s.code 
+JOIN (
+  SELECT site_id, MAX(date) AS last_sync_date FROM site_log GROUP BY site_id
+) sl ON s.sync_id_remote_site = sl.site_id
+WHERE mode IN ('store', 'dispensary')
+AND sc.disabled = false
+AND category3 IN ({{project}})
+AND category1_level2 IN ({{province}}) 
+GROUP BY category3, category1_level2`,
+    parameters: ['project', 'province'],
+  },
+  {
+    id: '2',
+    name: 'First Stock Take',
+    query: `SELECT 
+  category3 AS project, category1_level2 AS province,
+  COUNT(first_stock_take_date) AS first_stock_take_date 
+FROM store_categories sc 
+JOIN store s ON sc.code = s.code 
+JOIN (
+  SELECT store_id, MAX(stock_take_created_date) AS fist_stock_take_date FROM stock_take GROUP BY store_id
+) st ON s.id = st.store_id
+WHERE mode IN ('store', 'dispensary')
+AND sc.disabled = false
+AND category3 IN ({{project}})
+AND category1_level2 IN ({{province}}) 
+GROUP BY category3, category1_level2 `,
+    parameters: ['project', 'province'],
+  },
+];
 
 type ScheduledNotificationEditFormProps = {
   onUpdate: (patch: Partial<ScheduledNotification>) => void;
   draft: ScheduledNotification;
 };
-
-// const dummyLocations = [
-//   { id: 'store-1-location-A', name: 'Store 1, Location A' },
-//   { id: 'store-1-location-B', name: 'Store 1, Location B' },
-//   { id: 'store-1-location-C', name: 'Store 1, Location C' },
-//   { id: 'store-2-location-A', name: 'Store 1, Location A' },
-//   { id: 'store-2-location-B', name: 'Store 1, Location B' },
-//   { id: 'store-2-location-C', name: 'Store 1, Location C' },
-//   { id: 'store-2-location-D', name: 'Store 1, Location D' },
-// ];
 
 export const ScheduledNotificationEditForm = ({
   onUpdate,
@@ -51,6 +82,34 @@ export const ScheduledNotificationEditForm = ({
         InputProps={{ sx: { backgroundColor: 'background.menu' } }}
         InputLabelProps={{ shrink: true }}
       />
+
+      <BufferedTextArea
+        value={draft.parameters}
+        onChange={e => onUpdate({ parameters: e.target.value })}
+        label={t('label.parameters')}
+        InputProps={{ sx: { backgroundColor: 'background.menu' } }}
+        InputLabelProps={{ shrink: true }}
+      />
+      <Typography sx={{ fontWeight: 700, fontSize: '13px' }}>
+        Queries
+      </Typography>
+      <SqlQuerySelector records={dummySqlQueries} />
+
+      <Typography
+        sx={{ fontWeight: 700, fontSize: '13px', marginBottom: '2px' }}
+      >
+        Schedule
+      </Typography>
+      <Typography sx={{ fontSize: '10px' }}>Starting From</Typography>
+      <DateTimeInput
+        onChange={d =>
+          onUpdate({
+            scheduleStartTime: d as ScheduledNotification['scheduleStartTime'],
+          })
+        }
+        date={draft.scheduleStartTime}
+      />
+      <Typography sx={{ fontSize: '10px' }}>Repeat</Typography>
       <Select
         value={draft.scheduleFrequency}
         disabled={false}
@@ -71,7 +130,7 @@ export const ScheduledNotificationEditForm = ({
         <Typography
           sx={{ fontWeight: 700, fontSize: '13px', marginBottom: '10px' }}
         >
-          Select Locations
+          Recipients
         </Typography>
       </Box>
     </>

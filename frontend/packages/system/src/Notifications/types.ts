@@ -21,8 +21,10 @@ export interface CCNotification extends BaseNotificationConfig {
 }
 export interface ScheduledNotification extends BaseNotificationConfig {
   kind: ConfigKind;
-  parameters: [];
+  parameters: string; // JSON for now
   scheduleFrequency: string;
+  scheduleStartTime: Date;
   subjectTemplate: string;
   bodyTemplate: string;
+  sqlQueries: string[];
 }

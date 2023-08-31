@@ -32,11 +32,12 @@ const createScheduledNotification = (
   kind: seed?.kind ?? ConfigKind.Scheduled,
   recipientListIds: seed?.recipientListIds ?? [],
   recipientIds: seed?.recipientIds ?? [],
-  parameters: seed?.parameters ?? [],
+  parameters: seed?.parameters ?? '[]',
   scheduleFrequency: seed?.scheduleFrequency ?? 'daily',
-  // scheduleTime: seed?.scheduleTime ?? '00:00',
+  scheduleStartTime: seed?.scheduleStartTime ?? new Date(),
   subjectTemplate: seed?.subjectTemplate ?? '',
   bodyTemplate: seed?.bodyTemplate ?? '',
+  sqlQueries: seed?.sqlQueries ?? [],
 });
 
 export const ScheduledNotificationEditModal: FC<

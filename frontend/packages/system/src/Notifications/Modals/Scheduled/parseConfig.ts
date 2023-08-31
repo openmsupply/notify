@@ -16,21 +16,26 @@ export function parseScheduledNotificationConfig(
       recipientListIds,
       parameters,
       scheduleFrequency,
+      scheduleStartTime,
       subjectTemplate,
       bodyTemplate,
+      sqlQueries,
     } = JSON.parse(config.configurationData);
 
-    return {
+    const scheduledNotification: ScheduledNotification = {
       id: config.id,
       title: config.title,
       kind: config.kind,
       parameters,
       scheduleFrequency,
+      scheduleStartTime,
       recipientIds,
       recipientListIds,
       subjectTemplate,
       bodyTemplate,
+      sqlQueries,
     };
+    return scheduledNotification;
   } catch (e) {
     showError();
     // There's not much the user can do, except contact support or input the data again
@@ -51,24 +56,19 @@ export function buildScheduledNotificationInputs(
   create: CreateNotificationConfigInput;
   update: UpdateNotificationConfigInput;
 } {
-  const {
-    recipientIds,
-    recipientListIds,
-    scheduleFrequency,
-    subjectTemplate,
-    bodyTemplate,
-  } = config;
+  // const {
+  //   recipientIds,
+  //   recipientListIds,
+  //   scheduleFrequency,
+  //   subjectTemplate,
+  //   bodyTemplate,
+  //   parameters,
+  // } = config;
 
   const input = {
     id: config.id,
     title: config.title,
-    configurationData: JSON.stringify({
-      recipientIds,
-      recipientListIds,
-      scheduleFrequency,
-      subjectTemplate,
-      bodyTemplate,
-    }),
+    configurationData: JSON.stringify(config),
   };
   return {
     create: { ...input, kind: config.kind },
