@@ -1,0 +1,25 @@
+[package]
+name = "graphql_datasource"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+path = "src/lib.rs"
+doctest = false
+
+[dependencies]
+
+service = { path = "../../service" }
+util = { path = "../../util" }
+graphql_core = { path = "../core" }
+graphql_types = { path = "../types" }
+
+actix-web = { version = "4.0.1", default-features = false, features = ["macros"] }
+async-graphql = { version = "3.0.35", features = ["dataloader", "chrono"] }
+
+
+[dev-dependencies]
+actix-rt = "2.6.0"
+assert-json-diff = "2.0.1"
+
+

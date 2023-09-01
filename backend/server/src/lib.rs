@@ -12,6 +12,13 @@ use log::{error, info};
 use middleware::{add_authentication_context, limit_content_length};
 use repository::{get_storage_connection_manager, run_db_migrations, StorageConnectionManager};
 
+use actix_web::{web::Data, App, HttpServer};
+use std::{
+    ops::DerefMut,
+    sync::{Arc, RwLock},
+};
+use tokio::sync::{oneshot, Mutex};
+
 use service::{
     auth_data::AuthData,
     recipient::telegram::update_telegram_recipients,
@@ -20,14 +27,6 @@ use service::{
     token_bucket::TokenBucket,
 };
 
-use actix_web::{web::Data, App, HttpServer};
-use std::{
-    ops::DerefMut,
-    sync::{Arc, RwLock},
-};
-use tokio::sync::{oneshot, Mutex};
-
-use datasource::get_datasource_pool;
 use telegram::{service::TelegramService, TelegramClient};
 
 pub mod configuration;
@@ -196,12 +195,6 @@ pub async fn start_server(
             panic!("{}", msg);
         }
     };
-
-    let datasource_connection_pool = get_datasource_pool(&config_settings.datasource);
-
-    let _test_connection = datasource_connection_pool
-        .get()
-        .expect("Unable to connect to your datasource postgres database");
 
     // allow the off_switch to be passed around during multiple server stages
     let off_switch = Arc::new(Mutex::new(off_switch));

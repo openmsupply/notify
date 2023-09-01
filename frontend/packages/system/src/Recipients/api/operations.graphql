@@ -1,3 +1,10 @@
+fragment BasicRecipientRow on RecipientNode {
+  id
+  name
+  toAddress
+  notificationType
+}
+
 fragment RecipientRow on RecipientNode {
   id
   name
@@ -24,6 +31,21 @@ query Recipients(
       totalCount
       nodes {
         ...RecipientRow
+      }
+    }
+  }
+}
+
+query BasicRecipients(
+  $filter: RecipientFilterInput
+  $page: PaginationInput
+  $sort: [RecipientSortInput!]
+) {
+  recipients(filter: $filter, page: $page, sort: $sort) {
+    ... on RecipientConnector {
+      totalCount
+      nodes {
+        ...BasicRecipientRow
       }
     }
   }
@@ -69,6 +91,7 @@ fragment RecipientListRow on RecipientListNode {
       username
     }
   }
+  sqlQuery
 }
 
 query RecipientLists(
@@ -134,4 +157,8 @@ mutation sendTestTelegramMessage($chatId: String!) {
       message
     }
   }
+}
+
+query recipientsViaSQL($sqlQuery: String) {
+  runSqlQuery(sqlQuery: $sqlQuery)
 }

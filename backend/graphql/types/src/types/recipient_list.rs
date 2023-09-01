@@ -62,6 +62,10 @@ impl RecipientListNode {
 
         Ok(result.into_iter().map(RecipientNode::from_domain).collect())
     }
+
+    pub async fn sql_query(&self) -> Option<String> {
+        self.row().sql_query.clone()
+    }
 }
 
 impl RecipientListNode {

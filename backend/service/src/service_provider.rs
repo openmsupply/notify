@@ -5,7 +5,9 @@ use telegram::TelegramClient;
 
 use crate::{
     auth::{AuthService, AuthServiceTrait},
+    datasource::{DatasourceService, DatasourceServiceTrait},
     email::{EmailService, EmailServiceTrait},
+    notification::{NotificationService, NotificationServiceTrait},
     notification_config::{NotificationConfigService, NotificationConfigServiceTrait},
     recipient::{RecipientService, RecipientServiceTrait},
     recipient_list::{RecipientListService, RecipientListServiceTrait},
@@ -15,13 +17,14 @@ use crate::{
 
 pub struct ServiceProvider {
     pub connection_manager: StorageConnectionManager,
+    pub datasource_service: Box<dyn DatasourceServiceTrait>,
     pub email_service: Box<dyn EmailServiceTrait>,
     pub validation_service: Box<dyn AuthServiceTrait>,
-    pub general_service: Box<dyn GeneralServiceTrait>,
     pub user_account_service: Box<dyn UserAccountServiceTrait>,
     pub notification_config_service: Box<dyn NotificationConfigServiceTrait>,
     pub recipient_service: Box<dyn RecipientServiceTrait>,
     pub recipient_list_service: Box<dyn RecipientListServiceTrait>,
+    pub notification_service: Box<dyn NotificationServiceTrait>,
     pub settings: Settings,
     pub telegram: Option<TelegramClient>,
 }
@@ -76,14 +79,15 @@ impl ServiceProvider {
         ServiceProvider {
             connection_manager,
             email_service: Box::new(EmailService::new(settings.clone())),
+            datasource_service: Box::new(DatasourceService::new(settings.clone())),
             validation_service: Box::new(AuthService::new()),
-            general_service: Box::new(GeneralService {}),
             user_account_service: Box::new(UserAccountService {}),
             notification_config_service: Box::new(NotificationConfigService {}),
             recipient_service: Box::new(RecipientService {}),
             recipient_list_service: Box::new(RecipientListService {}),
-            settings: settings,
-            telegram: telegram,
+            notification_service: Box::new(NotificationService::new(settings.clone())),
+            settings,
+            telegram,
         }
     }
 
@@ -92,9 +96,3 @@ impl ServiceProvider {
         self.connection_manager.connection()
     }
 }
-
-pub trait GeneralServiceTrait: Sync + Send {}
-
-pub struct GeneralService;
-
-impl GeneralServiceTrait for GeneralService {}

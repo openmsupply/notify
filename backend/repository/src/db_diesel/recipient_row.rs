@@ -3,6 +3,7 @@ use crate::{repository_error::RepositoryError, EqualFilter};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use diesel_derive_enum::DbEnum;
+use serde::Serialize;
 
 table! {
     recipient (id) {
@@ -14,17 +15,12 @@ table! {
     }
 }
 
-#[derive(DbEnum, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(DbEnum, Debug, Clone, PartialEq, Eq, Hash, Default, Serialize)]
 #[DbValueStyle = "SCREAMING_SNAKE_CASE"]
 pub enum NotificationType {
+    #[default]
     Email,
     Telegram,
-}
-
-impl Default for NotificationType {
-    fn default() -> Self {
-        NotificationType::Email
-    }
 }
 
 impl NotificationType {

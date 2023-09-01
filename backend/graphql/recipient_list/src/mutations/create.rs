@@ -37,6 +37,7 @@ pub struct CreateRecipientListInput {
     pub id: String,
     pub name: String,
     pub description: String,
+    pub sql_query: Option<String>,
 }
 
 impl From<CreateRecipientListInput> for CreateRecipientList {
@@ -45,12 +46,14 @@ impl From<CreateRecipientListInput> for CreateRecipientList {
             id,
             name,
             description,
+            sql_query,
         }: CreateRecipientListInput,
     ) -> Self {
         CreateRecipientList {
             id,
             name,
             description,
+            sql_query,
         }
     }
 }

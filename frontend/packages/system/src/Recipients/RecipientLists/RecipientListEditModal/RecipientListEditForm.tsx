@@ -37,6 +37,14 @@ export const RecipientListEditForm = ({
         InputProps={{ sx: { backgroundColor: 'background.menu' } }}
         InputLabelProps={{ shrink: true }}
       />
+
+      <BufferedTextArea
+        value={draft.sqlQuery}
+        onChange={e => onUpdate({ sqlQuery: e.target.value })}
+        label={t('label.query')}
+        InputProps={{ sx: { backgroundColor: 'background.menu' } }}
+        InputLabelProps={{ shrink: true }}
+      />
     </Grid>
   );
 };

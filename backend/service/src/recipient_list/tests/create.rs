@@ -35,6 +35,7 @@ mod recipient_list_create_test {
                     id: mock_recipient_list_c().id.clone(),
                     name: mock_recipient_list_c().name.clone(),
                     description: mock_recipient_list_c().description.clone(),
+                    ..Default::default()
                 },
             ),
             Err(ModifyRecipientListError::RecipientListAlreadyExists)
@@ -48,6 +49,7 @@ mod recipient_list_create_test {
                     id: "some-new-id".to_string(),
                     name: mock_recipient_list_c().name.clone(),
                     description: "nice new description".to_string(),
+                    ..Default::default()
                 },
             ),
             Err(ModifyRecipientListError::RecipientListAlreadyExists)
@@ -61,6 +63,7 @@ mod recipient_list_create_test {
                     id: "some-new-id".to_string(),
                     name: "name'; DROP TABLE Students;--".to_string(),
                     description: "some-new-description".to_string(),
+                    ..Default::default()
                 },
             ),
             Err(ModifyRecipientListError::InvalidRecipientListName)
@@ -75,6 +78,7 @@ mod recipient_list_create_test {
                     // less than 3 chars when trimmed
                     name: "  x     ".to_string(),
                     description: "some-new-description".to_string(),
+                    ..Default::default()
                 },
             ),
             Err(ModifyRecipientListError::InvalidRecipientListName)
@@ -86,6 +90,7 @@ mod recipient_list_create_test {
                     id: "some-new-id".to_string(),
                     name: "Why hello there this is an exceedingly large recipient list name that really isn't necessary given you can provide a description :)".to_string(),
                     description: "some-new-description".to_string(),
+                             sql_query: None,
                 },
             ),
             Err(ModifyRecipientListError::InvalidRecipientListName)
@@ -116,6 +121,7 @@ mod recipient_list_create_test {
                 id: new_recipient_list_id.clone(),
                 name: "new_recipient_list".to_string(),
                 description: "This is a new recipient list".to_string(),
+                sql_query: None,
             },
         );
 

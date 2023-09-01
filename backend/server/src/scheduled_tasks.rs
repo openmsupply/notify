@@ -21,5 +21,20 @@ pub async fn scheduled_task_runner(service_context: ServiceContext) {
             }
             Err(error) => log::error!("Error sending queued emails: {:?}", error),
         };
+
+        // Send Notifications
+        let send_notifications = service_context
+            .service_provider
+            .notification_service
+            .send_queued_notifications(&service_context)
+            .await;
+        match send_notifications {
+            Ok(num) => {
+                if num > 0 {
+                    log::info!("Sent {} queued notifications", num);
+                }
+            }
+            Err(error) => log::error!("Error sending queued notifications: {:?}", error),
+        };
     }
 }
