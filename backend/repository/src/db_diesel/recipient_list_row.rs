@@ -7,8 +7,7 @@ table! {
         id -> Text,
         name -> Text,
         description -> Text,
-        sql_query -> Nullable<Text>,
-    }
+      }
 }
 
 #[derive(
@@ -19,7 +18,6 @@ pub struct RecipientListRow {
     pub id: String,
     pub name: String,
     pub description: String,
-    pub sql_query: Option<String>,
 }
 
 pub struct RecipientListRowRepository<'a> {

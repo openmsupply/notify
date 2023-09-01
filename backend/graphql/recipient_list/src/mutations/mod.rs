@@ -1,6 +1,6 @@
 use async_graphql::*;
 use graphql_core::standard_graphql_error::StandardGraphqlError::*;
-use graphql_types::types::{IdResponse, RecipientListNode};
+use graphql_types::types::IdResponse;
 use service::recipient_list::ModifyRecipientListError;
 
 mod add_member;
@@ -14,6 +14,8 @@ pub use create::*;
 pub use delete::*;
 pub use remove_member::*;
 pub use update::*;
+
+use crate::types::RecipientListNode;
 
 #[derive(Union)]
 pub enum ModifyRecipientListResponse {

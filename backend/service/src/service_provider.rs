@@ -12,6 +12,7 @@ use crate::{
     recipient::{RecipientService, RecipientServiceTrait},
     recipient_list::{RecipientListService, RecipientListServiceTrait},
     settings::Settings,
+    sql_recipient_list::{SqlRecipientListService, SqlRecipientListServiceTrait},
     user_account::{UserAccountService, UserAccountServiceTrait},
 };
 
@@ -24,6 +25,7 @@ pub struct ServiceProvider {
     pub notification_config_service: Box<dyn NotificationConfigServiceTrait>,
     pub recipient_service: Box<dyn RecipientServiceTrait>,
     pub recipient_list_service: Box<dyn RecipientListServiceTrait>,
+    pub sql_recipient_list_service: Box<dyn SqlRecipientListServiceTrait>,
     pub notification_service: Box<dyn NotificationServiceTrait>,
     pub settings: Settings,
     pub telegram: Option<TelegramClient>,
@@ -85,6 +87,7 @@ impl ServiceProvider {
             notification_config_service: Box::new(NotificationConfigService {}),
             recipient_service: Box::new(RecipientService {}),
             recipient_list_service: Box::new(RecipientListService {}),
+            sql_recipient_list_service: Box::new(SqlRecipientListService {}),
             notification_service: Box::new(NotificationService::new(settings.clone())),
             settings,
             telegram,

@@ -9,7 +9,6 @@ use graphql_core::{
     standard_graphql_error::{validate_auth, StandardGraphqlError},
     ContextExt,
 };
-use graphql_types::types::*;
 use repository::PaginationOption;
 use repository::RecipientListFilter;
 use service::auth::{Resource, ResourceAccessRequest};

@@ -81,7 +81,7 @@ pub struct MockDatasourceService {}
 impl DatasourceServiceTrait for MockDatasourceService {
     fn run_sql_query(
         &self,
-        sql_query: String,
+        _sql_query: String,
     ) -> Result<String, crate::datasource::DatasourceServiceError> {
         todo!()
     }

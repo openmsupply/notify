@@ -90,7 +90,6 @@ mod recipient_list_create_test {
                     id: "some-new-id".to_string(),
                     name: "Why hello there this is an exceedingly large recipient list name that really isn't necessary given you can provide a description :)".to_string(),
                     description: "some-new-description".to_string(),
-                             sql_query: None,
                 },
             ),
             Err(ModifyRecipientListError::InvalidRecipientListName)
@@ -121,7 +120,6 @@ mod recipient_list_create_test {
                 id: new_recipient_list_id.clone(),
                 name: "new_recipient_list".to_string(),
                 description: "This is a new recipient list".to_string(),
-                sql_query: None,
             },
         );
 
