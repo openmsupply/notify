@@ -7,6 +7,7 @@ use crate::{TelegramApiResponse, TelegramChat, TelegramMessage};
 
 const DEFAULT_REQUEST_TIMEOUT: u64 = 60;
 
+#[derive(Clone)]
 pub struct TelegramClient {
     http_client: reqwest::Client,
     base_url: String,

@@ -17,9 +17,9 @@ fn blank_telegram_recipient() -> RecipientRow {
     }
 }
 
-pub async fn handle_telegram_updates(
+pub async fn update_telegram_recipients(
     ctx: ServiceContext,
-    mut rx: tokio::sync::mpsc::Receiver<TelegramUpdate>,
+    channel: &tokio::sync::broadcast::Sender<TelegramUpdate>,
 ) {
     // Technically we should be using an LRU cache but to avoid an additional dependency, we'll just use a HashMap.
     // We assume that the number of chats is small enough that we won't run out of memory ...
@@ -27,7 +27,23 @@ pub async fn handle_telegram_updates(
     let mut recipient_cache: HashMap<String, Recipient> = HashMap::new();
     let recipient_repo = RecipientRowRepository::new(&ctx.connection);
 
-    while let Some(update) = rx.recv().await {
+    let mut rx = channel.subscribe();
+
+    loop {
+        let update = match rx.recv().await {
+            Ok(update) => {
+                log::debug!(
+                    "Received Telegram Update Recipient Ready to respond: {:?}",
+                    update
+                );
+                update
+            }
+            Err(tokio::sync::broadcast::error::RecvError::Closed) => return,
+            Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => {
+                log::error!("Telegram update lagged behind, something is delaying processing off telegram recipient events!");
+                continue;
+            }
+        };
         log::debug!("Received Telegram Update: {:?}", update);
 
         if let Some(chat) = update.chat() {
@@ -84,7 +100,6 @@ mod test {
 
     use repository::{mock::MockDataInserts, test_db::setup_all, NotificationType};
     use telegram::{TelegramMessage, TelegramUpdate, TelegramUser};
-    use tokio::sync::mpsc::channel;
     use util::uuid::uuid;
 
     use crate::{
@@ -100,7 +115,7 @@ mod test {
         let (_mock_data, _, connection_manager, _) =
             setup_all("test_handle_telegram_updates", MockDataInserts::none()).await;
 
-        let (tx, rx) = channel(100);
+        let (tx, _rx) = tokio::sync::broadcast::channel(10);
 
         let service_provider = Arc::new(ServiceProvider::new(
             connection_manager.clone(),
@@ -110,8 +125,9 @@ mod test {
         let receive_context = ServiceContext::new(service_provider.clone()).unwrap();
         let send_ctx = ServiceContext::new(service_provider.clone()).unwrap();
 
+        let send_channel = tx.clone();
         let update_handler = actix_rt::spawn(async move {
-            super::handle_telegram_updates(receive_context, rx).await;
+            super::update_telegram_recipients(receive_context, &send_channel).await;
         });
 
         // Test things don't break if we have an empty update to process (e.g. no chat)
@@ -122,7 +138,7 @@ mod test {
             my_chat_member: None,
         };
 
-        tx.send(empty_update).await.unwrap();
+        tx.send(empty_update).unwrap();
 
         // wait 10ms to allow processing to happen
         tokio::time::sleep(tokio::time::Duration::from_millis(ASYNC_WAIT_MS)).await;
@@ -155,7 +171,7 @@ mod test {
             my_chat_member: None,
         };
 
-        tx.send(message_update).await.unwrap();
+        tx.send(message_update).unwrap();
 
         // wait 10ms to allow processing to happen
         tokio::time::sleep(tokio::time::Duration::from_millis(ASYNC_WAIT_MS)).await;
@@ -189,7 +205,7 @@ mod test {
             my_chat_member: None,
         };
 
-        tx.send(title_change_update).await.unwrap();
+        tx.send(title_change_update).unwrap();
 
         // wait 10ms to allow processing to happen
         tokio::time::sleep(tokio::time::Duration::from_millis(ASYNC_WAIT_MS)).await;
@@ -230,7 +246,7 @@ mod test {
             }),
         };
 
-        tx.send(title_change_update).await.unwrap();
+        tx.send(title_change_update).unwrap();
 
         // wait 10ms to allow processing to happen
         tokio::time::sleep(tokio::time::Duration::from_millis(ASYNC_WAIT_MS)).await;
@@ -287,7 +303,7 @@ mod test {
             my_chat_member: None,
         };
 
-        tx.send(message_update).await.unwrap();
+        tx.send(message_update).unwrap();
 
         // wait 10ms to allow processing to happen
         tokio::time::sleep(tokio::time::Duration::from_millis(ASYNC_WAIT_MS)).await;

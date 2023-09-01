@@ -12,21 +12,22 @@ use log::{error, info};
 use middleware::{add_authentication_context, limit_content_length};
 use repository::{get_storage_connection_manager, run_db_migrations, StorageConnectionManager};
 
-use service::{
-    auth_data::AuthData,
-    recipient::telegram::handle_telegram_updates,
-    service_provider::{ServiceContext, ServiceProvider},
-    settings::{is_develop, ServerSettings, Settings},
-    token_bucket::TokenBucket,
-};
-
 use actix_web::{web::Data, App, HttpServer};
 use std::{
     ops::DerefMut,
     sync::{Arc, RwLock},
 };
-use telegram::{service::poll_get_updates, TelegramClient, TelegramUpdate};
 use tokio::sync::{oneshot, Mutex};
+
+use service::{
+    auth_data::AuthData,
+    recipient::telegram::update_telegram_recipients,
+    service_provider::{ServiceContext, ServiceProvider},
+    settings::{is_develop, ServerSettings, Settings},
+    token_bucket::TokenBucket,
+};
+
+use telegram::{service::TelegramService, TelegramClient};
 
 pub mod configuration;
 pub mod cors;
@@ -90,42 +91,33 @@ async fn run_server(
     });
 
     // Setup a channel to receive telegram messages, which we want to handle in recipient service
-    const TELEGRAM_UPDATE_BUFFER_SIZE: usize = 8;
-    let (telegram_update_tx, telegram_update_rx) =
-        tokio::sync::mpsc::channel::<TelegramUpdate>(TELEGRAM_UPDATE_BUFFER_SIZE);
-
     let telegram_token = config_settings.clone().telegram.token;
-    let telegram_client_handle = actix_web::rt::spawn(async move {
-        if let Some(telegram_token) = telegram_token {
-            if telegram_token.is_empty() {
-                log::error!("Telegram Client not configured");
-                return;
-            }
-            let telegram_client = TelegramClient::new(telegram_token);
-            log::info!("Starting Telegram Client Polling");
-            poll_get_updates(&telegram_client, &telegram_update_tx).await;
-        } else {
-            log::info!("Telegram Client not configured");
-        }
-    });
+    if let Some(telegram_token) = telegram_token {
+        let telegram_service = TelegramService::new(
+            TelegramClient::new(telegram_token),
+            config_settings.server.app_url.clone(),
+        );
+        let telegram_update_channel = telegram_service.init().await;
 
-    // Handle telegram updates in recipient service
-    let telegram_update_context = ServiceContext::new(service_provider_data.clone().into_inner());
-    let telegram_update_context = match telegram_update_context {
-        Ok(telegram_update_context) => telegram_update_context,
-        Err(error) => {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!(
-                    "Error unable to create telegram update task context: {:?}",
-                    error
-                ),
-            ));
-        }
-    };
-    let telegram_update_handler = actix_web::rt::spawn(async move {
-        handle_telegram_updates(telegram_update_context, telegram_update_rx).await
-    });
+        // Handle telegram updates in recipient service
+        let telegram_update_context =
+            ServiceContext::new(service_provider_data.clone().into_inner());
+        let telegram_update_context = match telegram_update_context {
+            Ok(telegram_update_context) => telegram_update_context,
+            Err(error) => {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    format!(
+                        "Error unable to create telegram update task context: {:?}",
+                        error
+                    ),
+                ));
+            }
+        };
+        let _telegram_update_handler = actix_web::rt::spawn(async move {
+            update_telegram_recipients(telegram_update_context, &telegram_update_channel).await
+        });
+    }
 
     let http_server_config_settings = config_settings.clone();
     let mut http_server = HttpServer::new(move || {
@@ -168,8 +160,6 @@ async fn run_server(
     };
 
     server_handle.stop(true).await;
-    telegram_update_handler.abort();
-    telegram_client_handle.abort();
     scheduled_task_handle.abort();
     Ok(restart)
 }

@@ -24,4 +24,3 @@ backend/certs_disabled/
 backend/.vscode/settings.json
 .DS_store
 .tmp/
-backend/templates/coldchain/telegram/temperature.html
