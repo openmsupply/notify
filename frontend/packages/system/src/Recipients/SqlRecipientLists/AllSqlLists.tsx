@@ -11,16 +11,10 @@ import {
   createTableStore,
   useColumns,
 } from '@common/ui';
-import {
-  ModalMode,
-  useEditModal,
-  useNavigate,
-  useQueryParamsState,
-} from 'packages/common/src';
+import { useNavigate, useQueryParamsState } from 'packages/common/src';
 import React from 'react';
 import { useDeleteSqlRecipientList, useSqlRecipientLists } from '../api';
 import { SqlRecipientListRowFragment } from '../api/operations.generated';
-import { SqlRecipientListEditModal } from './SqlRecipientListEditModal';
 
 export const AllSqlLists = () => {
   const t = useTranslation('system');
@@ -28,9 +22,6 @@ export const AllSqlLists = () => {
 
   const { filter, queryParams, updatePaginationQuery, updateSortQuery } =
     useQueryParamsState();
-
-  const { isOpen, onClose, onOpen } =
-    useEditModal<SqlRecipientListRowFragment>();
 
   const columns = useColumns<SqlRecipientListRowFragment>(
     [
@@ -64,21 +55,13 @@ export const AllSqlLists = () => {
 
   return (
     <>
-      {isOpen && (
-        <SqlRecipientListEditModal
-          mode={ModalMode.Create}
-          isOpen={isOpen}
-          onClose={onClose}
-          recipientList={null}
-        />
-      )}
       <AppBarButtonsPortal>
         <LoadingButton
           isLoading={false}
           startIcon={<PlusCircleIcon />}
-          onClick={() => onOpen()}
+          onClick={() => navigate('new')}
         >
-          {t('label.new-recipient-list')}
+          {t('label.new-sql-recipient-list')}
         </LoadingButton>
       </AppBarButtonsPortal>
 

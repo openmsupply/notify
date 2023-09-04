@@ -33,6 +33,7 @@
   "label.invite-user": "Invite User",
   "label.new-recipient": "New Recipient",
   "label.new-recipient-list": "New Recipient List",
+  "label.new-sql-recipient-list": "New Recipient Query",
   "label.new-user": "New User",
   "label.new-notification": "New Notification",
   "label.notification-title": "Notification Title",
@@ -72,6 +73,9 @@
   "text.telegram-recipient-edit-name": "You can't update the details of a Telegram chat from Notify - update the chat name in Telegram and it will update here automatically!",
   "label.telegram-recipient-test-message": "Send Test Message",
   "label.query": "Query",
+  "label.parameters": "Parameters",
+  "helper-text.sql-query-parameters": "Parameters must be provided in json format for now. For example: {\"param1\": \"string\", \"param2\": \"string\"}",
+  "helper-text.recipient-sql-query": "Your sql query must return the following columns: id, name, notificationType, toAddress.",
   "label.refresh-sql-recipients": "Refresh SQL Recipients",
   "tooltip.manage-recipient-list": "Manage Recipient List"
 }

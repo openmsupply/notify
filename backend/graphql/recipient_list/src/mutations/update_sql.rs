@@ -38,6 +38,8 @@ pub struct UpdateSqlRecipientListInput {
     pub id: String,
     pub name: Option<String>,
     pub description: Option<String>,
+    pub query: Option<String>,
+    pub parameters: Option<String>,
 }
 
 impl From<UpdateSqlRecipientListInput> for UpdateSqlRecipientList {
@@ -46,12 +48,16 @@ impl From<UpdateSqlRecipientListInput> for UpdateSqlRecipientList {
             id,
             name,
             description,
+            query,
+            parameters,
         }: UpdateSqlRecipientListInput,
     ) -> Self {
         UpdateSqlRecipientList {
             id,
             name,
             description,
+            query,
+            parameters,
         }
     }
 }

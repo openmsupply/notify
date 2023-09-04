@@ -9,7 +9,8 @@ use super::{
 use crate::{audit_log::audit_log_entry, service_provider::ServiceContext};
 use chrono::Utc;
 use repository::{
-    LogType, SqlRecipientList, SqlRecipientListRow, SqlRecipientListRowRepository, StorageConnection,
+    LogType, SqlRecipientList, SqlRecipientListRow, SqlRecipientListRowRepository,
+    StorageConnection,
 };
 
 #[derive(Clone, Default)]
@@ -17,6 +18,8 @@ pub struct UpdateSqlRecipientList {
     pub id: String,
     pub name: Option<String>,
     pub description: Option<String>,
+    pub query: Option<String>,
+    pub parameters: Option<String>,
 }
 
 pub fn update_sql_recipient_list(
@@ -29,7 +32,8 @@ pub fn update_sql_recipient_list(
             let sql_recipient_list_row = validate(connection, &updated_sql_recipient_list)?;
             let updated_sql_recipient_list_row =
                 generate(updated_sql_recipient_list.clone(), sql_recipient_list_row)?;
-            SqlRecipientListRowRepository::new(connection).update_one(&updated_sql_recipient_list_row)?;
+            SqlRecipientListRowRepository::new(connection)
+                .update_one(&updated_sql_recipient_list_row)?;
 
             get_sql_recipient_list(ctx, updated_sql_recipient_list_row.id)
                 .map_err(ModifySqlRecipientListError::from)
@@ -60,11 +64,11 @@ pub fn validate(
         }
     }
 
-    let sql_recipient_list_row = match check_sql_recipient_list_exists(&new_sql_recipient_list.id, connection)?
-    {
-        Some(sql_recipient_list_row) => sql_recipient_list_row,
-        None => return Err(ModifySqlRecipientListError::SqlRecipientListDoesNotExist),
-    };
+    let sql_recipient_list_row =
+        match check_sql_recipient_list_exists(&new_sql_recipient_list.id, connection)? {
+            Some(sql_recipient_list_row) => sql_recipient_list_row,
+            None => return Err(ModifySqlRecipientListError::SqlRecipientListDoesNotExist),
+        };
 
     if !check_sql_recipient_list_name_is_unique(
         &new_sql_recipient_list.id,
@@ -74,6 +78,9 @@ pub fn validate(
         return Err(ModifySqlRecipientListError::SqlRecipientListAlreadyExists);
     }
 
+    // TODO: Check parameter format?
+    // Check SQL query format?
+
     Ok(sql_recipient_list_row)
 }
 
@@ -82,6 +89,8 @@ pub fn generate(
         id: _id, //ID is already used for look up so we can assume it's the same
         name,
         description,
+        query,
+        parameters,
     }: UpdateSqlRecipientList,
     current_sql_recipient_list_row: SqlRecipientListRow,
 ) -> Result<SqlRecipientListRow, ModifySqlRecipientListError> {
@@ -91,6 +100,12 @@ pub fn generate(
     }
     if let Some(description) = description {
         new_sql_recipient_list_row.description = description;
+    }
+    if let Some(query) = query {
+        new_sql_recipient_list_row.query = query;
+    }
+    if let Some(parameters) = parameters {
+        new_sql_recipient_list_row.parameters = parameters;
     }
 
     Ok(new_sql_recipient_list_row)

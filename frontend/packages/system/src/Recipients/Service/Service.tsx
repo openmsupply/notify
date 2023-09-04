@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route } from '@notify-frontend/common';
 import { AppRoute } from 'packages/config/src';
 import { DetailView, AllLists } from '../RecipientLists';
-import { DetailView as DetailSqlView, AllSqlLists } from '../SqlRecipientLists';
+import { DetailEdit as DetailSqlView, AllSqlLists } from '../SqlRecipientLists';
 import { ListView } from '../Recipients';
 
 const RecipientsService = () => {
