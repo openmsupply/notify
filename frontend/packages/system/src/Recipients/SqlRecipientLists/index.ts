@@ -1,2 +1,2 @@
-export * from './AllLists';
+export * from './AllSqlLists';
 export * from './DetailView';

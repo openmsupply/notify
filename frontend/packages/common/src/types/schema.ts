@@ -76,6 +76,14 @@ export type CreateRecipientListInput = {
 
 export type CreateRecipientResponse = RecipientNode;
 
+export type CreateSqlRecipientListInput = {
+  description: Scalars['String']['input'];
+  id: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  parameters: Scalars['String']['input'];
+  query: Scalars['String']['input'];
+};
+
 export type CreateUserAccountInput = {
   displayName?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
@@ -103,6 +111,8 @@ export type DeleteResponse = {
   __typename: 'DeleteResponse';
   id: Scalars['String']['output'];
 };
+
+export type DeleteSqlRecipientListResponse = DeleteResponse;
 
 export type DeleteUserAccountResponse = DeleteResponse;
 
@@ -138,10 +148,12 @@ export type FullMutation = {
   createNotificationConfig: ModifyNotificationConfigResponse;
   createRecipient: CreateRecipientResponse;
   createRecipientList: ModifyRecipientListResponse;
+  createSqlRecipientList: ModifySqlRecipientListResponse;
   createUserAccount: CreateUserAccountResponse;
   deleteNotificationConfig: DeleteNotificationConfigResponse;
   deleteRecipient: DeleteRecipientResponse;
   deleteRecipientList: DeleteRecipientListResponse;
+  deleteSqlRecipientList: DeleteSqlRecipientListResponse;
   deleteUserAccount: DeleteUserAccountResponse;
   /**
    * Initiates the password reset flow for a user based on email address
@@ -157,6 +169,7 @@ export type FullMutation = {
   updateNotificationConfig: ModifyNotificationConfigResponse;
   updateRecipient: UpdateRecipientResponse;
   updateRecipientList: ModifyRecipientListResponse;
+  updateSqlRecipientList: ModifySqlRecipientListResponse;
   updateUserAccount: UpdateUserAccountResponse;
   /** Validates Password Reset Token */
   validatePasswordResetToken: PasswordResetResponse;
@@ -189,6 +202,11 @@ export type FullMutationCreateRecipientListArgs = {
 };
 
 
+export type FullMutationCreateSqlRecipientListArgs = {
+  input: CreateSqlRecipientListInput;
+};
+
+
 export type FullMutationCreateUserAccountArgs = {
   input: CreateUserAccountInput;
 };
@@ -206,6 +224,11 @@ export type FullMutationDeleteRecipientArgs = {
 
 export type FullMutationDeleteRecipientListArgs = {
   recipientListId: Scalars['String']['input'];
+};
+
+
+export type FullMutationDeleteSqlRecipientListArgs = {
+  sqlRecipientListId: Scalars['String']['input'];
 };
 
 
@@ -252,6 +275,11 @@ export type FullMutationUpdateRecipientArgs = {
 
 export type FullMutationUpdateRecipientListArgs = {
   input: UpdateRecipientListInput;
+};
+
+
+export type FullMutationUpdateSqlRecipientListArgs = {
+  input: UpdateSqlRecipientListInput;
 };
 
 
@@ -462,6 +490,8 @@ export type ModifyNotificationConfigResponse = NotificationConfigNode;
 export type ModifyRecipientListMembersResponse = IdResponse;
 
 export type ModifyRecipientListResponse = RecipientListNode;
+
+export type ModifySqlRecipientListResponse = SqlRecipientListNode;
 
 export type NoRefreshTokenProvided = RefreshTokenErrorInterface & {
   __typename: 'NoRefreshTokenProvided';
@@ -710,6 +740,12 @@ export type UpdateRecipientListInput = {
 };
 
 export type UpdateRecipientResponse = RecipientNode;
+
+export type UpdateSqlRecipientListInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+};
 
 export type UpdateUserAccountInput = {
   displayName?: InputMaybe<Scalars['String']['input']>;

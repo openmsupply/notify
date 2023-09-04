@@ -136,4 +136,28 @@ impl RecipientListMutations {
     ) -> Result<ModifyRecipientListMembersResponse> {
         remove_recipient_from_list(ctx, input)
     }
+
+    async fn create_sql_recipient_list(
+        &self,
+        ctx: &Context<'_>,
+        input: CreateSqlRecipientListInput,
+    ) -> Result<ModifySqlRecipientListResponse> {
+        create_sql_recipient_list(ctx, input)
+    }
+
+    async fn update_sql_recipient_list(
+        &self,
+        ctx: &Context<'_>,
+        input: UpdateSqlRecipientListInput,
+    ) -> Result<ModifySqlRecipientListResponse> {
+        update_sql_recipient_list(ctx, input)
+    }
+
+    async fn delete_sql_recipient_list(
+        &self,
+        ctx: &Context<'_>,
+        sql_recipient_list_id: String,
+    ) -> Result<DeleteSqlRecipientListResponse> {
+        delete_sql_recipient_list(ctx, &sql_recipient_list_id)
+    }
 }

@@ -2,7 +2,7 @@ import { useGql, useMutation, useQueryClient } from '@notify-frontend/common';
 import { getSdk } from '../operations.generated';
 import { SQL_RECIPIENT_LISTS } from '../../../cacheKeys';
 
-export const useUpdateRecipientList = () => {
+export const useUpdateSqlRecipientList = () => {
   const { client } = useGql();
   const sdk = getSdk(client);
 

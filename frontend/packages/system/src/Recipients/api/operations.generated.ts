@@ -94,6 +94,36 @@ export type DeleteRecipientListMutation = { __typename: 'FullMutation', deleteRe
 
 export type SqlRecipientListRowFragment = { __typename: 'SqlRecipientListNode', id: string, name: string, description: string, query: string, parameters: string, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> };
 
+export type SqlRecipientListsQueryVariables = Types.Exact<{
+  filter?: Types.InputMaybe<Types.RecipientListFilterInput>;
+  page?: Types.InputMaybe<Types.PaginationInput>;
+  sort?: Types.InputMaybe<Array<Types.RecipientListSortInput> | Types.RecipientListSortInput>;
+}>;
+
+
+export type SqlRecipientListsQuery = { __typename: 'FullQuery', sqlRecipientLists: { __typename: 'SqlRecipientListConnector', totalCount: number, nodes: Array<{ __typename: 'SqlRecipientListNode', id: string, name: string, description: string, query: string, parameters: string, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }> } };
+
+export type CreateSqlRecipientListMutationVariables = Types.Exact<{
+  input: Types.CreateSqlRecipientListInput;
+}>;
+
+
+export type CreateSqlRecipientListMutation = { __typename: 'FullMutation', createSqlRecipientList: { __typename: 'SqlRecipientListNode', id: string, name: string, description: string, query: string, parameters: string, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> } };
+
+export type UpdateSqlRecipientListMutationVariables = Types.Exact<{
+  input: Types.UpdateSqlRecipientListInput;
+}>;
+
+
+export type UpdateSqlRecipientListMutation = { __typename: 'FullMutation', updateSqlRecipientList: { __typename: 'SqlRecipientListNode', id: string, name: string, description: string, query: string, parameters: string, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> } };
+
+export type DeleteSqlRecipientListMutationVariables = Types.Exact<{
+  sqlRecipientListId: Types.Scalars['String']['input'];
+}>;
+
+
+export type DeleteSqlRecipientListMutation = { __typename: 'FullMutation', deleteSqlRecipientList: { __typename: 'DeleteResponse', id: string } };
+
 export type SendTestTelegramMessageMutationVariables = Types.Exact<{
   chatId: Types.Scalars['String']['input'];
 }>;
@@ -278,6 +308,45 @@ export const DeleteRecipientListDocument = gql`
   }
 }
     `;
+export const SqlRecipientListsDocument = gql`
+    query SqlRecipientLists($filter: RecipientListFilterInput, $page: PaginationInput, $sort: [RecipientListSortInput!]) {
+  sqlRecipientLists(filter: $filter, page: $page, sort: $sort) {
+    ... on SqlRecipientListConnector {
+      totalCount
+      nodes {
+        ...SqlRecipientListRow
+      }
+    }
+  }
+}
+    ${SqlRecipientListRowFragmentDoc}`;
+export const CreateSqlRecipientListDocument = gql`
+    mutation createSqlRecipientList($input: CreateSqlRecipientListInput!) {
+  createSqlRecipientList(input: $input) {
+    ... on SqlRecipientListNode {
+      ...SqlRecipientListRow
+    }
+  }
+}
+    ${SqlRecipientListRowFragmentDoc}`;
+export const UpdateSqlRecipientListDocument = gql`
+    mutation updateSqlRecipientList($input: UpdateSqlRecipientListInput!) {
+  updateSqlRecipientList(input: $input) {
+    ... on SqlRecipientListNode {
+      ...SqlRecipientListRow
+    }
+  }
+}
+    ${SqlRecipientListRowFragmentDoc}`;
+export const DeleteSqlRecipientListDocument = gql`
+    mutation deleteSqlRecipientList($sqlRecipientListId: String!) {
+  deleteSqlRecipientList(sqlRecipientListId: $sqlRecipientListId) {
+    ... on DeleteResponse {
+      id
+    }
+  }
+}
+    `;
 export const SendTestTelegramMessageDocument = gql`
     mutation sendTestTelegramMessage($chatId: String!) {
   sendTestTelegramMessage(chatId: $chatId) {
@@ -334,6 +403,18 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     deleteRecipientList(variables: DeleteRecipientListMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<DeleteRecipientListMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<DeleteRecipientListMutation>(DeleteRecipientListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteRecipientList', 'mutation');
+    },
+    SqlRecipientLists(variables?: SqlRecipientListsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<SqlRecipientListsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<SqlRecipientListsQuery>(SqlRecipientListsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'SqlRecipientLists', 'query');
+    },
+    createSqlRecipientList(variables: CreateSqlRecipientListMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateSqlRecipientListMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CreateSqlRecipientListMutation>(CreateSqlRecipientListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'createSqlRecipientList', 'mutation');
+    },
+    updateSqlRecipientList(variables: UpdateSqlRecipientListMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<UpdateSqlRecipientListMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<UpdateSqlRecipientListMutation>(UpdateSqlRecipientListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'updateSqlRecipientList', 'mutation');
+    },
+    deleteSqlRecipientList(variables: DeleteSqlRecipientListMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<DeleteSqlRecipientListMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DeleteSqlRecipientListMutation>(DeleteSqlRecipientListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteSqlRecipientList', 'mutation');
     },
     sendTestTelegramMessage(variables: SendTestTelegramMessageMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<SendTestTelegramMessageMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<SendTestTelegramMessageMutation>(SendTestTelegramMessageDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'sendTestTelegramMessage', 'mutation');

@@ -4,7 +4,10 @@ import { SqlRecipientListEditForm } from './SqlRecipientListEditForm';
 import { DraftSqlRecipientList } from './types';
 import { EditModal } from 'packages/system/src/shared/EditModal';
 import { SqlRecipientListRowFragment } from '../../api/operations.generated';
-import { useCreateSqlRecipientList, useUpdateSqlRecipientList } from '../../api';
+import {
+  useCreateSqlRecipientList,
+  useUpdateSqlRecipientList,
+} from '../../api';
 
 interface SqlRecipientListEditModalProps {
   mode: ModalMode | null;
@@ -19,7 +22,8 @@ const createSqlRecipientList = (
   id: FnUtils.generateUUID(),
   name: '',
   description: '',
-  sqlQuery: '',
+  query: '',
+  parameters: '[]',
   ...seed,
 });
 
@@ -46,8 +50,8 @@ export const SqlRecipientListEditModal = ({
     useUpdateSqlRecipientList();
 
   const onSave = async (draft: DraftSqlRecipientList) => {
-    const { id, name, description, sqlQuery } = draft;
-    const input = { id, name, description, sqlQuery };
+    const { id, name, description, query, parameters } = draft;
+    const input = { id, name, description, query, parameters };
 
     if (mode === ModalMode.Create) await create({ input });
     else await update({ input });

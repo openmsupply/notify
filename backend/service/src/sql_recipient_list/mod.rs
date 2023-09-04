@@ -75,10 +75,8 @@ pub enum ModifySqlRecipientListError {
     DatabaseError(RepositoryError),
     SqlRecipientListDoesNotExist,
     InvalidSqlRecipientListName,
-    SqlRecipientListMemberAlreadyExists,
-    SqlRecipientListMemberDoesNotExist,
-    RecipientDoesNotExist,
-    GenericError(String),
+    InternalError(String),
+    BadUserInput(String),
 }
 
 // PartialEq is only needed for tests
@@ -102,18 +100,6 @@ impl PartialEq for ModifySqlRecipientListError {
             (
                 ModifySqlRecipientListError::SqlRecipientListDoesNotExist,
                 ModifySqlRecipientListError::SqlRecipientListDoesNotExist,
-            ) => true,
-            (
-                ModifySqlRecipientListError::RecipientDoesNotExist,
-                ModifySqlRecipientListError::RecipientDoesNotExist,
-            ) => true,
-            (
-                ModifySqlRecipientListError::SqlRecipientListMemberDoesNotExist,
-                ModifySqlRecipientListError::SqlRecipientListMemberDoesNotExist,
-            ) => true,
-            (
-                ModifySqlRecipientListError::SqlRecipientListMemberAlreadyExists,
-                ModifySqlRecipientListError::SqlRecipientListMemberAlreadyExists,
             ) => true,
             (
                 ModifySqlRecipientListError::InvalidSqlRecipientListName,

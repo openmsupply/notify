@@ -10,6 +10,7 @@ export enum AppRoute {
 
   Recipients = 'recipients',
   RecipientLists = 'lists',
+  SqlRecipientLists = 'sql',
 
   Admin = 'admin',
   Logout = 'logout',

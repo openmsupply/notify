@@ -165,6 +165,45 @@ fragment SqlRecipientListRow on SqlRecipientListNode {
   }
 }
 
+query SqlRecipientLists(
+  $filter: RecipientListFilterInput
+  $page: PaginationInput
+  $sort: [RecipientListSortInput!]
+) {
+  sqlRecipientLists(filter: $filter, page: $page, sort: $sort) {
+    ... on SqlRecipientListConnector {
+      totalCount
+      nodes {
+        ...SqlRecipientListRow
+      }
+    }
+  }
+}
+
+mutation createSqlRecipientList($input: CreateSqlRecipientListInput!) {
+  createSqlRecipientList(input: $input) {
+    ... on SqlRecipientListNode {
+      ...SqlRecipientListRow
+    }
+  }
+}
+
+mutation updateSqlRecipientList($input: UpdateSqlRecipientListInput!) {
+  updateSqlRecipientList(input: $input) {
+    ... on SqlRecipientListNode {
+      ...SqlRecipientListRow
+    }
+  }
+}
+
+mutation deleteSqlRecipientList($sqlRecipientListId: String!) {
+  deleteSqlRecipientList(sqlRecipientListId: $sqlRecipientListId) {
+    ... on DeleteResponse {
+      id
+    }
+  }
+}
+
 mutation sendTestTelegramMessage($chatId: String!) {
   sendTestTelegramMessage(chatId: $chatId) {
     ... on TelegramMessageNode {

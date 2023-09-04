@@ -22,14 +22,15 @@ import { useDeleteSqlRecipientList, useSqlRecipientLists } from '../api';
 import { SqlRecipientListRowFragment } from '../api/operations.generated';
 import { SqlRecipientListEditModal } from './SqlRecipientListEditModal';
 
-export const AllLists = () => {
+export const AllSqlLists = () => {
   const t = useTranslation('system');
   const navigate = useNavigate();
 
   const { filter, queryParams, updatePaginationQuery, updateSortQuery } =
     useQueryParamsState();
 
-  const { isOpen, onClose, onOpen } = useEditModal<SqlRecipientListRowFragment>();
+  const { isOpen, onClose, onOpen } =
+    useEditModal<SqlRecipientListRowFragment>();
 
   const columns = useColumns<SqlRecipientListRowFragment>(
     [
