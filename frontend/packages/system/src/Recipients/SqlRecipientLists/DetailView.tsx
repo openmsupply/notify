@@ -4,6 +4,7 @@ import {
   ModalMode,
   useBreadcrumbs,
   useEditModal,
+  useNotification,
   useQueryParamsState,
 } from '@common/hooks';
 import {
@@ -18,26 +19,31 @@ import {
   SearchAndDeleteToolbar,
   TableProvider,
   Typography,
+  ZapIcon,
   createTableStore,
   useColumns,
 } from '@common/ui';
-import { useRecipientLists, useRemoveRecipientFromList } from '../api';
+import { useSqlRecipientLists, useRemoveRecipientFromList } from '../api';
 import { useParams } from 'packages/common/src';
-import { RecipientListEditModal } from './RecipientListEditModal';
-import { RecipientListRowFragment } from '../api/operations.generated';
-import { ListMemberAddModal } from './RecipientListMemberAddModal';
-import { BasicRecipientRow } from '../types/BasicRecipientRow';
+import { SqlRecipientListEditModal } from './SqlRecipientListEditModal';
+import { SqlRecipientListRowFragment } from '../api/operations.generated';
+import { ListMemberAddModal } from './SqlRecipientListMemberAddModal';
+import {
+  BasicRecipientRow,
+  useSQLRecipients,
+} from '../api/hooks/useSQLRecipients';
 
 export const DetailView = () => {
   const t = useTranslation('system');
   const urlParams = useParams();
   const { suffix, setSuffix } = useBreadcrumbs();
+  const { error } = useNotification();
   const {
     isOpen: editIsOpen,
     onClose: onCloseEdit,
     onOpen: onOpenEdit,
     entity: listEntity,
-  } = useEditModal<RecipientListRowFragment>();
+  } = useEditModal<SqlRecipientListRowFragment>();
 
   const {
     isOpen: addIsOpen,
@@ -49,9 +55,14 @@ export const DetailView = () => {
     initialFilter: { id: { equalTo: urlParams['listId'] } },
   });
 
-  const { data, isError, isLoading } = useRecipientLists(queryParams);
+  const { data, isError, isLoading } = useSqlRecipientLists(queryParams);
   const list = data?.nodes[0];
 
+  const { mutateAsync: runSqlQuery, isLoading: sqlIsLoading } =
+    useSQLRecipients();
+  const [sqlRecipients, setSqlRecipients] = React.useState(
+    [] as BasicRecipientRow[]
+  );
   const { mutateAsync, invalidateQueries } = useRemoveRecipientFromList();
   const removeRecipientFromList = (recipientId: string) =>
     mutateAsync({ input: { recipientId, recipientListId: list?.id || '' } });
@@ -62,6 +73,19 @@ export const DetailView = () => {
       setSuffix(listName);
     }
   }, [suffix, list]);
+
+  useEffect(() => {
+    if (list?.sqlQuery) {
+      runSqlQuery(list?.sqlQuery)
+        .then(result => {
+          console.log(result);
+          setSqlRecipients(result);
+        })
+        .catch(err => {
+          error(err.message)();
+        });
+    }
+  }, [list]);
 
   const columns = useColumns([
     { key: 'name', label: 'label.name' },
@@ -74,7 +98,9 @@ export const DetailView = () => {
   const { filter: searchFilter } = useQueryParamsState();
 
   const searchString = (searchFilter.filterBy?.['search'] as string) ?? '';
-  const allRecipients: BasicRecipientRow[] = list?.recipients ?? [];
+  const allRecipients: BasicRecipientRow[] = sqlRecipients.concat(
+    list?.recipients ?? []
+  );
   const recipients = allRecipients.filter(
     r => r.name.includes(searchString) || r.toAddress.includes(searchString)
   );
@@ -89,7 +115,7 @@ export const DetailView = () => {
         />
       )}{' '}
       {editIsOpen && (
-        <RecipientListEditModal
+        <SqlRecipientListEditModal
           mode={ModalMode.Update}
           isOpen={editIsOpen}
           onClose={onCloseEdit}
@@ -145,13 +171,35 @@ export const DetailView = () => {
               invalidateQueries={invalidateQueries}
               deleteLabel={t('label.remove-members')}
               ActionButtons={() => (
-                <LoadingButton
-                  isLoading={false}
-                  startIcon={<PlusCircleIcon />}
-                  onClick={() => onOpenAdd()}
-                >
-                  {t('label.add-members')}
-                </LoadingButton>
+                <>
+                  {list?.sqlQuery && (
+                    <LoadingButton
+                      variant="outlined"
+                      isLoading={sqlIsLoading}
+                      startIcon={<ZapIcon />}
+                      onClick={() => {
+                        if (!list?.sqlQuery) return;
+                        runSqlQuery(list?.sqlQuery)
+                          .then(result => {
+                            console.log(result);
+                            setSqlRecipients(result);
+                          })
+                          .catch(err => {
+                            error(err.message)();
+                          });
+                      }}
+                    >
+                      {t('label.refresh-sql-recipients')}
+                    </LoadingButton>
+                  )}
+                  <LoadingButton
+                    isLoading={false}
+                    startIcon={<PlusCircleIcon />}
+                    onClick={() => onOpenAdd()}
+                  >
+                    {t('label.add-members')}
+                  </LoadingButton>
+                </>
               )}
             />
           </Box>

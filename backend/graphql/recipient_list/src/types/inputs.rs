@@ -1,7 +1,8 @@
 use async_graphql::{Enum, InputObject};
 use graphql_core::generic_filters::{EqualFilterStringInput, StringFilterInput};
 use repository::{
-    EqualFilter, RecipientListFilter, RecipientListSort, RecipientListSortField, StringFilter,
+    EqualFilter, RecipientListFilter, RecipientListSort, RecipientListSortField,
+    SqlRecipientListFilter, SqlRecipientListSort, SqlRecipientListSortField, StringFilter,
 };
 
 #[derive(Enum, Copy, Clone, PartialEq, Eq)]
@@ -31,6 +32,18 @@ impl RecipientListSortInput {
             desc: self.desc,
         }
     }
+    pub fn to_domain_sql(self) -> SqlRecipientListSort {
+        use RecipientListSortFieldInput as from;
+        use SqlRecipientListSortField as to;
+        let key = match self.key {
+            from::Name => to::Name,
+        };
+
+        SqlRecipientListSort {
+            key,
+            desc: self.desc,
+        }
+    }
 }
 
 #[derive(Clone, InputObject)]
@@ -43,6 +56,16 @@ pub struct RecipientListFilterInput {
 impl From<RecipientListFilterInput> for RecipientListFilter {
     fn from(f: RecipientListFilterInput) -> Self {
         RecipientListFilter {
+            id: f.id.map(EqualFilter::from),
+            name: f.name.map(StringFilter::from),
+            search: f.search,
+        }
+    }
+}
+
+impl From<RecipientListFilterInput> for SqlRecipientListFilter {
+    fn from(f: RecipientListFilterInput) -> Self {
+        SqlRecipientListFilter {
             id: f.id.map(EqualFilter::from),
             name: f.name.map(StringFilter::from),
             search: f.search,

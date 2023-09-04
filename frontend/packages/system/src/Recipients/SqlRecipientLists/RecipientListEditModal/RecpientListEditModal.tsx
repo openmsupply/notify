@@ -1,28 +1,29 @@
 import React from 'react';
 import { ModalMode, useTranslation, FnUtils } from '@notify-frontend/common';
-import { RecipientListEditForm } from './RecipientListEditForm';
-import { DraftRecipientList } from './types';
+import { SqlRecipientListEditForm } from './SqlRecipientListEditForm';
+import { DraftSqlRecipientList } from './types';
 import { EditModal } from 'packages/system/src/shared/EditModal';
-import { RecipientListRowFragment } from '../../api/operations.generated';
-import { useCreateRecipientList, useUpdateRecipientList } from '../../api';
+import { SqlRecipientListRowFragment } from '../../api/operations.generated';
+import { useCreateSqlRecipientList, useUpdateSqlRecipientList } from '../../api';
 
-interface RecipientListEditModalProps {
+interface SqlRecipientListEditModalProps {
   mode: ModalMode | null;
   isOpen: boolean;
   onClose: () => void;
-  recipientList: RecipientListRowFragment | null;
+  recipientList: SqlRecipientListRowFragment | null;
 }
 
-const createRecipientList = (
-  seed?: DraftRecipientList | null
-): DraftRecipientList => ({
+const createSqlRecipientList = (
+  seed?: DraftSqlRecipientList | null
+): DraftSqlRecipientList => ({
   id: FnUtils.generateUUID(),
   name: '',
   description: '',
+  sqlQuery: '',
   ...seed,
 });
 
-export const checkIsInvalid = (draft: DraftRecipientList) => {
+export const checkIsInvalid = (draft: DraftSqlRecipientList) => {
   const nameIncorrectLength = draft.name.length < 3 || draft.name.length > 75;
   const nameContainsIllegalChars = draft.name.match(/[^ 0-9A-Za-z_\-@.+:/()]/);
 
@@ -31,22 +32,22 @@ export const checkIsInvalid = (draft: DraftRecipientList) => {
   );
 };
 
-export const RecipientListEditModal = ({
+export const SqlRecipientListEditModal = ({
   mode,
   isOpen,
   onClose,
   recipientList,
-}: RecipientListEditModalProps) => {
+}: SqlRecipientListEditModalProps) => {
   const t = useTranslation(['system']);
 
   const { mutateAsync: create, isLoading: createIsLoading } =
-    useCreateRecipientList();
+    useCreateSqlRecipientList();
   const { mutateAsync: update, isLoading: updateIsLoading } =
-    useUpdateRecipientList();
+    useUpdateSqlRecipientList();
 
-  const onSave = async (draft: DraftRecipientList) => {
-    const { id, name, description } = draft;
-    const input = { id, name, description };
+  const onSave = async (draft: DraftSqlRecipientList) => {
+    const { id, name, description, sqlQuery } = draft;
+    const input = { id, name, description, sqlQuery };
 
     if (mode === ModalMode.Create) await create({ input });
     else await update({ input });
@@ -65,9 +66,9 @@ export const RecipientListEditModal = ({
           : t('label.edit-recipient-list')
       }
       onClose={onClose}
-      createDraft={() => createRecipientList(recipientList)}
+      createDraft={() => createSqlRecipientList(recipientList)}
       onSave={onSave}
-      EditForm={RecipientListEditForm}
+      EditForm={SqlRecipientListEditForm}
     />
   );
 };

@@ -1,12 +1,6 @@
 import { useGql, useMutation } from '@notify-frontend/common';
 import { getSdk } from '../operations.generated';
-
-export interface BasicRecipientRow {
-  id: string;
-  name: string;
-  notificationType: string;
-  toAddress: string;
-}
+import { BasicRecipientRow } from '../../types/BasicRecipientRow';
 
 // This interface should be removed after https://github.com/openmsupply/notify/issues/99
 interface LcRecipientRow {

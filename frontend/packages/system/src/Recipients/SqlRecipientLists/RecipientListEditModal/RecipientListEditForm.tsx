@@ -5,17 +5,17 @@ import {
   Grid,
   useTranslation,
 } from '@notify-frontend/common';
-import { DraftRecipientList } from './types';
+import { DraftSqlRecipientList } from './types';
 
-type RecipientListEditFormProps = {
-  draft: DraftRecipientList;
-  onUpdate: (patch: Partial<DraftRecipientList>) => void;
+type SqlRecipientListEditFormProps = {
+  draft: DraftSqlRecipientList;
+  onUpdate: (patch: Partial<DraftSqlRecipientList>) => void;
 };
 
-export const RecipientListEditForm = ({
+export const SqlRecipientListEditForm = ({
   draft,
   onUpdate,
-}: RecipientListEditFormProps) => {
+}: SqlRecipientListEditFormProps) => {
   const t = useTranslation('system');
 
   return (

@@ -50,7 +50,8 @@ export type AuthTokenErrorInterface = {
 export type AuthTokenResponse = AuthToken | AuthTokenError;
 
 export enum ConfigKind {
-  ColdChain = 'COLD_CHAIN'
+  ColdChain = 'COLD_CHAIN',
+  Scheduled = 'SCHEDULED'
 }
 
 export type CreateNotificationConfigInput = {
@@ -71,7 +72,6 @@ export type CreateRecipientListInput = {
   description: Scalars['String']['input'];
   id: Scalars['String']['input'];
   name: Scalars['String']['input'];
-  sqlQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreateRecipientResponse = RecipientNode;
@@ -286,6 +286,8 @@ export type FullQuery = {
    */
   refreshToken: RefreshTokenResponse;
   runSqlQuery: Scalars['String']['output'];
+  /** Query "sql_recipient_list" entries */
+  sqlRecipientLists: SqlRecipientListsResponse;
   telegramBotName: Scalars['String']['output'];
   /** Query "user_accounts" entries */
   userAccounts: UserAccountsResponse;
@@ -328,6 +330,13 @@ export type FullQueryRecipientsArgs = {
 
 export type FullQueryRunSqlQueryArgs = {
   sqlQuery: Scalars['String']['input'];
+};
+
+
+export type FullQuerySqlRecipientListsArgs = {
+  filter?: InputMaybe<RecipientListFilterInput>;
+  page?: InputMaybe<PaginationInput>;
+  sort?: InputMaybe<Array<RecipientListSortInput>>;
 };
 
 
@@ -403,6 +412,8 @@ export enum LogNodeType {
   RecipientListUpdated = 'RECIPIENT_LIST_UPDATED',
   RecipientRemovedFromList = 'RECIPIENT_REMOVED_FROM_LIST',
   RecipientUpdated = 'RECIPIENT_UPDATED',
+  SqlRecipientListCreated = 'SQL_RECIPIENT_LIST_CREATED',
+  SqlRecipientListUpdated = 'SQL_RECIPIENT_LIST_UPDATED',
   UserAccountCreated = 'USER_ACCOUNT_CREATED',
   UserAccountPasswordResetInitiated = 'USER_ACCOUNT_PASSWORD_RESET_INITIATED',
   UserAccountUpdated = 'USER_ACCOUNT_UPDATED',
@@ -561,7 +572,6 @@ export type RecipientListNode = {
   id: Scalars['String']['output'];
   name: Scalars['String']['output'];
   recipients: Array<RecipientNode>;
-  sqlQuery?: Maybe<Scalars['String']['output']>;
 };
 
 export enum RecipientListSortFieldInput {
@@ -635,6 +645,24 @@ export type SimpleStringFilterInput = {
   like?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type SqlRecipientListConnector = {
+  __typename: 'SqlRecipientListConnector';
+  nodes: Array<SqlRecipientListNode>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type SqlRecipientListNode = {
+  __typename: 'SqlRecipientListNode';
+  auditLogs: Array<LogNode>;
+  description: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  parameters: Scalars['String']['output'];
+  query: Scalars['String']['output'];
+};
+
+export type SqlRecipientListsResponse = SqlRecipientListConnector;
+
 export type StringFilterInput = {
   endsWith?: InputMaybe<Scalars['String']['input']>;
   equalAny?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -679,7 +707,6 @@ export type UpdateRecipientListInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
-  sqlQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateRecipientResponse = RecipientNode;

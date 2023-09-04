@@ -91,7 +91,6 @@ fragment RecipientListRow on RecipientListNode {
       username
     }
   }
-  sqlQuery
 }
 
 query RecipientLists(
@@ -145,6 +144,23 @@ mutation deleteRecipientList($recipientListId: String!) {
   deleteRecipientList(recipientListId: $recipientListId) {
     ... on DeleteResponse {
       id
+    }
+  }
+}
+
+fragment SqlRecipientListRow on SqlRecipientListNode {
+  id
+  name
+  description
+  query
+  parameters
+  auditLogs {
+    datetime
+    id
+    recordId
+    recordType
+    user {
+      username
     }
   }
 }
