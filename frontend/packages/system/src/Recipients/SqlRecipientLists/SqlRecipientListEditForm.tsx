@@ -21,7 +21,7 @@ const createSqlRecipientList = (
   name: '',
   description: '',
   query: '',
-  parameters: '[]',
+  parameters: '{}',
   ...seed,
 });
 
