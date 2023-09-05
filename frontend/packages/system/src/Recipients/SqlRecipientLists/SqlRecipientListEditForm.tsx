@@ -7,7 +7,10 @@ import {
   Grid,
   LoadingButton,
   SaveIcon,
+  TeraUtils,
   Typography,
+  useNotification,
+  useToggle,
   useTranslation,
 } from '@notify-frontend/common';
 import { DraftSqlRecipientList } from './types';
@@ -41,6 +44,13 @@ export const SqlRecipientListEditForm = ({
 }: SqlRecipientListEditFormProps) => {
   const t = useTranslation('system');
 
+  const { error } = useNotification();
+  const {
+    isOn: isEditingName,
+    toggleOn: editNameToggleOn,
+    toggleOff: editNameToggleOff,
+  } = useToggle(!(list === undefined || list === null || list.name !== ''));
+
   const [draft, setDraft] = useState(createSqlRecipientList(list));
 
   const onUpdate = (patch: Partial<DraftSqlRecipientList>) => {
@@ -58,80 +68,96 @@ export const SqlRecipientListEditForm = ({
 
     if (!list) await create({ input });
     else await update({ input });
+
+    editNameToggleOff();
   };
 
   return (
-    <Box>
-      <Typography
-        sx={{
-          fontSize: '18px',
-          fontWeight: 'bold',
-          color: 'gray.dark',
-        }}
-      >
-        {draft?.name}
-      </Typography>
-      <Grid flexDirection="row" display="flex" gap={3}>
-        <BasicTextInput
-          autoFocus
-          required
-          value={draft.name}
-          helperText={
-            invalidName(draft.name)
-              ? t('helper-text.recipient-list-name')
-              : null
-          }
-          onChange={e => onUpdate({ name: e.target.value })}
-          label={t('label.name')}
-          InputLabelProps={{ shrink: true }}
-        />
+    <Box sx={{ width: '100%' }}>
+      <Grid flexDirection="column" display="flex" gap={1}>
+        {isEditingName ? (
+          <BasicTextInput
+            autoFocus
+            required
+            value={draft.name}
+            helperText={
+              invalidName(draft.name)
+                ? t('helper-text.recipient-list-name')
+                : null
+            }
+            onChange={e => onUpdate({ name: e.target.value })}
+            label={t('label.name')}
+            InputLabelProps={{ shrink: true }}
+          />
+        ) : (
+          <Typography
+            sx={{
+              fontSize: '18px',
+              fontWeight: 'bold',
+              color: 'gray.dark',
+            }}
+            onClick={editNameToggleOn}
+          >
+            {draft?.name}
+          </Typography>
+        )}
+
         <BufferedTextArea
           value={draft.description}
           onChange={e => onUpdate({ description: e.target.value })}
           label={t('label.description')}
           InputProps={{ sx: { backgroundColor: 'background.menu' } }}
           InputLabelProps={{ shrink: true }}
+          rows={2}
         />
-      </Grid>
-      <Grid flexDirection={'row'} display="flex" gap={2}>
-        <Grid flexDirection={'column'} display="flex" gap={2}>
-          <BufferedTextArea
-            value={draft.query}
-            onChange={e => onUpdate({ query: e.target.value })}
-            label={t('label.query')}
-            InputProps={{ sx: { backgroundColor: 'background.menu' } }}
-            InputLabelProps={{ shrink: true }}
-            helperText={t('helper-text.recipient-sql-query')}
-          />
-        </Grid>
-        <Grid flexDirection={'column-reverse'} display="flex" gap={2}>
-          <LoadingButton
-            startIcon={<SaveIcon />}
-            onClick={() => {
-              onSave(draft)
-                .catch(err => {
-                  // TODO: Better Error!
-                  console.error(err);
-                })
-                .then(() => {
-                  // TODO: actually refresh...
-                  console.log('Refresh the SQL recipients!');
-                });
-            }}
-            disabled={invalidName(draft.name)}
-            isLoading={createIsLoading || updateIsLoading}
-          >
-            {t('button.save')}
-          </LoadingButton>
-          <BufferedTextArea
-            value={draft.parameters}
-            onChange={e => onUpdate({ parameters: e.target.value })}
-            label={t('label.parameters')}
-            InputProps={{ sx: { backgroundColor: 'background.menu' } }}
-            InputLabelProps={{ shrink: true }}
-            helperText={t('helper-text.sql-query-parameters')}
-          />
-        </Grid>
+        <BufferedTextArea
+          value={draft.query}
+          onChange={e => onUpdate({ query: e.target.value })}
+          label={t('label.query')}
+          InputProps={{ sx: { backgroundColor: 'background.menu' } }}
+          InputLabelProps={{ shrink: true }}
+          helperText={t('helper-text.recipient-sql-query')}
+        />
+        <Typography
+          component={'span'}
+          sx={{ fontWeight: 'bold', color: 'gray.dark' }}
+        >
+          {t('label.parameters')}
+        </Typography>
+        {TeraUtils.extractParams(draft.query).length === 0 && (
+          <Typography component={'span'} sx={{ color: 'gray.light' }}>
+            {t('message.no-parameters')}
+          </Typography>
+        )}
+        <ul>
+          {TeraUtils.extractParams(draft.query).map(param => {
+            return (
+              <li key={`${param}-${draft.id}`}>
+                <Typography component={'span'} sx={{ color: 'gray.dark' }}>
+                  {param}
+                </Typography>
+              </li>
+            );
+          })}
+        </ul>
+        <LoadingButton
+          startIcon={<SaveIcon />}
+          onClick={() => {
+            onSave(draft)
+              .catch(err => {
+                console.error(err);
+                error(err)();
+              })
+              .then(() => {
+                // TODO: actually refresh...
+                console.log('Refresh the SQL recipients!');
+              });
+          }}
+          disabled={invalidName(draft.name)}
+          isLoading={createIsLoading || updateIsLoading}
+        >
+          {t('button.save')}
+        </LoadingButton>
       </Grid>
     </Box>
   );
