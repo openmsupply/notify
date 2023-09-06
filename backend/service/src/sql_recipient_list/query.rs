@@ -1,6 +1,6 @@
 use datasource::BasicRecipientRow;
 use repository::{
-    EqualFilter, PaginationOption, Recipient, SqlRecipientListFilter, SqlRecipientListRepository,
+    EqualFilter, PaginationOption, SqlRecipientListFilter, SqlRecipientListRepository,
     SqlRecipientListRowRepository, SqlRecipientListSort,
 };
 use tera::{Context, Tera};
@@ -51,10 +51,19 @@ pub fn get_sql_recipients(
     ctx: &ServiceContext,
     sql_recipient_list_id: String,
     params: String,
-) -> Result<ListResult<Recipient>, ListError> {
+) -> Result<ListResult<BasicRecipientRow>, ListError> {
     let repository = SqlRecipientListRowRepository::new(&ctx.connection);
 
     let sql_list = repository.find_one_by_id(&sql_recipient_list_id)?;
+    let sql_list = match sql_list {
+        Some(sql_list) => sql_list,
+        None => {
+            return Err(ListError::InvalidRequest(format!(
+                "No sql recipient list found with id: {}",
+                sql_recipient_list_id
+            )))
+        }
+    };
 
     get_sql_recipients_by_sql_query(ctx, sql_list.query, params)
 }
@@ -64,7 +73,6 @@ pub fn get_sql_recipients_by_sql_query(
     query: String,
     params: String,
 ) -> Result<ListResult<BasicRecipientRow>, ListError> {
-
     // Parse Params as json
     let json_params = serde_json::from_str(&params).map_err(|e| {
         ListError::InvalidRequest(format!("Failed to parse params as json: {}", e.to_string()))

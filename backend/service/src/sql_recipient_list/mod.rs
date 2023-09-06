@@ -9,7 +9,7 @@ use super::{ListError, ListResult};
 use crate::{service_provider::ServiceContext, SingleRecordError};
 use datasource::BasicRecipientRow;
 use repository::{
-    PaginationOption, Recipient, RepositoryError, SqlRecipientList, SqlRecipientListFilter,
+    PaginationOption, RepositoryError, SqlRecipientList, SqlRecipientListFilter,
     SqlRecipientListSort,
 };
 

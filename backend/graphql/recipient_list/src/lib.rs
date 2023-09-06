@@ -10,7 +10,6 @@ use graphql_core::{
     ContextExt,
 };
 use graphql_types::types::RecipientConnector;
-use graphql_types::types::RecipientResponse;
 use graphql_types::types::RecipientsResponse;
 use repository::PaginationOption;
 use repository::RecipientListFilter;

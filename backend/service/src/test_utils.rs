@@ -88,7 +88,7 @@ impl DatasourceServiceTrait for MockDatasourceService {
 
     fn run_recipient_query(
         &self,
-        sql_query: String,
+        _sql_query: String,
     ) -> Result<Vec<BasicRecipientRow>, crate::datasource::DatasourceServiceError> {
         todo!()
     }
