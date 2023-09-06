@@ -9,20 +9,18 @@ import {
   AppBarContentPortal,
   Box,
   DataTable,
-  LoadingButton,
   NothingHere,
   Paper,
   SearchToolbar,
   TableProvider,
-  ZapIcon,
   createTableStore,
   useColumns,
 } from '@common/ui';
 import { useSqlRecipientLists } from '../api';
 import { useParams } from 'packages/common/src';
 import { useSQLRecipients } from '../api/hooks/useSQLRecipients';
-import { BasicRecipientRow } from '../types/BasicRecipientRow';
 import { SqlRecipientListEditForm } from './SqlRecipientListEditForm';
+import { BasicRecipientRowFragment } from '../api/operations.generated';
 
 export const DetailEdit = () => {
   const t = useTranslation('system');
@@ -37,11 +35,21 @@ export const DetailEdit = () => {
   const { data, isError, isLoading } = useSqlRecipientLists(queryParams);
   const list = data?.nodes[0];
 
-  const { mutateAsync: runSqlQuery, isLoading: sqlIsLoading } =
+  const { mutateAsync: testSqlRecipients, isLoading: recipientsLoading } =
     useSQLRecipients();
   const [sqlRecipients, setSqlRecipients] = React.useState(
-    [] as BasicRecipientRow[]
+    [] as BasicRecipientRowFragment[]
   );
+
+  const queryRecipients = async (query: string, params: string) => {
+    await testSqlRecipients({ sqlQuery: query, params })
+      .then(result => {
+        setSqlRecipients(result.testSqlRecipientListQuery.nodes);
+      })
+      .catch(err => {
+        error(err.message)();
+      });
+  };
 
   useEffect(() => {
     const listName = list?.name;
@@ -49,19 +57,6 @@ export const DetailEdit = () => {
       setSuffix(listName);
     }
   }, [suffix, list]);
-
-  // useEffect(() => {
-  //   if (list?.sqlQuery) {
-  //     runSqlQuery(list?.sqlQuery)
-  //       .then(result => {
-  //         console.log(result);
-  //         setSqlRecipients(result);
-  //       })
-  //       .catch(err => {
-  //         error(err.message)();
-  //       });
-  //   }
-  // }, [list]);
 
   const columns = useColumns([
     { key: 'name', label: 'label.name' },
@@ -73,9 +68,8 @@ export const DetailEdit = () => {
   const { filter: searchFilter } = useQueryParamsState();
 
   const searchString = (searchFilter.filterBy?.['search'] as string) ?? '';
-  const allRecipients: BasicRecipientRow[] = sqlRecipients;
 
-  const recipients = allRecipients.filter(
+  const recipients = sqlRecipients.filter(
     r => r.name.includes(searchString) || r.toAddress.includes(searchString)
   );
 
@@ -95,47 +89,25 @@ export const DetailEdit = () => {
             gap: '16px',
           }}
         >
-          <SqlRecipientListEditForm list={list} />
+          <SqlRecipientListEditForm
+            list={list}
+            queryRecipients={queryRecipients}
+            recipientsLoading={recipientsLoading}
+          />
         </Paper>
       </AppBarContentPortal>
       {/* Recipients table */}
       <TableProvider createStore={createTableStore}>
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
           <Box sx={{ margin: '16px' }}>
-            <SearchToolbar
-              filter={searchFilter}
-              ActionButtons={() => (
-                <>
-                  {list?.query && (
-                    <LoadingButton
-                      variant="outlined"
-                      isLoading={sqlIsLoading}
-                      startIcon={<ZapIcon />}
-                      onClick={() => {
-                        if (!list?.query) return;
-                        runSqlQuery(list?.query)
-                          .then(result => {
-                            console.log(result);
-                            setSqlRecipients(result);
-                          })
-                          .catch(err => {
-                            error(err.message)();
-                          });
-                      }}
-                    >
-                      {t('label.refresh-sql-recipients')}
-                    </LoadingButton>
-                  )}
-                </>
-              )}
-            />
+            <SearchToolbar filter={searchFilter} />
           </Box>
           <Box sx={{ flex: '1', overflow: 'auto' }}>
             <DataTable
               columns={columns}
               data={recipients}
               isError={isError}
-              isLoading={isLoading}
+              isLoading={isLoading || recipientsLoading}
               noDataElement={
                 <NothingHere body={t('error.no-recipient-list-members')} />
               }

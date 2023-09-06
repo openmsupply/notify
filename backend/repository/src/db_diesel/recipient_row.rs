@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use super::{recipient_row::recipient::dsl as recipient_dsl, StorageConnection};
 use crate::{repository_error::RepositoryError, EqualFilter};
 use chrono::NaiveDateTime;
@@ -21,6 +23,19 @@ pub enum NotificationType {
     #[default]
     Email,
     Telegram,
+    Unknown,
+}
+
+impl FromStr for NotificationType {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "TELEGRAM" => Ok(NotificationType::Telegram),
+            "EMAIL" => Ok(NotificationType::Email),
+            _ => Ok(NotificationType::Unknown),
+        }
+    }
 }
 
 impl NotificationType {

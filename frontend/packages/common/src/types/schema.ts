@@ -317,6 +317,7 @@ export type FullQuery = {
   /** Query "sql_recipient_list" entries */
   sqlRecipientLists: SqlRecipientListsResponse;
   telegramBotName: Scalars['String']['output'];
+  testSqlRecipientListQuery: RecipientsResponse;
   /** Query "user_accounts" entries */
   userAccounts: UserAccountsResponse;
 };
@@ -365,6 +366,12 @@ export type FullQuerySqlRecipientListsArgs = {
   filter?: InputMaybe<RecipientListFilterInput>;
   page?: InputMaybe<PaginationInput>;
   sort?: InputMaybe<Array<RecipientListSortInput>>;
+};
+
+
+export type FullQueryTestSqlRecipientListQueryArgs = {
+  params: Scalars['String']['input'];
+  query: Scalars['String']['input'];
 };
 
 
@@ -543,7 +550,8 @@ export type NotificationConfigsResponse = NotificationConfigConnector;
 
 export enum NotificationTypeNode {
   Email = 'EMAIL',
-  Telegram = 'TELEGRAM'
+  Telegram = 'TELEGRAM',
+  Unknown = 'UNKNOWN'
 }
 
 /**
@@ -745,6 +753,8 @@ export type UpdateSqlRecipientListInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+  parameters?: InputMaybe<Scalars['String']['input']>;
+  query?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateUserAccountInput = {

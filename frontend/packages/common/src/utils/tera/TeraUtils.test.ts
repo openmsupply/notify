@@ -17,3 +17,32 @@ describe('TeraUtils', () => {
     ]);
   });
 });
+
+describe('keyedParamsAsTeraJson', () => {
+  it('Should convert a single key', () => {
+    expect(TeraUtils.keyedParamsAsTeraJson({ name: 'John' })).toEqual(
+      '{"name":"John"}'
+    );
+  });
+  it('Should convert 2 single keys', () => {
+    expect(
+      TeraUtils.keyedParamsAsTeraJson({
+        name: 'John',
+        email: 'john@example.com',
+      })
+    ).toEqual('{"name":"John","email":"john@example.com"}');
+  });
+  it('Should convert a single key with a dot', () => {
+    expect(TeraUtils.keyedParamsAsTeraJson({ 'user.name': 'John' })).toEqual(
+      '{"user":{"name":"John"}}'
+    );
+  });
+  it('Should convert a multiple keys with a dot', () => {
+    expect(
+      TeraUtils.keyedParamsAsTeraJson({
+        'user.name': 'John',
+        'user.email': 'john@example.com',
+      })
+    ).toEqual('{"user":{"name":"John","email":"john@example.com"}}');
+  });
+});

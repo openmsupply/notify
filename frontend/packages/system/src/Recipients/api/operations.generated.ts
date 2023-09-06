@@ -131,12 +131,13 @@ export type SendTestTelegramMessageMutationVariables = Types.Exact<{
 
 export type SendTestTelegramMessageMutation = { __typename: 'FullMutation', sendTestTelegramMessage: { __typename: 'TelegramMessageNode', chatName: string, message: string } };
 
-export type RecipientsViaSqlQueryVariables = Types.Exact<{
+export type TestSqlRecipientListQueryQueryVariables = Types.Exact<{
   sqlQuery?: Types.InputMaybe<Types.Scalars['String']['input']>;
+  params?: Types.InputMaybe<Types.Scalars['String']['input']>;
 }>;
 
 
-export type RecipientsViaSqlQuery = { __typename: 'FullQuery', runSqlQuery: string };
+export type TestSqlRecipientListQueryQuery = { __typename: 'FullQuery', testSqlRecipientListQuery: { __typename: 'RecipientConnector', totalCount: number, nodes: Array<{ __typename: 'RecipientNode', id: string, name: string, toAddress: string, notificationType: Types.NotificationTypeNode }> } };
 
 export const BasicRecipientRowFragmentDoc = gql`
     fragment BasicRecipientRow on RecipientNode {
@@ -358,11 +359,18 @@ export const SendTestTelegramMessageDocument = gql`
   }
 }
     `;
-export const RecipientsViaSqlDocument = gql`
-    query recipientsViaSQL($sqlQuery: String) {
-  runSqlQuery(sqlQuery: $sqlQuery)
+export const TestSqlRecipientListQueryDocument = gql`
+    query testSqlRecipientListQuery($sqlQuery: String, $params: String) {
+  testSqlRecipientListQuery(query: $sqlQuery, params: $params) {
+    ... on RecipientConnector {
+      totalCount
+      nodes {
+        ...BasicRecipientRow
+      }
+    }
+  }
 }
-    `;
+    ${BasicRecipientRowFragmentDoc}`;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string) => Promise<T>;
 
@@ -419,8 +427,8 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     sendTestTelegramMessage(variables: SendTestTelegramMessageMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<SendTestTelegramMessageMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<SendTestTelegramMessageMutation>(SendTestTelegramMessageDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'sendTestTelegramMessage', 'mutation');
     },
-    recipientsViaSQL(variables?: RecipientsViaSqlQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<RecipientsViaSqlQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<RecipientsViaSqlQuery>(RecipientsViaSqlDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'recipientsViaSQL', 'query');
+    testSqlRecipientListQuery(variables?: TestSqlRecipientListQueryQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<TestSqlRecipientListQueryQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<TestSqlRecipientListQueryQuery>(TestSqlRecipientListQueryDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'testSqlRecipientListQuery', 'query');
     }
   };
 }

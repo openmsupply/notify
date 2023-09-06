@@ -214,6 +214,13 @@ mutation sendTestTelegramMessage($chatId: String!) {
   }
 }
 
-query recipientsViaSQL($sqlQuery: String) {
-  runSqlQuery(sqlQuery: $sqlQuery)
+query testSqlRecipientListQuery($sqlQuery: String, $params: String) {
+  testSqlRecipientListQuery(query: $sqlQuery, params: $params) {
+    ... on RecipientConnector {
+      totalCount
+      nodes {
+        ...BasicRecipientRow
+      }
+    }
+  }
 }

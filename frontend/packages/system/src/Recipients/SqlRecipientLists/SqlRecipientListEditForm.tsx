@@ -3,12 +3,18 @@ import {
   BasicTextInput,
   Box,
   BufferedTextArea,
+  BufferedTextInput,
   FnUtils,
   Grid,
+  KeyedParams,
   LoadingButton,
   SaveIcon,
+  Table,
+  TableCell,
+  TableRow,
   TeraUtils,
   Typography,
+  ZapIcon,
   useNotification,
   useToggle,
   useTranslation,
@@ -37,10 +43,14 @@ export const invalidName = (name: string) => {
 
 type SqlRecipientListEditFormProps = {
   list: SqlRecipientListRowFragment | undefined;
+  queryRecipients: (query: string, params: string) => Promise<void>;
+  recipientsLoading: boolean;
 };
 
 export const SqlRecipientListEditForm = ({
   list,
+  queryRecipients,
+  recipientsLoading,
 }: SqlRecipientListEditFormProps) => {
   const t = useTranslation('system');
 
@@ -52,9 +62,14 @@ export const SqlRecipientListEditForm = ({
   } = useToggle(!(list === undefined || list === null || list.name !== ''));
 
   const [draft, setDraft] = useState(createSqlRecipientList(list));
-
   const onUpdate = (patch: Partial<DraftSqlRecipientList>) => {
     setDraft({ ...draft, ...patch });
+  };
+
+  const [queryParams, setQueryParams] = useState<KeyedParams>({});
+  const onUpdateQueryParams = (key: string, value: string) => {
+    const patch = { [key]: value };
+    setQueryParams({ ...queryParams, ...patch });
   };
 
   const { mutateAsync: create, isLoading: createIsLoading } =
@@ -124,34 +139,54 @@ export const SqlRecipientListEditForm = ({
         >
           {t('label.parameters')}
         </Typography>
-        {TeraUtils.extractParams(draft.query).length === 0 && (
+        {TeraUtils.extractParams(draft.query).length === 0 ? (
           <Typography component={'span'} sx={{ color: 'gray.light' }}>
             {t('message.no-parameters')}
           </Typography>
+        ) : (
+          <Table>
+            {TeraUtils.extractParams(draft.query).map(param => {
+              return (
+                <TableRow key={`${param}-${draft.id}`}>
+                  <TableCell>
+                    <Typography component={'span'} sx={{ color: 'gray.dark' }}>
+                      {param}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <BufferedTextInput
+                      value={queryParams[param ?? '']}
+                      onChange={e =>
+                        onUpdateQueryParams(param ?? '', e.target.value)
+                      }
+                    />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </Table>
         )}
-        <ul>
-          {TeraUtils.extractParams(draft.query).map(param => {
-            return (
-              <li key={`${param}-${draft.id}`}>
-                <Typography component={'span'} sx={{ color: 'gray.dark' }}>
-                  {param}
-                </Typography>
-              </li>
+        <ul></ul>
+        <LoadingButton
+          variant="outlined"
+          isLoading={recipientsLoading}
+          startIcon={<ZapIcon />}
+          onClick={() => {
+            queryRecipients(
+              draft.query,
+              TeraUtils.keyedParamsAsTeraJson(queryParams)
             );
-          })}
-        </ul>
+          }}
+        >
+          {t('label.test-sql-query')}
+        </LoadingButton>
         <LoadingButton
           startIcon={<SaveIcon />}
           onClick={() => {
-            onSave(draft)
-              .catch(err => {
-                console.error(err);
-                error(err)();
-              })
-              .then(() => {
-                // TODO: actually refresh...
-                console.log('Refresh the SQL recipients!');
-              });
+            onSave(draft).catch(err => {
+              console.error(err);
+              error(err)();
+            });
           }}
           disabled={invalidName(draft.name)}
           isLoading={createIsLoading || updateIsLoading}

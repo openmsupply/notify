@@ -1,14 +1,15 @@
 use self::{
     create::{create_sql_recipient_list, CreateSqlRecipientList},
     delete::{delete_sql_recipient_list, DeleteSqlRecipientListError},
-    query::{get_sql_recipient_list, get_sql_recipient_lists},
+    query::{get_sql_recipient_list, get_sql_recipient_lists, get_sql_recipients_by_sql_query},
     update::{update_sql_recipient_list, UpdateSqlRecipientList},
 };
 
 use super::{ListError, ListResult};
 use crate::{service_provider::ServiceContext, SingleRecordError};
+use datasource::BasicRecipientRow;
 use repository::{
-    PaginationOption, RepositoryError, SqlRecipientList, SqlRecipientListFilter,
+    PaginationOption, Recipient, RepositoryError, SqlRecipientList, SqlRecipientListFilter,
     SqlRecipientListSort,
 };
 
@@ -62,6 +63,15 @@ pub trait SqlRecipientListServiceTrait: Sync + Send {
         input: UpdateSqlRecipientList,
     ) -> Result<SqlRecipientList, ModifySqlRecipientListError> {
         update_sql_recipient_list(ctx, input)
+    }
+
+    fn get_recipients_by_sql_query(
+        &self,
+        ctx: &ServiceContext,
+        query: String,
+        params: String,
+    ) -> Result<ListResult<BasicRecipientRow>, ListError> {
+        get_sql_recipients_by_sql_query(ctx, query, params)
     }
 }
 

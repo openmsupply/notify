@@ -1,6 +1,9 @@
+use datasource::BasicRecipientRow;
 use repository::{
-    EqualFilter, PaginationOption, SqlRecipientListFilter, SqlRecipientListRepository, SqlRecipientListSort,
+    EqualFilter, PaginationOption, Recipient, SqlRecipientListFilter, SqlRecipientListRepository,
+    SqlRecipientListRowRepository, SqlRecipientListSort,
 };
+use tera::{Context, Tera};
 use util::number_conversions::i64_to_u32;
 
 use crate::{
@@ -42,4 +45,57 @@ pub fn get_sql_recipient_list(
     } else {
         Err(SingleRecordError::NotFound(id))
     }
+}
+
+pub fn get_sql_recipients(
+    ctx: &ServiceContext,
+    sql_recipient_list_id: String,
+    params: String,
+) -> Result<ListResult<Recipient>, ListError> {
+    let repository = SqlRecipientListRowRepository::new(&ctx.connection);
+
+    let sql_list = repository.find_one_by_id(&sql_recipient_list_id)?;
+
+    get_sql_recipients_by_sql_query(ctx, sql_list.query, params)
+}
+
+pub fn get_sql_recipients_by_sql_query(
+    ctx: &ServiceContext,
+    query: String,
+    params: String,
+) -> Result<ListResult<BasicRecipientRow>, ListError> {
+
+    // Parse Params as json
+    let json_params = serde_json::from_str(&params).map_err(|e| {
+        ListError::InvalidRequest(format!("Failed to parse params as json: {}", e.to_string()))
+    })?;
+
+    // Pass params to template to get the full query
+    let tera_context = Context::from_value(json_params).map_err(|e| {
+        ListError::InvalidRequest(format!(
+            "Failed to convert params to tera context: {}",
+            e.to_string()
+        ))
+    })?;
+
+    let full_query = Tera::one_off(&query, &tera_context, false).map_err(|e| {
+        ListError::InvalidRequest(format!(
+            "Failed to parse query as tera template: {}",
+            e.to_string()
+        ))
+    })?;
+
+    // query the datasource with the templated query
+    let result = ctx
+        .service_provider
+        .datasource_service
+        .run_recipient_query(full_query)
+        .map_err(|e| {
+            ListError::InvalidRequest(format!("Failed to run query on datasource: {:?}", e))
+        })?;
+
+    Ok(ListResult {
+        count: result.len() as u32,
+        rows: result,
+    })
 }

@@ -9,6 +9,9 @@ use graphql_core::{
     standard_graphql_error::{validate_auth, StandardGraphqlError},
     ContextExt,
 };
+use graphql_types::types::RecipientConnector;
+use graphql_types::types::RecipientResponse;
+use graphql_types::types::RecipientsResponse;
 use repository::PaginationOption;
 use repository::RecipientListFilter;
 use repository::SqlRecipientListFilter;
@@ -88,6 +91,32 @@ impl RecipientListQueries {
 
         Ok(SqlRecipientListsResponse::Response(
             SqlRecipientListConnector::from_domain(recipient_lists),
+        ))
+    }
+
+    async fn test_sql_recipient_list_query(
+        &self,
+        ctx: &Context<'_>,
+        query: String,
+        params: String,
+    ) -> Result<RecipientsResponse> {
+        let user = validate_auth(
+            ctx,
+            &ResourceAccessRequest {
+                resource: Resource::ServerAdmin,
+            },
+        )?;
+
+        let service_context = ctx.service_context(Some(&user))?;
+
+        let recipients = service_context
+            .service_provider
+            .sql_recipient_list_service
+            .get_recipients_by_sql_query(&service_context, query, params)
+            .map_err(StandardGraphqlError::from_list_error)?;
+
+        Ok(RecipientsResponse::Response(
+            RecipientConnector::from_basic_domain(recipients),
         ))
     }
 }

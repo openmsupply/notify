@@ -39,6 +39,7 @@
   "label.notification-title": "Notification Title",
   "label.notification-type-EMAIL": "Email",
   "label.notification-type-TELEGRAM": "Telegram",
+  "label.notification-type-UNKNOWN": "ERROR-UNSUPPORTED-NOTIFICATION-TYPE",
   "label.password-strength": "Password Strength",
   "label.password-warning": "Warning",
   "label.phone-number": "Phone Number",
@@ -75,8 +76,8 @@
   "label.query": "Query",
   "label.parameters": "Parameters",
   "helper-text.sql-query-parameters": "Parameters must be provided in json format for now. For example: {\"param1\": \"string\", \"param2\": \"string\"}",
-  "helper-text.recipient-sql-query": "Your sql query must return the following columns: id, name, notificationType, toAddress.",
-  "label.refresh-sql-recipients": "Refresh SQL Recipients",
+  "helper-text.recipient-sql-query": "Your sql query must return the following columns: id, name, notification_type, to_address.",
+  "label.test-sql-query": "Test SQL Query",
   "tooltip.manage-recipient-list": "Manage Recipient List",
   "message.no-parameters": "No parameters found"
 }
