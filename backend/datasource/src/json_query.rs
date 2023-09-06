@@ -1,3 +1,4 @@
+use diesel::connection::SimpleConnection;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::Error as DieselError;
@@ -15,7 +16,7 @@ pub fn pg_sql_query_as_json_rows(
     connection: &mut PgConnection,
     sql_select_query: String,
 ) -> Result<Vec<serde_json::Value>, DieselError> {
-    // Note: We may need to do some kind of validation of the SQL? We have to trust the uses to some degree though...
+    let _ = connection.batch_execute("SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY;")?;
 
     let json_row_sql_query = format!(
         "WITH provided_query AS(
