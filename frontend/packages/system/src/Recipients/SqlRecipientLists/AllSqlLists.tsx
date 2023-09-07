@@ -32,6 +32,18 @@ export const AllSqlLists = () => {
         maxWidth: 300,
         sortable: false,
       },
+      {
+        key: 'query',
+        label: 'label.query',
+        maxWidth: 300,
+        sortable: false,
+      },
+      {
+        key: 'parameters',
+        label: 'label.parameters',
+        maxWidth: 300,
+        sortable: false,
+      },
       'selection',
     ],
     {

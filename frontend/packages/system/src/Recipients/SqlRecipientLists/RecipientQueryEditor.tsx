@@ -76,6 +76,12 @@ export const RecipientQueryEditor = ({
 
   const onUpdate = (patch: Partial<DraftSqlRecipientList>) => {
     setDraft({ ...draft, ...patch });
+    // Update parameters
+    if (patch.query) {
+      const params = TeraUtils.extractParams(patch.query);
+      const jsonParams = JSON.stringify(params);
+      setDraft({ ...draft, ...patch, parameters: jsonParams });
+    }
     setIsSaved(false);
   };
 
