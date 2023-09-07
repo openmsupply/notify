@@ -3,18 +3,18 @@ import {
   BasicTextInput,
   Box,
   BufferedTextArea,
-  BufferedTextInput,
+  ButtonWithIcon,
+  EditIcon,
   FnUtils,
   Grid,
+  IconButton,
   KeyedParams,
   LoadingButton,
   SaveIcon,
-  Table,
-  TableCell,
-  TableRow,
   TeraUtils,
   Typography,
   ZapIcon,
+  useDetailPanel,
   useNotification,
   useToggle,
   useTranslation,
@@ -22,6 +22,7 @@ import {
 import { DraftSqlRecipientList } from './types';
 import { useCreateSqlRecipientList, useUpdateSqlRecipientList } from '../api';
 import { SqlRecipientListRowFragment } from '../api/operations.generated';
+import { SidePanel } from './SidePanel';
 
 const createSqlRecipientList = (
   seed?: DraftSqlRecipientList | null
@@ -47,7 +48,7 @@ type SqlRecipientListEditFormProps = {
   recipientsLoading: boolean;
 };
 
-export const SqlRecipientListEditForm = ({
+export const RecipientQueryEditor = ({
   list,
   queryRecipients,
   recipientsLoading,
@@ -55,6 +56,9 @@ export const SqlRecipientListEditForm = ({
   const t = useTranslation('system');
 
   const { error } = useNotification();
+
+  const { open: openSidePanel } = useDetailPanel();
+
   const {
     isOn: isEditingName,
     toggleOn: editNameToggleOn,
@@ -89,6 +93,11 @@ export const SqlRecipientListEditForm = ({
 
   return (
     <Box sx={{ width: '100%' }}>
+      <SidePanel
+        query={draft.query}
+        queryParams={queryParams}
+        onUpdateQueryParams={onUpdateQueryParams}
+      />
       <Grid flexDirection="column" display="flex" gap={1}>
         {isEditingName ? (
           <BasicTextInput
@@ -114,6 +123,11 @@ export const SqlRecipientListEditForm = ({
             onClick={editNameToggleOn}
           >
             {draft?.name}
+            <IconButton
+              onClick={editNameToggleOn}
+              icon={<EditIcon />}
+              label={t('label.edit')}
+            />
           </Typography>
         )}
 
@@ -133,40 +147,31 @@ export const SqlRecipientListEditForm = ({
           InputLabelProps={{ shrink: true }}
           helperText={t('helper-text.recipient-sql-query')}
         />
-        <Typography
-          component={'span'}
-          sx={{ fontWeight: 'bold', color: 'gray.dark' }}
-        >
-          {t('label.parameters')}
-        </Typography>
-        {TeraUtils.extractParams(draft.query).length === 0 ? (
-          <Typography component={'span'} sx={{ color: 'gray.light' }}>
-            {t('message.no-parameters')}
+        <Box sx={{ display: 'flex', gap: '8px' }}>
+          <Typography
+            component={'span'}
+            sx={{ fontWeight: 'bold', color: 'gray.dark' }}
+          >
+            {t('label.parameters')}:
           </Typography>
-        ) : (
-          <Table>
-            {TeraUtils.extractParams(draft.query).map(param => {
-              return (
-                <TableRow key={`${param}-${draft.id}`}>
-                  <TableCell>
-                    <Typography component={'span'} sx={{ color: 'gray.dark' }}>
-                      {param}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <BufferedTextInput
-                      value={queryParams[param ?? '']}
-                      onChange={e =>
-                        onUpdateQueryParams(param ?? '', e.target.value)
-                      }
-                    />
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </Table>
-        )}
-        <ul></ul>
+
+          {TeraUtils.extractParams(draft.query).length === 0 ? (
+            <Typography component={'span'} sx={{ color: 'gray.light' }}>
+              {t('message.no-parameters')}
+            </Typography>
+          ) : (
+            <Typography component={'span'} sx={{ color: 'gray.dark' }}>
+              {TeraUtils.extractParams(draft.query).join(', ')}
+            </Typography>
+          )}
+          <IconButton
+            // sx={{ marginLeft: '8px' }}
+            onClick={openSidePanel}
+            icon={<EditIcon />}
+            label={t('label.edit')}
+          />
+        </Box>
+
         <LoadingButton
           variant="outlined"
           isLoading={recipientsLoading}

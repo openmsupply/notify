@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useTranslation } from '@common/intl';
 import {
   useBreadcrumbs,
+  useDetailPanel,
   useNotification,
   useQueryParamsState,
 } from '@common/hooks';
@@ -19,7 +20,7 @@ import {
 import { useSqlRecipientLists } from '../api';
 import { useParams } from 'packages/common/src';
 import { useSQLRecipients } from '../api/hooks/useSQLRecipients';
-import { SqlRecipientListEditForm } from './SqlRecipientListEditForm';
+import { RecipientQueryEditor } from './RecipientQueryEditor';
 import { BasicRecipientRowFragment } from '../api/operations.generated';
 
 export const DetailEdit = () => {
@@ -89,7 +90,7 @@ export const DetailEdit = () => {
             gap: '16px',
           }}
         >
-          <SqlRecipientListEditForm
+          <RecipientQueryEditor
             list={list}
             queryRecipients={queryRecipients}
             recipientsLoading={recipientsLoading}
