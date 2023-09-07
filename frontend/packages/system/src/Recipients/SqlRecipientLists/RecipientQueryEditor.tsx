@@ -102,7 +102,7 @@ export const RecipientQueryEditor = ({
 
   const allParamsSet = TeraUtils.extractParams(draft.query).every(param => {
     if (param) {
-      return queryParams[param] !== undefined && queryParams[param] !== '';
+      return queryParams[param] !== undefined; // This allows the user to set the param to an empty string if they edit the field then delete the value
     } else {
       return false;
     }
