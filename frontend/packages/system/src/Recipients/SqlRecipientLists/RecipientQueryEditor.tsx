@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   BasicTextInput,
   Box,
   BufferedTextArea,
-  ButtonWithIcon,
   EditIcon,
   FnUtils,
   Grid,
@@ -57,17 +56,27 @@ export const RecipientQueryEditor = ({
 
   const { error } = useNotification();
 
-  const { open: openSidePanel } = useDetailPanel();
+  const { open: openSidePanel, isOpen } = useDetailPanel();
+
+  const isNew = list === undefined || list === null || list.name === '';
+
+  const [isSaved, setIsSaved] = useState(!isNew);
 
   const {
     isOn: isEditingName,
     toggleOn: editNameToggleOn,
     toggleOff: editNameToggleOff,
-  } = useToggle(!(list === undefined || list === null || list.name !== ''));
+  } = useToggle(isNew);
 
   const [draft, setDraft] = useState(createSqlRecipientList(list));
+  const hasParams = useMemo(
+    () => TeraUtils.extractParams(draft.query).length > 0,
+    [draft]
+  );
+
   const onUpdate = (patch: Partial<DraftSqlRecipientList>) => {
     setDraft({ ...draft, ...patch });
+    setIsSaved(false);
   };
 
   const [queryParams, setQueryParams] = useState<KeyedParams>({});
@@ -85,12 +94,50 @@ export const RecipientQueryEditor = ({
     const { id, name, description, query, parameters } = draft;
     const input = { id, name, description, query, parameters };
 
-    if (!list) await create({ input });
+    if (isNew) await create({ input });
     else await update({ input });
-
     editNameToggleOff();
+    setIsSaved(true);
   };
 
+  const allParamsSet = TeraUtils.extractParams(draft.query).every(param => {
+    if (param) {
+      return queryParams[param] !== undefined && queryParams[param] !== '';
+    } else {
+      return false;
+    }
+  });
+
+  let testQueryButton = (
+    <LoadingButton
+      variant="outlined"
+      disabled={recipientsLoading || !draft.query || !allParamsSet}
+      isLoading={recipientsLoading}
+      startIcon={<ZapIcon />}
+      onClick={() => {
+        queryRecipients(
+          draft.query,
+          TeraUtils.keyedParamsAsTeraJson(queryParams)
+        );
+      }}
+    >
+      {t('label.test-sql-query')}
+    </LoadingButton>
+  );
+  // If there is a query but we don't have all the parameters yet, replace the test button with an edit params button
+  if (draft.query && hasParams && !isOpen && !allParamsSet) {
+    testQueryButton = (
+      <LoadingButton
+        variant="contained"
+        disabled={false}
+        isLoading={false}
+        startIcon={<EditIcon />}
+        onClick={openSidePanel}
+      >
+        {t('label.edit-parameters')}
+      </LoadingButton>
+    );
+  }
   return (
     <Box sx={{ width: '100%' }}>
       <SidePanel
@@ -155,49 +202,39 @@ export const RecipientQueryEditor = ({
             {t('label.parameters')}:
           </Typography>
 
-          {TeraUtils.extractParams(draft.query).length === 0 ? (
+          {!hasParams ? (
             <Typography component={'span'} sx={{ color: 'gray.light' }}>
               {t('message.no-parameters')}
             </Typography>
           ) : (
-            <Typography component={'span'} sx={{ color: 'gray.dark' }}>
-              {TeraUtils.extractParams(draft.query).join(', ')}
-            </Typography>
+            <>
+              <Typography component={'span'} sx={{ color: 'gray.dark' }}>
+                {TeraUtils.extractParams(draft.query).join(', ')}
+              </Typography>
+              <IconButton
+                onClick={openSidePanel}
+                icon={<EditIcon />}
+                label={t('label.edit')}
+              />
+            </>
           )}
-          <IconButton
-            // sx={{ marginLeft: '8px' }}
-            onClick={openSidePanel}
-            icon={<EditIcon />}
-            label={t('label.edit')}
-          />
         </Box>
-
-        <LoadingButton
-          variant="outlined"
-          isLoading={recipientsLoading}
-          startIcon={<ZapIcon />}
-          onClick={() => {
-            queryRecipients(
-              draft.query,
-              TeraUtils.keyedParamsAsTeraJson(queryParams)
-            );
-          }}
-        >
-          {t('label.test-sql-query')}
-        </LoadingButton>
-        <LoadingButton
-          startIcon={<SaveIcon />}
-          onClick={() => {
-            onSave(draft).catch(err => {
-              console.error(err);
-              error(err)();
-            });
-          }}
-          disabled={invalidName(draft.name)}
-          isLoading={createIsLoading || updateIsLoading}
-        >
-          {t('button.save')}
-        </LoadingButton>
+        <Box>
+          <LoadingButton
+            startIcon={<SaveIcon />}
+            onClick={() => {
+              onSave(draft).catch(err => {
+                console.error(err);
+                error(err)();
+              });
+            }}
+            disabled={isSaved || invalidName(draft.name)}
+            isLoading={createIsLoading || updateIsLoading}
+          >
+            {t('button.save')}
+          </LoadingButton>
+          {testQueryButton}
+        </Box>
       </Grid>
     </Box>
   );

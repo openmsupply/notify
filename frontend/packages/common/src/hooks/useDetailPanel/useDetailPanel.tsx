@@ -40,6 +40,7 @@ interface DetailPanel {
   OpenButton: JSX.Element | null;
   open: () => void;
   close: () => void;
+  isOpen: boolean;
 }
 export const useDetailPanel = (): DetailPanel => {
   const t = useTranslation('common');
@@ -52,7 +53,7 @@ export const useDetailPanel = (): DetailPanel => {
     />
   );
 
-  return { OpenButton, open, close };
+  return { OpenButton, open, close, isOpen };
 };
 
 useDetailPanelStore.subscribe(({ hasUserSet, isOpen, shouldPersist }) => {

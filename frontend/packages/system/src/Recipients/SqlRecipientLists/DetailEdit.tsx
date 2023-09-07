@@ -2,12 +2,12 @@ import React, { useEffect } from 'react';
 import { useTranslation } from '@common/intl';
 import {
   useBreadcrumbs,
-  useDetailPanel,
   useNotification,
   useQueryParamsState,
 } from '@common/hooks';
 import {
   AppBarContentPortal,
+  BasicSpinner,
   Box,
   DataTable,
   NothingHere,
@@ -18,10 +18,24 @@ import {
   useColumns,
 } from '@common/ui';
 import { useSqlRecipientLists } from '../api';
-import { useParams } from 'packages/common/src';
+import { FnUtils, useParams } from 'packages/common/src';
 import { useSQLRecipients } from '../api/hooks/useSQLRecipients';
 import { RecipientQueryEditor } from './RecipientQueryEditor';
-import { BasicRecipientRowFragment } from '../api/operations.generated';
+import {
+  BasicRecipientRowFragment,
+  SqlRecipientListRowFragment,
+} from '../api/operations.generated';
+
+function useNewSqlRecipientLists() {
+  const newList = {
+    id: FnUtils.generateUUID(),
+    name: '',
+    description: '',
+    query: '',
+    parameters: '{}',
+  } as SqlRecipientListRowFragment;
+  return { data: { nodes: [newList] }, isError: false, isLoading: false };
+}
 
 export const DetailEdit = () => {
   const t = useTranslation('system');
@@ -33,7 +47,11 @@ export const DetailEdit = () => {
     initialFilter: { id: { equalTo: urlParams['listId'] } },
   });
 
-  const { data, isError, isLoading } = useSqlRecipientLists(queryParams);
+  const { data, isError, isLoading } =
+    urlParams['listId'] === 'new'
+      ? useNewSqlRecipientLists()
+      : useSqlRecipientLists(queryParams);
+
   const list = data?.nodes[0];
 
   const { mutateAsync: testSqlRecipients, isLoading: recipientsLoading } =
@@ -90,11 +108,15 @@ export const DetailEdit = () => {
             gap: '16px',
           }}
         >
-          <RecipientQueryEditor
-            list={list}
-            queryRecipients={queryRecipients}
-            recipientsLoading={recipientsLoading}
-          />
+          {list ? (
+            <RecipientQueryEditor
+              list={data?.nodes[0]}
+              queryRecipients={queryRecipients}
+              recipientsLoading={recipientsLoading}
+            />
+          ) : (
+            <BasicSpinner />
+          )}
         </Paper>
       </AppBarContentPortal>
       {/* Recipients table */}
