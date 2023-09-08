@@ -1,10 +1,14 @@
-High temperature alert!
+<h3>High temperature alert!</h3>
 
-<strong>Facility</strong>: {{ store_name }}
-<strong>Location</strong>: {{ location_name }}
-<strong>Sensor</strong>: {{ sensor_name }}
+<p>
+    <strong>Facility</strong>: {{ store_name }}</br>
+    <strong>Location</strong>: {{ location_name }}</br>
+    <strong>Sensor</strong>: {{ sensor_name }}
+</p>
 
-<strong>Date</strong>: {{ datetime | date(format="%d %b %Y") }}
-<strong>Time</strong>: {{ datetime | date(format="%H:%M")}}
+<p>
+    <strong>Date</strong>: {{ datetime | date(format="%d %b %Y") }}</br>
+    <strong>Time</strong>: {{ datetime | date(format="%H:%M")}}
+</p>
 
-<strong>Temperature</strong>: {{ temperature | round(precision=2) }}°C
+<p><strong>Temperature</strong>: {{ temperature | round(precision=2) }}°C</p>

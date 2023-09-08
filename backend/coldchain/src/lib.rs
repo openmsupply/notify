@@ -67,6 +67,7 @@ mod tests {
     use repository::{
         mock::MockDataInserts, test_db::setup_all, NotificationEventRowRepository, NotificationType,
     };
+    use service::test_utils::email_test::send_test_emails;
     use service::test_utils::get_test_settings;
     use service::test_utils::telegram_test::get_default_telegram_chat_id;
     use service::test_utils::telegram_test::send_test_notifications;
@@ -102,15 +103,23 @@ mod tests {
             temperature: 10.12345,
         };
 
-        let recipient = NotificationRecipient {
+        let recipient1 = NotificationRecipient {
             name: "test".to_string(),
             to_address: get_default_telegram_chat_id(),
             notification_type: NotificationType::Telegram,
         };
+        let recipient2 = NotificationRecipient {
+            name: "test-email".to_string(),
+            to_address: "test@example.com".to_string(),
+            notification_type: NotificationType::Email,
+        };
 
-        let result =
-            send_high_temperature_alert_telegram(&context, example_alert.clone(), vec![recipient])
-                .await;
+        let result = send_high_temperature_alert_telegram(
+            &context,
+            example_alert.clone(),
+            vec![recipient1, recipient2],
+        )
+        .await;
 
         assert!(result.is_ok());
 
@@ -118,7 +127,7 @@ mod tests {
         let notification_event_row_repository = NotificationEventRowRepository::new(&connection);
         let notification_event_rows = notification_event_row_repository.un_sent().unwrap();
 
-        assert_eq!(notification_event_rows.len(), 1);
+        assert_eq!(notification_event_rows.len(), 2);
         assert_eq!(
             notification_event_rows[0].to_address,
             get_default_telegram_chat_id()
@@ -128,6 +137,10 @@ mod tests {
             .message
             .contains(&example_alert.store_name));
 
+        // Check email recipient
+        assert_eq!(notification_event_rows[1].to_address, "test@example.com");
+
         send_test_notifications(&context).await;
+        send_test_emails(&context);
     }
 }

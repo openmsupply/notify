@@ -3,10 +3,12 @@ use crate::settings::Settings;
 use async_trait::async_trait;
 use chrono::Utc;
 use lettre::address::AddressError;
+use nanohtml2text::html2text;
 use repository::{
     NotificationEventRowRepository, NotificationEventStatus, NotificationType, RepositoryError,
 };
 use serde_json::json;
+use telegram::TelegramError;
 use tera::Tera;
 
 pub mod enqueue;
@@ -105,52 +107,143 @@ impl NotificationServiceTrait for NotificationService {
         let mut sent_count = 0;
 
         for mut notification in queued_notifications {
-            if notification.notification_type != NotificationType::Telegram {
-                log::error!(
-                    "Skipping notification type {:?}",
-                    notification.notification_type
-                );
-                //TODO! EMAIL SENDING https://github.com/openmsupply/notify/issues/91
-                log::error!("Email notifications not implemented!!!!");
-                continue;
-            }
+            match notification.notification_type {
+                NotificationType::Email => {
+                    // Try to send via email
+                    let text_body = html2text(&notification.message);
 
-            // Try to send via telegram
-            if let Some(telegram) = &ctx.service_provider.telegram {
-                let result = telegram
-                    .send_html_message(&notification.to_address, &notification.message)
-                    .await;
+                    let result = ctx.service_provider.email_service.send_email(
+                        notification.to_address.clone(),
+                        notification
+                            .title
+                            .clone()
+                            .unwrap_or("Notification".to_string()),
+                        notification.message.clone(),
+                        text_body,
+                    );
 
-                match result {
-                    Ok(_) => {
-                        log::info!("Sent telegram message to {}", notification.to_address);
-                        notification.error_message = None;
-                        notification.status = NotificationEventStatus::Sent;
-                        notification.sent_at = Some(Utc::now().naive_utc());
-                        notification.updated_at = Utc::now().naive_utc();
-                        repo.update_one(&notification)?;
-                        sent_count += 1;
+                    match result {
+                        Ok(_) => {
+                            // Successfully Sent
+                            notification.error_message = None;
+                            notification.status = NotificationEventStatus::Sent;
+                            notification.sent_at = Some(Utc::now().naive_utc());
+                            notification.updated_at = Utc::now().naive_utc();
+                            repo.update_one(&notification)?;
+                            sent_count += 1;
+                        }
+                        Err(send_error) => {
+                            // Failed to send
+                            notification.updated_at = Utc::now().naive_utc();
+
+                            if notification.retries >= MAX_RETRIES {
+                                log::error!(
+                                    "Failed to send email {} to {} after {} retries - {:?}",
+                                    notification.id,
+                                    notification.to_address,
+                                    MAX_RETRIES,
+                                    send_error
+                                );
+                                notification.error_message = Some(format!(
+                                    "Failed to send email after {} retries - {:?}",
+                                    MAX_RETRIES, send_error
+                                ));
+                                notification.status = NotificationEventStatus::Failed;
+                            } else if send_error.is_permanent() {
+                                log::error!(
+                                    "Permanently failed to send email {} to {}",
+                                    notification.id,
+                                    notification.to_address,
+                                );
+                                notification.error_message = Some(format!("{:?}", send_error));
+                                notification.status = NotificationEventStatus::Failed;
+                            } else {
+                                log::error!(
+                                    "Temporarily failed to send email {} to {} - {:?}",
+                                    notification.id,
+                                    notification.to_address,
+                                    send_error
+                                );
+                                notification.error_message = Some(format!("{:?}", send_error));
+                                notification.status = NotificationEventStatus::Errored;
+                                notification.retries += 1;
+                            }
+
+                            error_count += 1;
+                            repo.update_one(&notification)?;
+                            continue;
+                        }
                     }
-                    Err(e) => {
+                }
+                NotificationType::Telegram => {
+                    // Try to send via telegram
+                    if let Some(telegram) = &ctx.service_provider.telegram {
+                        let result = telegram
+                            .send_html_message(&notification.to_address, &notification.message)
+                            .await;
+
+                        match result {
+                            Ok(_) => {
+                                log::info!("Sent telegram message to {}", notification.to_address);
+                                notification.error_message = None;
+                                notification.status = NotificationEventStatus::Sent;
+                                notification.sent_at = Some(Utc::now().naive_utc());
+                                notification.updated_at = Utc::now().naive_utc();
+                                repo.update_one(&notification)?;
+                                sent_count += 1;
+                            }
+                            Err(TelegramError::Fatal(e)) => {
+                                log::error!(
+                                    "Permanently fail to send telegram message to {}: {:?}",
+                                    notification.to_address,
+                                    e
+                                );
+                                notification.error_message = Some(format!("{:?}", e));
+                                notification.status = NotificationEventStatus::Failed;
+                                notification.updated_at = Utc::now().naive_utc();
+                                repo.update_one(&notification)?;
+                                error_count += 1;
+                            }
+                            Err(TelegramError::Temporary(e)) => {
+                                if notification.retries >= MAX_RETRIES {
+                                    log::error!(
+                                    "Failed to send telegram message {} to {} after {} retries - {:?}",
+                                    notification.id,
+                                    notification.to_address,
+                                    MAX_RETRIES,
+                                    e
+                                );
+                                    notification.error_message = Some(format!("{:?}", e));
+                                    notification.status = NotificationEventStatus::Failed;
+                                    notification.retries += 1;
+                                } else {
+                                    log::error!(
+                                    "Temporarily failed to send telegram message {} to {} - {:?}",
+                                    notification.id,
+                                    notification.to_address,
+                                    e
+                                );
+                                    notification.error_message = Some(format!("{:?}", e));
+                                    notification.status = NotificationEventStatus::Errored;
+                                    notification.retries += 1;
+                                }
+
+                                notification.updated_at = Utc::now().naive_utc();
+                                repo.update_one(&notification)?;
+                                error_count += 1;
+                            }
+                        }
+                    } else {
                         log::error!(
-                            "Error sending telegram message to {}: {:?}",
-                            notification.to_address,
-                            e
+                            "Telegram not configured, you are missing telegram notifications!!!!"
                         );
-                        notification.error_message = Some(format!("{:?}", e));
-                        notification.status = NotificationEventStatus::Failed; //TODO check if this is permanent or temporary failure, retries, and exponential backoff etc https://github.com/openmsupply/notify/issues/92
+                        notification.error_message = Some("Telegram Not Configured".to_string());
+                        notification.status = NotificationEventStatus::Errored;
                         notification.updated_at = Utc::now().naive_utc();
                         repo.update_one(&notification)?;
                         error_count += 1;
                     }
                 }
-            } else {
-                log::error!("Telegram not configured, you are missing telegram notifications!!!!");
-                notification.error_message = Some("Telegram Not Configured".to_string());
-                notification.status = NotificationEventStatus::Errored;
-                notification.updated_at = Utc::now().naive_utc();
-                repo.update_one(&notification)?;
-                error_count += 1;
             }
         }
 

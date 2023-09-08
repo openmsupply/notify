@@ -1,21 +1,24 @@
 use chrono::Utc;
 use lettre::address::AddressError;
-use lettre::message::{Mailbox, MultiPart};
-use lettre::Message;
+use lettre::message::Mailbox;
 use lettre::{
     transport::smtp::{
         authentication::Credentials,
         client::{Tls, TlsParameters},
     },
-    SmtpTransport, Transport,
+    SmtpTransport,
 };
 
 use repository::{EmailQueueRowRepository, EmailQueueStatus, RepositoryError};
 
+use crate::email::send::try_send;
 use crate::service_provider::ServiceContext;
 use crate::settings::Settings;
 
+use self::send::EmailSendError;
+
 pub mod enqueue;
+pub mod send;
 
 pub static MAX_RETRIES: i32 = 3;
 
@@ -24,6 +27,13 @@ pub trait EmailServiceTrait: Send + Sync {
     fn test_connection(&self) -> Result<bool, EmailServiceError>;
 
     fn send_queued_emails(&self, ctx: &ServiceContext) -> Result<usize, EmailServiceError>;
+    fn send_email(
+        &self,
+        to: String,
+        subject: String,
+        html_body: String,
+        text_body: String,
+    ) -> Result<(), EmailSendError>;
 }
 
 pub struct EmailService {
@@ -102,43 +112,15 @@ impl EmailServiceTrait for EmailService {
         let mut sent_count = 0;
 
         for mut email in queued_emails {
-            let to = match email.to_address.parse() {
-                Ok(to) => to,
-                Err(e) => {
-                    email.error = Some(format!(
-                        "Unable to parse email address {} - {}",
-                        email.to_address, e
-                    ));
-                    email.status = EmailQueueStatus::Failed;
-                    email.updated_at = Utc::now().naive_utc();
-                    repo.update_one(&email)?;
-                    error_count += 1;
-                    continue;
-                }
-            };
-
-            let message = Message::builder()
-                .to(to)
-                .from(self.from.clone())
-                .subject(email.subject.clone())
-                .multipart(MultiPart::alternative_plain_html(
-                    email.text_body.clone(),
-                    email.html_body.clone(),
-                ));
-
-            let message = match message {
-                Ok(message) => message,
-                Err(e) => {
-                    email.error = Some(format!("Unable to create email - {:?}", e));
-                    email.status = EmailQueueStatus::Failed;
-                    email.updated_at = Utc::now().naive_utc();
-                    repo.update_one(&email)?;
-                    error_count += 1;
-                    continue;
-                }
-            };
-
-            let result = self.mailer.send(&message);
+            let email_clone = email.clone();
+            let result = try_send(
+                &self.mailer,
+                self.from.clone(),
+                email_clone.to_address,
+                email_clone.subject,
+                email_clone.html_body,
+                email_clone.text_body,
+            );
 
             match result {
                 Ok(_) => {
@@ -156,14 +138,14 @@ impl EmailServiceTrait for EmailService {
 
                     if email.retries >= MAX_RETRIES {
                         log::error!(
-                            "Failed to send email {} to {} after {} retries - {}",
+                            "Failed to send email {} to {} after {} retries - {:?}",
                             email.id,
                             email.to_address,
                             MAX_RETRIES,
                             send_error
                         );
                         email.error = Some(format!(
-                            "Failed to send email after {} retries - {}",
+                            "Failed to send email after {} retries - {:?}",
                             MAX_RETRIES, send_error
                         ));
                         email.status = EmailQueueStatus::Failed;
@@ -173,17 +155,16 @@ impl EmailServiceTrait for EmailService {
                             email.id,
                             email.to_address,
                         );
-                        email.error =
-                            Some(format!("Failed to send email permanently - {}", send_error));
+                        email.error = Some(format!("{:?}", send_error));
                         email.status = EmailQueueStatus::Failed;
                     } else {
                         log::error!(
-                            "Temporarily failed to send email {} to {} - {}",
+                            "Temporarily failed to send email {} to {} - {:?}",
                             email.id,
                             email.to_address,
                             send_error
                         );
-                        email.error = Some(format!("Failed to send email - {}", send_error));
+                        email.error = Some(format!("{:?}", send_error));
                         email.status = EmailQueueStatus::Errored;
                         email.retries += 1;
                     }
@@ -206,6 +187,23 @@ impl EmailServiceTrait for EmailService {
         log::debug!("Sent {} emails", sent_count);
 
         Ok(sent_count)
+    }
+
+    fn send_email(
+        &self,
+        to: String,
+        subject: String,
+        html_body: String,
+        text_body: String,
+    ) -> Result<(), EmailSendError> {
+        try_send(
+            &self.mailer,
+            self.from.clone(),
+            to,
+            subject,
+            html_body,
+            text_body,
+        )
     }
 }
 
