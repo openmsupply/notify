@@ -44,7 +44,7 @@ pub async fn send_high_temperature_alert_telegram(
     recipients: Vec<NotificationRecipient>,
 ) -> Result<(), notification::NotificationServiceError> {
     let notification = NotificationContext {
-        title_template_name: None,
+        title_template_name: Some("coldchain/telegram/temperature_title.html".to_string()),
         body_template_name: "coldchain/telegram/temperature.html".to_string(),
         recipients,
         template_data: serde_json::to_value(alert).map_err(|e| {
@@ -81,9 +81,9 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_send_high_temperature_alert_telegram() {
+    async fn test_send_high_temperature_alert() {
         let (_, _, connection_manager, _) =
-            setup_all("test_enqueue_telegram", MockDataInserts::none()).await;
+            setup_all("test_enqueue_telegram_and_email", MockDataInserts::none()).await;
 
         let connection = connection_manager.connection().unwrap();
         let service_provider = Arc::new(ServiceProvider::new(
@@ -132,13 +132,15 @@ mod tests {
             notification_event_rows[0].to_address,
             get_default_telegram_chat_id()
         );
-        assert!(notification_event_rows[0].title.is_none());
         assert!(notification_event_rows[0]
             .message
             .contains(&example_alert.store_name));
 
         // Check email recipient
         assert_eq!(notification_event_rows[1].to_address, "test@example.com");
+        assert!(notification_event_rows[1]
+            .message
+            .contains(&example_alert.store_name));
 
         send_test_notifications(&context).await;
         send_test_emails(&context);

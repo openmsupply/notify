@@ -11,7 +11,7 @@ use lettre::{
 
 use repository::{EmailQueueRowRepository, EmailQueueStatus, RepositoryError};
 
-use crate::email::send::try_send;
+use crate::email::send::send_email;
 use crate::service_provider::ServiceContext;
 use crate::settings::Settings;
 
@@ -113,7 +113,7 @@ impl EmailServiceTrait for EmailService {
 
         for mut email in queued_emails {
             let email_clone = email.clone();
-            let result = try_send(
+            let result = send_email(
                 &self.mailer,
                 self.from.clone(),
                 email_clone.to_address,
@@ -196,7 +196,7 @@ impl EmailServiceTrait for EmailService {
         html_body: String,
         text_body: String,
     ) -> Result<(), EmailSendError> {
-        try_send(
+        send_email(
             &self.mailer,
             self.from.clone(),
             to,

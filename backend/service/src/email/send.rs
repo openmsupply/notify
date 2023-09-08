@@ -1,10 +1,8 @@
 /*
     This file defines the functionality needed to send an email to a to address (provided as a string)
     with a subject (provided as a string) and a body (provided as a string).
-    The body will be assumed to be in HTML format, and converted to plain text for the text body.
     It should return an error format with either a permanent error (which should be logged and not retried)
     or a temporary error (which should be logged and retried).
-    It should also return a result with a success or failure.
 */
 
 use lettre::{
@@ -13,7 +11,6 @@ use lettre::{
     Message, SmtpTransport, Transport,
 };
 
-// Error Enum
 // This enum defines the errors that can occur when sending an email.
 // It provides a is_permanent method to check if the error is permanent or temporary.
 #[derive(Debug)]
@@ -33,7 +30,7 @@ impl EmailSendError {
     }
 }
 
-pub fn try_send(
+pub fn send_email(
     mailer: &SmtpTransport,
     from: Mailbox,
     to: String,
