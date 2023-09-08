@@ -56,15 +56,6 @@ export function buildScheduledNotificationInputs(
   create: CreateNotificationConfigInput;
   update: UpdateNotificationConfigInput;
 } {
-  // const {
-  //   recipientIds,
-  //   recipientListIds,
-  //   scheduleFrequency,
-  //   subjectTemplate,
-  //   bodyTemplate,
-  //   parameters,
-  // } = config;
-
   const input = {
     id: config.id,
     title: config.title,
