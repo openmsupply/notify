@@ -1,10 +1,3 @@
-/*
-    This file defines the functionality needed to send an email to a to address (provided as a string)
-    with a subject (provided as a string) and a body (provided as a string).
-    It should return an error format with either a permanent error (which should be logged and not retried)
-    or a temporary error (which should be logged and retried).
-*/
-
 use lettre::{
     address::AddressError,
     message::{Mailbox, MultiPart},
@@ -30,6 +23,12 @@ impl EmailSendError {
     }
 }
 
+/**
+    send_email takes a mailer (provided as a SmtpTransport), a from address (provided as a Mailbox),
+    with a subject (provided as a string) and a body (provided as a string).
+    It returns an error format with either a permanent error (which should be logged and not retried)
+    or a temporary error (which should be logged and retried).
+*/
 pub fn send_email(
     mailer: &SmtpTransport,
     from: Mailbox,
