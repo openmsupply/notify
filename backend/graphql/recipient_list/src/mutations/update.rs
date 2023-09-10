@@ -1,7 +1,7 @@
 use async_graphql::*;
 
+use crate::RecipientListNode;
 use graphql_core::{standard_graphql_error::validate_auth, ContextExt};
-use graphql_types::types::RecipientListNode;
 use service::{
     auth::{Resource, ResourceAccessRequest},
     recipient_list::update::UpdateRecipientList,
@@ -38,7 +38,6 @@ pub struct UpdateRecipientListInput {
     pub id: String,
     pub name: Option<String>,
     pub description: Option<String>,
-    pub sql_query: Option<String>,
 }
 
 impl From<UpdateRecipientListInput> for UpdateRecipientList {
@@ -47,14 +46,12 @@ impl From<UpdateRecipientListInput> for UpdateRecipientList {
             id,
             name,
             description,
-            sql_query,
         }: UpdateRecipientListInput,
     ) -> Self {
         UpdateRecipientList {
             id,
             name,
             description,
-            sql_query,
         }
     }
 }

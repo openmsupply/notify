@@ -3,6 +3,7 @@ export * from './useBoundingClientRect';
 export * from './useBreadcrumbs';
 export * from './useBufferState';
 export * from './useDebounce';
+export * from './useDetailPanel';
 export * from './useDialog';
 export * from './useImportDialog';
 export * from './useDrawer';

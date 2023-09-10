@@ -1706,6 +1706,7 @@ dependencies = [
  "async-graphql-actix-web",
  "async-trait",
  "chrono",
+ "datasource",
  "graphql_core",
  "graphql_types",
  "repository",
@@ -1741,6 +1742,7 @@ dependencies = [
  "async-graphql-actix-web",
  "async-trait",
  "chrono",
+ "datasource",
  "graphql_core",
  "repository",
  "serde",
@@ -3201,12 +3203,10 @@ dependencies = [
  "chrono",
  "datasource",
  "jsonwebtoken",
- "lazy_static",
  "lettre",
  "log",
  "nanohtml2text",
  "rand",
- "regex",
  "repository",
  "serde",
  "serde_json",
@@ -3751,6 +3751,8 @@ name = "util"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "lazy_static",
+ "regex",
  "sha2",
  "uuid",
 ]

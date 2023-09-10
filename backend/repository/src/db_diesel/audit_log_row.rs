@@ -31,6 +31,8 @@ pub enum LogType {
     RecipientRemovedFromList,
     NotificationConfigCreated,
     NotificationConfigUpdated,
+    SqlRecipientListCreated,
+    SqlRecipientListUpdated,
 }
 
 #[derive(Clone, Queryable, Insertable, AsChangeset, Debug, PartialEq)]

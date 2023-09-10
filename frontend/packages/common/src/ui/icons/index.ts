@@ -60,6 +60,7 @@ export { VisibilityOffIcon } from './VisiblityOffIcon';
 export { MedicineIcon } from './MedicineIcon';
 export { SidebarIcon } from './Sidebar';
 export { SearchIcon } from './Search';
+export { PersonSearchIcon } from './PersonSearch';
 export { ZapIcon } from './Zap';
 
 type Color =

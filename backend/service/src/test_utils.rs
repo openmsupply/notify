@@ -1,4 +1,4 @@
-use datasource::PostgresSettings;
+use datasource::{BasicRecipientRow, PostgresSettings};
 use std::{
     env,
     path::{Path, PathBuf},
@@ -81,8 +81,15 @@ pub struct MockDatasourceService {}
 impl DatasourceServiceTrait for MockDatasourceService {
     fn run_sql_query(
         &self,
-        sql_query: String,
+        _sql_query: String,
     ) -> Result<String, crate::datasource::DatasourceServiceError> {
+        todo!()
+    }
+
+    fn run_recipient_query(
+        &self,
+        _sql_query: String,
+    ) -> Result<Vec<BasicRecipientRow>, crate::datasource::DatasourceServiceError> {
         todo!()
     }
 }

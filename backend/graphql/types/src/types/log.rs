@@ -31,6 +31,8 @@ pub enum LogNodeType {
     UserAccountCreated,
     UserAccountUpdated,
     UserAccountPasswordResetInitiated,
+    SqlRecipientListCreated,
+    SqlRecipientListUpdated,
 }
 
 #[Object]
@@ -85,6 +87,8 @@ impl LogNodeType {
             LogType::RecipientUpdated => LogNodeType::RecipientUpdated,
             LogType::RecipientListCreated => LogNodeType::RecipientListCreated,
             LogType::RecipientListUpdated => LogNodeType::RecipientListUpdated,
+            LogType::SqlRecipientListCreated => LogNodeType::SqlRecipientListCreated,
+            LogType::SqlRecipientListUpdated => LogNodeType::SqlRecipientListUpdated,
             LogType::RecipientAddedToList => LogNodeType::RecipientAddedToList,
             LogType::RecipientRemovedFromList => LogNodeType::RecipientRemovedFromList,
             LogType::UserLoggedIn => LogNodeType::UserLoggedIn,
@@ -104,6 +108,8 @@ impl LogNodeType {
             LogNodeType::RecipientUpdated => LogType::RecipientUpdated,
             LogNodeType::RecipientListCreated => LogType::RecipientListCreated,
             LogNodeType::RecipientListUpdated => LogType::RecipientListUpdated,
+            LogNodeType::SqlRecipientListCreated => LogType::SqlRecipientListCreated,
+            LogNodeType::SqlRecipientListUpdated => LogType::SqlRecipientListUpdated,
             LogNodeType::RecipientAddedToList => LogType::RecipientAddedToList,
             LogNodeType::RecipientRemovedFromList => LogType::RecipientRemovedFromList,
             LogNodeType::UserLoggedIn => LogType::UserLoggedIn,

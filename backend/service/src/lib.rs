@@ -1,15 +1,11 @@
 use repository::RepositoryError;
 use repository::{Pagination, PaginationOption, DEFAULT_PAGINATION_LIMIT};
 
-#[macro_use]
-extern crate lazy_static;
-
 pub mod audit_log;
 pub mod auth;
 pub mod auth_data;
 pub mod datasource;
 pub mod email;
-pub mod filters;
 pub mod login;
 pub mod notification;
 pub mod notification_config;
@@ -17,6 +13,7 @@ pub mod recipient;
 pub mod recipient_list;
 pub mod service_provider;
 pub mod settings;
+pub mod sql_recipient_list;
 pub mod static_files;
 pub mod test_utils;
 pub mod token;

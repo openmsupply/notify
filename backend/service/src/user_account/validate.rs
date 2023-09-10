@@ -1,18 +1,14 @@
-use regex::Regex;
 use repository::{EqualFilter, StringFilter};
 use repository::{
     RepositoryError, StorageConnection, UserAccountFilter, UserAccountRepository, UserAccountRow,
     UserAccountRowRepository,
 };
-
-lazy_static! {
-    static ref SPECIAL_CHARS_RE: Regex = Regex::new(r"[^0-9A-Za-z_\-@.+]").unwrap(); //Username can only include A-Z,0-9, '-' and '_' '@' '+' and '.'
-}
+use util::is_valid_username;
 
 pub fn check_username_doesnt_contain_special_characters(
     username: &str,
 ) -> Result<bool, RepositoryError> {
-    Ok(!SPECIAL_CHARS_RE.is_match(username.trim()))
+    Ok(!is_valid_username(username.trim()))
 }
 
 pub fn check_username_is_unique(

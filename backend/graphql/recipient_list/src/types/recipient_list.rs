@@ -1,10 +1,11 @@
-use super::{dataloader::DataLoader, LogNode, RecipientNode};
-use async_graphql::{Context, Object, SimpleObject, Union};
+use async_graphql::{dataloader::DataLoader, Context, Object, SimpleObject, Union};
 use graphql_core::{
     loader::{AuditLogLoader, RecipientsLoader},
     simple_generic_errors::NodeError,
     ContextExt,
 };
+
+use graphql_types::types::{LogNode, RecipientNode};
 use repository::RecipientList;
 use service::ListResult;
 use util::usize_to_u32;
@@ -61,10 +62,6 @@ impl RecipientListNode {
             .unwrap_or_default();
 
         Ok(result.into_iter().map(RecipientNode::from_domain).collect())
-    }
-
-    pub async fn sql_query(&self) -> Option<String> {
-        self.row().sql_query.clone()
     }
 }
 

@@ -10,7 +10,7 @@ export interface BaseNotificationConfig extends BaseConfig {
 }
 
 export interface CCNotification extends BaseNotificationConfig {
-  kind: ConfigKind.ColdChain;
+  kind: ConfigKind;
   highTemp: boolean;
   lowTemp: boolean;
   confirmOk: boolean;

@@ -1,9 +1,16 @@
 use crate::settings::Settings;
-use datasource::{get_datasource_pool, pg_sql_query_as_json_rows, DatasourcePool};
+use datasource::{
+    get_datasource_pool, pg_sql_query_as_json_rows, pg_sql_query_as_recipients, BasicRecipientRow,
+    DatasourcePool,
+};
 
 // We use a trait for DatasourceService to allow mocking in tests
 pub trait DatasourceServiceTrait: Send + Sync {
     fn run_sql_query(&self, sql_query: String) -> Result<String, DatasourceServiceError>;
+    fn run_recipient_query(
+        &self,
+        sql_query: String,
+    ) -> Result<Vec<BasicRecipientRow>, DatasourceServiceError>;
 }
 
 pub struct DatasourceService {
@@ -47,10 +54,25 @@ impl DatasourceServiceTrait for DatasourceService {
 
         Ok(json)
     }
+    fn run_recipient_query(
+        &self,
+        sql_query: String,
+    ) -> Result<Vec<BasicRecipientRow>, DatasourceServiceError> {
+        let connection = &mut self.connection_pool.pool.get().map_err(|error| {
+            DatasourceServiceError::InternalError(format!(
+                "Could not get connection from pool: {}",
+                error
+            ))
+        })?;
+        // Run query
+        let result = pg_sql_query_as_recipients(connection, sql_query).map_err(|error| {
+            DatasourceServiceError::BadUserInput(format!("Could not run query: {}", error))
+        })?;
+
+        Ok(result)
+    }
 }
 
 #[cfg(test)]
 #[cfg(feature = "datasource-tests")]
-mod test {
-    // TODO Test!
-}
+mod test {}

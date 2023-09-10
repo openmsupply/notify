@@ -16,6 +16,9 @@ type HostContext = {
   setAppBarButtonsRef: (ref: React.MutableRefObject<null> | null) => void;
   appBarButtonsRef: React.MutableRefObject<null> | null;
 
+  setDetailPanelRef: (ref: React.MutableRefObject<null> | null) => void;
+  detailPanelRef: React.MutableRefObject<null> | null;
+
   setPageTitle: (title: string) => void;
   pageTitle: string;
 };
@@ -40,6 +43,10 @@ export const useHostContext = create<HostContext>(set => ({
   setAppBarButtonsRef: (refOrNull: React.MutableRefObject<null> | null) =>
     set(state => ({ ...state, appBarButtonsRef: refOrNull })),
   appBarButtonsRef: null,
+
+  setDetailPanelRef: (refOrNull: React.MutableRefObject<null> | null) =>
+    set(state => ({ ...state, detailPanelRef: refOrNull })),
+  detailPanelRef: null,
 
   setPageTitle: (title: string) => {
     set(state => ({ ...state, pageTitle: title }));

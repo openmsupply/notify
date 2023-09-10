@@ -124,6 +124,8 @@
   "label.upload": "Upload",
   "label.username": "Username",
   "label.website": "Website",
+  "label.query": "Query",
+  "label.parameters": "Parameters",
   "link.copy-to-clipboard": "Copy to Clipboard",
   "messages.ago": "{{time}} ago",
   "messages.answered-by": "Answered by",

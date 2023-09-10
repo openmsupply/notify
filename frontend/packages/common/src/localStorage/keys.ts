@@ -12,7 +12,8 @@ type AuthenticationCredentials = {
 
 export type LocalStorageRecord = {
   '/appdrawer/open': boolean;
-  '/localisation/locale': SupportedLocales;
+  '/detailpanel/open': boolean;
+  '/localisation/locale': Record<string, SupportedLocales>;
   '/groupbyitem': GroupByItem;
   '/theme/custom': ThemeOptions;
   '/theme/logo': string;
