@@ -807,9 +807,9 @@ dependencies = [
 
 [[package]]
 name = "bumpalo"
-version = "3.8.0"
+version = "3.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f1e260c3a9040a7c19a12468758f4c16f31a81a1fe087482be9570ec864bb6c"
+checksum = "a3e2c3daef883ecc1b5d58c15adae93470a91d425f3532ba1695849656af3fc1"
 
 [[package]]
 name = "byte-tools"
@@ -918,6 +918,19 @@ checksum = "3538270d33cc669650c4b093848450d380def10c331d38c768e34cac80576e6e"
 dependencies = [
  "termcolor",
  "unicode-width",
+]
+
+[[package]]
+name = "coldchain"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "repository",
+ "serde",
+ "serde_json",
+ "service",
+ "telegram",
+ "tokio",
 ]
 
 [[package]]
@@ -1693,6 +1706,7 @@ dependencies = [
  "async-graphql-actix-web",
  "async-trait",
  "chrono",
+ "datasource",
  "graphql_core",
  "graphql_types",
  "repository",
@@ -1728,6 +1742,7 @@ dependencies = [
  "async-graphql-actix-web",
  "async-trait",
  "chrono",
+ "datasource",
  "graphql_core",
  "repository",
  "serde",
@@ -3183,16 +3198,15 @@ version = "0.1.0"
 dependencies = [
  "actix-rt",
  "anyhow",
+ "async-trait",
  "bcrypt",
  "chrono",
  "datasource",
  "jsonwebtoken",
- "lazy_static",
  "lettre",
  "log",
  "nanohtml2text",
  "rand",
- "regex",
  "repository",
  "serde",
  "serde_json",
@@ -3486,7 +3500,6 @@ dependencies = [
  "bytes",
  "libc",
  "mio",
- "num_cpus",
  "parking_lot 0.12.0",
  "pin-project-lite",
  "signal-hook-registry",
@@ -3738,6 +3751,8 @@ name = "util"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "lazy_static",
+ "regex",
  "sha2",
  "uuid",
 ]

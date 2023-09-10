@@ -13,3 +13,4 @@ export * from './upload';
 export * from './currencies';
 export * from './validation';
 export * from './strings';
+export * from './tera';

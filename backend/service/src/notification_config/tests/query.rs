@@ -168,7 +168,10 @@ mod notification_config_query_test {
                 &context,
                 None,
                 Some(NotificationConfigFilter::new().search("XXXX".to_string())),
-                None,
+                Some(Sort {
+                    key: NotificationConfigSortField::Title,
+                    desc: None,
+                }),
             )
             .unwrap();
 

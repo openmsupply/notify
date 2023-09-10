@@ -12,10 +12,10 @@ use std::{
     path::{Path, PathBuf},
 };
 
-/// Copy of search_for_diesel_migrations::migration_direcotyr except looking in /repository/migrations
+/// Copy of search_for_diesel_migrations::migration_directory except looking in /repository/migrations
 pub fn search_for_migrations_directory(path: &Path) -> Result<PathBuf, String> {
     let migration_path = path.join("repository").join("migrations");
-    println!("{:#?}", migration_path.as_os_str());
+    // println!("{:#?}", migration_path.as_os_str());
     if migration_path.is_dir() {
         Ok(migration_path)
     } else {

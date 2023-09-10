@@ -10,6 +10,7 @@ doctest = false
 [dependencies]
 
 repository = { path = "../../repository" }
+datasource = { path = "../../datasource" }
 service = { path = "../../service" }
 util = { path = "../../util" }
 graphql_core = { path = "../core" }

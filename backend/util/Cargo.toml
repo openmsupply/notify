@@ -10,4 +10,6 @@ doctest = false
 [dependencies]
 sha2 = "0.10"
 uuid = { version = "0.8", features = ["v4"] }
-chrono = "0.4.19"
+chrono = {version = "0.4"}
+lazy_static = "1.4"
+regex = "1"

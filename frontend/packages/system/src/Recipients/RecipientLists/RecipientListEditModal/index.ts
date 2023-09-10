@@ -1,1 +1,1 @@
-export * from './RecpientListEditModal';
+export * from './RecipientListEditModal';

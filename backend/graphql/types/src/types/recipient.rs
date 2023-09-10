@@ -1,10 +1,13 @@
 use super::{dataloader::DataLoader, LogNode};
 use async_graphql::{Context, Enum, Object, SimpleObject, Union};
+use datasource::BasicRecipientRow;
 use graphql_core::{loader::AuditLogLoader, simple_generic_errors::NodeError, ContextExt};
 use repository::{NotificationType, Recipient};
 use serde::Serialize;
 use service::ListResult;
 use util::usize_to_u32;
+
+use std::str::FromStr;
 
 #[derive(Union)]
 pub enum RecipientsResponse {
@@ -56,6 +59,19 @@ impl RecipientNode {
         RecipientNode { recipient }
     }
 
+    pub fn from_basic_recipient(recipient: BasicRecipientRow) -> RecipientNode {
+        RecipientNode {
+            recipient: Recipient {
+                id: recipient.id,
+                name: recipient.name,
+                notification_type: NotificationType::from_str(&recipient.notification_type)
+                    .unwrap_or_default(),
+                to_address: recipient.to_address,
+                ..Default::default()
+            },
+        }
+    }
+
     pub fn row(&self) -> &Recipient {
         &self.recipient
     }
@@ -79,6 +95,17 @@ impl RecipientConnector {
         }
     }
 
+    pub fn from_basic_domain(recipients: ListResult<BasicRecipientRow>) -> RecipientConnector {
+        RecipientConnector {
+            total_count: recipients.count,
+            nodes: recipients
+                .rows
+                .into_iter()
+                .map(RecipientNode::from_basic_recipient)
+                .collect(),
+        }
+    }
+
     pub fn from_vec(recipients: Vec<Recipient>) -> RecipientConnector {
         RecipientConnector {
             total_count: usize_to_u32(recipients.len()),
@@ -95,6 +122,7 @@ impl RecipientConnector {
 pub enum NotificationTypeNode {
     Email,
     Telegram,
+    Unknown,
 }
 
 impl NotificationTypeNode {
@@ -102,6 +130,7 @@ impl NotificationTypeNode {
         match self {
             NotificationTypeNode::Email => NotificationType::Email,
             NotificationTypeNode::Telegram => NotificationType::Telegram,
+            NotificationTypeNode::Unknown => NotificationType::Unknown,
         }
     }
 
@@ -109,6 +138,7 @@ impl NotificationTypeNode {
         match notification_type {
             NotificationType::Email => NotificationTypeNode::Email,
             NotificationType::Telegram => NotificationTypeNode::Telegram,
+            NotificationType::Unknown => NotificationTypeNode::Unknown,
         }
     }
 }

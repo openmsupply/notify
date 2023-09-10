@@ -1,4 +1,9 @@
-use datasource::PostgresSettings;
+use datasource::{BasicRecipientRow, PostgresSettings};
+use std::{
+    env,
+    path::{Path, PathBuf},
+};
+
 use repository::{test_db::get_test_db_settings, StorageConnectionManager};
 
 use crate::{
@@ -8,14 +13,34 @@ use crate::{
     settings::{MailSettings, ServerSettings, Settings, TelegramSettings},
 };
 
+use self::telegram_test::get_telegram_token_from_env;
+
+pub fn find_base_dir() -> PathBuf {
+    // Assume the base path is the base path of one of the project crates:
+    search_for_base_dir(Path::new(&env::current_dir().unwrap())).unwrap()
+}
+
+pub fn search_for_base_dir(path: &Path) -> Result<PathBuf, String> {
+    // Strategy is to find the repository crate directory, then assume base path is the only one that contains a folder called repository
+    let repository_path = path.join("repository");
+    if repository_path.is_dir() {
+        Ok(path.to_path_buf())
+    } else {
+        path.parent()
+            .map(search_for_base_dir)
+            .unwrap_or_else(|| Err("Failed to locate templates directory".to_string()))
+    }
+}
+
 // The following settings work for PG and Sqlite (username, password, host and port are
 // ignored for the later)
 pub fn get_test_settings(db_name: &str) -> Settings {
+    let telegram_token = get_telegram_token_from_env();
     Settings {
         server: ServerSettings {
             port: 5432,
             cors_origins: vec!["http://localhost:3007".to_string()],
-            base_dir: None,
+            base_dir: Some(find_base_dir().to_str().unwrap().to_string()),
             app_url: "http://localhost:8007".to_string(),
         },
         database: get_test_db_settings(db_name),
@@ -27,7 +52,9 @@ pub fn get_test_settings(db_name: &str) -> Settings {
             password: "".to_string(),
             from: "no-reply@msupply.foundation".to_string(),
         },
-        telegram: TelegramSettings { token: None },
+        telegram: TelegramSettings {
+            token: telegram_token,
+        },
         datasource: PostgresSettings {
             username: String::from("postgres"),
             password: String::from("password"),
@@ -54,8 +81,15 @@ pub struct MockDatasourceService {}
 impl DatasourceServiceTrait for MockDatasourceService {
     fn run_sql_query(
         &self,
-        sql_query: String,
+        _sql_query: String,
     ) -> Result<String, crate::datasource::DatasourceServiceError> {
+        todo!()
+    }
+
+    fn run_recipient_query(
+        &self,
+        _sql_query: String,
+    ) -> Result<Vec<BasicRecipientRow>, crate::datasource::DatasourceServiceError> {
         todo!()
     }
 }
@@ -86,5 +120,42 @@ pub mod email_test {
     #[cfg(not(feature = "email-tests"))]
     pub fn send_test_emails(_context: &ServiceContext) {
         println!("Skipping email sending");
+    }
+}
+
+pub mod telegram_test {
+    use crate::service_provider::ServiceContext;
+
+    pub fn get_default_telegram_chat_id() -> String {
+        std::env::var("TELEGRAM_CHAT_ID").expect(
+            "Please set the TELEGRAM_CHAT_ID environment variable to run the telegram tests",
+        )
+    }
+
+    pub fn get_telegram_token_from_env() -> Option<String> {
+        match std::env::var("TELEGRAM_TOKEN") {
+            Ok(token) => Some(token),
+            Err(_) => {
+                println!(
+                    "Please set the TELEGRAM_TOKEN environment variable to run the telegram tests"
+                );
+                None
+            }
+        }
+    }
+
+    #[cfg(feature = "telegram-tests")]
+    pub async fn send_test_notifications(context: &ServiceContext) {
+        context
+            .service_provider
+            .notification_service
+            .send_queued_notifications(&context)
+            .await
+            .unwrap();
+    }
+
+    #[cfg(not(feature = "telegram-tests"))]
+    pub async fn send_test_notifications(_context: &ServiceContext) {
+        println!("Skipping notification sending");
     }
 }

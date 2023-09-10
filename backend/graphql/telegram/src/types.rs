@@ -14,8 +14,8 @@ pub struct TelegramMessageNode {
     pub chat_id: String,
 }
 
-impl From<TelegramMessage> for TelegramMessageNode {
-    fn from(message: TelegramMessage) -> Self {
+impl TelegramMessageNode {
+    pub fn from_domain(message: TelegramMessage) -> Self {
         TelegramMessageNode {
             username: message.from.username.unwrap_or_default(),
             message: message.text.unwrap_or_default(),

@@ -11,6 +11,7 @@ import {
   useLocation,
   useHostContext,
   useGetPageTitle,
+  DetailPanel,
 } from '@notify-frontend/common';
 import { AppDrawer, AppBar, Footer, NotFound } from './components';
 import { CommandK } from './CommandK';
@@ -71,6 +72,7 @@ export const Site: FC = () => {
             <AppFooter />
             <AppFooterPortal SessionDetails={<Footer />} />
           </Box>
+          <DetailPanel />
           <QueryErrorHandler />
         </SnackbarProvider>
       </CommandK>

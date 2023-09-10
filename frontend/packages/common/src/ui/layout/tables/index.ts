@@ -24,4 +24,4 @@ export * from './columns';
 export * from './utils';
 export * from './context';
 export * from './components';
-export const DEFAULT_PAGE_SIZE = 25;
+// export const DEFAULT_PAGE_SIZE = 25;

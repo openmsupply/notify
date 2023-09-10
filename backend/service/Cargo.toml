@@ -20,16 +20,15 @@ log = "0.4.14"
 serde = "1.0.126"
 serde_json = "1.0.66"
 tokio = "1.29"
-regex = "1"
-lazy_static = "1.4.0"
 lettre = "0.10.1"
 rand = "0.8"
 tera = "1"
 nanohtml2text = "0.1"
-
+async-trait = "0.1.30"
 
 [dev-dependencies]
 actix-rt = "2.6.0"
 
 [features]
 email-tests = []
+telegram-tests = []
