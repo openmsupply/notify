@@ -13,15 +13,15 @@ use super::NotificationServiceError;
 // This struct is intended to be able to be created by a plugin from a datasource, and defines what a template can expect from a recipient
 // Often it will be derived RecipientRow which is why we implement From<RecipientRow> for NotificationRecipient
 #[derive(Debug, Clone, Serialize)]
-pub struct NotificationRecipient {
+pub struct NotificationTarget {
     pub name: String,
     pub to_address: String,
     pub notification_type: NotificationType,
 }
 
-impl From<RecipientRow> for NotificationRecipient {
+impl From<RecipientRow> for NotificationTarget {
     fn from(recipient: RecipientRow) -> Self {
-        NotificationRecipient {
+        NotificationTarget {
             name: recipient.name,
             notification_type: recipient.notification_type.into(),
             to_address: recipient.to_address,
@@ -33,7 +33,7 @@ impl From<RecipientRow> for NotificationRecipient {
 pub struct NotificationContext {
     pub title_template_name: Option<String>,
     pub body_template_name: String,
-    pub recipients: Vec<NotificationRecipient>,
+    pub recipients: Vec<NotificationTarget>,
     pub template_data: serde_json::Value,
 }
 
@@ -137,7 +137,7 @@ mod test {
 
     use crate::{
         notification::enqueue::{
-            create_notification_events, NotificationContext, NotificationRecipient,
+            create_notification_events, NotificationContext, NotificationTarget,
         },
         service_provider::{ServiceContext, ServiceProvider},
         test_utils::get_test_settings,
@@ -164,7 +164,7 @@ mod test {
             NotificationContext {
                 title_template_name: Some("test_message/email_subject.html".to_string()),
                 body_template_name: "test_message/email.html".to_string(),
-                recipients: vec![NotificationRecipient {
+                recipients: vec![NotificationTarget {
                     name: "test".to_string(),
                     to_address: "test@example.com".to_string(),
                     notification_type: NotificationType::Email,
@@ -208,7 +208,7 @@ mod test {
             NotificationContext {
                 title_template_name: None,
                 body_template_name: "test_message/telegram.html".to_string(),
-                recipients: vec![NotificationRecipient {
+                recipients: vec![NotificationTarget {
                     name: "telegram".to_string(),
                     to_address: "-12345".to_string(),
                     notification_type: NotificationType::Telegram,

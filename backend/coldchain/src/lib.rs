@@ -3,7 +3,7 @@ use serde::Serialize;
 use service::{
     notification::{
         self,
-        enqueue::{create_notification_events, NotificationContext, NotificationRecipient},
+        enqueue::{create_notification_events, NotificationContext, NotificationTarget},
     },
     service_provider::ServiceContext,
 };
@@ -41,7 +41,7 @@ pub struct TemperatureAlert {
 pub async fn send_high_temperature_alert_telegram(
     ctx: &ServiceContext,
     alert: TemperatureAlert,
-    recipients: Vec<NotificationRecipient>,
+    recipients: Vec<NotificationTarget>,
 ) -> Result<(), notification::NotificationServiceError> {
     let notification = NotificationContext {
         title_template_name: Some("coldchain/telegram/temperature_title.html".to_string()),
@@ -72,7 +72,7 @@ mod tests {
     use service::test_utils::telegram_test::get_default_telegram_chat_id;
     use service::test_utils::telegram_test::send_test_notifications;
 
-    use crate::notification::enqueue::NotificationRecipient;
+    use crate::notification::enqueue::NotificationTarget;
     use std::str::FromStr;
 
     use service::service_provider::ServiceContext;
@@ -103,12 +103,12 @@ mod tests {
             temperature: 10.12345,
         };
 
-        let recipient1 = NotificationRecipient {
+        let recipient1 = NotificationTarget {
             name: "test".to_string(),
             to_address: get_default_telegram_chat_id(),
             notification_type: NotificationType::Telegram,
         };
-        let recipient2 = NotificationRecipient {
+        let recipient2 = NotificationTarget {
             name: "test-email".to_string(),
             to_address: "test@example.com".to_string(),
             notification_type: NotificationType::Email,
