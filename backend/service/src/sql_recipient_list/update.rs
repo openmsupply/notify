@@ -19,7 +19,7 @@ pub struct UpdateSqlRecipientList {
     pub name: Option<String>,
     pub description: Option<String>,
     pub query: Option<String>,
-    pub parameters: Option<String>,
+    pub parameters: Option<Vec<String>>,
 }
 
 pub fn update_sql_recipient_list(
@@ -78,9 +78,6 @@ pub fn validate(
         return Err(ModifySqlRecipientListError::SqlRecipientListAlreadyExists);
     }
 
-    // TODO: Check parameter format?
-    // Check SQL query format?
-
     Ok(sql_recipient_list_row)
 }
 
@@ -105,7 +102,21 @@ pub fn generate(
         new_sql_recipient_list_row.query = query;
     }
     if let Some(parameters) = parameters {
-        new_sql_recipient_list_row.parameters = parameters;
+        // Set parameters to JSON string
+        let json_parameters = serde_json::to_value(parameters).map_err(|e| {
+            ModifySqlRecipientListError::InternalError(format!(
+                "Parameters can't be converted to JSON! - {:?}",
+                e
+            ))
+        })?;
+        let json_parameters = serde_json::to_string(&json_parameters).map_err(|e| {
+            ModifySqlRecipientListError::InternalError(format!(
+                "Parameters can't be converted to JSON string! - {:?}",
+                e
+            ))
+        })?;
+
+        new_sql_recipient_list_row.parameters = json_parameters;
     }
 
     Ok(new_sql_recipient_list_row)

@@ -92,7 +92,7 @@ export type DeleteRecipientListMutationVariables = Types.Exact<{
 
 export type DeleteRecipientListMutation = { __typename: 'FullMutation', deleteRecipientList: { __typename: 'DeleteResponse', id: string } };
 
-export type SqlRecipientListRowFragment = { __typename: 'SqlRecipientListNode', id: string, name: string, description: string, query: string, parameters: string, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> };
+export type SqlRecipientListRowFragment = { __typename: 'SqlRecipientListNode', id: string, name: string, description: string, query: string, parameters: Array<string>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> };
 
 export type SqlRecipientListsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.RecipientListFilterInput>;
@@ -101,21 +101,21 @@ export type SqlRecipientListsQueryVariables = Types.Exact<{
 }>;
 
 
-export type SqlRecipientListsQuery = { __typename: 'FullQuery', sqlRecipientLists: { __typename: 'SqlRecipientListConnector', totalCount: number, nodes: Array<{ __typename: 'SqlRecipientListNode', id: string, name: string, description: string, query: string, parameters: string, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }> } };
+export type SqlRecipientListsQuery = { __typename: 'FullQuery', sqlRecipientLists: { __typename: 'SqlRecipientListConnector', totalCount: number, nodes: Array<{ __typename: 'SqlRecipientListNode', id: string, name: string, description: string, query: string, parameters: Array<string>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> }> } };
 
 export type CreateSqlRecipientListMutationVariables = Types.Exact<{
   input: Types.CreateSqlRecipientListInput;
 }>;
 
 
-export type CreateSqlRecipientListMutation = { __typename: 'FullMutation', createSqlRecipientList: { __typename: 'SqlRecipientListNode', id: string, name: string, description: string, query: string, parameters: string, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> } };
+export type CreateSqlRecipientListMutation = { __typename: 'FullMutation', createSqlRecipientList: { __typename: 'SqlRecipientListNode', id: string, name: string, description: string, query: string, parameters: Array<string>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> } };
 
 export type UpdateSqlRecipientListMutationVariables = Types.Exact<{
   input: Types.UpdateSqlRecipientListInput;
 }>;
 
 
-export type UpdateSqlRecipientListMutation = { __typename: 'FullMutation', updateSqlRecipientList: { __typename: 'SqlRecipientListNode', id: string, name: string, description: string, query: string, parameters: string, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> } };
+export type UpdateSqlRecipientListMutation = { __typename: 'FullMutation', updateSqlRecipientList: { __typename: 'SqlRecipientListNode', id: string, name: string, description: string, query: string, parameters: Array<string>, auditLogs: Array<{ __typename: 'LogNode', datetime: string, id: string, recordId?: string | null, recordType: Types.LogNodeType, user?: { __typename: 'UserAccountNode', username: string } | null }> } };
 
 export type DeleteSqlRecipientListMutationVariables = Types.Exact<{
   sqlRecipientListId: Types.Scalars['String']['input'];

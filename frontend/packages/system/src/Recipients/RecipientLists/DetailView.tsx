@@ -24,9 +24,11 @@ import {
 import { useRecipientLists, useRemoveRecipientFromList } from '../api';
 import { useParams } from 'packages/common/src';
 import { RecipientListEditModal } from './RecipientListEditModal';
-import { RecipientListRowFragment } from '../api/operations.generated';
+import {
+  BasicRecipientRowFragment,
+  RecipientListRowFragment,
+} from '../api/operations.generated';
 import { ListMemberAddModal } from './RecipientListMemberAddModal';
-import { BasicRecipientRow } from '../types/BasicRecipientRow';
 
 export const DetailView = () => {
   const t = useTranslation('system');
@@ -74,7 +76,7 @@ export const DetailView = () => {
   const { filter: searchFilter } = useQueryParamsState();
 
   const searchString = (searchFilter.filterBy?.['search'] as string) ?? '';
-  const allRecipients: BasicRecipientRow[] = list?.recipients ?? [];
+  const allRecipients: BasicRecipientRowFragment[] = list?.recipients ?? [];
   const recipients = allRecipients.filter(
     r => r.name.includes(searchString) || r.toAddress.includes(searchString)
   );

@@ -30,7 +30,7 @@ const createSqlRecipientList = (
   name: '',
   description: '',
   query: '',
-  parameters: '{}',
+  parameters: [],
   ...seed,
 });
 
@@ -79,8 +79,7 @@ export const RecipientQueryEditor = ({
     // Update parameters
     if (patch.query) {
       const params = TeraUtils.extractParams(patch.query);
-      const jsonParams = JSON.stringify(params);
-      setDraft({ ...draft, ...patch, parameters: jsonParams });
+      setDraft({ ...draft, ...patch, parameters: params });
     }
     setIsSaved(false);
   };

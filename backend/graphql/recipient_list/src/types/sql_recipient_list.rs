@@ -36,8 +36,12 @@ impl SqlRecipientListNode {
     pub async fn query(&self) -> &str {
         &self.row().query
     }
-    pub async fn parameters(&self) -> &str {
-        &self.row().parameters
+    pub async fn parameters(&self) -> Result<Vec<String>, async_graphql::Error> {
+        // Convert the parameters from a JSON array to a Vec<String>
+        let parameters = serde_json::from_str::<Vec<String>>(&self.row().parameters)
+            .map_err(|e| async_graphql::Error::new(e.to_string()))?;
+
+        Ok(parameters)
     }
 
     pub async fn audit_logs(

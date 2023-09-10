@@ -39,7 +39,7 @@ pub struct UpdateSqlRecipientListInput {
     pub name: Option<String>,
     pub description: Option<String>,
     pub query: Option<String>,
-    pub parameters: Option<String>,
+    pub parameters: Option<Vec<String>>,
 }
 
 impl From<UpdateSqlRecipientListInput> for UpdateSqlRecipientList {

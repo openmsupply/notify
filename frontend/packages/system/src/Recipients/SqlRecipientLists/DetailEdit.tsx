@@ -28,11 +28,13 @@ import {
 
 function useNewSqlRecipientLists() {
   const newList = {
+    __typename: 'SqlRecipientListNode',
     id: FnUtils.generateUUID(),
     name: '',
     description: '',
     query: '',
-    parameters: '{}',
+    parameters: [],
+    auditLogs: [],
   } as SqlRecipientListRowFragment;
   return { data: { nodes: [newList] }, isError: false, isLoading: false };
 }

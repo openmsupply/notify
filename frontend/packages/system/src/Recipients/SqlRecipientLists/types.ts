@@ -3,5 +3,5 @@ export interface DraftSqlRecipientList {
   name: string;
   description: string;
   query: string;
-  parameters: string;
+  parameters: string[];
 }

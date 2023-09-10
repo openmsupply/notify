@@ -80,7 +80,7 @@ export type CreateSqlRecipientListInput = {
   description: Scalars['String']['input'];
   id: Scalars['String']['input'];
   name: Scalars['String']['input'];
-  parameters: Scalars['String']['input'];
+  parameters: Array<Scalars['String']['input']>;
   query: Scalars['String']['input'];
 };
 
@@ -695,7 +695,7 @@ export type SqlRecipientListNode = {
   description: Scalars['String']['output'];
   id: Scalars['String']['output'];
   name: Scalars['String']['output'];
-  parameters: Scalars['String']['output'];
+  parameters: Array<Scalars['String']['output']>;
   query: Scalars['String']['output'];
 };
 
@@ -753,7 +753,7 @@ export type UpdateSqlRecipientListInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
-  parameters?: InputMaybe<Scalars['String']['input']>;
+  parameters?: InputMaybe<Array<Scalars['String']['input']>>;
   query?: InputMaybe<Scalars['String']['input']>;
 };
 

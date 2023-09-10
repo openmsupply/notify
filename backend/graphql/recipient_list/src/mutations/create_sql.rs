@@ -9,6 +9,15 @@ use service::{
     sql_recipient_list::create::CreateSqlRecipientList,
 };
 
+#[derive(InputObject, Clone)]
+pub struct CreateSqlRecipientListInput {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub query: String,
+    pub parameters: Vec<String>, // This will be saved as a JSON array object containing parameter names ["param1", "param2"] all params are assumed to be strings
+}
+
 pub fn create_sql_recipient_list(
     ctx: &Context<'_>,
     input: CreateSqlRecipientListInput,
@@ -32,15 +41,6 @@ pub fn create_sql_recipient_list(
         )),
         Err(error) => map_sql_error(error),
     }
-}
-
-#[derive(InputObject, Clone)]
-pub struct CreateSqlRecipientListInput {
-    pub id: String,
-    pub name: String,
-    pub description: String,
-    pub query: String,
-    pub parameters: String,
 }
 
 impl From<CreateSqlRecipientListInput> for CreateSqlRecipientList {
