@@ -14,7 +14,7 @@ use tera::Tera;
 pub mod enqueue;
 pub mod renderer;
 
-pub static MAX_RETRIES: i32 = 3;
+pub static MAX_SEND_ATTEMPTS: i32 = 3;
 
 // We use a trait for NotificationService to allow mocking in tests
 #[async_trait(?Send)]
@@ -127,6 +127,7 @@ impl NotificationServiceTrait for NotificationService {
                             // Successfully Sent
                             notification.error_message = None;
                             notification.status = NotificationEventStatus::Sent;
+                            notification.send_attempts += 1;
                             notification.sent_at = Some(Utc::now().naive_utc());
                             notification.updated_at = Utc::now().naive_utc();
                             repo.update_one(&notification)?;
@@ -135,18 +136,18 @@ impl NotificationServiceTrait for NotificationService {
                         Err(send_error) => {
                             // Failed to send
                             notification.updated_at = Utc::now().naive_utc();
-                            notification.retries += 1;
-                            if notification.retries > MAX_RETRIES {
+                            notification.send_attempts += 1;
+                            if notification.send_attempts >= MAX_SEND_ATTEMPTS {
                                 log::error!(
-                                    "Failed to send email {} to {} after {} retries - {:?}",
+                                    "Failed to send email {} to {} after {} attempts - {:?}",
                                     notification.id,
                                     notification.to_address,
-                                    MAX_RETRIES,
+                                    MAX_SEND_ATTEMPTS,
                                     send_error
                                 );
                                 notification.error_message = Some(format!(
-                                    "Failed to send email after {} retries - {:?}",
-                                    MAX_RETRIES, send_error
+                                    "Failed to send email after {} attempts - {:?}",
+                                    MAX_SEND_ATTEMPTS, send_error
                                 ));
                                 notification.status = NotificationEventStatus::Failed;
                             } else if send_error.is_permanent() {
@@ -159,7 +160,7 @@ impl NotificationServiceTrait for NotificationService {
                                 notification.status = NotificationEventStatus::Failed;
                             } else {
                                 log::error!(
-                                    "Temporarily failed to send email {} to {} - {:?}",
+                                    "Temporarily unable to send email {} to {} - {:?}",
                                     notification.id,
                                     notification.to_address,
                                     send_error
@@ -185,6 +186,7 @@ impl NotificationServiceTrait for NotificationService {
                                 log::info!("Sent telegram message to {}", notification.to_address);
                                 notification.error_message = None;
                                 notification.status = NotificationEventStatus::Sent;
+                                notification.send_attempts += 1;
                                 notification.sent_at = Some(Utc::now().naive_utc());
                                 notification.updated_at = Utc::now().naive_utc();
                                 repo.update_one(&notification)?;
@@ -196,6 +198,7 @@ impl NotificationServiceTrait for NotificationService {
                                     notification.to_address,
                                     e
                                 );
+                                notification.send_attempts += 1;
                                 notification.error_message = Some(format!("{:?}", e));
                                 notification.status = NotificationEventStatus::Failed;
                                 notification.updated_at = Utc::now().naive_utc();
@@ -203,20 +206,20 @@ impl NotificationServiceTrait for NotificationService {
                                 error_count += 1;
                             }
                             Err(TelegramError::Temporary(e)) => {
-                                notification.retries += 1;
-                                if notification.retries > MAX_RETRIES {
+                                notification.send_attempts += 1;
+                                if notification.send_attempts >= MAX_SEND_ATTEMPTS {
                                     log::error!(
-                                    "Failed to send telegram message {} to {} after {} retries - {:?}",
+                                    "Failed to send telegram message {} to {} after {} attempts - {:?}",
                                     notification.id,
                                     notification.to_address,
-                                    MAX_RETRIES,
+                                    MAX_SEND_ATTEMPTS,
                                     e
                                 );
                                     notification.error_message = Some(format!("{:?}", e));
                                     notification.status = NotificationEventStatus::Failed;
                                 } else {
                                     log::error!(
-                                    "Temporarily failed to send telegram message {} to {} - {:?}",
+                                    "Temporarily unable to send telegram message {} to {} - {:?}",
                                     notification.id,
                                     notification.to_address,
                                     e

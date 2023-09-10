@@ -59,7 +59,7 @@ pub fn create_notification_events(
             created_at: Utc::now().naive_utc(),
             sent_at: None,
             error_message: None,
-            retries: 0,
+            send_attempts: 0,
             updated_at: Utc::now().naive_utc(),
             notification_config_id: config_id.clone(),
             notification_type,
