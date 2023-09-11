@@ -8,6 +8,13 @@ use service::{
 };
 
 use super::{map_error, ModifyNotificationConfigResponse};
+#[derive(InputObject, Clone)]
+pub struct UpdateNotificationConfigInput {
+    pub id: String,
+    pub title: Option<String>,
+    pub configuration_data: Option<String>,
+    pub parameters: Option<String>,
+}
 
 pub fn update_notification_config(
     ctx: &Context<'_>,
@@ -33,25 +40,20 @@ pub fn update_notification_config(
     }
 }
 
-#[derive(InputObject, Clone)]
-pub struct UpdateNotificationConfigInput {
-    pub id: String,
-    pub title: Option<String>,
-    pub configuration_data: Option<String>,
-}
-
 impl From<UpdateNotificationConfigInput> for UpdateNotificationConfig {
     fn from(
         UpdateNotificationConfigInput {
             id,
             title,
             configuration_data,
+            parameters,
         }: UpdateNotificationConfigInput,
     ) -> Self {
         UpdateNotificationConfig {
             id,
             title,
             configuration_data,
+            parameters,
         }
     }
 }

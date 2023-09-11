@@ -1,12 +1,15 @@
 import { ConfigKind } from '@common/types';
 import { NotificationConfigRowFragment } from './api';
 
-type BaseConfig = Pick<NotificationConfigRowFragment, 'id' | 'kind' | 'title'>;
+type BaseConfig = Pick<
+  NotificationConfigRowFragment,
+  'id' | 'kind' | 'title' | 'parameters'
+>;
 
-// TODO: this should go away once recipient/list ids come through from the backend on the base config
 export interface BaseNotificationConfig extends BaseConfig {
   recipientIds: string[];
   recipientListIds: string[];
+  sqlRecipientListIds: string[];
 }
 
 export interface CCNotification extends BaseNotificationConfig {

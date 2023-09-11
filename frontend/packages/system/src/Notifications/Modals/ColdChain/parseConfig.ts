@@ -21,6 +21,7 @@ export function parseColdChainNotificationConfig(
       locationIds,
       recipientIds,
       recipientListIds,
+      sqlRecipientListIds,
     } = JSON.parse(config.configurationData);
 
     return {
@@ -36,6 +37,8 @@ export function parseColdChainNotificationConfig(
       locationIds,
       recipientIds,
       recipientListIds,
+      sqlRecipientListIds,
+      parameters: JSON.parse(config.parameters),
     };
   } catch (e) {
     showError();
@@ -65,6 +68,7 @@ export function buildColdChainNotificationInputs(config: CCNotification): {
     locationIds,
     recipientIds,
     recipientListIds,
+    parameters,
   } = config;
 
   const input = {
@@ -80,7 +84,9 @@ export function buildColdChainNotificationInputs(config: CCNotification): {
       locationIds,
       recipientIds,
       recipientListIds,
+      parameters,
     }),
+    parameters: JSON.stringify(parameters),
   };
 
   return {

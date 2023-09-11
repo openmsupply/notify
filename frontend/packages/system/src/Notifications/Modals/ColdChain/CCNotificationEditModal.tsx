@@ -37,6 +37,8 @@ const createCCNotifcation = (seed: CCNotification | null): CCNotification => ({
   locationIds: seed?.locationIds ?? [],
   recipientIds: seed?.recipientIds ?? [],
   recipientListIds: seed?.recipientListIds ?? [],
+  sqlRecipientListIds: seed?.sqlRecipientListIds ?? [],
+  parameters: seed?.parameters ?? '{}',
 });
 
 export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
