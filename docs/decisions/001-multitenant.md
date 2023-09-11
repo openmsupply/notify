@@ -1,8 +1,8 @@
-# KDD-XXX: {short title describing decision}
+# KDD-001: Multi tenant support
 
 - _Date_: 3 August 2023
 - _Deciders_: James, Andrei
-- _Status_: PROPOSED
+- _Status_: DECIDED
 - _Outcome_: Single Tenant
 
 ## Context
