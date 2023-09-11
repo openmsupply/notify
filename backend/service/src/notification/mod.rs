@@ -108,6 +108,23 @@ impl NotificationServiceTrait for NotificationService {
 
         for mut notification in queued_notifications {
             match notification.notification_type {
+                NotificationType::Unknown => {
+                    // This should only happen with a misconfigured sql recipient list query.
+                    // If you get this error in the logs you need to fix the sql query.
+                    error_count += 1;
+                    log::error!(
+                        "Unknown Notification Type {} to {} !!!!!",
+                        notification.id,
+                        notification.to_address,
+                    );
+                    notification.error_message = Some(format!(
+                        "Unknown Notification Type for address {}",
+                        notification.to_address,
+                    ));
+                    notification.status = NotificationEventStatus::Failed;
+
+                    repo.update_one(&notification)?;
+                }
                 NotificationType::Email => {
                     // Try to send via email
                     let text_body = html2text(&notification.message);
