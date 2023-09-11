@@ -57,7 +57,7 @@ impl From<UpdateSqlRecipientListInput> for UpdateSqlRecipientList {
             name,
             description,
             query,
-            parameters,
+            required_parameters: parameters,
         }
     }
 }

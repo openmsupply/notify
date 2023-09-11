@@ -21,7 +21,7 @@ pub struct CreateSqlRecipientList {
     pub name: String,
     pub description: String,
     pub query: String,
-    pub parameters: Vec<String>,
+    pub required_parameters: Vec<String>,
 }
 
 pub fn create_sql_recipient_list(
@@ -85,10 +85,10 @@ pub fn generate(
         name,
         description,
         query,
-        parameters,
+        required_parameters,
     }: CreateSqlRecipientList,
 ) -> Result<SqlRecipientListRow, ModifySqlRecipientListError> {
-    let json_parameters = serde_json::to_value(parameters).map_err(|e| {
+    let json_parameters = serde_json::to_value(required_parameters).map_err(|e| {
         ModifySqlRecipientListError::InternalError(format!(
             "Parameters can't be converted to JSON! - {:?}",
             e
@@ -106,7 +106,7 @@ pub fn generate(
         name: name.trim().to_string(),
         description,
         query,
-        parameters: json_parameters,
+        required_parameters: json_parameters,
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
     })
