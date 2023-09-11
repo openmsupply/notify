@@ -13,13 +13,16 @@ import {
   createTableStore,
   useColumns,
 } from '@common/ui';
-import { NotificationsModal } from '../Modals/NotificationsModal';
 import { useEditModal, useQueryParamsState } from '@common/hooks';
 import { NotificationConfigRowFragment, useNotificationConfigs } from '../api';
 import { useDeleteNotificationConfig } from '../api/hooks/useDeleteNotificationConfig';
+import { useNavigate } from 'packages/common/src';
+import { createConfigPath } from '../navigate';
+import { SelectConfigKindModal } from '../Pages/SelectConfigKindModal';
 
 export const ListView = () => {
   const t = useTranslation('system');
+  const navigate = useNavigate();
 
   const { filter, queryParams, updatePaginationQuery, updateSortQuery } =
     useQueryParamsState();
@@ -47,7 +50,11 @@ export const ListView = () => {
   const { mutateAsync: deleteNotificationConfig, invalidateQueries } =
     useDeleteNotificationConfig();
 
-  const { isOpen, onClose, entity, onOpen } =
+  const onClick = (entity: NotificationConfigRowFragment) => {
+    navigate(createConfigPath(entity.kind, entity.id));
+  };
+
+  const { isOpen, onClose, onOpen } =
     useEditModal<NotificationConfigRowFragment>();
 
   const pagination = {
@@ -58,7 +65,15 @@ export const ListView = () => {
 
   return (
     <>
-      <NotificationsModal isOpen={isOpen} onClose={onClose} entity={entity} />
+      <SelectConfigKindModal
+        isOpen={isOpen}
+        onClose={() => {
+          onClose();
+        }}
+        submit={k => {
+          navigate(createConfigPath(k, 'new'));
+        }}
+      />
       <AppBarButtonsPortal>
         <LoadingButton
           isLoading={false}
@@ -82,7 +97,7 @@ export const ListView = () => {
           data={notificationConfigs}
           isError={isError}
           isLoading={isLoading}
-          onRowClick={onOpen}
+          onRowClick={onClick}
           noDataElement={<NothingHere body={t('messages.no-notifications')} />}
           pagination={pagination}
           onChangePage={updatePaginationQuery}
