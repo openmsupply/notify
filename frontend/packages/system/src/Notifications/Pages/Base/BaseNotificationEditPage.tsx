@@ -6,7 +6,6 @@ import {
   useTranslation,
   LoadingButton,
   InlineSpinner,
-  ConfigKind,
   AppBarContentPortal,
   Box,
   AppFooterPortal,
@@ -20,7 +19,6 @@ import { BaseNotificationConfig } from '../../types';
 import { BaseNotificationAppBar } from './BaseNotificationAppBar';
 
 interface BaseNotificationEditPageProps<T extends BaseNotificationConfig> {
-  kind: ConfigKind;
   isInvalid: boolean;
   isLoading: boolean;
   draft: T;

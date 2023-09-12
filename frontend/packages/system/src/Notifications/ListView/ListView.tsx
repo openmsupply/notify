@@ -18,7 +18,7 @@ import { NotificationConfigRowFragment, useNotificationConfigs } from '../api';
 import { useDeleteNotificationConfig } from '../api/hooks/useDeleteNotificationConfig';
 import { ConfigKind, useNavigate } from 'packages/common/src';
 import { createConfigPath } from '../navigate';
-import { SelectConfigKindModal } from '../Pages/SelectConfigKindModal';
+import { CreateConfigKindModal } from '../Pages/CreateConfigKindModal';
 
 type ListViewProps = {
   kind: ConfigKind | null;
@@ -82,13 +82,10 @@ export const ListView = ({ kind }: ListViewProps) => {
 
   return (
     <>
-      <SelectConfigKindModal
+      <CreateConfigKindModal
         isOpen={isOpen}
         onClose={() => {
           onClose();
-        }}
-        submit={k => {
-          navigate(createConfigPath(k, 'new'));
         }}
       />
       <AppBarButtonsPortal>
