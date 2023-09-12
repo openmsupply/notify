@@ -28,7 +28,6 @@ export const useNotificationConfigs = ({
   const cacheKeys = [NOTIFICATION_CONFIGS, first, offset, filterBy, sortBy];
 
   return useQuery(cacheKeys, async () => {
-    console.log('querying');
     const response = await sdk.NotificationConfigs({
       filter: filterBy,
       sort: sortBy?.key
@@ -42,7 +41,6 @@ export const useNotificationConfigs = ({
         offset,
       },
     });
-    console.log('response', response);
     return response?.notificationConfigs;
   });
 };

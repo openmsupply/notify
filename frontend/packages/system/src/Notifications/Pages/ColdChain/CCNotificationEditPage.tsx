@@ -43,17 +43,19 @@ export const CCNotificationEditPage = () => {
 
   const { id } = useParams<{ id: string }>();
 
-  // Get the notification config from the API
+  // Create an empty draft
   const [draft, setDraft] = useState<CCNotification>(() =>
     createCCNotification(null)
   );
 
+  // Get the notification config from the API
   const { data, isLoading } = useNotificationConfigs({
     filterBy: { id: { equalTo: id } },
   });
 
   useEffect(() => {
     const entity = data?.nodes[0];
+    // Once we get the notification config from the API, parse it and load into the draft
     const parsedDraft = parseColdChainNotificationConfig(
       (entity as NotificationConfigRowFragment) ?? null,
       parsingErrorSnack
