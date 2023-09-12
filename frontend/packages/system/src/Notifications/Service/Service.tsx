@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, ModalMode } from '@notify-frontend/common';
+import { Routes, Route, ModalMode, ConfigKind } from '@notify-frontend/common';
 import { AppRoute } from 'packages/config/src';
 import { ListView } from '../ListView/ListView';
 import { CCNotificationEditPage } from '../Pages/ColdChain/CCNotificationEditPage';
@@ -7,10 +7,10 @@ import { CCNotificationEditPage } from '../Pages/ColdChain/CCNotificationEditPag
 const NotificationsService = () => {
   return (
     <Routes>
-      <Route path="/" element={<ListView />} />
+      <Route path="/" element={<ListView kind={null} />} />
       <Route
         path={`${AppRoute.ColdChain}`}
-        element={<CCNotificationEditPage mode={ModalMode.Create} />}
+        element={<ListView kind={ConfigKind.ColdChain} />}
       />
       <Route
         path={`${AppRoute.ColdChain}/:id`}

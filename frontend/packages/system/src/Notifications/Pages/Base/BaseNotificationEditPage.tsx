@@ -7,9 +7,17 @@ import {
   LoadingButton,
   InlineSpinner,
   ConfigKind,
+  AppBarContentPortal,
+  Box,
+  AppFooterPortal,
+  ButtonWithIcon,
+  CloseIcon,
+  useBreadcrumbs,
+  SaveIcon,
 } from '@notify-frontend/common';
-import { BaseNotificationEditForm } from './BaseNotificationEditForm';
+
 import { BaseNotificationConfig } from '../../types';
+import { BaseNotificationAppBar } from './BaseNotificationAppBar';
 
 interface BaseNotificationEditPageProps<T extends BaseNotificationConfig> {
   kind: ConfigKind;
@@ -25,22 +33,27 @@ interface BaseNotificationEditPageProps<T extends BaseNotificationConfig> {
 }
 
 export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
-  // kind,
   isLoading,
-  // isInvalid,
+  isInvalid,
   draft,
-  // onSave,
+  onSave,
   setDraft,
   CustomForm,
 }: BaseNotificationEditPageProps<T>) => {
   const t = useTranslation(['system']);
+  const { navigateUpOne } = useBreadcrumbs();
   const [errorMessage, setErrorMessage] = useState('');
+  const [isSaved, setIsSaved] = useState(false);
 
   const onUpdate = (patch: Partial<T>) => {
     setDraft({ ...draft, ...patch });
+    setIsSaved(false);
   };
 
-  // TODO: add a save button somewhere
+  const onSaved = () => {
+    setIsSaved(true);
+  };
+
   // TODO: We'll add a parameters editor in issue https://github.com/openmsupply/notify/issues/116
 
   return (
@@ -48,26 +61,63 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
       {isLoading ? (
         <InlineSpinner />
       ) : (
-        <Grid flexDirection="column" display="flex" gap={2}>
-          <BaseNotificationEditForm
-            CustomForm={CustomForm}
-            onUpdate={onUpdate}
-            draft={draft}
-          />
-          {errorMessage ? (
-            <Grid item>
-              <Alert
-                severity="error"
-                onClose={() => {
-                  setErrorMessage('');
-                }}
+        <>
+          <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
+            <BaseNotificationAppBar draft={draft} onUpdate={onUpdate} />
+          </AppBarContentPortal>
+          <Grid flexDirection="column" display="flex" gap={2}>
+            <Box sx={{ paddingLeft: '10px' }}>
+              <CustomForm draft={draft} onUpdate={onUpdate} />
+              {errorMessage ? (
+                <Grid item>
+                  <Alert
+                    severity="error"
+                    onClose={() => {
+                      setErrorMessage('');
+                    }}
+                  >
+                    <AlertTitle>{t('error')}</AlertTitle>
+                    {errorMessage}
+                  </Alert>
+                </Grid>
+              ) : null}
+            </Box>
+          </Grid>
+          <AppFooterPortal
+            Content={
+              <Box
+                gap={2}
+                display="flex"
+                flexDirection="row"
+                alignItems="center"
+                height={64}
               >
-                <AlertTitle>{t('error')}</AlertTitle>
-                {errorMessage}
-              </Alert>
-            </Grid>
-          ) : null}
-        </Grid>
+                <Box flex={1} display="flex" justifyContent="flex-end" gap={2}>
+                  <ButtonWithIcon
+                    shrinkThreshold="lg"
+                    Icon={<CloseIcon />}
+                    label={t('button.close')}
+                    color="secondary"
+                    sx={{ fontSize: '12px' }}
+                    onClick={() => navigateUpOne()}
+                  />
+                  <LoadingButton
+                    disabled={isSaved || isInvalid}
+                    isLoading={isLoading}
+                    onClick={() => {
+                      onSave(draft);
+                      onSaved();
+                    }}
+                    startIcon={<SaveIcon />}
+                    sx={{ fontSize: '12px' }}
+                  >
+                    {t('button.save')}
+                  </LoadingButton>
+                </Box>
+              </Box>
+            }
+          />
+        </>
       )}
     </>
   );

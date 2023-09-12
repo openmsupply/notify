@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from '@common/intl';
 import {
   AppBarButtonsPortal,
@@ -16,16 +16,33 @@ import {
 import { useEditModal, useQueryParamsState } from '@common/hooks';
 import { NotificationConfigRowFragment, useNotificationConfigs } from '../api';
 import { useDeleteNotificationConfig } from '../api/hooks/useDeleteNotificationConfig';
-import { useNavigate } from 'packages/common/src';
+import { ConfigKind, useNavigate } from 'packages/common/src';
 import { createConfigPath } from '../navigate';
 import { SelectConfigKindModal } from '../Pages/SelectConfigKindModal';
 
-export const ListView = () => {
+type ListViewProps = {
+  kind: ConfigKind | null;
+};
+
+export const ListView = ({ kind }: ListViewProps) => {
   const t = useTranslation('system');
   const navigate = useNavigate();
 
-  const { filter, queryParams, updatePaginationQuery, updateSortQuery } =
-    useQueryParamsState();
+  const {
+    filter,
+    queryParams,
+    updatePaginationQuery,
+    updateSortQuery,
+    updateFilterQuery,
+  } = useQueryParamsState();
+
+  useEffect(() => {
+    if (kind !== null) {
+      updateFilterQuery({ kind: { equalTo: kind } });
+    } else {
+      filter.onClearFilterRule('kind');
+    }
+  }, [kind]);
 
   const columns = useColumns<NotificationConfigRowFragment>(
     [
