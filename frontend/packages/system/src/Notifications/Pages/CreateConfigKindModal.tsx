@@ -49,7 +49,6 @@ export const CreateConfigKindModal = ({
                   input: {
                     id: id,
                     kind: kind,
-                    configurationData: '{}',
                     title: title,
                   },
                 }).then(() => {
