@@ -1,30 +1,27 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  ModalMode,
   FnUtils,
   ConfigKind,
   useTranslation,
   useNotification,
+  useParams,
 } from '@notify-frontend/common';
 import { CCNotificationEditForm } from './CCNotificationEditForm';
-import { BaseNotificationEditModal } from '../Base/BaseNotificationEditModal';
+import { BaseNotificationEditPage } from '../Base/BaseNotificationEditPage';
 import { CCNotification } from '../../types';
-import { useCreateNotificationConfig } from '../../api/hooks/useCreateNotificationConfig';
 import {
   buildColdChainNotificationInputs,
   parseColdChainNotificationConfig,
 } from './parseConfig';
 import { useUpdateNotificationConfig } from '../../api/hooks/useUpdateNotificationConfig';
-import { NotificationConfigRowFragment } from '../../api';
+import {
+  NotificationConfigRowFragment,
+  useNotificationConfigs,
+} from '../../api';
 
-interface CCNotificationEditModalProps {
-  mode: ModalMode | null;
-  isOpen: boolean;
-  onClose: () => void;
-  entity: NotificationConfigRowFragment | null;
-}
-
-const createCCNotifcation = (seed: CCNotification | null): CCNotification => ({
+const createCCNotification = (
+  seed: CCNotification | null | undefined
+): CCNotification => ({
   id: seed?.id ?? FnUtils.generateUUID(),
   title: seed?.title ?? '',
   kind: seed?.kind ?? ConfigKind.ColdChain,
@@ -41,42 +38,39 @@ const createCCNotifcation = (seed: CCNotification | null): CCNotification => ({
   parameters: seed?.parameters ?? '{}',
 });
 
-export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
-  mode,
-  isOpen,
-  onClose,
-  entity,
-}) => {
+export const CCNotificationEditPage = () => {
   const t = useTranslation('system');
   const { error } = useNotification();
   const parsingErrorSnack = error(t('error.parsing-notification-config'));
 
+  const { id } = useParams<{ id: string }>();
+
+  // Create an empty draft
   const [draft, setDraft] = useState<CCNotification>(() =>
-    createCCNotifcation(null)
+    createCCNotification(null)
   );
 
+  // Get the notification config from the API
+  const { data, isLoading } = useNotificationConfigs({
+    filterBy: { id: { equalTo: id } },
+  });
+
   useEffect(() => {
+    const entity = data?.nodes[0];
+    // Once we get the notification config from the API, parse it and load into the draft
     const parsedDraft = parseColdChainNotificationConfig(
-      entity,
+      (entity as NotificationConfigRowFragment) ?? null,
       parsingErrorSnack
     );
-    setDraft(createCCNotifcation(parsedDraft));
-  }, []);
-
-  const { mutateAsync: create, isLoading: createIsLoading } =
-    useCreateNotificationConfig();
+    setDraft(createCCNotification(parsedDraft));
+  }, [data]);
 
   const { mutateAsync: update, isLoading: updateIsLoading } =
     useUpdateNotificationConfig();
 
   const onSave = async (draft: CCNotification) => {
     const inputs = buildColdChainNotificationInputs(draft);
-
-    if (mode === ModalMode.Create) {
-      await create({ input: inputs.create });
-    } else {
-      await update({ input: inputs.update });
-    }
+    await update({ input: inputs.update });
   };
 
   const isInvalid =
@@ -89,12 +83,9 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
     (!draft.recipientListIds.length && !draft.recipientIds.length);
 
   return (
-    <BaseNotificationEditModal
-      kind={ConfigKind.ColdChain}
-      isOpen={isOpen}
-      isLoading={createIsLoading || updateIsLoading}
+    <BaseNotificationEditPage
+      isLoading={isLoading || updateIsLoading}
       isInvalid={isInvalid}
-      onClose={onClose}
       onSave={onSave}
       draft={draft}
       setDraft={setDraft}

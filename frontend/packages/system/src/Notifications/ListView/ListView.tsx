@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from '@common/intl';
 import {
   AppBarButtonsPortal,
@@ -13,16 +13,36 @@ import {
   createTableStore,
   useColumns,
 } from '@common/ui';
-import { NotificationsModal } from '../Modals/NotificationsModal';
 import { useEditModal, useQueryParamsState } from '@common/hooks';
 import { NotificationConfigRowFragment, useNotificationConfigs } from '../api';
 import { useDeleteNotificationConfig } from '../api/hooks/useDeleteNotificationConfig';
+import { ConfigKind, useNavigate } from 'packages/common/src';
+import { configRoute } from '../navigate';
+import { CreateConfigKindModal } from '../Pages/CreateConfigKindModal';
 
-export const ListView = () => {
+type ListViewProps = {
+  kind: ConfigKind | null;
+};
+
+export const ListView = ({ kind }: ListViewProps) => {
   const t = useTranslation('system');
+  const navigate = useNavigate();
 
-  const { filter, queryParams, updatePaginationQuery, updateSortQuery } =
-    useQueryParamsState();
+  const {
+    filter,
+    queryParams,
+    updatePaginationQuery,
+    updateSortQuery,
+    updateFilterQuery,
+  } = useQueryParamsState();
+
+  useEffect(() => {
+    if (kind !== null) {
+      updateFilterQuery({ kind: { equalTo: kind } });
+    } else {
+      filter.onClearFilterRule('kind');
+    }
+  }, [kind]);
 
   const columns = useColumns<NotificationConfigRowFragment>(
     [
@@ -47,7 +67,11 @@ export const ListView = () => {
   const { mutateAsync: deleteNotificationConfig, invalidateQueries } =
     useDeleteNotificationConfig();
 
-  const { isOpen, onClose, entity, onOpen } =
+  const onClick = (entity: NotificationConfigRowFragment) => {
+    navigate(configRoute(entity.kind, entity.id));
+  };
+
+  const { isOpen, onClose, onOpen } =
     useEditModal<NotificationConfigRowFragment>();
 
   const pagination = {
@@ -58,7 +82,12 @@ export const ListView = () => {
 
   return (
     <>
-      <NotificationsModal isOpen={isOpen} onClose={onClose} entity={entity} />
+      <CreateConfigKindModal
+        isOpen={isOpen}
+        onClose={() => {
+          onClose();
+        }}
+      />
       <AppBarButtonsPortal>
         <LoadingButton
           isLoading={false}
@@ -82,7 +111,7 @@ export const ListView = () => {
           data={notificationConfigs}
           isError={isError}
           isLoading={isLoading}
-          onRowClick={onOpen}
+          onRowClick={onClick}
           noDataElement={<NothingHere body={t('messages.no-notifications')} />}
           pagination={pagination}
           onChangePage={updatePaginationQuery}

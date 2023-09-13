@@ -12,20 +12,39 @@ import { RecipientsModal } from './RecipientsModal';
 import { useRecipientLists, useRecipients } from '../../../Recipients/api';
 import { BaseNotificationConfig } from '../../types';
 
-type BaseNotificationEditFormProps<T extends BaseNotificationConfig> = {
-  onUpdate: (patch: Partial<T>) => void;
-  draft: T;
-  CustomForm: React.FC<{
-    onUpdate: (patch: Partial<T>) => void;
-    draft: T;
-  }>;
-};
+const Button = ({ children, ...props }: PropsWithChildren<ButtonProps>) => (
+  <button {...props}>{children}</button>
+);
 
-export const BaseNotificationEditForm = <T extends BaseNotificationConfig>({
+const StyledButton = styled(Button)(({ theme }) => {
+  return {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderRadius: '8px',
+    backgroundColor: 'white',
+    border: '1px',
+    borderStyle: 'solid',
+    borderColor: theme.palette.border,
+    padding: '7px 10px',
+    color: theme.palette.gray.main,
+    cursor: 'pointer',
+    fontSize: '14px',
+    textAlign: 'left',
+    gap: '10px',
+    lineHeight: 1.5,
+  };
+});
+
+interface BaseNotificationAppBarProps<T> {
+  onUpdate: (patch: Partial<T>) => void;
+  draft: BaseNotificationConfig;
+}
+
+export const BaseNotificationAppBar = <T extends BaseNotificationConfig>({
   onUpdate,
   draft,
-  CustomForm,
-}: BaseNotificationEditFormProps<T>) => {
+}: BaseNotificationAppBarProps<T>) => {
   const t = useTranslation('system');
   const { isOpen, onClose, onOpen } = useEditModal();
 
@@ -71,7 +90,6 @@ export const BaseNotificationEditForm = <T extends BaseNotificationConfig>({
           label={t('label.notification-title')}
           InputLabelProps={{ shrink: true }}
         />
-        <CustomForm draft={draft} onUpdate={onUpdate} />
         <StyledButton onClick={() => onOpen()}>
           {selectedNames ? `${selectedNames};` : t('label.select-recipients')}
           <PlusCircleIcon color="primary" />
@@ -80,26 +98,3 @@ export const BaseNotificationEditForm = <T extends BaseNotificationConfig>({
     </>
   );
 };
-
-const Button = ({ children, ...props }: PropsWithChildren<ButtonProps>) => (
-  <button {...props}>{children}</button>
-);
-const StyledButton = styled(Button)(({ theme }) => {
-  return {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderRadius: '8px',
-    backgroundColor: 'white',
-    border: '1px',
-    borderStyle: 'solid',
-    borderColor: theme.palette.border,
-    padding: '7px 10px',
-    color: theme.palette.gray.main,
-    cursor: 'pointer',
-    fontSize: '14px',
-    textAlign: 'left',
-    gap: '10px',
-    lineHeight: 1.5,
-  };
-});
