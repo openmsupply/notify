@@ -13,7 +13,7 @@ import {
   Box,
 } from '@notify-frontend/common';
 import { useCreateNotificationConfig } from '../api/hooks/useCreateNotificationConfig';
-import { createConfigPath } from '../navigate';
+import { configRoute } from '../navigate';
 
 interface SelectNotificationTypeModalProps {
   isOpen: boolean;
@@ -53,7 +53,7 @@ export const CreateConfigKindModal = ({
                     title: title,
                   },
                 }).then(() => {
-                  navigate(createConfigPath(kind, id));
+                  navigate(configRoute(kind, id));
                 });
               }
             }}

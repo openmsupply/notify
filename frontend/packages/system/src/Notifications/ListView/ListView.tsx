@@ -17,7 +17,7 @@ import { useEditModal, useQueryParamsState } from '@common/hooks';
 import { NotificationConfigRowFragment, useNotificationConfigs } from '../api';
 import { useDeleteNotificationConfig } from '../api/hooks/useDeleteNotificationConfig';
 import { ConfigKind, useNavigate } from 'packages/common/src';
-import { createConfigPath } from '../navigate';
+import { configRoute } from '../navigate';
 import { CreateConfigKindModal } from '../Pages/CreateConfigKindModal';
 
 type ListViewProps = {
@@ -68,7 +68,7 @@ export const ListView = ({ kind }: ListViewProps) => {
     useDeleteNotificationConfig();
 
   const onClick = (entity: NotificationConfigRowFragment) => {
-    navigate(createConfigPath(entity.kind, entity.id));
+    navigate(configRoute(entity.kind, entity.id));
   };
 
   const { isOpen, onClose, onOpen } =
