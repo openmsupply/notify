@@ -13,8 +13,6 @@ pub struct CreateNotificationConfigInput {
     pub id: String,
     pub title: String,
     pub kind: ConfigKind,
-    pub configuration_data: String,
-    pub parameters: String,
 }
 
 pub fn create_notification_config(
@@ -48,16 +46,12 @@ impl From<CreateNotificationConfigInput> for CreateNotificationConfig {
             id,
             title,
             kind,
-            configuration_data,
-            parameters,
         }: CreateNotificationConfigInput,
     ) -> Self {
         CreateNotificationConfig {
             id,
             title,
             kind: ConfigKind::to_domain(kind),
-            configuration_data,
-            parameters,
         }
     }
 }
