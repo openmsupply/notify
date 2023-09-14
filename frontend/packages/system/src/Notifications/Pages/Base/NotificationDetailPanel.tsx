@@ -50,7 +50,7 @@ export const NotificationDetailPanel = ({
                 onChange={e => onUpdateParams(param ?? '', e.target.value)}
               />
               {
-                // if param is not required, remove button
+                // if param is not required allow it to be removed
                 !requiredParams.includes(param) && (
                   <IconButton
                     onClick={() => onDeleteParam(param ?? '')}
