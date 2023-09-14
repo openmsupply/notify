@@ -22,6 +22,11 @@ import {
 import { BaseNotificationConfig } from '../../types';
 import { BaseNotificationAppBar } from './BaseNotificationAppBar';
 import { NotificationDetailPanel } from './NotificationDetailPanel';
+import {
+  useRecipientLists,
+  useRecipients,
+  useSqlRecipientLists,
+} from 'packages/system/src/Recipients/api';
 
 interface BaseNotificationEditPageProps<T extends BaseNotificationConfig> {
   isInvalid: boolean;
@@ -48,7 +53,10 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
   const { navigateUpOne } = useBreadcrumbs();
   const [errorMessage, setErrorMessage] = useState('');
   const [isSaved, setIsSaved] = useState(false);
-  const [requiredSqlParams, setRequiredSqlParams] = useState<string[]>([]);
+
+  const { data: recipients } = useRecipients();
+  const { data: recipientLists } = useRecipientLists();
+  const { data: sqlRecipientLists } = useSqlRecipientLists();
 
   const onUpdate = (patch: Partial<T>) => {
     setDraft({ ...draft, ...patch });
@@ -75,6 +83,11 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
     });
   };
 
+  const requiredParams = (sqlRecipientLists?.nodes ?? [])
+    .filter(list => draft.sqlRecipientListIds.includes(list.id))
+    .map(list => list.parameters)
+    .flat(1);
+
   return (
     <>
       {isLoading ? (
@@ -82,7 +95,7 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
       ) : (
         <>
           <NotificationDetailPanel
-            requiredParams={requiredSqlParams}
+            requiredParams={requiredParams}
             params={draft.parsedParameters}
             onUpdateParams={onUpdateParams}
             onDeleteParam={onDeleteParam}
@@ -92,7 +105,9 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
             <BaseNotificationAppBar
               draft={draft}
               onUpdate={onUpdate}
-              onChangeSqlParams={setRequiredSqlParams}
+              recipientLists={recipientLists?.nodes ?? []}
+              recipients={recipients?.nodes ?? []}
+              sqlRecipientLists={sqlRecipientLists?.nodes ?? []}
             />
           </AppBarContentPortal>
           <Grid flexDirection="column" display="flex" gap={2}>

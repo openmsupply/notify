@@ -9,12 +9,12 @@ import {
   useTranslation,
 } from '@notify-frontend/common';
 import { RecipientsModal } from './RecipientsModal';
-import {
-  useRecipientLists,
-  useRecipients,
-  useSqlRecipientLists,
-} from '../../../Recipients/api';
 import { BaseNotificationConfig } from '../../types';
+import {
+  RecipientListRowFragment,
+  RecipientRowFragment,
+  SqlRecipientListRowFragment,
+} from 'packages/system/src/Recipients/api/operations.generated';
 
 const Button = ({ children, ...props }: PropsWithChildren<ButtonProps>) => (
   <button {...props}>{children}</button>
@@ -42,30 +42,29 @@ const StyledButton = styled(Button)(({ theme }) => {
 
 interface BaseNotificationAppBarProps<T> {
   onUpdate: (patch: Partial<T>) => void;
-  onChangeSqlParams: (requiredParams: string[]) => void;
+  recipientLists?: RecipientListRowFragment[];
+  recipients?: RecipientRowFragment[];
+  sqlRecipientLists?: SqlRecipientListRowFragment[];
   draft: BaseNotificationConfig;
 }
 
 export const BaseNotificationAppBar = <T extends BaseNotificationConfig>({
   onUpdate,
-  onChangeSqlParams: onChangeSqlParams,
+  recipientLists,
+  recipients,
+  sqlRecipientLists,
   draft,
 }: BaseNotificationAppBarProps<T>) => {
   const t = useTranslation('system');
   const { isOpen, onClose, onOpen } = useEditModal();
 
-  const { data: recipients } = useRecipients();
-  const { data: recipientLists } = useRecipientLists();
-  const { data: sqlRecipientLists } = useSqlRecipientLists();
-
-  const selectedSqlRecipientLists = (sqlRecipientLists?.nodes ?? []).filter(
-    list => draft.sqlRecipientListIds.includes(list.id)
+  const selectedSqlRecipientLists = (sqlRecipientLists ?? []).filter(list =>
+    draft.sqlRecipientListIds.includes(list.id)
   );
-
-  const selectedRecipientLists = (recipientLists?.nodes ?? []).filter(list =>
+  const selectedRecipientLists = (recipientLists ?? []).filter(list =>
     draft.recipientListIds.includes(list.id)
   );
-  const selectedRecipients = (recipients?.nodes ?? []).filter(recipient =>
+  const selectedRecipients = (recipients ?? []).filter(recipient =>
     draft.recipientIds.includes(recipient.id)
   );
   const selectedNames = [
@@ -97,19 +96,10 @@ export const BaseNotificationAppBar = <T extends BaseNotificationConfig>({
               recipientListIds: recipientLists,
               sqlRecipientListIds: sqlRecipientListIds,
             } as Partial<T>);
-            const selectedSqlRecipientLists = (
-              sqlRecipientLists?.nodes ?? []
-            ).filter(list => sqlRecipientListIds.includes(list.id));
-            const requiredParams = [
-              ...new Set(
-                selectedSqlRecipientLists.map(list => list.parameters).flat(1)
-              ),
-            ];
-            onChangeSqlParams(requiredParams);
           }}
-          recipientLists={recipientLists?.nodes ?? []}
-          recipients={recipients?.nodes ?? []}
-          sqlRecipientLists={sqlRecipientLists?.nodes ?? []}
+          recipientLists={recipientLists ?? []}
+          recipients={recipients ?? []}
+          sqlRecipientLists={sqlRecipientLists ?? []}
         />
       )}
       <Grid flexDirection="column" display="flex" gap={2}>
