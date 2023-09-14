@@ -60,32 +60,10 @@ export function buildColdChainNotificationInputs(config: CCNotification): {
   create: CreateNotificationConfigInput;
   update: UpdateNotificationConfigInput;
 } {
-  const {
-    highTemp,
-    lowTemp,
-    confirmOk,
-    remind,
-    reminderInterval,
-    reminderUnits,
-    locationIds,
-    recipientIds,
-    recipientListIds,
-  } = config;
-
   const input = {
     id: config.id,
     title: config.title,
-    configurationData: JSON.stringify({
-      highTemp,
-      lowTemp,
-      confirmOk,
-      remind,
-      reminderInterval,
-      reminderUnits,
-      locationIds,
-      recipientIds,
-      recipientListIds,
-    }),
+    configurationData: JSON.stringify(config),
     parameters: config.parameters,
   };
 

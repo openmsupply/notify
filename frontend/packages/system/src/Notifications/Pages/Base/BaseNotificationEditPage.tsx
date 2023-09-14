@@ -48,6 +48,7 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
   const { navigateUpOne } = useBreadcrumbs();
   const [errorMessage, setErrorMessage] = useState('');
   const [isSaved, setIsSaved] = useState(false);
+  const [requiredSqlParams, setRequiredSqlParams] = useState<string[]>([]);
 
   const onUpdate = (patch: Partial<T>) => {
     setDraft({ ...draft, ...patch });
@@ -64,7 +65,15 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
     });
   };
 
-  const requiredParams = ['user.name']; // Get this list from any sqlRecipientLists associated with this notification
+  const onDeleteParam = (key: string) => {
+    const updatedParams = draft.parsedParameters;
+    delete updatedParams[key];
+    onUpdate({
+      ...draft,
+      parsedParameters: updatedParams,
+      parameters: TeraUtils.keyedParamsAsTeraJson(updatedParams),
+    });
+  };
 
   return (
     <>
@@ -73,13 +82,18 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
       ) : (
         <>
           <NotificationDetailPanel
-            requiredParams={requiredParams}
+            requiredParams={requiredSqlParams}
             params={draft.parsedParameters}
             onUpdateParams={onUpdateParams}
+            onDeleteParam={onDeleteParam}
           />
           <AppBarButtonsPortal>{OpenButton}</AppBarButtonsPortal>
           <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
-            <BaseNotificationAppBar draft={draft} onUpdate={onUpdate} />
+            <BaseNotificationAppBar
+              draft={draft}
+              onUpdate={onUpdate}
+              onChangeSqlParams={setRequiredSqlParams}
+            />
           </AppBarContentPortal>
           <Grid flexDirection="column" display="flex" gap={2}>
             <Box sx={{ paddingLeft: '10px' }}>

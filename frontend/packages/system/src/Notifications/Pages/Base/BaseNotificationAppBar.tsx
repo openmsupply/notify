@@ -9,7 +9,11 @@ import {
   useTranslation,
 } from '@notify-frontend/common';
 import { RecipientsModal } from './RecipientsModal';
-import { useRecipientLists, useRecipients } from '../../../Recipients/api';
+import {
+  useRecipientLists,
+  useRecipients,
+  useSqlRecipientLists,
+} from '../../../Recipients/api';
 import { BaseNotificationConfig } from '../../types';
 
 const Button = ({ children, ...props }: PropsWithChildren<ButtonProps>) => (
@@ -38,11 +42,13 @@ const StyledButton = styled(Button)(({ theme }) => {
 
 interface BaseNotificationAppBarProps<T> {
   onUpdate: (patch: Partial<T>) => void;
+  onChangeSqlParams: (requiredParams: string[]) => void;
   draft: BaseNotificationConfig;
 }
 
 export const BaseNotificationAppBar = <T extends BaseNotificationConfig>({
   onUpdate,
+  onChangeSqlParams: onChangeSqlParams,
   draft,
 }: BaseNotificationAppBarProps<T>) => {
   const t = useTranslation('system');
@@ -50,6 +56,11 @@ export const BaseNotificationAppBar = <T extends BaseNotificationConfig>({
 
   const { data: recipients } = useRecipients();
   const { data: recipientLists } = useRecipientLists();
+  const { data: sqlRecipientLists } = useSqlRecipientLists();
+
+  const selectedSqlRecipientLists = (sqlRecipientLists?.nodes ?? []).filter(
+    list => draft.sqlRecipientListIds.includes(list.id)
+  );
 
   const selectedRecipientLists = (recipientLists?.nodes ?? []).filter(list =>
     draft.recipientListIds.includes(list.id)
@@ -57,7 +68,11 @@ export const BaseNotificationAppBar = <T extends BaseNotificationConfig>({
   const selectedRecipients = (recipients?.nodes ?? []).filter(recipient =>
     draft.recipientIds.includes(recipient.id)
   );
-  const selectedNames = [...selectedRecipientLists, ...selectedRecipients]
+  const selectedNames = [
+    ...selectedSqlRecipientLists,
+    ...selectedRecipientLists,
+    ...selectedRecipients,
+  ]
     .map(r => r.name)
     .join('; ');
 
@@ -70,15 +85,31 @@ export const BaseNotificationAppBar = <T extends BaseNotificationConfig>({
           initialSelectedIds={[
             ...draft.recipientListIds,
             ...draft.recipientIds,
+            ...draft.sqlRecipientListIds,
           ]}
-          setSelection={({ recipients, recipientLists }) =>
+          setSelection={({
+            recipients: recipientIds,
+            recipientLists,
+            sqlRecipientLists: sqlRecipientListIds,
+          }) => {
             onUpdate({
-              recipientIds: recipients,
+              recipientIds: recipientIds,
               recipientListIds: recipientLists,
-            } as Partial<T>)
-          }
+              sqlRecipientListIds: sqlRecipientListIds,
+            } as Partial<T>);
+            const selectedSqlRecipientLists = (
+              sqlRecipientLists?.nodes ?? []
+            ).filter(list => sqlRecipientListIds.includes(list.id));
+            const requiredParams = [
+              ...new Set(
+                selectedSqlRecipientLists.map(list => list.parameters).flat(1)
+              ),
+            ];
+            onChangeSqlParams(requiredParams);
+          }}
           recipientLists={recipientLists?.nodes ?? []}
           recipients={recipients?.nodes ?? []}
+          sqlRecipientLists={sqlRecipientLists?.nodes ?? []}
         />
       )}
       <Grid flexDirection="column" display="flex" gap={2}>
