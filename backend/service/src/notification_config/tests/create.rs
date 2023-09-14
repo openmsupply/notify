@@ -2,7 +2,7 @@
 mod notification_config_create_test {
     use repository::mock::mock_coldchain_notification_config_a;
     use repository::{mock::MockDataInserts, test_db::setup_all};
-    use repository::{NotificationConfigKind, NotificationConfigRowRepository};
+    use repository::{NotificationConfigKind, NotificationConfigRowRepository, NotificationConfigStatus};
     use std::sync::Arc;
     use util::uuid::uuid;
 
@@ -35,7 +35,8 @@ mod notification_config_create_test {
                     id: mock_coldchain_notification_config_a().id.clone(),
                     title: "some title".to_string(),
                     kind: NotificationConfigKind::ColdChain,
-                    configuration_data: "{\"highTemp\":true}".to_string()
+                    configuration_data: "{\"highTemp\":true}".to_string(),
+                    status: NotificationConfigStatus::Disabled,
                 },
             ),
             Err(ModifyNotificationConfigError::NotificationConfigAlreadyExists)
@@ -67,6 +68,7 @@ mod notification_config_create_test {
                 title: "new_notification_config".to_string(),
                 kind: NotificationConfigKind::ColdChain,
                 configuration_data: "{\"highTemp\":true}".to_string(),
+                status: NotificationConfigStatus::Disabled,
             },
         );
 

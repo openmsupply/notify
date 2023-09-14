@@ -29,6 +29,7 @@ export interface ModalProps {
     } & React.RefAttributes<unknown>
   >;
   okButton?: JSX.Element;
+  statusCheckbox?: JSX.Element;
   width?: number;
   sx?: SxProps<Theme>;
   title: string;
@@ -97,6 +98,7 @@ export const useDialog = (dialogProps?: DialogProps): DialogState => {
     height,
     nextButton,
     okButton,
+    statusCheckbox,
     width,
     title,
     contentProps,
@@ -166,6 +168,7 @@ export const useDialog = (dialogProps?: DialogProps): DialogState => {
         >
           {cancelButton}
           {okButton}
+          {statusCheckbox}
           {WrappedNextButton}
         </DialogActions>
       </BasicModal>

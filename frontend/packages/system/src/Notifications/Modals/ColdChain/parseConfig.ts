@@ -36,6 +36,7 @@ export function parseColdChainNotificationConfig(
       locationIds,
       recipientIds,
       recipientListIds,
+      status: config.status,
     };
   } catch (e) {
     showError();
@@ -47,6 +48,7 @@ export function parseColdChainNotificationConfig(
       id: config.id,
       title: config.title,
       kind: config.kind,
+      status: config.status,
     } as CCNotification;
   }
 }
@@ -81,10 +83,11 @@ export function buildColdChainNotificationInputs(config: CCNotification): {
       recipientIds,
       recipientListIds,
     }),
+    status: config.status,
   };
 
   return {
-    create: { ...input, kind: config.kind },
+    create: { ...input, kind: config.kind},
     update: input,
   };
 }

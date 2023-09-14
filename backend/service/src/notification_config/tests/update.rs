@@ -9,6 +9,7 @@ mod notification_config_update_tests {
         mock::{mock_coldchain_notification_config_a, MockDataInserts},
         test_db::setup_all,
     };
+    use repository::{NotificationConfigStatus};
     use std::sync::Arc;
 
     #[actix_rt::test]
@@ -34,6 +35,7 @@ mod notification_config_update_tests {
                     id: "new_id".to_string(),
                     title: Some("new title".to_string()),
                     configuration_data: None,
+                    status: NotificationConfigStatus::Disabled,
                 },
             ),
             Err(ModifyNotificationConfigError::NotificationConfigDoesNotExist)
@@ -64,6 +66,7 @@ mod notification_config_update_tests {
                     id: mock_coldchain_notification_config_a().id.clone(),
                     title: Some("this is the new title".to_string()),
                     configuration_data: None,
+                    status: NotificationConfigStatus::Disabled,
                 },
             )
             .unwrap();
@@ -83,6 +86,7 @@ mod notification_config_update_tests {
                     id: mock_coldchain_notification_config_a().id.clone(),
                     title: None,
                     configuration_data: Some("{\"confirmOk\":true}".to_string()),
+                    status: NotificationConfigStatus::Disabled,
                 },
             )
             .unwrap();
@@ -90,6 +94,26 @@ mod notification_config_update_tests {
         assert_eq!(
             updated_notification_config.configuration_data,
             "{\"confirmOk\":true}".to_string()
+        );
+
+        // Update status
+        let updated_notification_config = context
+            .service_provider
+            .notification_config_service
+            .update_notification_config(
+                &context,
+                UpdateNotificationConfig {
+                    id: mock_coldchain_notification_config_a().id.clone(),
+                    title: None,
+                    configuration_data: None,
+                    status: NotificationConfigStatus::Enabled,
+                },
+            )
+            .unwrap();
+
+        assert_eq!(
+            updated_notification_config.status,
+            NotificationConfigStatus::Enabled
         );
     }
 }

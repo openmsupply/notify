@@ -26,7 +26,7 @@ export const ListView = () => {
 
   const columns = useColumns<NotificationConfigRowFragment>(
     [
-      { key: 'title', label: 'label.title' },
+      { key: 'title', label: 'label.title'},
       {
         key: 'kind',
         label: 'label.kind',
@@ -35,6 +35,9 @@ export const ListView = () => {
           <Typography>{t(`config-kind.${props.rowData.kind}`)}</Typography>
         ),
       },
+      /*{
+        key: 'status', label: 'label.status',
+      },*/
       'selection',
     ],
     { sortBy: queryParams.sortBy, onChangeSortBy: updateSortQuery },

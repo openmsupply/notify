@@ -5,6 +5,7 @@ import {
   ConfigKind,
   useTranslation,
   useNotification,
+  ConfigStatus,
 } from '@notify-frontend/common';
 import { ScheduledNotificationEditForm } from './ScheduledNotificationEditForm';
 import { BaseNotificationEditModal } from '../Base/BaseNotificationEditModal';
@@ -38,6 +39,7 @@ const createScheduledNotification = (
   subjectTemplate: seed?.subjectTemplate ?? '',
   bodyTemplate: seed?.bodyTemplate ?? '',
   sqlQueries: seed?.sqlQueries ?? [],
+  status: seed?.status ?? ConfigStatus.Disabled,
 });
 
 export const ScheduledNotificationEditModal: FC<
@@ -91,6 +93,7 @@ export const ScheduledNotificationEditModal: FC<
       onSave={onSave}
       draft={draft}
       setDraft={setDraft}
+      status={ConfigStatus.Disabled}
       CustomForm={ScheduledNotificationEditForm}
     />
   );

@@ -34,6 +34,7 @@ export function parseScheduledNotificationConfig(
       subjectTemplate,
       bodyTemplate,
       sqlQueries,
+      status: config.status,
     };
     return scheduledNotification;
   } catch (e) {
@@ -60,9 +61,10 @@ export function buildScheduledNotificationInputs(
     id: config.id,
     title: config.title,
     configurationData: JSON.stringify(config),
+    status: config.status,
   };
   return {
-    create: { ...input, kind: config.kind },
-    update: input,
+    create: { ...input, kind: config.kind, status:config.status},
+    update: {...input, status:config.status},
   };
 }

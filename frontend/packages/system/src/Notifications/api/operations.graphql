@@ -3,6 +3,7 @@ fragment NotificationConfigRow on NotificationConfigNode {
   title
   kind
   configurationData
+  status
 }
 
 query NotificationConfigs(

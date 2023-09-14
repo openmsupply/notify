@@ -10,6 +10,8 @@ import {
   CheckIcon,
   InlineSpinner,
   ConfigKind,
+  ConfigStatus,
+  Checkbox,
 } from '@notify-frontend/common';
 import { BaseNotificationEditForm } from './BaseNotificationEditForm';
 import { BaseNotificationConfig } from '../../types';
@@ -27,6 +29,7 @@ interface BaseNotificationEditModalProps<T extends BaseNotificationConfig> {
     onUpdate: (patch: Partial<T>) => void;
     draft: T;
   }>;
+  status: ConfigStatus;
 }
 
 export const BaseNotificationEditModal = <T extends BaseNotificationConfig>({
@@ -39,6 +42,7 @@ export const BaseNotificationEditModal = <T extends BaseNotificationConfig>({
   onSave,
   setDraft,
   CustomForm,
+  status,
 }: BaseNotificationEditModalProps<T>) => {
   const t = useTranslation(['system']);
 
@@ -77,6 +81,10 @@ export const BaseNotificationEditModal = <T extends BaseNotificationConfig>({
           </LoadingButton>
         }
         cancelButton={<DialogButton variant="cancel" onClick={onClose} />}
+        statusCheckbox={<Checkbox onChange={() =>{
+          onClose
+        }} 
+        />}
         title={t('label.setup-notification', {
           type: t(`config-kind.${kind}`),
         })}

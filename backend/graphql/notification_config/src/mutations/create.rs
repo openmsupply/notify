@@ -1,6 +1,6 @@
 use async_graphql::*;
 use graphql_core::{standard_graphql_error::validate_auth, ContextExt};
-use graphql_types::types::{ConfigKind, NotificationConfigNode};
+use graphql_types::types::{ConfigKind, NotificationConfigNode, ConfigStatus};
 use service::{
     auth::{Resource, ResourceAccessRequest},
     notification_config::create::CreateNotificationConfig,
@@ -39,6 +39,8 @@ pub struct CreateNotificationConfigInput {
     pub title: String,
     pub kind: ConfigKind,
     pub configuration_data: String,
+    pub status: ConfigStatus,
+
 }
 
 impl From<CreateNotificationConfigInput> for CreateNotificationConfig {
@@ -48,6 +50,7 @@ impl From<CreateNotificationConfigInput> for CreateNotificationConfig {
             title,
             kind,
             configuration_data,
+            status,
         }: CreateNotificationConfigInput,
     ) -> Self {
         CreateNotificationConfig {
@@ -55,6 +58,7 @@ impl From<CreateNotificationConfigInput> for CreateNotificationConfig {
             title,
             kind: ConfigKind::to_domain(kind),
             configuration_data,
+            status: ConfigStatus::to_domain(status),
         }
     }
 }

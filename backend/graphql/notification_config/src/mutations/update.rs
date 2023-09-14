@@ -1,7 +1,7 @@
 use async_graphql::*;
 
 use graphql_core::{standard_graphql_error::validate_auth, ContextExt};
-use graphql_types::types::NotificationConfigNode;
+use graphql_types::types::{NotificationConfigNode, ConfigStatus};
 use service::{
     auth::{Resource, ResourceAccessRequest},
     notification_config::update::UpdateNotificationConfig,
@@ -38,6 +38,7 @@ pub struct UpdateNotificationConfigInput {
     pub id: String,
     pub title: Option<String>,
     pub configuration_data: Option<String>,
+    pub status: ConfigStatus,
 }
 
 impl From<UpdateNotificationConfigInput> for UpdateNotificationConfig {
@@ -46,12 +47,14 @@ impl From<UpdateNotificationConfigInput> for UpdateNotificationConfig {
             id,
             title,
             configuration_data,
+            status,
         }: UpdateNotificationConfigInput,
     ) -> Self {
         UpdateNotificationConfig {
             id,
             title,
             configuration_data,
+            status: ConfigStatus::to_domain(status),
         }
     }
 }

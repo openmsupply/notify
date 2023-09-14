@@ -5,6 +5,7 @@ import {
   ConfigKind,
   useTranslation,
   useNotification,
+  ConfigStatus,
 } from '@notify-frontend/common';
 import { CCNotificationEditForm } from './CCNotificationEditForm';
 import { BaseNotificationEditModal } from '../Base/BaseNotificationEditModal';
@@ -37,6 +38,7 @@ const createCCNotifcation = (seed: CCNotification | null): CCNotification => ({
   locationIds: seed?.locationIds ?? [],
   recipientIds: seed?.recipientIds ?? [],
   recipientListIds: seed?.recipientListIds ?? [],
+  status: seed?.status ?? ConfigStatus.Disabled,
 });
 
 export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
@@ -96,6 +98,7 @@ export const CCNotificationEditModal: FC<CCNotificationEditModalProps> = ({
       onSave={onSave}
       draft={draft}
       setDraft={setDraft}
+      status={ConfigStatus.Disabled}
       CustomForm={CCNotificationEditForm}
     />
   );

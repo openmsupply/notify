@@ -11,6 +11,7 @@ table! {
         title -> Text,
         kind -> crate::db_diesel::notification_config_row::NotificationConfigKindMapping,
         configuration_data -> Text,
+        status -> crate::db_diesel::notification_config_row::NotificationConfigStatusMapping,
     }
 }
 
@@ -39,6 +40,31 @@ impl NotificationConfigKind {
     }
 }
 
+#[derive(DbEnum, Debug, Clone, PartialEq, Eq, Hash)]
+#[DbValueStyle = "SCREAMING_SNAKE_CASE"]
+pub enum NotificationConfigStatus {
+    Enabled,
+    Disabled,
+}
+
+impl Default for NotificationConfigStatus {
+    fn default() -> Self {
+        NotificationConfigStatus::Disabled
+    }
+}
+
+impl NotificationConfigStatus {
+    pub fn equal_to(value: NotificationConfigStatus) -> EqualFilter<NotificationConfigStatus> {
+        EqualFilter {
+            equal_to: Some(value),
+            not_equal_to: None,
+            equal_any: None,
+            not_equal_all: None,
+            is_null: None,
+        }
+    }
+}
+
 #[derive(
     Clone, Queryable, Identifiable, Insertable, AsChangeset, Debug, PartialEq, Eq, Default,
 )]
@@ -50,6 +76,7 @@ pub struct NotificationConfigRow {
     // this is actually stringified JSON - would be better to store as JSON, however
     // it would appear the diesel JSON types are only available if the postgres feature is enabled...
     pub configuration_data: String,
+    pub status: NotificationConfigStatus,
 }
 
 pub struct NotificationConfigRowRepository<'a> {
