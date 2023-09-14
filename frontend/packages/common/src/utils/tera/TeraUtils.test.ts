@@ -46,3 +46,34 @@ describe('keyedParamsAsTeraJson', () => {
     ).toEqual('{"user":{"name":"John","email":"john@example.com"}}');
   });
 });
+
+describe('keyedParamsFromTeraJson', () => {
+  it('Should convert a single key', () => {
+    expect(TeraUtils.keyedParamsFromTeraJson('{"name":"John"}')).toEqual({
+      name: 'John',
+    });
+  });
+  it('Should convert nested keys', () => {
+    expect(
+      TeraUtils.keyedParamsFromTeraJson(
+        '{"user": {"name":"John","email":"john@example.com"}, "organisation": {"name": "Example Org"}}'
+      )
+    ).toEqual({
+      'user.name': 'John',
+      'user.email': 'john@example.com',
+      'organisation.name': 'Example Org',
+    });
+  });
+  it('Should convert a single nested key', () => {
+    expect(
+      TeraUtils.keyedParamsFromTeraJson('{"user":{"name":"John"}}')
+    ).toEqual({ 'user.name': 'John' });
+  });
+  it('Should convert a deeply nested key', () => {
+    expect(
+      TeraUtils.keyedParamsFromTeraJson(
+        '{"user":{"name":"John", "address": {"city": "London"}}}'
+      )
+    ).toEqual({ 'user.name': 'John', 'user.address.city': 'London' });
+  });
+});

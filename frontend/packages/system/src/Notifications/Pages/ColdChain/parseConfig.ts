@@ -4,6 +4,7 @@ import {
 } from '@common/types';
 import { CCNotification } from '../../types';
 import { NotificationConfigRowFragment } from '../../api';
+import { TeraUtils } from '@common/utils';
 
 export function parseColdChainNotificationConfig(
   config: NotificationConfigRowFragment | null,
@@ -38,7 +39,8 @@ export function parseColdChainNotificationConfig(
       recipientIds,
       recipientListIds,
       sqlRecipientListIds,
-      parameters: JSON.parse(config.parameters),
+      parameters: config.parameters,
+      parsedParameters: TeraUtils.keyedParamsFromTeraJson(config.parameters),
     };
   } catch (e) {
     showError();
@@ -68,7 +70,6 @@ export function buildColdChainNotificationInputs(config: CCNotification): {
     locationIds,
     recipientIds,
     recipientListIds,
-    parameters,
   } = config;
 
   const input = {
@@ -84,9 +85,8 @@ export function buildColdChainNotificationInputs(config: CCNotification): {
       locationIds,
       recipientIds,
       recipientListIds,
-      parameters,
     }),
-    parameters: JSON.stringify(parameters),
+    parameters: config.parameters,
   };
 
   return {

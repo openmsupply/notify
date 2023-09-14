@@ -13,10 +13,15 @@ import {
   CloseIcon,
   useBreadcrumbs,
   SaveIcon,
+  useDetailPanel,
+  AppBarButtonsPortal,
+  KeyedParams,
+  TeraUtils,
 } from '@notify-frontend/common';
 
 import { BaseNotificationConfig } from '../../types';
 import { BaseNotificationAppBar } from './BaseNotificationAppBar';
+import { NotificationDetailPanel } from './NotificationDetailPanel';
 
 interface BaseNotificationEditPageProps<T extends BaseNotificationConfig> {
   isInvalid: boolean;
@@ -39,6 +44,7 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
   CustomForm,
 }: BaseNotificationEditPageProps<T>) => {
   const t = useTranslation(['system']);
+  const { OpenButton } = useDetailPanel(t('label.parameters'));
   const { navigateUpOne } = useBreadcrumbs();
   const [errorMessage, setErrorMessage] = useState('');
   const [isSaved, setIsSaved] = useState(false);
@@ -48,11 +54,17 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
     setIsSaved(false);
   };
 
-  const onSaved = () => {
-    setIsSaved(true);
+  const onUpdateParams = (key: string, value: string) => {
+    const updatedParam = { [key]: value } as KeyedParams;
+    const parseParams = { ...draft.parsedParameters, ...updatedParam };
+    onUpdate({
+      ...draft,
+      parsedParameters: parseParams,
+      parameters: TeraUtils.keyedParamsAsTeraJson(parseParams),
+    });
   };
 
-  // TODO: We'll add a parameters editor in issue https://github.com/openmsupply/notify/issues/116
+  const requiredParams = ['user.name']; // Get this list from any sqlRecipientLists associated with this notification
 
   return (
     <>
@@ -60,6 +72,12 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
         <InlineSpinner />
       ) : (
         <>
+          <NotificationDetailPanel
+            requiredParams={requiredParams}
+            params={draft.parsedParameters}
+            onUpdateParams={onUpdateParams}
+          />
+          <AppBarButtonsPortal>{OpenButton}</AppBarButtonsPortal>
           <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
             <BaseNotificationAppBar draft={draft} onUpdate={onUpdate} />
           </AppBarContentPortal>
@@ -104,7 +122,7 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
                     isLoading={isLoading}
                     onClick={() => {
                       onSave(draft);
-                      onSaved();
+                      setIsSaved(true);
                     }}
                     startIcon={<SaveIcon />}
                     sx={{ fontSize: '12px' }}
