@@ -48,7 +48,7 @@ pub struct NotificationConfigRow {
     pub id: String,
     pub title: String,
     pub kind: NotificationConfigKind,
-    // these fields is actually stringified JSON - would be better to store as JSON, however
+    // these fields are actually stringified JSON - would be better to store as JSON, however
     // it would appear the diesel JSON types are only available if the postgres feature is enabled...
     pub configuration_data: String,
     pub parameters: String,
