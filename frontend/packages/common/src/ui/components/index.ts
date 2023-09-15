@@ -17,6 +17,7 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import Fab from '@mui/material/Fab';
 import MuiLink from '@mui/material/Link';
+import FormLabel from '@mui/material/FormLabel';
 
 export * from './portals';
 export * from './inputs';
@@ -41,6 +42,7 @@ export {
   CircularProgress,
   Collapse,
   Fab,
+  FormLabel,
   Input,
   InputAdornment,
   InputLabel,
