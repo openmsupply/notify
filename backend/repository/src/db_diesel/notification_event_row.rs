@@ -18,7 +18,7 @@ CREATE TABLE
         created_at TIMESTAMP NOT NULL,
         updated_at TIMESTAMP NOT NULL,
         retry_at TIMESTAMP NULL,
-        retries INTEGER NOT NULL DEFAULT 0,
+        send_attempts INTEGER NOT NULL DEFAULT 0,
         error_message TEXT NULL
     );
  */
@@ -36,7 +36,7 @@ table! {
         updated_at -> Timestamp,
         sent_at -> Nullable<Timestamp>,
         retry_at -> Nullable<Timestamp>,
-        retries -> Integer,
+        send_attempts -> Integer,
         error_message -> Nullable<Text>,
     }
 }
@@ -67,7 +67,7 @@ pub struct NotificationEventRow {
     pub updated_at: chrono::NaiveDateTime,
     pub sent_at: Option<chrono::NaiveDateTime>,
     pub retry_at: Option<chrono::NaiveDateTime>,
-    pub retries: i32,
+    pub send_attempts: i32,
     pub error_message: Option<String>,
 }
 

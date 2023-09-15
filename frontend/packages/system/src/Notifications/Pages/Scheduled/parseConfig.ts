@@ -4,6 +4,7 @@ import {
 } from '@common/types';
 import { NotificationConfigRowFragment } from '../../api';
 import { ScheduledNotification } from '../../types';
+import { TeraUtils } from '@common/utils';
 
 export function parseScheduledNotificationConfig(
   config: NotificationConfigRowFragment | null,
@@ -14,7 +15,7 @@ export function parseScheduledNotificationConfig(
     const {
       recipientIds,
       recipientListIds,
-      parameters,
+      sqlRecipientListIds,
       scheduleFrequency,
       scheduleStartTime,
       subjectTemplate,
@@ -26,14 +27,16 @@ export function parseScheduledNotificationConfig(
       id: config.id,
       title: config.title,
       kind: config.kind,
-      parameters,
       scheduleFrequency,
       scheduleStartTime,
       recipientIds,
       recipientListIds,
+      sqlRecipientListIds,
       subjectTemplate,
       bodyTemplate,
       sqlQueries,
+      parameters: config.parameters,
+      parsedParameters: TeraUtils.keyedParamsFromTeraJson(config.parameters),
     };
     return scheduledNotification;
   } catch (e) {

@@ -5,7 +5,7 @@ import {
   DetailPanelSection,
   setScreenSize_ONLY_FOR_TESTING,
   useDetailPanel,
-} from '@openmsupply-client/common';
+} from '@notify-frontend/common';
 import { DetailPanel, DetailPanelPortal } from './DetailPanel';
 import { TestingProvider } from '@common/utils';
 import { PropsWithChildrenOnly } from '@common/types';

@@ -1,31 +1,18 @@
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = {
-  [K in keyof T]: T[K];
-};
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]?: Maybe<T[SubKey]>;
-};
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]: Maybe<T[SubKey]>;
-};
-export type MakeEmpty<
-  T extends { [key: string]: unknown },
-  K extends keyof T
-> = { [_ in K]?: never };
-export type Incremental<T> =
-  | T
-  | {
-      [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never;
-    };
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string; output: string };
-  String: { input: string; output: string };
-  Boolean: { input: boolean; output: boolean };
-  Int: { input: number; output: number };
-  Float: { input: number; output: number };
-  DateTime: { input: string; output: string };
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
+  DateTime: { input: string; output: string; }
 };
 
 export type AcceptUserInviteInput = {
@@ -68,7 +55,6 @@ export enum ConfigKind {
 }
 
 export type CreateNotificationConfigInput = {
-  configurationData: Scalars['String']['input'];
   id: Scalars['String']['input'];
   kind: ConfigKind;
   title: Scalars['String']['input'];
@@ -188,95 +174,118 @@ export type FullMutation = {
   validatePasswordResetToken: PasswordResetResponse;
 };
 
+
 export type FullMutationAcceptUserInviteArgs = {
   input: AcceptUserInviteInput;
   token: Scalars['String']['input'];
 };
 
+
 export type FullMutationAddRecipientToListArgs = {
   input: AddRecipientToListInput;
 };
+
 
 export type FullMutationCreateNotificationConfigArgs = {
   input: CreateNotificationConfigInput;
 };
 
+
 export type FullMutationCreateRecipientArgs = {
   input: CreateRecipientInput;
 };
+
 
 export type FullMutationCreateRecipientListArgs = {
   input: CreateRecipientListInput;
 };
 
+
 export type FullMutationCreateSqlRecipientListArgs = {
   input: CreateSqlRecipientListInput;
 };
+
 
 export type FullMutationCreateUserAccountArgs = {
   input: CreateUserAccountInput;
 };
 
+
 export type FullMutationDeleteNotificationConfigArgs = {
   id: Scalars['String']['input'];
 };
+
 
 export type FullMutationDeleteRecipientArgs = {
   recipientId: Scalars['String']['input'];
 };
 
+
 export type FullMutationDeleteRecipientListArgs = {
   recipientListId: Scalars['String']['input'];
 };
+
 
 export type FullMutationDeleteSqlRecipientListArgs = {
   sqlRecipientListId: Scalars['String']['input'];
 };
 
+
 export type FullMutationDeleteUserAccountArgs = {
   userAccountId: Scalars['String']['input'];
 };
+
 
 export type FullMutationInitiatePasswordResetArgs = {
   email: Scalars['String']['input'];
 };
 
+
 export type FullMutationInitiateUserInviteArgs = {
   input: InviteUserInput;
 };
 
+
 export type FullMutationRemoveRecipientFromListArgs = {
   input: RemoveRecipientFromListInput;
 };
+
 
 export type FullMutationResetPasswordUsingTokenArgs = {
   password: Scalars['String']['input'];
   token: Scalars['String']['input'];
 };
 
+
 export type FullMutationSendTestTelegramMessageArgs = {
   chatId: Scalars['String']['input'];
 };
+
 
 export type FullMutationUpdateNotificationConfigArgs = {
   input: UpdateNotificationConfigInput;
 };
 
+
 export type FullMutationUpdateRecipientArgs = {
   input: UpdateRecipientInput;
 };
+
 
 export type FullMutationUpdateRecipientListArgs = {
   input: UpdateRecipientListInput;
 };
 
+
 export type FullMutationUpdateSqlRecipientListArgs = {
   input: UpdateSqlRecipientListInput;
 };
 
+
 export type FullMutationUpdateUserAccountArgs = {
   input: UpdateUserAccountInput;
 };
+
 
 export type FullMutationValidatePasswordResetTokenArgs = {
   token: Scalars['String']['input'];
@@ -312,10 +321,12 @@ export type FullQuery = {
   userAccounts: UserAccountsResponse;
 };
 
+
 export type FullQueryAuthTokenArgs = {
   password: Scalars['String']['input'];
   username: Scalars['String']['input'];
 };
+
 
 export type FullQueryLogsArgs = {
   filter?: InputMaybe<LogFilterInput>;
@@ -323,11 +334,13 @@ export type FullQueryLogsArgs = {
   sort?: InputMaybe<Array<LogSortInput>>;
 };
 
+
 export type FullQueryNotificationConfigsArgs = {
   filter?: InputMaybe<NotificationConfigFilterInput>;
   page?: InputMaybe<PaginationInput>;
   sort?: InputMaybe<Array<NotificationConfigSortInput>>;
 };
+
 
 export type FullQueryRecipientListsArgs = {
   filter?: InputMaybe<RecipientListFilterInput>;
@@ -335,15 +348,18 @@ export type FullQueryRecipientListsArgs = {
   sort?: InputMaybe<Array<RecipientListSortInput>>;
 };
 
+
 export type FullQueryRecipientsArgs = {
   filter?: InputMaybe<RecipientFilterInput>;
   page?: InputMaybe<PaginationInput>;
   sort?: InputMaybe<Array<RecipientSortInput>>;
 };
 
+
 export type FullQueryRunSqlQueryArgs = {
   sqlQuery: Scalars['String']['input'];
 };
+
 
 export type FullQuerySqlRecipientListsArgs = {
   filter?: InputMaybe<RecipientListFilterInput>;
@@ -357,6 +373,7 @@ export type FullQueryTestSqlRecipientListQueryArgs = {
   query: Scalars['String']['input'];
 };
 
+
 export type FullQueryUserAccountsArgs = {
   filter?: InputMaybe<UserAccountFilterInput>;
   page?: InputMaybe<PaginationInput>;
@@ -368,12 +385,11 @@ export type IdResponse = {
   id: Scalars['String']['output'];
 };
 
-export type InternalError = LogoutErrorInterface &
-  RefreshTokenErrorInterface & {
-    __typename: 'InternalError';
-    description: Scalars['String']['output'];
-    fullError: Scalars['String']['output'];
-  };
+export type InternalError = LogoutErrorInterface & RefreshTokenErrorInterface & {
+  __typename: 'InternalError';
+  description: Scalars['String']['output'];
+  fullError: Scalars['String']['output'];
+};
 
 export type InvalidCredentials = AuthTokenErrorInterface & {
   __typename: 'InvalidCredentials';
@@ -435,7 +451,7 @@ export enum LogNodeType {
   UserAccountCreated = 'USER_ACCOUNT_CREATED',
   UserAccountPasswordResetInitiated = 'USER_ACCOUNT_PASSWORD_RESET_INITIATED',
   UserAccountUpdated = 'USER_ACCOUNT_UPDATED',
-  UserLoggedIn = 'USER_LOGGED_IN',
+  UserLoggedIn = 'USER_LOGGED_IN'
 }
 
 export type LogResponse = LogConnector;
@@ -445,7 +461,7 @@ export enum LogSortFieldInput {
   Id = 'id',
   LogType = 'logType',
   RecordId = 'recordId',
-  UserId = 'userId',
+  UserId = 'userId'
 }
 
 export type LogSortInput = {
@@ -512,11 +528,12 @@ export type NotificationConfigNode = {
   configurationData: Scalars['String']['output'];
   id: Scalars['String']['output'];
   kind: ConfigKind;
+  parameters: Scalars['String']['output'];
   title: Scalars['String']['output'];
 };
 
 export enum NotificationConfigSortFieldInput {
-  Title = 'title',
+  Title = 'title'
 }
 
 export type NotificationConfigSortInput = {
@@ -558,7 +575,7 @@ export type PasswordResetResponseMessage = {
 
 export enum PermissionNode {
   Reader = 'READER',
-  ServerAdmin = 'SERVER_ADMIN',
+  ServerAdmin = 'SERVER_ADMIN'
 }
 
 export type RecipientConnector = {
@@ -596,7 +613,7 @@ export type RecipientListNode = {
 };
 
 export enum RecipientListSortFieldInput {
-  Name = 'name',
+  Name = 'name'
 }
 
 export type RecipientListSortInput = {
@@ -622,7 +639,7 @@ export type RecipientNode = {
 
 export enum RecipientSortFieldInput {
   Name = 'name',
-  ToAddress = 'toAddress',
+  ToAddress = 'toAddress'
 }
 
 export type RecipientSortInput = {
@@ -715,6 +732,7 @@ export type TokenExpired = RefreshTokenErrorInterface & {
 export type UpdateNotificationConfigInput = {
   configurationData?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
+  parameters?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -776,7 +794,7 @@ export type UserAccountNode = {
 
 export enum UserAccountSortFieldInput {
   DisplayName = 'displayName',
-  Username = 'username',
+  Username = 'username'
 }
 
 export type UserAccountSortInput = {

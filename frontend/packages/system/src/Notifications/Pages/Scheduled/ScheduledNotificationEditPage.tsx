@@ -1,28 +1,23 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  ModalMode,
   FnUtils,
   ConfigKind,
   useTranslation,
   useNotification,
+  useParams,
 } from '@notify-frontend/common';
 import { ScheduledNotificationEditForm } from './ScheduledNotificationEditForm';
-import { BaseNotificationEditModal } from '../Base/BaseNotificationEditModal';
+import { BaseNotificationEditPage } from '../Base/BaseNotificationEditPage';
 import { ScheduledNotification } from '../../types';
-import { useCreateNotificationConfig } from '../../api/hooks/useCreateNotificationConfig';
 import {
   buildScheduledNotificationInputs,
   parseScheduledNotificationConfig,
 } from './parseConfig';
 import { useUpdateNotificationConfig } from '../../api/hooks/useUpdateNotificationConfig';
-import { NotificationConfigRowFragment } from '../../api';
-
-interface ScheduledNotificationEditModalProps {
-  mode: ModalMode | null;
-  isOpen: boolean;
-  onClose: () => void;
-  entity: NotificationConfigRowFragment | null;
-}
+import {
+  NotificationConfigRowFragment,
+  useNotificationConfigs,
+} from '../../api';
 
 const createScheduledNotification = (
   seed: ScheduledNotification | null
@@ -30,9 +25,11 @@ const createScheduledNotification = (
   id: seed?.id ?? FnUtils.generateUUID(),
   title: seed?.title ?? '',
   kind: seed?.kind ?? ConfigKind.Scheduled,
-  recipientListIds: seed?.recipientListIds ?? [],
   recipientIds: seed?.recipientIds ?? [],
-  parameters: seed?.parameters ?? '[]',
+  recipientListIds: seed?.recipientListIds ?? [],
+  sqlRecipientListIds: seed?.sqlRecipientListIds ?? [],
+  parameters: seed?.parameters ?? '{}',
+  parsedParameters: seed?.parsedParameters ?? {},
   scheduleFrequency: seed?.scheduleFrequency ?? 'daily',
   scheduleStartTime: seed?.scheduleStartTime ?? new Date(),
   subjectTemplate: seed?.subjectTemplate ?? '',
@@ -40,39 +37,36 @@ const createScheduledNotification = (
   sqlQueries: seed?.sqlQueries ?? [],
 });
 
-export const ScheduledNotificationEditModal: FC<
-  ScheduledNotificationEditModalProps
-> = ({ mode, isOpen, onClose, entity }) => {
+export const ScheduledNotificationEditPage = () => {
   const t = useTranslation('system');
   const { error } = useNotification();
   const parsingErrorSnack = error(t('error.parsing-notification-config'));
 
+  const { id } = useParams<{ id: string }>();
   const [draft, setDraft] = useState<ScheduledNotification>(() =>
     createScheduledNotification(null)
   );
 
+  // Get the notification config from the API
+  const { data, isLoading } = useNotificationConfigs({
+    filterBy: { id: { equalTo: id } },
+  });
   useEffect(() => {
+    const entity = data?.nodes[0];
+    // Once we get the notification config from the API, parse it and load into the draft
     const parsedDraft = parseScheduledNotificationConfig(
-      entity,
+      (entity as NotificationConfigRowFragment) ?? null,
       parsingErrorSnack
     );
     setDraft(createScheduledNotification(parsedDraft));
-  }, []);
-
-  const { mutateAsync: create, isLoading: createIsLoading } =
-    useCreateNotificationConfig();
+  }, [data]);
 
   const { mutateAsync: update, isLoading: updateIsLoading } =
     useUpdateNotificationConfig();
 
   const onSave = async (draft: ScheduledNotification) => {
     const inputs = buildScheduledNotificationInputs(draft);
-
-    if (mode === ModalMode.Create) {
-      await create({ input: inputs.create });
-    } else {
-      await update({ input: inputs.update });
-    }
+    await update({ input: inputs.update });
   };
 
   const isInvalid =
@@ -82,12 +76,9 @@ export const ScheduledNotificationEditModal: FC<
     (!draft.recipientListIds.length && !draft.recipientIds.length);
 
   return (
-    <BaseNotificationEditModal
-      kind={ConfigKind.Scheduled}
-      isOpen={isOpen}
-      isLoading={createIsLoading || updateIsLoading}
+    <BaseNotificationEditPage
+      isLoading={isLoading || updateIsLoading}
       isInvalid={isInvalid}
-      onClose={onClose}
       onSave={onSave}
       draft={draft}
       setDraft={setDraft}

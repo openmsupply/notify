@@ -19,7 +19,7 @@ pub struct UpdateSqlRecipientList {
     pub name: Option<String>,
     pub description: Option<String>,
     pub query: Option<String>,
-    pub parameters: Option<Vec<String>>,
+    pub required_parameters: Option<Vec<String>>,
 }
 
 pub fn update_sql_recipient_list(
@@ -87,7 +87,7 @@ pub fn generate(
         name,
         description,
         query,
-        parameters,
+        required_parameters,
     }: UpdateSqlRecipientList,
     current_sql_recipient_list_row: SqlRecipientListRow,
 ) -> Result<SqlRecipientListRow, ModifySqlRecipientListError> {
@@ -101,7 +101,7 @@ pub fn generate(
     if let Some(query) = query {
         new_sql_recipient_list_row.query = query;
     }
-    if let Some(parameters) = parameters {
+    if let Some(parameters) = required_parameters {
         // Set parameters to JSON string
         let json_parameters = serde_json::to_value(parameters).map_err(|e| {
             ModifySqlRecipientListError::InternalError(format!(
@@ -116,7 +116,7 @@ pub fn generate(
             ))
         })?;
 
-        new_sql_recipient_list_row.parameters = json_parameters;
+        new_sql_recipient_list_row.required_parameters = json_parameters;
     }
 
     Ok(new_sql_recipient_list_row)
