@@ -64,7 +64,7 @@ export function buildScheduledNotificationInputs(
     status: config.status,
   };
   return {
-    create: { ...input, kind: config.kind, status:config.status},
-    update: {...input, status:config.status},
+    create: { ...input, kind: config.kind},
+    update: input,
   };
 }

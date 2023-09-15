@@ -56,6 +56,9 @@ export const BaseNotificationEditModal = <T extends BaseNotificationConfig>({
 
   const modalHeight = Math.min(window.innerHeight - 50, 800);
   const modalWidth = Math.min(window.innerWidth - 50, 1024);
+  const isEnabled = (status: ConfigStatus) => {
+    return  (status == ConfigStatus.Enabled);
+  }
 
   return (
     <>
@@ -81,10 +84,29 @@ export const BaseNotificationEditModal = <T extends BaseNotificationConfig>({
           </LoadingButton>
         }
         cancelButton={<DialogButton variant="cancel" onClick={onClose} />}
-        statusCheckbox={<Checkbox onChange={() =>{
-          onClose
-        }} 
-        />}
+        statusCheckbox={
+        <ul style={{ listStyleType: 'none', paddingLeft: '30' }}>
+          <li>
+            <Checkbox checked={isEnabled(draft.status)}
+              onClick={() => {
+                if(isEnabled(draft.status)){
+                onUpdate({
+                    status: ConfigStatus.Disabled,
+                  } as Partial<T>)
+                }else{
+                  onUpdate({
+                    status: ConfigStatus.Enabled,
+                  } as Partial<T>)
+                }
+              }}
+            />
+            <label style={{ display: 'inline-block', lineHeight: 1.3 }}>
+              {t('label.enable')}
+            </label>
+
+          </li>
+        </ul>
+        }
         title={t('label.setup-notification', {
           type: t(`config-kind.${kind}`),
         })}

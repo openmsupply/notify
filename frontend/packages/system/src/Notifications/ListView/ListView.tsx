@@ -35,9 +35,14 @@ export const ListView = () => {
           <Typography>{t(`config-kind.${props.rowData.kind}`)}</Typography>
         ),
       },
-      /*{
-        key: 'status', label: 'label.status',
-      },*/
+      {
+        key: 'status', 
+        label: 'label.status',
+        sortable: false,
+        Cell: props => (
+          <Typography>{t(`config-status.${props.rowData.status}`)}</Typography>
+        ),
+      },
       'selection',
     ],
     { sortBy: queryParams.sortBy, onChangeSortBy: updateSortQuery },
