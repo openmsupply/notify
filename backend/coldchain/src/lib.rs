@@ -3,7 +3,7 @@ use serde::Serialize;
 use service::{
     notification::{
         self,
-        enqueue::{create_notification_events, NotificationContext, NotificationRecipient},
+        enqueue::{create_notification_events, NotificationContext, NotificationTarget},
     },
     service_provider::ServiceContext,
 };
@@ -41,10 +41,10 @@ pub struct TemperatureAlert {
 pub async fn send_high_temperature_alert_telegram(
     ctx: &ServiceContext,
     alert: TemperatureAlert,
-    recipients: Vec<NotificationRecipient>,
+    recipients: Vec<NotificationTarget>,
 ) -> Result<(), notification::NotificationServiceError> {
     let notification = NotificationContext {
-        title_template_name: None,
+        title_template_name: Some("coldchain/telegram/temperature_title.html".to_string()),
         body_template_name: "coldchain/telegram/temperature.html".to_string(),
         recipients,
         template_data: serde_json::to_value(alert).map_err(|e| {
@@ -67,11 +67,12 @@ mod tests {
     use repository::{
         mock::MockDataInserts, test_db::setup_all, NotificationEventRowRepository, NotificationType,
     };
+    use service::test_utils::email_test::send_test_emails;
     use service::test_utils::get_test_settings;
     use service::test_utils::telegram_test::get_default_telegram_chat_id;
     use service::test_utils::telegram_test::send_test_notifications;
 
-    use crate::notification::enqueue::NotificationRecipient;
+    use crate::notification::enqueue::NotificationTarget;
     use std::str::FromStr;
 
     use service::service_provider::ServiceContext;
@@ -80,9 +81,9 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_send_high_temperature_alert_telegram() {
+    async fn test_send_high_temperature_alert() {
         let (_, _, connection_manager, _) =
-            setup_all("test_enqueue_telegram", MockDataInserts::none()).await;
+            setup_all("test_enqueue_telegram_and_email", MockDataInserts::none()).await;
 
         let connection = connection_manager.connection().unwrap();
         let service_provider = Arc::new(ServiceProvider::new(
@@ -102,15 +103,23 @@ mod tests {
             temperature: 10.12345,
         };
 
-        let recipient = NotificationRecipient {
+        let recipient1 = NotificationTarget {
             name: "test".to_string(),
             to_address: get_default_telegram_chat_id(),
             notification_type: NotificationType::Telegram,
         };
+        let recipient2 = NotificationTarget {
+            name: "test-email".to_string(),
+            to_address: "test@example.com".to_string(),
+            notification_type: NotificationType::Email,
+        };
 
-        let result =
-            send_high_temperature_alert_telegram(&context, example_alert.clone(), vec![recipient])
-                .await;
+        let result = send_high_temperature_alert_telegram(
+            &context,
+            example_alert.clone(),
+            vec![recipient1, recipient2],
+        )
+        .await;
 
         assert!(result.is_ok());
 
@@ -118,16 +127,22 @@ mod tests {
         let notification_event_row_repository = NotificationEventRowRepository::new(&connection);
         let notification_event_rows = notification_event_row_repository.un_sent().unwrap();
 
-        assert_eq!(notification_event_rows.len(), 1);
+        assert_eq!(notification_event_rows.len(), 2);
         assert_eq!(
             notification_event_rows[0].to_address,
             get_default_telegram_chat_id()
         );
-        assert!(notification_event_rows[0].title.is_none());
         assert!(notification_event_rows[0]
             .message
             .contains(&example_alert.store_name));
 
+        // Check email recipient
+        assert_eq!(notification_event_rows[1].to_address, "test@example.com");
+        assert!(notification_event_rows[1]
+            .message
+            .contains(&example_alert.store_name));
+
         send_test_notifications(&context).await;
+        send_test_emails(&context);
     }
 }

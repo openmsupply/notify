@@ -8,7 +8,7 @@ use repository::{test_db::get_test_db_settings, StorageConnectionManager};
 
 use crate::{
     datasource::DatasourceServiceTrait,
-    email::{EmailServiceError, EmailServiceTrait},
+    email::{send::EmailSendError, EmailServiceError, EmailServiceTrait},
     service_provider::{ServiceContext, ServiceProvider},
     settings::{MailSettings, ServerSettings, Settings, TelegramSettings},
 };
@@ -75,6 +75,16 @@ impl EmailServiceTrait for MockEmailService {
     fn send_queued_emails(&self, _ctx: &ServiceContext) -> Result<usize, EmailServiceError> {
         Ok(0)
     }
+
+    fn send_email(
+        &self,
+        _to: String,
+        _subject: String,
+        _html_body: String,
+        _text_body: String,
+    ) -> Result<(), EmailSendError> {
+        Ok(())
+    }
 }
 
 pub struct MockDatasourceService {}
@@ -104,7 +114,6 @@ pub fn service_provider_with_mock_email_service(
     service_provider
 }
 
-#[cfg(test)]
 pub mod email_test {
     use crate::service_provider::ServiceContext;
 

@@ -11,6 +11,5 @@ CREATE TABLE
         created_at TIMESTAMP NOT NULL,
         updated_at TIMESTAMP NOT NULL,
         retry_at TIMESTAMP NULL,
-        retries INTEGER NOT NULL DEFAULT 0,
         error_message TEXT NULL
     );

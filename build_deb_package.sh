@@ -15,6 +15,9 @@ if [[ -z "${DEB_BUILD_VERSION}" ]]; then
     export DEB_BUILD_VERSION=$APP_BUILD_VERSION
 fi
 
+# Remove this line to disable bugsnag
+export BUGSNAG_API_KEY='c18f7fe30280013b0f0d894c0a85c945'
+
 echo "*************************************"
 date
 

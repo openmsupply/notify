@@ -1,4 +1,4 @@
-use datasource::BasicRecipientRow;
+use crate::sql_recipient_list::BasicRecipientRow;
 use repository::{
     EqualFilter, PaginationOption, SqlRecipientListFilter, SqlRecipientListRepository,
     SqlRecipientListRowRepository, SqlRecipientListSort,
