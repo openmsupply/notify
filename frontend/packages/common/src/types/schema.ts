@@ -55,7 +55,6 @@ export enum ConfigKind {
 }
 
 export type CreateNotificationConfigInput = {
-  configurationData: Scalars['String']['input'];
   id: Scalars['String']['input'];
   kind: ConfigKind;
   title: Scalars['String']['input'];

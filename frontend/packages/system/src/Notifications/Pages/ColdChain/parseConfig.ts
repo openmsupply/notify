@@ -2,8 +2,8 @@ import {
   CreateNotificationConfigInput,
   UpdateNotificationConfigInput,
 } from '@common/types';
-import { NotificationConfigRowFragment } from '../../api';
 import { CCNotification } from '../../types';
+import { NotificationConfigRowFragment } from '../../api';
 
 export function parseColdChainNotificationConfig(
   config: NotificationConfigRowFragment | null,
