@@ -20,11 +20,11 @@ interface SelectNotificationTypeModalProps {
   onClose: () => void;
 }
 
-export const CreateConfigKindModal = ({
+export const CreateNotificationModal = ({
   isOpen,
   onClose,
 }: SelectNotificationTypeModalProps) => {
-  const t = useTranslation(['system']);
+  const t = useTranslation('system');
   const navigate = useNavigate();
 
   const { mutateAsync: create, isLoading } = useCreateNotificationConfig();
@@ -58,7 +58,7 @@ export const CreateConfigKindModal = ({
             }}
             isLoading={isLoading}
             startIcon={<ArrowRightIcon />}
-            variant="contained"
+            sx={{ marginLeft: 1 }}
           >
             {t('button.create')}
           </LoadingButton>
@@ -81,6 +81,7 @@ export const CreateConfigKindModal = ({
               },
             ]}
             InputLabelProps={{ shrink: true }}
+            sx={{ marginBottom: 2 }}
           />
 
           <BasicTextInput

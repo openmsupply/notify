@@ -16,9 +16,9 @@ import {
 import { useEditModal, useQueryParamsState } from '@common/hooks';
 import { NotificationConfigRowFragment, useNotificationConfigs } from '../api';
 import { useDeleteNotificationConfig } from '../api/hooks/useDeleteNotificationConfig';
-import { ConfigKind, useNavigate } from 'packages/common/src';
+import { ConfigKind, useNavigate } from '@notify-frontend/common';
 import { configRoute } from '../navigate';
-import { CreateConfigKindModal } from '../Pages/CreateConfigKindModal';
+import { CreateNotificationModal } from '../Pages/CreateNotificationModal';
 
 type ListViewProps = {
   kind: ConfigKind | null;
@@ -82,7 +82,7 @@ export const ListView = ({ kind }: ListViewProps) => {
 
   return (
     <>
-      <CreateConfigKindModal
+      <CreateNotificationModal
         isOpen={isOpen}
         onClose={() => {
           onClose();
