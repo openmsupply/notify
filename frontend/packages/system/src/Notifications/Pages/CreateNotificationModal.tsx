@@ -20,11 +20,11 @@ interface SelectNotificationTypeModalProps {
   onClose: () => void;
 }
 
-export const CreateConfigKindModal = ({
+export const CreateNotificationModal = ({
   isOpen,
   onClose,
 }: SelectNotificationTypeModalProps) => {
-  const t = useTranslation(['system']);
+  const t = useTranslation('system');
   const navigate = useNavigate();
 
   const { mutateAsync: create, isLoading } = useCreateNotificationConfig();
