@@ -2,6 +2,7 @@ use super::{
     notification_config_row::notification_config::dsl as notification_config_dsl, StorageConnection,
 };
 use crate::{repository_error::RepositoryError, EqualFilter};
+use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use diesel_derive_enum::DbEnum;
 
@@ -12,6 +13,8 @@ table! {
         kind -> crate::db_diesel::notification_config_row::NotificationConfigKindMapping,
         configuration_data -> Text,
         parameters -> Text,
+        last_check_datetime -> Nullable<Timestamp>,
+        next_check_datetime -> Nullable<Timestamp>,
     }
 }
 
@@ -52,6 +55,8 @@ pub struct NotificationConfigRow {
     // it would appear the diesel JSON types are only available if the postgres feature is enabled...
     pub configuration_data: String,
     pub parameters: String,
+    pub last_check_datetime: Option<NaiveDateTime>,
+    pub next_check_datetime: Option<NaiveDateTime>,
 }
 
 pub struct NotificationConfigRowRepository<'a> {
@@ -92,6 +97,22 @@ impl<'a> NotificationConfigRowRepository<'a> {
             .filter(notification_config_dsl::id.eq(id))
             .first(&self.connection.connection)
             .optional()?;
+        Ok(result)
+    }
+
+    pub fn find_all_due_by_kind(
+        &self,
+        notification_kind: NotificationConfigKind,
+        current_time: NaiveDateTime,
+    ) -> Result<Vec<NotificationConfigRow>, RepositoryError> {
+        let result = notification_config_dsl::notification_config
+            .filter(notification_config_dsl::kind.eq(notification_kind))
+            .filter(
+                notification_config_dsl::next_check_datetime
+                    .is_null()
+                    .or(notification_config_dsl::next_check_datetime.le(current_time)),
+            )
+            .load::<NotificationConfigRow>(&self.connection.connection)?;
         Ok(result)
     }
 }

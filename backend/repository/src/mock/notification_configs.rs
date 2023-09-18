@@ -15,6 +15,7 @@ pub fn mock_coldchain_notification_config_a() -> NotificationConfigRow {
         kind: NotificationConfigKind::ColdChain,
         configuration_data: String::from("{\"highTemp\":true,\"lowTemp\":false}"),
         parameters: String::from("{}"),
+        ..Default::default()
     }
 }
 
@@ -25,6 +26,7 @@ pub fn mock_coldchain_notification_config_aa() -> NotificationConfigRow {
         kind: NotificationConfigKind::ColdChain,
         configuration_data: String::from("{\"highTemp\":true,\"lowTemp\":true}"),
         parameters: String::from("{}"),
+        ..Default::default()
     }
 }
 
@@ -35,5 +37,6 @@ pub fn mock_coldchain_notification_config_b() -> NotificationConfigRow {
         kind: NotificationConfigKind::ColdChain,
         configuration_data: String::from("{\"highTemp\":false,\"lowTemp\":true}"),
         parameters: String::from("{}"),
+        ..Default::default()
     }
 }

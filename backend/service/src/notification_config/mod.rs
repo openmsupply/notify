@@ -1,6 +1,7 @@
+use chrono::NaiveDateTime;
 use repository::{
-    NotificationConfig, NotificationConfigFilter, NotificationConfigSort, PaginationOption,
-    RepositoryError,
+    NotificationConfig, NotificationConfigFilter, NotificationConfigKind, NotificationConfigSort,
+    PaginationOption, RepositoryError,
 };
 
 use crate::{service_provider::ServiceContext, ListError, ListResult, SingleRecordError};
@@ -8,7 +9,10 @@ use crate::{service_provider::ServiceContext, ListError, ListResult, SingleRecor
 use self::{
     create::{create_notification_config, CreateNotificationConfig},
     delete::{delete_notification_config, DeleteNotificationConfigError},
-    query::{get_notification_config, get_notification_configs},
+    query::{
+        get_notification_config, get_notification_configs,
+        get_notification_configs_by_kind_and_next_check_date,
+    },
     update::{update_notification_config, UpdateNotificationConfig},
 };
 
@@ -21,6 +25,15 @@ pub mod update;
 pub mod validate;
 
 pub trait NotificationConfigServiceTrait: Sync + Send {
+    fn get_notification_configs_by_kind_and_next_check_date(
+        &self,
+        ctx: &ServiceContext,
+        kind: NotificationConfigKind,
+        datetime: NaiveDateTime,
+    ) -> Result<Vec<NotificationConfig>, ListError> {
+        get_notification_configs_by_kind_and_next_check_date(ctx, kind, datetime)
+    }
+
     fn get_notification_configs(
         &self,
         ctx: &ServiceContext,

@@ -56,12 +56,7 @@ pub fn validate(
 }
 
 pub fn generate(
-    CreateNotificationConfig {
-        id,
-        title,
-        kind,
-
-    }: CreateNotificationConfig,
+    CreateNotificationConfig { id, title, kind }: CreateNotificationConfig,
 ) -> Result<NotificationConfigRow, ModifyNotificationConfigError> {
     Ok(NotificationConfigRow {
         id,
@@ -69,5 +64,7 @@ pub fn generate(
         kind,
         configuration_data: "{}".to_string(),
         parameters: "{}".to_string(),
+        last_check_datetime: None,
+        next_check_datetime: None,
     })
 }

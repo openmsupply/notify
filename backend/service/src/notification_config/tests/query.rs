@@ -2,6 +2,7 @@
 mod notification_config_query_test {
     use std::sync::Arc;
 
+    use chrono::Utc;
     use repository::mock::mock_coldchain_notification_config_a;
     use repository::{
         mock::MockDataInserts, test_db::setup_all, NotificationConfigFilter,
@@ -250,5 +251,74 @@ mod notification_config_query_test {
             .collect();
 
         assert_eq!(result_names, sorted_names);
+    }
+
+    #[actix_rt::test]
+    async fn test_get_notification_configs_by_kind_and_next() {
+        let (mock_data, _, connection_manager, _) = setup_all(
+            "test_get_notification_configs_by_kind_and_next",
+            MockDataInserts::none(),
+        )
+        .await;
+
+        let service_provider = Arc::new(ServiceProvider::new(
+            connection_manager,
+            get_test_settings(""),
+        ));
+        let context = ServiceContext::new(service_provider).unwrap();
+        let service = &context.service_provider.notification_config_service;
+
+        // Create a notification config
+        let config = NotificationConfigRow {
+            id: uuid(),
+            title: "test".to_string(),
+            kind: mock_data["base"].notification_configs[0].kind.clone(),
+            configuration_data: "{}".to_string(),
+            parameters: "{}".to_string(),
+            ..Default::default()
+        };
+
+        let repo = NotificationConfigRowRepository::new(&context.connection);
+        repo.insert_one(&config).unwrap();
+
+        // Check that it is returned by the due query
+        let result = service
+            .get_notification_configs_by_kind_and_next_check_date(
+                &context,
+                config.kind.clone(),
+                Utc::now().naive_utc(),
+            )
+            .unwrap();
+
+        assert_eq!(result.len(), 1);
+
+        // set the last check date to now
+        // and next check to 1 hour from now
+        let mut config = result[0].clone();
+        config.last_check_datetime = Some(Utc::now().naive_utc());
+        config.next_check_datetime = Some(Utc::now().naive_utc() + chrono::Duration::hours(1));
+        repo.update_one(&config).unwrap();
+
+        // Check that it is not returned by the due query now
+        let result = service
+            .get_notification_configs_by_kind_and_next_check_date(
+                &context,
+                config.kind.clone(),
+                Utc::now().naive_utc(),
+            )
+            .unwrap();
+
+        assert_eq!(result.len(), 0);
+
+        // Check that it is returned by the due query after 1 hour
+        let result = service
+            .get_notification_configs_by_kind_and_next_check_date(
+                &context,
+                config.kind.clone(),
+                Utc::now().naive_utc() + chrono::Duration::hours(1),
+            )
+            .unwrap();
+
+        assert_eq!(result.len(), 1);
     }
 }
