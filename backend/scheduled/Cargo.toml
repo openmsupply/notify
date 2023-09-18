@@ -9,3 +9,4 @@ edition = "2018"
 repository = { path = "../repository" }
 service = { path = "../service" }
 tokio = { version = "1", features = ["macros"] }
+log = "0.4"

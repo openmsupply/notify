@@ -131,11 +131,9 @@ async fn run_server(
     let mut plugin_handles = HashMap::new();
     for plugin in plugins {
         let plugin_name = plugin.name();
-        let plugin_handle = actix_web::rt::spawn(async move {
-            match plugin.start() {
-                Ok(_) => info!("Plugin {} started", plugin.name()),
-                Err(err) => error!("Failed to start plugin {}: {}", plugin.name(), err),
-            }
+        let plugin_handle = actix_web::rt::task::spawn_blocking(move || match plugin.start() {
+            Ok(_) => info!("Plugin {} started", plugin.name()),
+            Err(err) => error!("Failed to start plugin {}: {:?}", plugin.name(), err),
         });
         plugin_handles.insert(plugin_name, plugin_handle);
     }
@@ -182,6 +180,9 @@ async fn run_server(
 
     server_handle.stop(true).await;
     scheduled_task_handle.abort();
+    for (_, plugin_handle) in plugin_handles {
+        plugin_handle.abort();
+    }
     Ok(restart)
 }
 
