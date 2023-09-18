@@ -115,4 +115,20 @@ impl<'a> NotificationConfigRowRepository<'a> {
             .load::<NotificationConfigRow>(&self.connection.connection)?;
         Ok(result)
     }
+
+    pub fn set_last_checked_and_next_check_date(
+        &self,
+        id: String,
+        current_time: NaiveDateTime,
+        next_check_time: NaiveDateTime,
+    ) -> Result<(), RepositoryError> {
+        let query = diesel::update(notification_config_dsl::notification_config)
+            .filter(notification_config_dsl::id.eq(id))
+            .set((
+                notification_config_dsl::last_check_datetime.eq(current_time),
+                notification_config_dsl::next_check_datetime.eq(next_check_time),
+            ));
+        query.execute(&self.connection.connection)?;
+        Ok(())
+    }
 }
