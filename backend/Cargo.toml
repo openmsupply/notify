@@ -11,5 +11,6 @@ members = [
     "graphql",
     "telegram",
     "datasource",
-    "coldchain"
+    "coldchain",
+    "scheduled",
 ]

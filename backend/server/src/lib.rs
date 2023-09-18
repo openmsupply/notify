@@ -13,7 +13,9 @@ use middleware::{add_authentication_context, limit_content_length};
 use repository::{get_storage_connection_manager, run_db_migrations, StorageConnectionManager};
 
 use actix_web::{web::Data, App, HttpServer};
+use scheduled::ScheduledNotificationPlugin;
 use std::{
+    collections::HashMap,
     ops::DerefMut,
     sync::{Arc, RwLock},
 };
@@ -21,6 +23,7 @@ use tokio::sync::{oneshot, Mutex};
 
 use service::{
     auth_data::AuthData,
+    plugin::PluginTrait,
     recipient::telegram::update_telegram_recipients,
     service_provider::{ServiceContext, ServiceProvider},
     settings::{is_develop, ServerSettings, Settings},
@@ -117,6 +120,24 @@ async fn run_server(
         let _telegram_update_handler = actix_web::rt::spawn(async move {
             update_telegram_recipients(telegram_update_context, &telegram_update_channel).await
         });
+    }
+
+    // Setup plugins
+    let plugins: Vec<Box<dyn service::plugin::PluginTrait>> = vec![Box::new(
+        ScheduledNotificationPlugin::new(service_provider_data.clone().into_inner()),
+    )];
+
+    // Start all the plugins
+    let mut plugin_handles = HashMap::new();
+    for plugin in plugins {
+        let plugin_name = plugin.name();
+        let plugin_handle = actix_web::rt::spawn(async move {
+            match plugin.start() {
+                Ok(_) => info!("Plugin {} started", plugin.name()),
+                Err(err) => error!("Failed to start plugin {}: {}", plugin.name(), err),
+            }
+        });
+        plugin_handles.insert(plugin_name, plugin_handle);
     }
 
     let http_server_config_settings = config_settings.clone();
