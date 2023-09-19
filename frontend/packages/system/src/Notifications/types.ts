@@ -7,7 +7,6 @@ type BaseConfig = Pick<NotificationConfigRowFragment, 'id' | 'kind' | 'title' | 
 export interface BaseNotificationConfig extends BaseConfig {
   recipientIds: string[];
   recipientListIds: string[];
-  status: ConfigStatus;
 }
 
 export interface CCNotification extends BaseNotificationConfig {
