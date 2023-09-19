@@ -28,6 +28,9 @@ const createCCNotification = (
   highTemp: seed?.highTemp ?? false,
   lowTemp: seed?.lowTemp ?? false,
   confirmOk: seed?.confirmOk ?? false,
+  noData: seed?.noData ?? false,
+  noDataInterval: seed?.noDataInterval ?? 5,
+  noDataUnits: seed?.noDataUnits ?? 'minutes',
   remind: seed?.remind ?? false,
   reminderInterval: seed?.reminderInterval ?? 5,
   reminderUnits: seed?.reminderUnits ?? 'minutes',
@@ -74,7 +77,7 @@ export const CCNotificationEditPage = () => {
   const isInvalid =
     !draft.title ||
     // nothing selected
-    (!draft.confirmOk && !draft.highTemp && !draft.lowTemp && draft.remind) ||
+    (!draft.confirmOk && !draft.highTemp && !draft.lowTemp && draft.remind && draft.noData) ||
     // no locations selected
     !draft.locationIds.length ||
     // no recipients selected

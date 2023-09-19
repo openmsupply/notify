@@ -14,6 +14,9 @@ export interface CCNotification extends BaseNotificationConfig {
   highTemp: boolean;
   lowTemp: boolean;
   confirmOk: boolean;
+  noData: boolean;
+  noDataInterval: number;
+  noDataUnits: 'seconds' | 'minutes' | 'hours';
   remind: boolean;
   reminderInterval: number;
   reminderUnits: 'seconds' | 'minutes' | 'hours';

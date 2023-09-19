@@ -23,6 +23,7 @@
   "label.coldchain-confirm-ok-alerts": "Send temperature OK confirmation",
   "label.coldchain-high-temp-alerts": "Send high temperature alerts (Limits are based on your mSupply configuration)",
   "label.coldchain-low-temp-alerts": "Send low temperature alerts (Limits are based on your mSupply configuration)",
+  "label.coldchain-no-data-alerts": "Send no temperature data alert after:",
   "label.coldchain-reminder-alerts": "Send follow-up reminders until alert is resolved, every:",
   "label.disable-user": "Disable User",
   "label.download-example": "Download an example file here",

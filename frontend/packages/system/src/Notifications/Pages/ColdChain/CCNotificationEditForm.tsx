@@ -65,6 +65,46 @@ export const CCNotificationEditForm = ({
         </li>
         <li>
           <Checkbox
+            id="noData"
+            checked={draft.noData}
+            onClick={() => onUpdate({ noData: !draft.noData })}
+          />
+          <label htmlFor="noData">{t('label.coldchain-no-data-alerts')}</label>
+        </li>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            marginLeft: '40px',
+          }}
+        >
+          <PositiveNumberInput
+            disabled={!draft.noData}
+            value={draft.noDataInterval}
+            required
+            onChange={newValue => onUpdate({ noDataInterval: newValue })}
+            sx={{ width: '60px' }}
+          />
+
+          <Select
+            value={draft.noDataUnits}
+            disabled={!draft.noData}
+            onChange={e =>
+              onUpdate({
+                noDataUnits: e.target
+                  .value as CCNotification['noDataUnits'],
+              })
+            }
+            options={[
+              { label: t('label.seconds'), value: 'seconds' },
+              { label: t('label.minutes'), value: 'minutes' },
+              { label: t('label.hours'), value: 'hours' },
+            ]}
+          />
+        </Box>
+        <li>
+          <Checkbox
             id="remind"
             checked={draft.remind}
             onClick={() => onUpdate({ remind: !draft.remind })}
