@@ -65,6 +65,7 @@
   "messages.password-weak": "Weak",
   "messages.recipients-added_other": "{{count}} recipients added to list",
   "messages.recipients-added_one": "{{count}} recipient added to list",
+  "messages.cold-chain-no-data-information":"Alert will be triggered if no temperture data is received by the server within the specified timeframe",
   "not-logged-in": "Not logged in",
   "password-reset.initiate": "Initiate Password Reset",
   "text.here": "here",

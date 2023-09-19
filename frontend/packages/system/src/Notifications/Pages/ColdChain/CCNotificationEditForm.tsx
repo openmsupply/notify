@@ -7,6 +7,8 @@ import {
   Select,
   Typography,
   useTranslation,
+  Tooltip,
+  InfoIcon,
 } from '@notify-frontend/common';
 import { CCNotification } from '../../types';
 
@@ -69,7 +71,9 @@ export const CCNotificationEditForm = ({
             checked={draft.noData}
             onClick={() => onUpdate({ noData: !draft.noData })}
           />
-          <label htmlFor="noData">{t('label.coldchain-no-data-alerts')}</label>
+          <label htmlFor="noData">{t('label.coldchain-no-data-alerts')} 
+            <Tooltip title={t('messages.cold-chain-no-data-information')}><span><InfoIcon fontSize="small" color="inherit" /></span></Tooltip>
+          </label> 
         </li>
         <Box
           sx={{
