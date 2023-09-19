@@ -4,7 +4,7 @@ use crate::service_provider::ServiceProvider;
 
 #[derive(Debug)]
 pub enum PluginError {
-    PluginFailedToStart(String),
+    UnableToProcessTick(String),
 }
 
 pub trait PluginTrait: Send + Sync {
@@ -13,7 +13,8 @@ pub trait PluginTrait: Send + Sync {
         Self: Sized;
     fn name(&self) -> String;
 
-    fn start(&self) -> Result<(), PluginError> {
+    fn tick(&self) -> Result<(), PluginError> {
+        // Plugins should process their work here
         Ok(())
     }
 }

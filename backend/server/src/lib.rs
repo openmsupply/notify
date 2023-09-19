@@ -89,8 +89,13 @@ async fn run_server(
         }
     };
 
+    // Setup plugins
+    let plugins: Vec<Box<dyn service::plugin::PluginTrait>> = vec![Box::new(
+        ScheduledNotificationPlugin::new(service_provider_data.clone().into_inner()),
+    )];
+
     let scheduled_task_handle = actix_web::rt::spawn(async move {
-        scheduled_task_runner(scheduled_task_context).await;
+        scheduled_task_runner(scheduled_task_context, plugins).await;
     });
 
     // Setup a channel to receive telegram messages, which we want to handle in recipient service
@@ -120,22 +125,6 @@ async fn run_server(
         let _telegram_update_handler = actix_web::rt::spawn(async move {
             update_telegram_recipients(telegram_update_context, &telegram_update_channel).await
         });
-    }
-
-    // Setup plugins
-    let plugins: Vec<Box<dyn service::plugin::PluginTrait>> = vec![Box::new(
-        ScheduledNotificationPlugin::new(service_provider_data.clone().into_inner()),
-    )];
-
-    // Start all the plugins
-    let mut plugin_handles = HashMap::new();
-    for plugin in plugins {
-        let plugin_name = plugin.name();
-        let plugin_handle = actix_web::rt::task::spawn_blocking(move || match plugin.start() {
-            Ok(_) => info!("Plugin {} started", plugin.name()),
-            Err(err) => error!("Failed to start plugin {}: {:?}", plugin.name(), err),
-        });
-        plugin_handles.insert(plugin_name, plugin_handle);
     }
 
     let http_server_config_settings = config_settings.clone();
@@ -180,9 +169,6 @@ async fn run_server(
 
     server_handle.stop(true).await;
     scheduled_task_handle.abort();
-    for (_, plugin_handle) in plugin_handles {
-        plugin_handle.abort();
-    }
     Ok(restart)
 }
 

@@ -1,9 +1,12 @@
-use service::service_provider::ServiceContext;
+use service::{plugin::PluginTrait, service_provider::ServiceContext};
 use std::time::Duration;
 
 static TASK_INTERVAL: Duration = Duration::from_secs(10);
 
-pub async fn scheduled_task_runner(service_context: ServiceContext) {
+pub async fn scheduled_task_runner(
+    service_context: ServiceContext,
+    plugins: Vec<Box<dyn PluginTrait>>,
+) {
     let mut interval = actix_web::rt::time::interval(TASK_INTERVAL);
 
     loop {
@@ -36,5 +39,14 @@ pub async fn scheduled_task_runner(service_context: ServiceContext) {
             }
             Err(error) => log::error!("Error sending queued notifications: {:?}", error),
         };
+
+        // Process plugins
+        for plugin in &plugins {
+            let result = plugin.tick();
+            match result {
+                Ok(_) => {}
+                Err(error) => log::error!("Error processing plugin: {:?}", error),
+            }
+        }
     }
 }

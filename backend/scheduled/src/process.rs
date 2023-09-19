@@ -1,13 +1,8 @@
-use chrono::{Duration, NaiveDateTime, Utc};
+use chrono::{NaiveDateTime, Utc};
 use repository::{NotificationConfigKind, NotificationConfigRowRepository};
 use service::service_provider::ServiceContext;
 
-#[derive(Debug)]
-pub enum NotificationError {
-    InvalidTemplate,
-    InvalidRecipient,
-    InternalError(String),
-}
+use crate::{parse::ScheduledNotificationPluginConfig, NotificationError};
 
 pub fn process_scheduled_notifications(
     ctx: &ServiceContext,
@@ -30,26 +25,49 @@ pub fn process_scheduled_notifications(
 
     let repository = NotificationConfigRowRepository::new(&ctx.connection);
 
+    let now = Utc::now();
     for scheduled_notification in scheduled_notifications {
         notifications_processed += 1;
 
         // Load the notification config
 
+        let config = ScheduledNotificationPluginConfig::from_string(
+            &scheduled_notification.configuration_data,
+        )?;
+
+        // Check if the notification is due
+        let due_datetime = match config.next_due_date(now) {
+            Ok(dt) => dt,
+            Err(e) => {
+                log::error!(
+                    "Invalid next due date for scheduled notification: {} - {:?}",
+                    scheduled_notification.id,
+                    e
+                );
+                // Log the error but don't fail the whole process
+                continue;
+            }
+        };
+
+        // Update the last_checked time and next_check time
+        // We do this before checking if the notification is due so that if the notification is new, we set a good next check time
+        repository
+            .set_last_checked_and_next_check_date(
+                scheduled_notification.id,
+                now.naive_utc(),
+                due_datetime.naive_utc(),
+            )
+            .map_err(|e| NotificationError::InternalError(format!("{:?}", e)))?;
+
+        if due_datetime > now {
+            // Not due yet
+            continue;
+        }
         // Run SQL Queries to get the data
 
         // Put sql queries data into Json Value for template
 
         // Send the notification
-
-        // Update the last_checked time and next_check time
-        let next_check_time = Utc::now().naive_utc() + Duration::minutes(1); // TODO: calculate actual next run time...
-        repository
-            .set_last_checked_and_next_check_date(
-                scheduled_notification.id,
-                current_time,
-                next_check_time,
-            )
-            .map_err(|e| NotificationError::InternalError(format!("{:?}", e)))?;
     }
     // Return the number of notifications processed
     Ok(notifications_processed)

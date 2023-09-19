@@ -3086,6 +3086,8 @@ dependencies = [
  "chrono",
  "log",
  "repository",
+ "serde",
+ "serde_json",
  "service",
  "tokio",
 ]

@@ -4,9 +4,17 @@ use service::{
 };
 use std::sync::Arc;
 
+pub mod parse;
 pub mod process;
 
-const MIN_SLEEP_TIME_MS: u64 = 30 * 1000; // 30 seconds
+#[derive(Debug)]
+pub enum NotificationError {
+    InvalidTemplate,
+    InvalidRecipient,
+    UnableToParseConfig(String),
+    InternalError(String),
+    InvalidNextDueDate,
+}
 
 pub struct ScheduledNotificationPlugin {
     service_provider: Arc<ServiceProvider>,
@@ -24,26 +32,27 @@ impl PluginTrait for ScheduledNotificationPlugin {
         "ScheduledNotification".to_string()
     }
 
-    fn start(&self) -> Result<(), PluginError> {
+    fn tick(&self) -> Result<(), PluginError> {
         log::info!("Starting ScheduledNotificationPlugin");
 
         // Create a service context
         let service_context = ServiceContext::new(self.service_provider.clone()).unwrap();
-        loop {
-            // Process any scheduled notifications that are due
-            let current_time = chrono::Utc::now().naive_utc();
-            let result = process::process_scheduled_notifications(&service_context, current_time);
-            match result {
-                Ok(_) => {
-                    log::info!("Successfully processed scheduled notifications");
-                }
-                Err(e) => {
-                    log::error!("Error processing scheduled notifications: {:?}", e);
-                }
-            }
 
-            // Sleep for a while before checking for any notifications due again
-            std::thread::sleep(std::time::Duration::from_millis(MIN_SLEEP_TIME_MS));
+        // Process any scheduled notifications that are due
+        let current_time = chrono::Utc::now().naive_utc();
+        let result = process::process_scheduled_notifications(&service_context, current_time);
+        match result {
+            Ok(count) => {
+                log::info!("Successfully processed {} scheduled notifications", count);
+                Ok(())
+            }
+            Err(e) => {
+                log::error!("Error processing scheduled notifications: {:?}", e);
+                Err(PluginError::UnableToProcessTick(format!(
+                    "Error processing scheduled notifications: {:?}",
+                    e
+                )))
+            }
         }
     }
 }
