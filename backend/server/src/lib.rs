@@ -15,7 +15,6 @@ use repository::{get_storage_connection_manager, run_db_migrations, StorageConne
 use actix_web::{web::Data, App, HttpServer};
 use scheduled::ScheduledNotificationPlugin;
 use std::{
-    collections::HashMap,
     ops::DerefMut,
     sync::{Arc, RwLock},
 };
