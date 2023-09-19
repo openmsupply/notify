@@ -80,7 +80,7 @@ pub fn generate(
     }
 
     // Reset the next check datetime in case the schedule has changed, or something needs to be recalculated
-    new_notification_config_row.next_check_datetime = Some(Utc::now().naive_utc());
+    new_notification_config_row.next_check_datetime = None;
 
     Ok(new_notification_config_row)
 }

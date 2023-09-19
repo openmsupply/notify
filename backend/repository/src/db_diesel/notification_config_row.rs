@@ -47,6 +47,7 @@ impl NotificationConfigKind {
     Clone, Queryable, Identifiable, Insertable, AsChangeset, Debug, PartialEq, Eq, Default,
 )]
 #[table_name = "notification_config"]
+#[changeset_options(treat_none_as_null = "true")]
 pub struct NotificationConfigRow {
     pub id: String,
     pub title: String,
@@ -78,6 +79,7 @@ impl<'a> NotificationConfigRowRepository<'a> {
     pub fn update_one(&self, row: &NotificationConfigRow) -> Result<(), RepositoryError> {
         let query = diesel::update(row).set(row);
         query.execute(&self.connection.connection)?;
+
         Ok(())
     }
 
