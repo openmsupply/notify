@@ -71,9 +71,15 @@ export const CCNotificationEditForm = ({
             checked={draft.noData}
             onClick={() => onUpdate({ noData: !draft.noData })}
           />
-          <label htmlFor="noData">{t('label.coldchain-no-data-alerts')} 
-            <Tooltip title={t('messages.cold-chain-no-data-information')}><span><InfoIcon fontSize="small" color="inherit" /></span></Tooltip>
-          </label> 
+          <label htmlFor="noData">
+            {t('label.coldchain-no-data-alerts')}
+            <Tooltip title={t('messages.cold-chain-no-data-information')}>
+              <span>
+                {' '}
+                <InfoIcon fontSize="small" color="inherit" />
+              </span>
+            </Tooltip>
+          </label>
         </li>
         <Box
           sx={{
@@ -96,8 +102,7 @@ export const CCNotificationEditForm = ({
             disabled={!draft.noData}
             onChange={e =>
               onUpdate({
-                noDataUnits: e.target
-                  .value as CCNotification['noDataUnits'],
+                noDataUnits: e.target.value as CCNotification['noDataUnits'],
               })
             }
             options={[
