@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::service_provider::ServiceProvider;
+use crate::service_provider::{ServiceContext, ServiceProvider};
 
 #[derive(Debug)]
 pub enum PluginError {
@@ -13,7 +13,7 @@ pub trait PluginTrait: Send + Sync {
         Self: Sized;
     fn name(&self) -> String;
 
-    fn tick(&self) -> Result<(), PluginError> {
+    fn tick(&self, _ctx: &ServiceContext) -> Result<(), PluginError> {
         // Plugins should process their work here
         Ok(())
     }

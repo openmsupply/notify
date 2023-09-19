@@ -16,34 +16,31 @@ pub enum NotificationError {
     InvalidNextDueDate,
 }
 
-pub struct ScheduledNotificationPlugin {
-    service_provider: Arc<ServiceProvider>,
-}
+pub struct ScheduledNotificationPlugin {}
 
 impl PluginTrait for ScheduledNotificationPlugin {
-    fn new(service_provider: Arc<ServiceProvider>) -> Self
+    fn new(_service_provider: Arc<ServiceProvider>) -> Self
     where
         Self: Sized,
     {
-        ScheduledNotificationPlugin { service_provider }
+        ScheduledNotificationPlugin {}
     }
 
     fn name(&self) -> String {
         "ScheduledNotification".to_string()
     }
 
-    fn tick(&self) -> Result<(), PluginError> {
-        log::info!("Starting ScheduledNotificationPlugin");
-
-        // Create a service context
-        let service_context = ServiceContext::new(self.service_provider.clone()).unwrap();
+    fn tick(&self, ctx: &ServiceContext) -> Result<(), PluginError> {
+        log::debug!("Starting ScheduledNotificationPlugin");
 
         // Process any scheduled notifications that are due
         let current_time = chrono::Utc::now().naive_utc();
-        let result = process::process_scheduled_notifications(&service_context, current_time);
+        let result = process::process_scheduled_notifications(ctx, current_time);
         match result {
             Ok(count) => {
-                log::info!("Successfully processed {} scheduled notifications", count);
+                if count > 0 {
+                    log::info!("Successfully processed {} scheduled notifications", count);
+                }
                 Ok(())
             }
             Err(e) => {

@@ -28,6 +28,11 @@ pub fn process_scheduled_notifications(
     let now = Utc::now();
     for scheduled_notification in scheduled_notifications {
         notifications_processed += 1;
+        log::info!(
+            "Processing scheduled notification: {} - {}",
+            scheduled_notification.id,
+            scheduled_notification.title
+        );
 
         // Load the notification config
 

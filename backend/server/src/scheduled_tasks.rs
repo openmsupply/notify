@@ -1,7 +1,7 @@
 use service::{plugin::PluginTrait, service_provider::ServiceContext};
 use std::time::Duration;
 
-static TASK_INTERVAL: Duration = Duration::from_secs(10);
+static TASK_INTERVAL: Duration = Duration::from_secs(30);
 
 pub async fn scheduled_task_runner(
     service_context: ServiceContext,
@@ -25,6 +25,20 @@ pub async fn scheduled_task_runner(
             Err(error) => log::error!("Error sending queued emails: {:?}", error),
         };
 
+        // Process plugins
+        // Note: If a plugin starts an infinite loop here, we're a bit stuffed.
+        // Hopefully people will be smart enough not to do that?
+        // TODO: would be nice to do these in parallel and have a timeout of some sort?
+        for plugin in &plugins {
+            let result = plugin.tick(&service_context);
+            match result {
+                Ok(_) => {}
+                Err(error) => {
+                    log::error!("Error processing {} plugin: {:?} ", plugin.name(), error)
+                }
+            }
+        }
+
         // Send Notifications
         let send_notifications = service_context
             .service_provider
@@ -39,14 +53,5 @@ pub async fn scheduled_task_runner(
             }
             Err(error) => log::error!("Error sending queued notifications: {:?}", error),
         };
-
-        // Process plugins
-        for plugin in &plugins {
-            let result = plugin.tick();
-            match result {
-                Ok(_) => {}
-                Err(error) => log::error!("Error processing plugin: {:?}", error),
-            }
-        }
     }
 }
