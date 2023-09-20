@@ -88,11 +88,8 @@ pub fn process_scheduled_notifications(
             continue;
         }
 
-        // For now just send a test notification
-        // TODO: Send the actual notification
-
-        // Run SQL Queries to get the data
-
+       
+        // TODO: Run SQL Queries to get the data https://github.com/openmsupply/notify/issues/137
         // Put sql queries and appropriate data into Json Value for template
         let template_data = match serde_json::from_str("{}") {
             Ok(data) => data,
@@ -102,6 +99,7 @@ pub fn process_scheduled_notifications(
             }
         };
 
+        // TODO: get the real recipients - https://github.com/openmsupply/notify/issues/138
         // Get the recipients
         let recipient1 = NotificationTarget {
             name: "test".to_string(),
@@ -109,6 +107,9 @@ pub fn process_scheduled_notifications(
             notification_type: NotificationType::Email,
         };
 
+
+        // For now just send a test notification!
+        // TODO: Send the real notification template https://github.com/openmsupply/notify/issues/136
         // Send the notification
         let notification = NotificationContext {
             title_template_name: Some("test_message/email_subject.html".to_string()),
