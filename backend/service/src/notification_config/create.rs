@@ -16,8 +16,6 @@ pub struct CreateNotificationConfig {
     pub id: String,
     pub title: String,
     pub kind: NotificationConfigKind,
-    pub configuration_data: String,
-    pub status: NotificationConfigStatus,
 }
 
 pub fn create_notification_config(
@@ -62,15 +60,14 @@ pub fn generate(
         id,
         title,
         kind,
-        configuration_data,
-        status,
+
     }: CreateNotificationConfig,
 ) -> Result<NotificationConfigRow, ModifyNotificationConfigError> {
     Ok(NotificationConfigRow {
         id,
         title: title.trim().to_string(),
         kind,
-        configuration_data,
-        status,
+        configuration_data: "{}".to_string(),
+        status: NotificationConfigStatus::Disabled,
     })
 }

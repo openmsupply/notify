@@ -12,7 +12,6 @@ const Container = styled('div')(({ theme }) => ({
   flexDirection: 'column',
   paddingLeft: '20px',
   paddingRight: '20px',
-  boxShadow: theme.shadows[7],
 }));
 
 export const AppFooter: FC = () => {

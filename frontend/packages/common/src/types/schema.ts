@@ -60,10 +60,8 @@ export enum ConfigStatus {
 }
 
 export type CreateNotificationConfigInput = {
-  configurationData: Scalars['String']['input'];
   id: Scalars['String']['input'];
   kind: ConfigKind;
-  status: ConfigStatus;
   title: Scalars['String']['input'];
 };
 
