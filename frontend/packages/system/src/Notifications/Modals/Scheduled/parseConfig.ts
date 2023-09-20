@@ -14,7 +14,7 @@ export function parseScheduledNotificationConfig(
   if (!config) return null;
   try {
     return {
-      ...defautlSchedulerNotification,
+      ...defaultSchedulerNotification,
       id: config.id,
       title: config.title,
       kind: config.kind,
@@ -27,7 +27,7 @@ export function parseScheduledNotificationConfig(
     // The missing fields will be populated by default values in the edit modal, but we'll return
     // the base NotificationConfig data that is still usable:
     return {
-      ...defautlSchedulerNotification,
+      ...defaultSchedulerNotification,
       id: config.id,
       title: config.title,
       kind: config.kind,
@@ -35,7 +35,7 @@ export function parseScheduledNotificationConfig(
   }
 }
 
-export const defautlSchedulerNotification: ScheduledNotification = {
+export const defaultSchedulerNotification: ScheduledNotification = {
   id: FnUtils.generateUUID(),
   title: '',
   kind: ConfigKind.Scheduled,

@@ -1,7 +1,6 @@
 import React, { FC, useState } from 'react';
 import {
   ModalMode,
-  FnUtils,
   ConfigKind,
   useTranslation,
   useNotification,
@@ -12,7 +11,7 @@ import { ScheduledNotification } from '../../types';
 import { useCreateNotificationConfig } from '../../api/hooks/useCreateNotificationConfig';
 import {
   buildScheduledNotificationInputs,
-  defautlSchedulerNotification,
+  defaultSchedulerNotification,
   parseScheduledNotificationConfig,
 } from './parseConfig';
 import { useUpdateNotificationConfig } from '../../api/hooks/useUpdateNotificationConfig';
@@ -34,7 +33,7 @@ export const ScheduledNotificationEditModal: FC<
 
   const [draft, setDraft] = useState<ScheduledNotification>(
     parseScheduledNotificationConfig(entity, parsingErrorSnack) ||
-      defautlSchedulerNotification
+      defaultSchedulerNotification
   );
 
   const { mutateAsync: create, isLoading: createIsLoading } =
