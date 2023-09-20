@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  FnUtils,
-  ConfigKind,
   useTranslation,
   useNotification,
   useParams,
@@ -11,6 +9,7 @@ import { BaseNotificationEditPage } from '../Base/BaseNotificationEditPage';
 import { ScheduledNotification } from '../../types';
 import {
   buildScheduledNotificationInputs,
+  defaultSchedulerNotification,
   parseScheduledNotificationConfig,
 } from './parseConfig';
 import { useUpdateNotificationConfig } from '../../api/hooks/useUpdateNotificationConfig';
@@ -19,32 +18,14 @@ import {
   useNotificationConfigs,
 } from '../../api';
 
-const createScheduledNotification = (
-  seed: ScheduledNotification | null
-): ScheduledNotification => ({
-  id: seed?.id ?? FnUtils.generateUUID(),
-  title: seed?.title ?? '',
-  kind: seed?.kind ?? ConfigKind.Scheduled,
-  recipientIds: seed?.recipientIds ?? [],
-  recipientListIds: seed?.recipientListIds ?? [],
-  sqlRecipientListIds: seed?.sqlRecipientListIds ?? [],
-  parameters: seed?.parameters ?? '{}',
-  parsedParameters: seed?.parsedParameters ?? {},
-  scheduleFrequency: seed?.scheduleFrequency ?? 'daily',
-  scheduleStartTime: seed?.scheduleStartTime ?? new Date(),
-  subjectTemplate: seed?.subjectTemplate ?? '',
-  bodyTemplate: seed?.bodyTemplate ?? '',
-  sqlQueries: seed?.sqlQueries ?? [],
-});
-
 export const ScheduledNotificationEditPage = () => {
   const t = useTranslation('system');
   const { error } = useNotification();
   const parsingErrorSnack = error(t('error.parsing-notification-config'));
 
   const { id } = useParams<{ id: string }>();
-  const [draft, setDraft] = useState<ScheduledNotification>(() =>
-    createScheduledNotification(null)
+  const [draft, setDraft] = useState<ScheduledNotification>(
+    defaultSchedulerNotification
   );
 
   // Get the notification config from the API
@@ -58,7 +39,7 @@ export const ScheduledNotificationEditPage = () => {
       (entity as NotificationConfigRowFragment) ?? null,
       parsingErrorSnack
     );
-    setDraft(createScheduledNotification(parsedDraft));
+    setDraft(parsedDraft ?? defaultSchedulerNotification);
   }, [data]);
 
   const { mutateAsync: update, isLoading: updateIsLoading } =

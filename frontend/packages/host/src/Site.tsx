@@ -12,6 +12,7 @@ import {
   useHostContext,
   useGetPageTitle,
   DetailPanel,
+  Navigate,
 } from '@notify-frontend/common';
 import { AppDrawer, AppBar, Footer, NotFound } from './components';
 import { CommandK } from './CommandK';
@@ -39,7 +40,6 @@ export const Site: FC = () => {
           <AppDrawer />
           <Box flex={1} display="flex" flexDirection="column" overflow="hidden">
             <AppBar />
-            {/* <NotifyOnLogin /> */}
             <Box display="flex" flex={1} overflow="auto">
               <Routes>
                 <Route
@@ -65,6 +65,15 @@ export const Site: FC = () => {
                     .addWildCard()
                     .build()}
                   element={<NotificationsRouter />}
+                />
+                <Route
+                  path="/"
+                  element={
+                    <Navigate
+                      replace
+                      to={RouteBuilder.create(AppRoute.Notifications).build()}
+                    />
+                  }
                 />
                 <Route path="*" element={<NotFound />} />
               </Routes>

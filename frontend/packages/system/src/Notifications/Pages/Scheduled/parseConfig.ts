@@ -1,10 +1,11 @@
 import {
+  ConfigKind,
   CreateNotificationConfigInput,
   UpdateNotificationConfigInput,
 } from '@common/types';
 import { NotificationConfigRowFragment } from '../../api';
 import { ScheduledNotification } from '../../types';
-import { TeraUtils } from '@common/utils';
+import { FnUtils } from '@common/utils';
 
 export function parseScheduledNotificationConfig(
   config: NotificationConfigRowFragment | null,
@@ -12,33 +13,13 @@ export function parseScheduledNotificationConfig(
 ): ScheduledNotification | null {
   if (!config) return null;
   try {
-    const {
-      recipientIds,
-      recipientListIds,
-      sqlRecipientListIds,
-      scheduleFrequency,
-      scheduleStartTime,
-      subjectTemplate,
-      bodyTemplate,
-      sqlQueries,
-    } = JSON.parse(config.configurationData);
-
-    const scheduledNotification: ScheduledNotification = {
+    return {
+      ...defaultSchedulerNotification,
       id: config.id,
       title: config.title,
       kind: config.kind,
-      scheduleFrequency,
-      scheduleStartTime,
-      recipientIds,
-      recipientListIds,
-      sqlRecipientListIds,
-      subjectTemplate,
-      bodyTemplate,
-      sqlQueries,
-      parameters: config.parameters,
-      parsedParameters: TeraUtils.keyedParamsFromTeraJson(config.parameters),
+      ...JSON.parse(config.configurationData),
     };
-    return scheduledNotification;
   } catch (e) {
     showError();
     // There's not much the user can do, except contact support or input the data again
@@ -46,12 +27,29 @@ export function parseScheduledNotificationConfig(
     // The missing fields will be populated by default values in the edit modal, but we'll return
     // the base NotificationConfig data that is still usable:
     return {
+      ...defaultSchedulerNotification,
       id: config.id,
       title: config.title,
       kind: config.kind,
-    } as ScheduledNotification;
+    };
   }
 }
+
+export const defaultSchedulerNotification: ScheduledNotification = {
+  id: FnUtils.generateUUID(),
+  title: '',
+  kind: ConfigKind.Scheduled,
+  recipientListIds: [],
+  recipientIds: [],
+  sqlRecipientListIds: [],
+  parameters: '{}',
+  scheduleFrequency: 'daily',
+  scheduleStartTime: new Date(),
+  subjectTemplate: '',
+  bodyTemplate: '',
+  sqlQueries: [],
+  parsedParameters: {},
+};
 
 export function buildScheduledNotificationInputs(
   config: ScheduledNotification
