@@ -10,8 +10,11 @@ import {
   useTranslation,
 } from '@notify-frontend/common';
 import { RecipientsModal } from './RecipientsModal';
-import { useRecipientLists, useRecipients } from '../../../Recipients/api';
 import { BaseNotificationConfig } from '../../types';
+import {
+  RecipientListRowFragment,
+  RecipientRowFragment,
+} from 'packages/system/src/Recipients/api/operations.generated';
 
 const Button = ({ children, ...props }: PropsWithChildren<ButtonProps>) => (
   <button {...props}>{children}</button>
@@ -39,23 +42,24 @@ const StyledButton = styled(Button)(({ theme }) => {
 
 interface BaseNotificationAppBarProps<T> {
   onUpdate: (patch: Partial<T>) => void;
+  recipientLists?: RecipientListRowFragment[];
+  recipients?: RecipientRowFragment[];
   draft: BaseNotificationConfig;
 }
 
 export const BaseNotificationAppBar = <T extends BaseNotificationConfig>({
   onUpdate,
+  recipientLists,
+  recipients,
   draft,
 }: BaseNotificationAppBarProps<T>) => {
   const t = useTranslation('system');
   const { isOpen, onClose, onOpen } = useEditModal();
 
-  const { data: recipients } = useRecipients();
-  const { data: recipientLists } = useRecipientLists();
-
-  const selectedRecipientLists = (recipientLists?.nodes ?? []).filter(list =>
+  const selectedRecipientLists = (recipientLists ?? []).filter(list =>
     draft.recipientListIds.includes(list.id)
   );
-  const selectedRecipients = (recipients?.nodes ?? []).filter(recipient =>
+  const selectedRecipients = (recipients ?? []).filter(recipient =>
     draft.recipientIds.includes(recipient.id)
   );
   const selectedNames = [...selectedRecipientLists, ...selectedRecipients]
@@ -72,14 +76,14 @@ export const BaseNotificationAppBar = <T extends BaseNotificationConfig>({
             ...draft.recipientListIds,
             ...draft.recipientIds,
           ]}
-          setSelection={({ recipients, recipientLists }) =>
+          setSelection={({ recipients: recipientIds, recipientLists }) => {
             onUpdate({
-              recipientIds: recipients,
+              recipientIds: recipientIds,
               recipientListIds: recipientLists,
-            } as Partial<T>)
-          }
-          recipientLists={recipientLists?.nodes ?? []}
-          recipients={recipients?.nodes ?? []}
+            } as Partial<T>);
+          }}
+          recipientLists={recipientLists ?? []}
+          recipients={recipients ?? []}
         />
       )}
       <Grid

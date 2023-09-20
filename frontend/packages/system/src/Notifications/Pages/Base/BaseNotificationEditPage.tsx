@@ -17,6 +17,10 @@ import {
 
 import { BaseNotificationConfig } from '../../types';
 import { BaseNotificationAppBar } from './BaseNotificationAppBar';
+import {
+  useRecipientLists,
+  useRecipients,
+} from 'packages/system/src/Recipients/api';
 
 interface BaseNotificationEditPageProps<T extends BaseNotificationConfig> {
   isInvalid: boolean;
@@ -43,16 +47,13 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
   const [errorMessage, setErrorMessage] = useState('');
   const [isSaved, setIsSaved] = useState(false);
 
+  const { data: recipients } = useRecipients();
+  const { data: recipientLists } = useRecipientLists();
+
   const onUpdate = (patch: Partial<T>) => {
     setDraft({ ...draft, ...patch });
     setIsSaved(false);
   };
-
-  const onSaved = () => {
-    setIsSaved(true);
-  };
-
-  // TODO: We'll add a parameters editor in issue https://github.com/openmsupply/notify/issues/116
 
   return (
     <>
@@ -61,7 +62,12 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
       ) : (
         <>
           <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
-            <BaseNotificationAppBar draft={draft} onUpdate={onUpdate} />
+            <BaseNotificationAppBar
+              draft={draft}
+              onUpdate={onUpdate}
+              recipientLists={recipientLists?.nodes ?? []}
+              recipients={recipients?.nodes ?? []}
+            />
           </AppBarContentPortal>
           <Grid flexDirection="column" display="flex" gap={2}>
             <Box sx={{ paddingLeft: '10px' }}>
@@ -97,14 +103,14 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
                     label={t('button.close')}
                     color="secondary"
                     sx={{ fontSize: '12px' }}
-                    onClick={navigateUpOne}
+                    onClick={() => navigateUpOne()}
                   />
                   <LoadingButton
                     disabled={isSaved || isInvalid}
                     isLoading={isLoading}
                     onClick={() => {
                       onSave(draft);
-                      onSaved();
+                      setIsSaved(true);
                     }}
                     startIcon={<SaveIcon />}
                     sx={{ fontSize: '12px' }}
