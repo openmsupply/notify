@@ -1,7 +1,6 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useState } from 'react';
 import {
   ModalMode,
-  FnUtils,
   ConfigKind,
   useTranslation,
   useNotification,
@@ -12,6 +11,7 @@ import { ScheduledNotification } from '../../types';
 import { useCreateNotificationConfig } from '../../api/hooks/useCreateNotificationConfig';
 import {
   buildScheduledNotificationInputs,
+  defaultSchedulerNotification,
   parseScheduledNotificationConfig,
 } from './parseConfig';
 import { useUpdateNotificationConfig } from '../../api/hooks/useUpdateNotificationConfig';
@@ -24,22 +24,6 @@ interface ScheduledNotificationEditModalProps {
   entity: NotificationConfigRowFragment | null;
 }
 
-const createScheduledNotification = (
-  seed: ScheduledNotification | null
-): ScheduledNotification => ({
-  id: seed?.id ?? FnUtils.generateUUID(),
-  title: seed?.title ?? '',
-  kind: seed?.kind ?? ConfigKind.Scheduled,
-  recipientListIds: seed?.recipientListIds ?? [],
-  recipientIds: seed?.recipientIds ?? [],
-  parameters: seed?.parameters ?? '[]',
-  scheduleFrequency: seed?.scheduleFrequency ?? 'daily',
-  scheduleStartTime: seed?.scheduleStartTime ?? new Date(),
-  subjectTemplate: seed?.subjectTemplate ?? '',
-  bodyTemplate: seed?.bodyTemplate ?? '',
-  sqlQueries: seed?.sqlQueries ?? [],
-});
-
 export const ScheduledNotificationEditModal: FC<
   ScheduledNotificationEditModalProps
 > = ({ mode, isOpen, onClose, entity }) => {
@@ -47,17 +31,10 @@ export const ScheduledNotificationEditModal: FC<
   const { error } = useNotification();
   const parsingErrorSnack = error(t('error.parsing-notification-config'));
 
-  const [draft, setDraft] = useState<ScheduledNotification>(() =>
-    createScheduledNotification(null)
+  const [draft, setDraft] = useState<ScheduledNotification>(
+    parseScheduledNotificationConfig(entity, parsingErrorSnack) ||
+      defaultSchedulerNotification
   );
-
-  useEffect(() => {
-    const parsedDraft = parseScheduledNotificationConfig(
-      entity,
-      parsingErrorSnack
-    );
-    setDraft(createScheduledNotification(parsedDraft));
-  }, []);
 
   const { mutateAsync: create, isLoading: createIsLoading } =
     useCreateNotificationConfig();
