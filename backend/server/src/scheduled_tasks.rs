@@ -1,7 +1,7 @@
 use service::{plugin::PluginTrait, service_provider::ServiceContext};
 use std::time::Duration;
 
-static TASK_INTERVAL: Duration = Duration::from_secs(30);
+static TASK_INTERVAL: Duration = Duration::from_secs(10);
 
 pub async fn scheduled_task_runner(
     service_context: ServiceContext,
@@ -28,7 +28,8 @@ pub async fn scheduled_task_runner(
         // Process plugins
         // Note: If a plugin starts an infinite loop here, we're a bit stuffed.
         // Hopefully people will be smart enough not to do that?
-        // TODO: would be nice to do these in parallel and have a timeout of some sort?
+        // TODO: would be nice to run plugins in parallel and have a timeout of some sort?
+        // It probably should also be done in spawn_blocking thread so that it doesn't block the rt thread.
         for plugin in &plugins {
             let result = plugin.tick(&service_context);
             match result {

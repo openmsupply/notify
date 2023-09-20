@@ -1,8 +1,7 @@
 use service::{
     plugin::{PluginError, PluginTrait},
-    service_provider::{ServiceContext, ServiceProvider},
+    service_provider::ServiceContext,
 };
-use std::sync::Arc;
 
 pub mod parse;
 pub mod process;
@@ -19,7 +18,7 @@ pub enum NotificationError {
 pub struct ScheduledNotificationPlugin {}
 
 impl PluginTrait for ScheduledNotificationPlugin {
-    fn new(_service_provider: Arc<ServiceProvider>) -> Self
+    fn new() -> Self
     where
         Self: Sized,
     {
@@ -31,7 +30,7 @@ impl PluginTrait for ScheduledNotificationPlugin {
     }
 
     fn tick(&self, ctx: &ServiceContext) -> Result<(), PluginError> {
-        log::debug!("Starting ScheduledNotificationPlugin");
+        log::debug!("Running ScheduledNotificationPlugin");
 
         // Process any scheduled notifications that are due
         let current_time = chrono::Utc::now().naive_utc();
@@ -66,7 +65,13 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn scheduled_plugin_can_start() {
+    async fn scheduled_plugin_has_a_name() {
+        let plugin = ScheduledNotificationPlugin::new();
+        assert_eq!(plugin.name(), "ScheduledNotification");
+    }
+
+    #[tokio::test]
+    async fn scheduled_plugin_can_tick() {
         let (_, _, connection_manager, _) =
             setup_all("scheduled_plugin_can_start", MockDataInserts::none()).await;
 
@@ -74,7 +79,10 @@ mod tests {
             connection_manager,
             get_test_settings(""),
         ));
-        let plugin = ScheduledNotificationPlugin::new(service_provider.clone());
-        assert_eq!(plugin.name(), "ScheduledNotification");
+        let ctx = ServiceContext::as_server_admin(service_provider).unwrap();
+
+        let plugin = ScheduledNotificationPlugin::new();
+        let result = plugin.tick(&ctx);
+        assert!(result.is_ok());
     }
 }

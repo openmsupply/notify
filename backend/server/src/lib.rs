@@ -89,9 +89,8 @@ async fn run_server(
     };
 
     // Setup plugins
-    let plugins: Vec<Box<dyn service::plugin::PluginTrait>> = vec![Box::new(
-        ScheduledNotificationPlugin::new(service_provider_data.clone().into_inner()),
-    )];
+    let plugins: Vec<Box<dyn service::plugin::PluginTrait>> =
+        vec![Box::new(ScheduledNotificationPlugin::new())];
 
     let scheduled_task_handle = actix_web::rt::spawn(async move {
         scheduled_task_runner(scheduled_task_context, plugins).await;
