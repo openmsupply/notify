@@ -58,7 +58,7 @@ impl From<CreateSqlRecipientListInput> for CreateSqlRecipientList {
             name,
             description,
             query,
-            parameters,
+            required_parameters: parameters,
         }
     }
 }

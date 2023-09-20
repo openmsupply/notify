@@ -14,3 +14,4 @@ tokio = { version = "1", features = ["macros"] }
 
 [features]
 telegram-tests = ["service/telegram-tests"]
+email-tests = ["service/email-tests"]

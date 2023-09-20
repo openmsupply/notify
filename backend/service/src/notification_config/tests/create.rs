@@ -35,7 +35,6 @@ mod notification_config_create_test {
                     id: mock_coldchain_notification_config_a().id.clone(),
                     title: "some title".to_string(),
                     kind: NotificationConfigKind::ColdChain,
-                    configuration_data: "{\"highTemp\":true}".to_string()
                 },
             ),
             Err(ModifyNotificationConfigError::NotificationConfigAlreadyExists)
@@ -66,7 +65,6 @@ mod notification_config_create_test {
                 id: new_notification_config_id.clone(),
                 title: "new_notification_config".to_string(),
                 kind: NotificationConfigKind::ColdChain,
-                configuration_data: "{\"highTemp\":true}".to_string(),
             },
         );
 

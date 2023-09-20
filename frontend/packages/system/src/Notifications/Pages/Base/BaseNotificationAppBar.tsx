@@ -9,81 +9,16 @@ import {
   useTranslation,
 } from '@notify-frontend/common';
 import { RecipientsModal } from './RecipientsModal';
-import { useRecipientLists, useRecipients } from '../../../Recipients/api';
 import { BaseNotificationConfig } from '../../types';
-
-type BaseNotificationEditFormProps<T extends BaseNotificationConfig> = {
-  onUpdate: (patch: Partial<T>) => void;
-  draft: T;
-  CustomForm: React.FC<{
-    onUpdate: (patch: Partial<T>) => void;
-    draft: T;
-  }>;
-};
-
-export const BaseNotificationEditForm = <T extends BaseNotificationConfig>({
-  onUpdate,
-  draft,
-  CustomForm,
-}: BaseNotificationEditFormProps<T>) => {
-  const t = useTranslation('system');
-  const { isOpen, onClose, onOpen } = useEditModal();
-
-  const { data: recipients } = useRecipients();
-  const { data: recipientLists } = useRecipientLists();
-
-  const selectedRecipientLists = (recipientLists?.nodes ?? []).filter(list =>
-    draft.recipientListIds.includes(list.id)
-  );
-  const selectedRecipients = (recipients?.nodes ?? []).filter(recipient =>
-    draft.recipientIds.includes(recipient.id)
-  );
-  const selectedNames = [...selectedRecipientLists, ...selectedRecipients]
-    .map(r => r.name)
-    .join('; ');
-
-  return (
-    <>
-      {isOpen && (
-        <RecipientsModal
-          isOpen={isOpen}
-          onClose={onClose}
-          initialSelectedIds={[
-            ...draft.recipientListIds,
-            ...draft.recipientIds,
-          ]}
-          setSelection={({ recipients, recipientLists }) =>
-            onUpdate({
-              recipientIds: recipients,
-              recipientListIds: recipientLists,
-            } as Partial<T>)
-          }
-          recipientLists={recipientLists?.nodes ?? []}
-          recipients={recipients?.nodes ?? []}
-        />
-      )}
-      <Grid flexDirection="column" display="flex" gap={2}>
-        <BasicTextInput
-          autoFocus
-          value={draft.title}
-          required
-          onChange={e => onUpdate({ title: e.target.value } as Partial<T>)}
-          label={t('label.notification-title')}
-          InputLabelProps={{ shrink: true }}
-        />
-        <CustomForm draft={draft} onUpdate={onUpdate} />
-        <StyledButton onClick={() => onOpen()}>
-          {selectedNames ? `${selectedNames};` : t('label.select-recipients')}
-          <PlusCircleIcon color="primary" />
-        </StyledButton>
-      </Grid>
-    </>
-  );
-};
+import {
+  RecipientListRowFragment,
+  RecipientRowFragment,
+} from 'packages/system/src/Recipients/api/operations.generated';
 
 const Button = ({ children, ...props }: PropsWithChildren<ButtonProps>) => (
   <button {...props}>{children}</button>
 );
+
 const StyledButton = styled(Button)(({ theme }) => {
   return {
     display: 'flex',
@@ -103,3 +38,67 @@ const StyledButton = styled(Button)(({ theme }) => {
     lineHeight: 1.5,
   };
 });
+
+interface BaseNotificationAppBarProps<T> {
+  onUpdate: (patch: Partial<T>) => void;
+  recipientLists?: RecipientListRowFragment[];
+  recipients?: RecipientRowFragment[];
+  draft: BaseNotificationConfig;
+}
+
+export const BaseNotificationAppBar = <T extends BaseNotificationConfig>({
+  onUpdate,
+  recipientLists,
+  recipients,
+  draft,
+}: BaseNotificationAppBarProps<T>) => {
+  const t = useTranslation('system');
+  const { isOpen, onClose, onOpen } = useEditModal();
+
+  const selectedRecipientLists = (recipientLists ?? []).filter(list =>
+    draft.recipientListIds.includes(list.id)
+  );
+  const selectedRecipients = (recipients ?? []).filter(recipient =>
+    draft.recipientIds.includes(recipient.id)
+  );
+  const selectedNames = [...selectedRecipientLists, ...selectedRecipients]
+    .map(r => r.name)
+    .join('; ');
+
+  return (
+    <>
+      {isOpen && (
+        <RecipientsModal
+          isOpen={isOpen}
+          onClose={onClose}
+          initialSelectedIds={[
+            ...draft.recipientListIds,
+            ...draft.recipientIds,
+          ]}
+          setSelection={({ recipients: recipientIds, recipientLists }) => {
+            onUpdate({
+              recipientIds: recipientIds,
+              recipientListIds: recipientLists,
+            } as Partial<T>);
+          }}
+          recipientLists={recipientLists ?? []}
+          recipients={recipients ?? []}
+        />
+      )}
+      <Grid flexDirection="column" display="flex" gap={2}>
+        <BasicTextInput
+          autoFocus
+          value={draft.title}
+          required
+          onChange={e => onUpdate({ title: e.target.value } as Partial<T>)}
+          label={t('label.notification-title')}
+          InputLabelProps={{ shrink: true }}
+        />
+        <StyledButton onClick={() => onOpen()}>
+          {selectedNames ? `${selectedNames};` : t('label.select-recipients')}
+          <PlusCircleIcon color="primary" />
+        </StyledButton>
+      </Grid>
+    </>
+  );
+};

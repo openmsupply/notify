@@ -130,14 +130,14 @@ impl TelegramClient {
         let response_text = response.text().await?;
 
         let telegram_response: TelegramApiResponse = serde_json::from_str(&response_text)
-            .map_err(|e| TelegramError::Fatal(e.to_string()))?;
+            .map_err(|e| TelegramError::Fatal(format!("{}-{}", e.to_string(), response_text)))?;
 
         if !telegram_response.ok {
             return Err(TelegramError::Fatal(response_text));
         }
 
         let message: TelegramMessage = serde_json::from_value(telegram_response.result)
-            .map_err(|e| TelegramError::Fatal(e.to_string()))?;
+            .map_err(|e| TelegramError::Fatal(format!("Unable to interpret message - {:?}", e)))?;
 
         Ok(message)
     }

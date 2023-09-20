@@ -3,7 +3,6 @@ import { NotificationConfigRowFragment } from './api';
 
 type BaseConfig = Pick<NotificationConfigRowFragment, 'id' | 'kind' | 'title'>;
 
-// TODO: this should go away once recipient/list ids come through from the backend on the base config
 export interface BaseNotificationConfig extends BaseConfig {
   recipientIds: string[];
   recipientListIds: string[];

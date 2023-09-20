@@ -11,7 +11,7 @@ CREATE TABLE
         name TEXT NOT NULL,
         description TEXT NOT NULL,
         query TEXT NOT NULL,
-        parameters TEXT NOT NULL, -- JSON e.g. {"region":"string","tags":"string[]", "limit": "number"}
+        required_parameters TEXT NOT NULL, -- JSON e.g. {"region":"string","tags":"string[]", "limit": "number"}
         created_at TIMESTAMP NOT NULL,
         updated_at TIMESTAMP NOT NULL
     );
@@ -24,7 +24,7 @@ table! {
         name -> Text,
         description -> Text,
         query -> Text,
-        parameters -> Text,
+        required_parameters -> Text,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -39,7 +39,7 @@ pub struct SqlRecipientListRow {
     pub name: String,
     pub description: String,
     pub query: String,
-    pub parameters: String,
+    pub required_parameters: String,
     pub created_at: chrono::NaiveDateTime,
     pub updated_at: chrono::NaiveDateTime,
 }

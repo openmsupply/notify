@@ -47,12 +47,13 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-Bugsnag.start({
-  apiKey: 'ce795a79e2c47a4350aa15abfeffcd7c',
-  appVersion: Environment.BUILD_VERSION,
-  enabledBreadcrumbTypes: ['error'],
-});
+if (Environment.BUGSNAG_API_KEY) {
+  Bugsnag.start({
+    apiKey: Environment.BUGSNAG_API_KEY,
+    appVersion: Environment.BUILD_VERSION,
+    enabledBreadcrumbTypes: ['error'],
+  });
+}
 
 const Host = () => (
   <React.Suspense fallback={<div />}>

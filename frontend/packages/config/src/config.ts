@@ -1,5 +1,6 @@
 declare const API_HOST: string;
 declare const APP_BUILD_VERSION: string;
+declare const BUGSNAG_API_KEY: string;
 
 // For production, API is on the same domain/ip and port as web app, available through sub-route
 // i.e. web app is on https://my.healthsupplyhub.com/, then graphql will be available https://my.openmsupply.com/graphql
@@ -23,10 +24,12 @@ const version =
   typeof APP_BUILD_VERSION !== 'undefined' && APP_BUILD_VERSION
     ? APP_BUILD_VERSION
     : '0.0.0';
+const bugsnagApiKey = typeof BUGSNAG_API_KEY !== 'undefined' && BUGSNAG_API_KEY ? BUGSNAG_API_KEY : '';
 
 export const Environment = {
   API_HOST: apiHost,
   BUILD_VERSION: version,
+  BUGSNAG_API_KEY: bugsnagApiKey,
 };
 
 export default Environment;
