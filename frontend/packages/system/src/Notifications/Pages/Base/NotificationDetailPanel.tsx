@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Box,
   DeleteIcon,
   DetailPanelPortal,
   PanelLabel,
@@ -34,16 +35,16 @@ export const NotificationDetailPanel = ({
     <DetailPanelSection title={t('label.parameters')}>
       {allParams.map(param => {
         return (
-          <>
-            <PanelRow key={`param-label-row-${param}`}>
+          <Box key={`param-row-${param}`} paddingBottom={1}>
+            <PanelRow>
               <PanelLabel key={`param-label-${param}`}>{param}</PanelLabel>
             </PanelRow>
-            <PanelRow key={`param-value-row-${param}`}>
+            <PanelRow>
               <BufferedTextInput
                 key={`param-value-${param}`}
                 InputProps={{
                   sx: {
-                    backgroundColor: 'white',
+                    backgroundColor: 'background.white',
                   },
                 }}
                 value={params[param ?? '']}
@@ -60,7 +61,7 @@ export const NotificationDetailPanel = ({
                 )
               }
             </PanelRow>
-          </>
+          </Box>
         );
       })}
     </DetailPanelSection>

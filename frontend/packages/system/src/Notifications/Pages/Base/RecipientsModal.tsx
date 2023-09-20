@@ -28,9 +28,9 @@ interface RecipientsModalProps {
   initialSelectedIds: string[];
   onClose: () => void;
   setSelection: (input: {
-    recipients: string[];
-    recipientLists: string[];
-    sqlRecipientLists: string[];
+    recipientIds: string[];
+    recipientListIds: string[];
+    sqlRecipientListIds: string[];
   }) => void;
 }
 
@@ -114,11 +114,11 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
 
   const submitSelection = () => {
     setSelection({
-      recipients: selectedIds.filter(id => recipients.some(r => r.id === id)),
-      recipientLists: selectedIds.filter(id =>
+      recipientIds: selectedIds.filter(id => recipients.some(r => r.id === id)),
+      recipientListIds: selectedIds.filter(id =>
         recipientLists.some(r => r.id === id)
       ),
-      sqlRecipientLists: selectedIds.filter(id =>
+      sqlRecipientListIds: selectedIds.filter(id =>
         sqlRecipientLists.some(r => r.id === id)
       ),
     });
