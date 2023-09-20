@@ -14,6 +14,7 @@ export function parseScheduledNotificationConfig(
   if (!config) return null;
   try {
     return {
+      ...defautlSchedulerNotification,
       id: config.id,
       title: config.title,
       kind: config.kind,
