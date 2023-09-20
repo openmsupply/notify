@@ -106,8 +106,8 @@ export const BaseNotificationAppBar = <T extends BaseNotificationConfig>({
       <Grid
         flexDirection="column"
         display="flex"
-        paddingTop={2}
-        paddingBottom={2}
+        paddingTop={0}
+        paddingBottom={0}
       >
         <BasicTextInput
           autoFocus
