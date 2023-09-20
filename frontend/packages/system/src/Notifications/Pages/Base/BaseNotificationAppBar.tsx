@@ -2,6 +2,7 @@ import React, { PropsWithChildren } from 'react';
 import {
   BasicTextInput,
   ButtonProps,
+  FormLabel,
   Grid,
   PlusCircleIcon,
   styled,
@@ -102,7 +103,12 @@ export const BaseNotificationAppBar = <T extends BaseNotificationConfig>({
           sqlRecipientLists={sqlRecipientLists ?? []}
         />
       )}
-      <Grid flexDirection="column" display="flex" gap={2}>
+      <Grid
+        flexDirection="column"
+        display="flex"
+        paddingTop={2}
+        paddingBottom={2}
+      >
         <BasicTextInput
           autoFocus
           value={draft.title}
@@ -111,6 +117,15 @@ export const BaseNotificationAppBar = <T extends BaseNotificationConfig>({
           label={t('label.notification-title')}
           InputLabelProps={{ shrink: true }}
         />
+        <FormLabel
+          sx={{
+            alignSelf: 'flex-start',
+            paddingTop: 2,
+            transform: 'translate(-10px, -1.5px) scale(0.75)',
+          }}
+        >
+          {t('recipients', { ns: 'host' })}
+        </FormLabel>
         <StyledButton onClick={() => onOpen()}>
           {selectedNames ? `${selectedNames};` : t('label.select-recipients')}
           <PlusCircleIcon color="primary" />

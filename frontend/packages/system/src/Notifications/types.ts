@@ -24,3 +24,12 @@ export interface CCNotification extends BaseNotificationConfig {
   reminderUnits: 'seconds' | 'minutes' | 'hours';
   locationIds: string[];
 }
+export interface ScheduledNotification extends BaseNotificationConfig {
+  kind: ConfigKind;
+  parameters: string; // JSON for now
+  scheduleFrequency: string;
+  scheduleStartTime: Date;
+  subjectTemplate: string;
+  bodyTemplate: string;
+  sqlQueries: string[];
+}

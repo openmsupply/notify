@@ -10,7 +10,7 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 class DummyWebpackPlugin {
   apply(compiler) {
-    compiler.hooks.run.tap('DummyWebpackPlugin', () => {});
+    compiler.hooks.run.tap('DummyWebpackPlugin', () => { });
   }
 }
 
@@ -18,14 +18,14 @@ module.exports = env => {
   const isProduction = !!env.production;
   const bundleAnalyzerPlugin = !!env.stats
     ? new BundleAnalyzerPlugin({
-        /**
-         * In "server" mode analyzer will start HTTP server to show bundle report.
-         * In "static" mode single HTML file with bundle report will be generated.
-         * In "json" mode single JSON file with bundle report will be generated
-         */
-        analyzerMode: 'disabled',
-        generateStatsFile: true,
-      })
+      /**
+       * In "server" mode analyzer will start HTTP server to show bundle report.
+       * In "static" mode single HTML file with bundle report will be generated.
+       * In "json" mode single JSON file with bundle report will be generated
+       */
+      analyzerMode: 'disabled',
+      generateStatsFile: true,
+    })
     : new DummyWebpackPlugin();
 
   return {
@@ -76,19 +76,19 @@ module.exports = env => {
           exclude: /node_modules/,
           options: isProduction
             ? {
-                /* ts-loader options */
-              }
+              /* ts-loader options */
+            }
             : {
-                /* swc-loader options */
-                jsc: {
-                  parser: {
-                    dynamicImport: true,
-                    syntax: 'typescript',
-                    tsx: true,
-                  },
-                  target: 'es2015',
+              /* swc-loader options */
+              jsc: {
+                parser: {
+                  dynamicImport: true,
+                  syntax: 'typescript',
+                  tsx: true,
                 },
+                target: 'es2015',
               },
+            },
         },
         {
           test: /\.css$/,
@@ -113,6 +113,7 @@ module.exports = env => {
       new webpack.DefinePlugin({
         API_HOST: JSON.stringify(env.API_HOST),
         APP_BUILD_VERSION: JSON.stringify(env.APP_BUILD_VERSION),
+        BUGSNAG_API_KEY: JSON.stringify(env.BUGSNAG_API_KEY),
         LANG_VERSION: Date.now(),
       }),
       bundleAnalyzerPlugin,

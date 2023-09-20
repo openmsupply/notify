@@ -9,4 +9,7 @@ export const StringUtils = {
       .map(word => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
       .join(' ');
   },
+  ellipsis: function (text: string, length: number) {
+    return text.length > length ? `${text.slice(0, length)}...` : text;
+  },
 };
