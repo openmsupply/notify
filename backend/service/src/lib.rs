@@ -9,6 +9,7 @@ pub mod email;
 pub mod login;
 pub mod notification;
 pub mod notification_config;
+pub mod notification_query;
 pub mod recipient;
 pub mod recipient_list;
 pub mod service_provider;
