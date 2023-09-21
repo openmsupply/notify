@@ -88,6 +88,14 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
     .map(list => list.parameters)
     .flat(1);
 
+  const allParamsSet = requiredParams.every(param => {
+    if (param) {
+      return draft.parsedParameters[param] !== undefined; // This allows the user to set the param to an empty string if they edit the field then delete the value
+    } else {
+      return false;
+    }
+  });
+
   return (
     <>
       {isLoading ? (
@@ -147,7 +155,7 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
                     onClick={() => navigateUpOne()}
                   />
                   <LoadingButton
-                    disabled={isSaved || isInvalid}
+                    disabled={isSaved || isInvalid || !allParamsSet}
                     isLoading={isLoading}
                     onClick={() => {
                       onSave(draft);
