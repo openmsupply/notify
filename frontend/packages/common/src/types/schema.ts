@@ -528,6 +528,7 @@ export type NotificationConfigNode = {
   configurationData: Scalars['String']['output'];
   id: Scalars['String']['output'];
   kind: ConfigKind;
+  parameters: Scalars['String']['output'];
   title: Scalars['String']['output'];
 };
 
@@ -731,6 +732,7 @@ export type TokenExpired = RefreshTokenErrorInterface & {
 export type UpdateNotificationConfigInput = {
   configurationData?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
+  parameters?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
 

@@ -1,52 +1,24 @@
 import {
+  ConfigKind,
   CreateNotificationConfigInput,
   UpdateNotificationConfigInput,
 } from '@common/types';
-import { CCNotification } from '../../types';
 import { NotificationConfigRowFragment } from '../../api';
-import { TeraUtils } from '@common/utils';
+import { ScheduledNotification } from '../../types';
+import { FnUtils } from '@common/utils';
 
-export function parseColdChainNotificationConfig(
+export function parseScheduledNotificationConfig(
   config: NotificationConfigRowFragment | null,
   showError: () => void
-): CCNotification | null {
+): ScheduledNotification | null {
   if (!config) return null;
   try {
-    const {
-      highTemp,
-      lowTemp,
-      confirmOk,
-      noData,
-      noDataInterval,
-      noDataUnits,
-      remind,
-      reminderInterval,
-      reminderUnits,
-      locationIds,
-      recipientIds,
-      recipientListIds,
-      sqlRecipientListIds,
-    } = JSON.parse(config.configurationData);
-
     return {
+      ...defaultSchedulerNotification,
       id: config.id,
       title: config.title,
       kind: config.kind,
-      highTemp,
-      lowTemp,
-      confirmOk,
-      noData,
-      noDataInterval,
-      noDataUnits,
-      remind,
-      reminderInterval,
-      reminderUnits,
-      locationIds,
-      recipientIds,
-      recipientListIds,
-      sqlRecipientListIds,
-      parameters: config.parameters,
-      parsedParameters: TeraUtils.keyedParamsFromTeraJson(config.parameters),
+      ...JSON.parse(config.configurationData),
     };
   } catch (e) {
     showError();
@@ -55,25 +27,42 @@ export function parseColdChainNotificationConfig(
     // The missing fields will be populated by default values in the edit modal, but we'll return
     // the base NotificationConfig data that is still usable:
     return {
+      ...defaultSchedulerNotification,
       id: config.id,
       title: config.title,
       kind: config.kind,
-    } as CCNotification;
+    };
   }
 }
 
-export function buildColdChainNotificationInputs(config: CCNotification): {
+export const defaultSchedulerNotification: ScheduledNotification = {
+  id: FnUtils.generateUUID(),
+  title: '',
+  kind: ConfigKind.Scheduled,
+  recipientListIds: [],
+  recipientIds: [],
+  sqlRecipientListIds: [],
+  parameters: '{}',
+  parsedParameters: {},
+  scheduleFrequency: 'daily',
+  scheduleStartTime: new Date(),
+  subjectTemplate: '',
+  bodyTemplate: '',
+  sqlQueries: [],
+};
+
+export function buildScheduledNotificationInputs(
+  config: ScheduledNotification
+): {
   create: CreateNotificationConfigInput;
   update: UpdateNotificationConfigInput;
 } {
-
   const input = {
     id: config.id,
     title: config.title,
     configurationData: JSON.stringify(config),
     parameters: config.parameters,
   };
-
   return {
     create: { ...input, kind: config.kind },
     update: input,

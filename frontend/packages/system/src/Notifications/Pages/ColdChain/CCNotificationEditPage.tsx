@@ -37,6 +37,9 @@ const createCCNotification = (
   locationIds: seed?.locationIds ?? [],
   recipientIds: seed?.recipientIds ?? [],
   recipientListIds: seed?.recipientListIds ?? [],
+  sqlRecipientListIds: seed?.sqlRecipientListIds ?? [],
+  parameters: seed?.parameters ?? '{}',
+  parsedParameters: seed?.parsedParameters ?? {},
 });
 
 export const CCNotificationEditPage = () => {
@@ -81,7 +84,9 @@ export const CCNotificationEditPage = () => {
     // no locations selected
     !draft.locationIds.length ||
     // no recipients selected
-    (!draft.recipientListIds.length && !draft.recipientIds.length);
+    (!draft.recipientListIds.length &&
+      !draft.recipientIds.length &&
+      !draft.sqlRecipientListIds.length);
 
   return (
     <BaseNotificationEditPage

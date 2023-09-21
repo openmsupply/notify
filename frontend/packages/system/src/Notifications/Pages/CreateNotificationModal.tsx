@@ -79,6 +79,10 @@ export const CreateNotificationModal = ({
                 label: t(`config-kind.${ConfigKind.ColdChain}`),
                 value: ConfigKind.ColdChain,
               },
+              {
+                label: t(`config-kind.${ConfigKind.Scheduled}`),
+                value: ConfigKind.Scheduled,
+              },
             ]}
             InputLabelProps={{ shrink: true }}
             sx={{ marginBottom: 2 }}

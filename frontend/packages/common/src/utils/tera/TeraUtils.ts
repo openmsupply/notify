@@ -29,7 +29,44 @@ export const TeraUtils = {
 
     return JSON.stringify(mappedObject);
   },
+  keyedParamsFromTeraJson: function (teraJson: string) {
+    // Converts a Tera JSON string to a keyed params object
+    // Simple Example: keyedParamsFromJson('{"name": "John"}') => {name: 'John'}
+    // If we have nested objects, their should be joined with a `.`
+    // Example: keyedParamsFromJson('{"user": {"name": "John", "email": "john@example"}}') =>
+    //   {'user.name': 'John', 'user.email': "john@example"}
+    let keyedParams = {} as KeyedParams;
+    try {
+      const teraObject = JSON.parse(teraJson) as TeraParams;
+      keyedParams = flattenTeraObject(teraObject);
+    } catch (e) {
+      console.log('parameter parsing error', e, teraJson);
+    }
+    return keyedParams;
+  },
 };
+
+function flattenTeraObject(
+  teraObject: TeraParams,
+  prefix: string = ''
+): KeyedParams {
+  const keyedParams = {} as KeyedParams;
+  for (const key of Object.keys(teraObject)) {
+    const value = teraObject[key];
+    if (!value) {
+      keyedParams[`${prefix}${key}`] = '';
+    } else if (typeof value === 'string') {
+      keyedParams[`${prefix}${key}`] = value;
+    } else {
+      const nestedKeys = flattenTeraObject(value, `${prefix}${key}.`);
+      for (const nestedKey of Object.keys(nestedKeys)) {
+        const nestedValue = nestedKeys[nestedKey];
+        keyedParams[`${nestedKey}`] = nestedValue ?? '';
+      }
+    }
+  }
+  return keyedParams;
+}
 
 function extractObj(
   currentObj: TeraParams | string | undefined,
