@@ -1,6 +1,6 @@
 use repository::{
-    EqualFilter, RepositoryError, NotificationQueryFilter, NotificationQueryRepository,
-    NotificationQueryRow, NotificationQueryRowRepository, StorageConnection, StringFilter,
+    EqualFilter, NotificationQueryFilter, NotificationQueryRepository, NotificationQueryRow,
+    NotificationQueryRowRepository, RepositoryError, StorageConnection, StringFilter,
 };
 use util::is_valid_name;
 
@@ -34,17 +34,19 @@ pub fn check_notification_query_name_is_unique(
     match list_name {
         None => Ok(true),
         Some(list_name) => {
-            let notification_querys = NotificationQueryRepository::new(connection).query_by_filter(
-                NotificationQueryFilter::new()
-                    .name(StringFilter::equal_to(&list_name.trim().to_string()))
-                    .id(EqualFilter::not_equal_to(id)),
-            )?;
+            let notification_querys = NotificationQueryRepository::new(connection)
+                .query_by_filter(
+                    NotificationQueryFilter::new()
+                        .name(StringFilter::equal_to(&list_name.trim().to_string()))
+                        .id(EqualFilter::not_equal_to(id)),
+                )?;
 
             Ok(notification_querys.is_empty())
         }
     }
 }
 
+// TODO: Refactor as part of https://github.com/openmsupply/notify/issues/140
 pub fn check_list_name_is_appropriate_length(name: &str) -> Result<bool, RepositoryError> {
     Ok(name.trim().len() >= 3 && name.len() <= 70)
 }
@@ -68,13 +70,9 @@ mod test {
     #[test]
     fn test_good_names() -> Result<(), String> {
         [
-            "admins",
-            "Team A",
-            "  Team 42 ",
-            "Supervisors (Area 3)",
-            "Friends: The close ones",
-            "Monitors - fridges",
-            "East & West regions",
+            "All mSupply Sites",
+            "Conforma Roles",
+            "Sites Last Sync Time, by Region & Country",
         ]
         .iter()
         .try_for_each(|name| list_name_char_test(*name, true))?;

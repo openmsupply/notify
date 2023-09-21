@@ -2,7 +2,7 @@ use super::{
     notification_query_row::notification_query::dsl as notification_query_dsl, StorageConnection,
 };
 use crate::{repository_error::RepositoryError, DBType};
-// use chrono::NaiveDateTime;
+use chrono::NaiveDateTime;
 use diesel::prelude::*;
 
 /*
@@ -41,8 +41,8 @@ pub struct NotificationQueryRow {
     pub description: String,
     pub query: String,
     pub required_parameters: String,
-    pub created_at: chrono::NaiveDateTime,
-    pub updated_at: chrono::NaiveDateTime,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 pub struct NotificationQueryRowRepository<'a> {
