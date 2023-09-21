@@ -70,6 +70,10 @@ Find further details about frontend and backend development in the respective RE
 
 After setting up your environment, There are some quick start tutorials you can follow [here](./docs/tutorial/0.tutorials.md)
 
+## Docs for setting up notifications
+
+Until a documentation website is established, you can find some docs for setting up notify & notifications [here](./docs/notification_setup.md)
+
 ## Contributing
 
 To contribute, there are several key areas
