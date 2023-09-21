@@ -81,7 +81,9 @@ export const CCNotificationEditPage = () => {
     // no locations selected
     !draft.locationIds.length ||
     // no recipients selected
-    (!draft.recipientListIds.length && !draft.recipientIds.length);
+    (!draft.recipientListIds.length &&
+      !draft.recipientIds.length &&
+      !draft.sqlRecipientListIds.length);
 
   return (
     <BaseNotificationEditPage

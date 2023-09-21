@@ -5,8 +5,8 @@ import { BasicTextInput } from '../TextInput';
 export const BufferedTextArea: FC<StandardTextFieldProps> = ({
   value,
   onChange,
-  maxRows = 4,
-  minRows = 4,
+  maxRows,
+  minRows,
   InputProps,
   ...props
 }) => {

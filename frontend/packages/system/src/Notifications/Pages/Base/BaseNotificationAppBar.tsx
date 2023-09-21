@@ -87,17 +87,7 @@ export const BaseNotificationAppBar = <T extends BaseNotificationConfig>({
             ...draft.recipientIds,
             ...draft.sqlRecipientListIds,
           ]}
-          setSelection={({
-            recipients: recipientIds,
-            recipientLists,
-            sqlRecipientLists: sqlRecipientListIds,
-          }) => {
-            onUpdate({
-              recipientIds: recipientIds,
-              recipientListIds: recipientLists,
-              sqlRecipientListIds: sqlRecipientListIds,
-            } as Partial<T>);
-          }}
+          setSelection={props => onUpdate(props as Partial<T>)}
           recipientLists={recipientLists ?? []}
           recipients={recipients ?? []}
           sqlRecipientLists={sqlRecipientLists ?? []}
@@ -106,8 +96,8 @@ export const BaseNotificationAppBar = <T extends BaseNotificationConfig>({
       <Grid
         flexDirection="column"
         display="flex"
-        paddingTop={2}
-        paddingBottom={2}
+        paddingTop={0}
+        paddingBottom={0}
       >
         <BasicTextInput
           autoFocus

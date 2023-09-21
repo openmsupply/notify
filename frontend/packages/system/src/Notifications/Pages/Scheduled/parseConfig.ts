@@ -43,12 +43,12 @@ export const defaultSchedulerNotification: ScheduledNotification = {
   recipientIds: [],
   sqlRecipientListIds: [],
   parameters: '{}',
+  parsedParameters: {},
   scheduleFrequency: 'daily',
   scheduleStartTime: new Date(),
   subjectTemplate: '',
   bodyTemplate: '',
   sqlQueries: [],
-  parsedParameters: {},
 };
 
 export function buildScheduledNotificationInputs(
@@ -61,6 +61,7 @@ export function buildScheduledNotificationInputs(
     id: config.id,
     title: config.title,
     configurationData: JSON.stringify(config),
+    parameters: config.parameters,
   };
   return {
     create: { ...input, kind: config.kind },

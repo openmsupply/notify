@@ -3,11 +3,10 @@ import {
   useTranslation,
   FilterController,
   SearchBar,
-  RecordWithId,
   Box,
 } from '@notify-frontend/common';
 
-export const SearchToolbar = <T extends RecordWithId>({
+export const SearchToolbar = ({
   filter,
   searchFilterKey = 'search',
   ActionButtons = () => <></>,
