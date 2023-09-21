@@ -198,6 +198,7 @@ export const RecipientQueryEditor = ({
           InputProps={{ sx: { backgroundColor: 'background.menu' } }}
           InputLabelProps={{ shrink: true }}
           helperText={t('helper-text.recipient-sql-query')}
+          minRows={4}
         />
         <Box sx={{ display: 'flex', gap: '8px' }}>
           <Typography
@@ -235,6 +236,7 @@ export const RecipientQueryEditor = ({
             }}
             disabled={isSaved || invalidName(draft.name)}
             isLoading={createIsLoading || updateIsLoading}
+            sx={{ marginRight: 1 }}
           >
             {t('button.save')}
           </LoadingButton>

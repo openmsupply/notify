@@ -42,13 +42,13 @@ interface DetailPanel {
   close: () => void;
   isOpen: boolean;
 }
-export const useDetailPanel = (): DetailPanel => {
+export const useDetailPanel = (buttonLabel?: string): DetailPanel => {
   const t = useTranslation('common');
   const { isOpen, open, close } = useDetailPanelStore();
   const OpenButton = isOpen ? null : (
     <ButtonWithIcon
       Icon={<SidebarIcon />}
-      label={t('button.more')}
+      label={buttonLabel ? buttonLabel : t('button.more')}
       onClick={open}
     />
   );

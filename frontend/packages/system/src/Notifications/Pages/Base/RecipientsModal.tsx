@@ -15,17 +15,22 @@ import {
 import { CheckIcon } from '@common/icons';
 import { Grid, NotificationTypeNode } from 'packages/common/src';
 import { RecipientRowFragment } from '../../../Recipients/api';
-import { RecipientListRowFragment } from '../../../Recipients/api/operations.generated';
+import {
+  RecipientListRowFragment,
+  SqlRecipientListRowFragment,
+} from '../../../Recipients/api/operations.generated';
 
 interface RecipientsModalProps {
   isOpen: boolean;
   recipients: RecipientRowFragment[];
   recipientLists: RecipientListRowFragment[];
+  sqlRecipientLists: SqlRecipientListRowFragment[];
   initialSelectedIds: string[];
   onClose: () => void;
   setSelection: (input: {
-    recipients: string[];
-    recipientLists: string[];
+    recipientIds: string[];
+    recipientListIds: string[];
+    sqlRecipientListIds: string[];
   }) => void;
 }
 
@@ -46,6 +51,7 @@ interface RecipientOption {
 export const RecipientsModal: FC<RecipientsModalProps> = ({
   recipientLists,
   recipients,
+  sqlRecipientLists,
   isOpen,
   initialSelectedIds,
   onClose,
@@ -59,6 +65,18 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
 
   const options: RecipientOption[] = useMemo(
     () => [
+      {
+        id: 'sqlRecipientLists-heading',
+        name: `--- ${t('sql-recipient-lists', { ns: 'host' })} ---`,
+        detail: '',
+        type: RecipientOptionType.Heading,
+      },
+      ...sqlRecipientLists.map(r => ({
+        id: r.id,
+        name: r.name,
+        detail: r.description,
+        type: RecipientOptionType.List,
+      })),
       {
         id: 'recipientLists-heading',
         name: `--- ${t('recipient-lists', { ns: 'host' })} ---`,
@@ -96,9 +114,12 @@ export const RecipientsModal: FC<RecipientsModalProps> = ({
 
   const submitSelection = () => {
     setSelection({
-      recipients: selectedIds.filter(id => recipients.some(r => r.id === id)),
-      recipientLists: selectedIds.filter(id =>
+      recipientIds: selectedIds.filter(id => recipients.some(r => r.id === id)),
+      recipientListIds: selectedIds.filter(id =>
         recipientLists.some(r => r.id === id)
+      ),
+      sqlRecipientListIds: selectedIds.filter(id =>
+        sqlRecipientLists.some(r => r.id === id)
       ),
     });
     onClose();

@@ -54,7 +54,9 @@ export const ScheduledNotificationEditPage = () => {
     !draft.title ||
     // nothing selected
     // no recipients selected
-    (!draft.recipientListIds.length && !draft.recipientIds.length);
+    (!draft.recipientListIds.length &&
+      !draft.recipientIds.length &&
+      !draft.sqlRecipientListIds.length);
 
   return (
     <BaseNotificationEditPage

@@ -33,7 +33,7 @@ mod notification_config_update_tests {
                 UpdateNotificationConfig {
                     id: "new_id".to_string(),
                     title: Some("new title".to_string()),
-                    configuration_data: None,
+                    ..Default::default()
                 },
             ),
             Err(ModifyNotificationConfigError::NotificationConfigDoesNotExist)
@@ -64,6 +64,7 @@ mod notification_config_update_tests {
                     id: mock_coldchain_notification_config_a().id.clone(),
                     title: Some("this is the new title".to_string()),
                     configuration_data: None,
+                    ..Default::default()
                 },
             )
             .unwrap();
@@ -83,6 +84,7 @@ mod notification_config_update_tests {
                     id: mock_coldchain_notification_config_a().id.clone(),
                     title: None,
                     configuration_data: Some("{\"confirmOk\":true}".to_string()),
+                    ..Default::default()
                 },
             )
             .unwrap();
