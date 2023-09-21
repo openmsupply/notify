@@ -69,5 +69,6 @@ pub fn generate(
         kind,
         configuration_data: "{}".to_string(),
         status: NotificationConfigStatus::Disabled,
+        parameters: "{}".to_string(),
     })
 }

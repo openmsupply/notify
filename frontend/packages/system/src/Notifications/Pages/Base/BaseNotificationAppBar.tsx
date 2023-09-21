@@ -14,6 +14,7 @@ import { BaseNotificationConfig } from '../../types';
 import {
   RecipientListRowFragment,
   RecipientRowFragment,
+  SqlRecipientListRowFragment,
 } from 'packages/system/src/Recipients/api/operations.generated';
 
 const Button = ({ children, ...props }: PropsWithChildren<ButtonProps>) => (
@@ -44,6 +45,7 @@ interface BaseNotificationAppBarProps<T> {
   onUpdate: (patch: Partial<T>) => void;
   recipientLists?: RecipientListRowFragment[];
   recipients?: RecipientRowFragment[];
+  sqlRecipientLists?: SqlRecipientListRowFragment[];
   draft: BaseNotificationConfig;
 }
 
@@ -51,18 +53,26 @@ export const BaseNotificationAppBar = <T extends BaseNotificationConfig>({
   onUpdate,
   recipientLists,
   recipients,
+  sqlRecipientLists,
   draft,
 }: BaseNotificationAppBarProps<T>) => {
   const t = useTranslation('system');
   const { isOpen, onClose, onOpen } = useEditModal();
 
+  const selectedSqlRecipientLists = (sqlRecipientLists ?? []).filter(list =>
+    draft.sqlRecipientListIds.includes(list.id)
+  );
   const selectedRecipientLists = (recipientLists ?? []).filter(list =>
     draft.recipientListIds.includes(list.id)
   );
   const selectedRecipients = (recipients ?? []).filter(recipient =>
     draft.recipientIds.includes(recipient.id)
   );
-  const selectedNames = [...selectedRecipientLists, ...selectedRecipients]
+  const selectedNames = [
+    ...selectedSqlRecipientLists,
+    ...selectedRecipientLists,
+    ...selectedRecipients,
+  ]
     .map(r => r.name)
     .join('; ');
 
@@ -75,22 +85,19 @@ export const BaseNotificationAppBar = <T extends BaseNotificationConfig>({
           initialSelectedIds={[
             ...draft.recipientListIds,
             ...draft.recipientIds,
+            ...draft.sqlRecipientListIds,
           ]}
-          setSelection={({ recipients: recipientIds, recipientLists }) => {
-            onUpdate({
-              recipientIds: recipientIds,
-              recipientListIds: recipientLists,
-            } as Partial<T>);
-          }}
+          setSelection={props => onUpdate(props as Partial<T>)}
           recipientLists={recipientLists ?? []}
           recipients={recipients ?? []}
+          sqlRecipientLists={sqlRecipientLists ?? []}
         />
       )}
       <Grid
         flexDirection="column"
         display="flex"
-        paddingTop={2}
-        paddingBottom={2}
+        paddingTop={0}
+        paddingBottom={0}
       >
         <BasicTextInput
           autoFocus

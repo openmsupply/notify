@@ -4,6 +4,7 @@ import {
 } from '@common/types';
 import { CCNotification } from '../../types';
 import { NotificationConfigRowFragment } from '../../api';
+import { TeraUtils } from '@common/utils';
 
 export function parseColdChainNotificationConfig(
   config: NotificationConfigRowFragment | null,
@@ -21,6 +22,7 @@ export function parseColdChainNotificationConfig(
       locationIds,
       recipientIds,
       recipientListIds,
+      sqlRecipientListIds,
     } = JSON.parse(config.configurationData);
 
     return {
@@ -37,6 +39,9 @@ export function parseColdChainNotificationConfig(
       recipientIds,
       recipientListIds,
       status: config.status,
+      sqlRecipientListIds,
+      parameters: config.parameters,
+      parsedParameters: TeraUtils.keyedParamsFromTeraJson(config.parameters),
     };
   } catch (e) {
     showError();
@@ -57,37 +62,16 @@ export function buildColdChainNotificationInputs(config: CCNotification): {
   create: CreateNotificationConfigInput;
   update: UpdateNotificationConfigInput;
 } {
-  const {
-    highTemp,
-    lowTemp,
-    confirmOk,
-    remind,
-    reminderInterval,
-    reminderUnits,
-    locationIds,
-    recipientIds,
-    recipientListIds,
-  } = config;
-
   const input = {
     id: config.id,
     title: config.title,
-    configurationData: JSON.stringify({
-      highTemp,
-      lowTemp,
-      confirmOk,
-      remind,
-      reminderInterval,
-      reminderUnits,
-      locationIds,
-      recipientIds,
-      recipientListIds,
-    }),
+    configurationData: JSON.stringify(config),
     status: config.status,
+    parameters: config.parameters,
   };
 
   return {
-    create: { ...input, kind: config.kind},
+    create: { ...input, kind: config.kind },
     update: input,
   };
 }

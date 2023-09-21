@@ -1,5 +1,5 @@
 import React from 'react';
-import { DetailPanelPortal, PanelLabel, PanelRow } from '@common/ui';
+import { Box, DetailPanelPortal, PanelLabel, PanelRow } from '@common/ui';
 import { BufferedTextInput, DetailPanelSection } from '@common/components';
 import { KeyedParams, TeraUtils } from '@common/utils';
 import { useTranslation } from '@common/intl';
@@ -27,12 +27,13 @@ export const SidePanel = ({
         <>
           {TeraUtils.extractParams(query).map(param => {
             return (
-              <>
-                <PanelRow key={`param-label-${param}`}>
+              <Box key={`param-${param}`} paddingBottom={2}>
+                <PanelRow>
                   <PanelLabel>{param}</PanelLabel>
                 </PanelRow>
-                <PanelRow key={`param-${param}`}>
+                <PanelRow>
                   <BufferedTextInput
+                    sx={{ flex: 1 }}
                     InputProps={{
                       sx: {
                         backgroundColor: 'white',
@@ -44,7 +45,7 @@ export const SidePanel = ({
                     }
                   />
                 </PanelRow>
-              </>
+              </Box>
             );
           })}
         </>

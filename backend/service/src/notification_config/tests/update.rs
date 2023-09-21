@@ -5,11 +5,11 @@ mod notification_config_update_tests {
     };
     use crate::service_provider::{ServiceContext, ServiceProvider};
     use crate::test_utils::get_test_settings;
+    use repository::NotificationConfigStatus;
     use repository::{
         mock::{mock_coldchain_notification_config_a, MockDataInserts},
         test_db::setup_all,
     };
-    use repository::{NotificationConfigStatus};
     use std::sync::Arc;
 
     #[actix_rt::test]
@@ -34,8 +34,7 @@ mod notification_config_update_tests {
                 UpdateNotificationConfig {
                     id: "new_id".to_string(),
                     title: Some("new title".to_string()),
-                    configuration_data: None,
-                    status: NotificationConfigStatus::Disabled,
+                    ..Default::default()
                 },
             ),
             Err(ModifyNotificationConfigError::NotificationConfigDoesNotExist)
@@ -66,7 +65,7 @@ mod notification_config_update_tests {
                     id: mock_coldchain_notification_config_a().id.clone(),
                     title: Some("this is the new title".to_string()),
                     configuration_data: None,
-                    status: NotificationConfigStatus::Disabled,
+                    ..Default::default()
                 },
             )
             .unwrap();
@@ -86,7 +85,7 @@ mod notification_config_update_tests {
                     id: mock_coldchain_notification_config_a().id.clone(),
                     title: None,
                     configuration_data: Some("{\"confirmOk\":true}".to_string()),
-                    status: NotificationConfigStatus::Disabled,
+                    ..Default::default()
                 },
             )
             .unwrap();
@@ -104,9 +103,8 @@ mod notification_config_update_tests {
                 &context,
                 UpdateNotificationConfig {
                     id: mock_coldchain_notification_config_a().id.clone(),
-                    title: None,
-                    configuration_data: None,
-                    status: NotificationConfigStatus::Enabled,
+                    status: Some(NotificationConfigStatus::Enabled),
+                    ..Default::default()
                 },
             )
             .unwrap();
