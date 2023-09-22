@@ -1,5 +1,6 @@
 import {
   ConfigKind,
+  ConfigStatus,
   CreateNotificationConfigInput,
   UpdateNotificationConfigInput,
 } from '@common/types';
@@ -41,12 +42,15 @@ export const defaultSchedulerNotification: ScheduledNotification = {
   kind: ConfigKind.Scheduled,
   recipientListIds: [],
   recipientIds: [],
-  parameters: '[]',
+  sqlRecipientListIds: [],
+  parameters: '{}',
+  parsedParameters: {},
   scheduleFrequency: 'daily',
   scheduleStartTime: new Date(),
   subjectTemplate: '',
   bodyTemplate: '',
   sqlQueries: [],
+  status: ConfigStatus.Disabled,
 };
 
 export function buildScheduledNotificationInputs(
@@ -59,6 +63,8 @@ export function buildScheduledNotificationInputs(
     id: config.id,
     title: config.title,
     configurationData: JSON.stringify(config),
+    status: config.status,
+    parameters: config.parameters,
   };
   return {
     create: { ...input, kind: config.kind },

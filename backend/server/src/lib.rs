@@ -13,6 +13,7 @@ use middleware::{add_authentication_context, limit_content_length};
 use repository::{get_storage_connection_manager, run_db_migrations, StorageConnectionManager};
 
 use actix_web::{web::Data, App, HttpServer};
+use scheduled::ScheduledNotificationPlugin;
 use std::{
     ops::DerefMut,
     sync::{Arc, RwLock},
@@ -21,6 +22,7 @@ use tokio::sync::{oneshot, Mutex};
 
 use service::{
     auth_data::AuthData,
+    plugin::PluginTrait,
     recipient::telegram::update_telegram_recipients,
     service_provider::{ServiceContext, ServiceProvider},
     settings::{is_develop, ServerSettings, Settings},
@@ -86,8 +88,12 @@ async fn run_server(
         }
     };
 
+    // Setup plugins
+    let plugins: Vec<Box<dyn service::plugin::PluginTrait>> =
+        vec![Box::new(ScheduledNotificationPlugin::new())];
+
     let scheduled_task_handle = actix_web::rt::spawn(async move {
-        scheduled_task_runner(scheduled_task_context).await;
+        scheduled_task_runner(scheduled_task_context, plugins).await;
     });
 
     // Setup a channel to receive telegram messages, which we want to handle in recipient service

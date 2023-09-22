@@ -54,6 +54,11 @@ export enum ConfigKind {
   Scheduled = 'SCHEDULED'
 }
 
+export enum ConfigStatus {
+  Disabled = 'DISABLED',
+  Enabled = 'ENABLED'
+}
+
 export type CreateNotificationConfigInput = {
   id: Scalars['String']['input'];
   kind: ConfigKind;
@@ -119,6 +124,12 @@ export type EqualFilterConfigKindInput = {
   equalAny?: InputMaybe<Array<ConfigKind>>;
   equalTo?: InputMaybe<ConfigKind>;
   notEqualTo?: InputMaybe<ConfigKind>;
+};
+
+export type EqualFilterConfigStatusInput = {
+  equalAny?: InputMaybe<Array<ConfigStatus>>;
+  equalTo?: InputMaybe<ConfigStatus>;
+  notEqualTo?: InputMaybe<ConfigStatus>;
 };
 
 export type EqualFilterLogTypeInput = {
@@ -519,6 +530,7 @@ export type NotificationConfigFilterInput = {
   id?: InputMaybe<EqualFilterStringInput>;
   kind?: InputMaybe<EqualFilterConfigKindInput>;
   search?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<EqualFilterConfigStatusInput>;
   title?: InputMaybe<StringFilterInput>;
 };
 
@@ -528,6 +540,8 @@ export type NotificationConfigNode = {
   configurationData: Scalars['String']['output'];
   id: Scalars['String']['output'];
   kind: ConfigKind;
+  parameters: Scalars['String']['output'];
+  status: ConfigStatus;
   title: Scalars['String']['output'];
 };
 
@@ -731,6 +745,8 @@ export type TokenExpired = RefreshTokenErrorInterface & {
 export type UpdateNotificationConfigInput = {
   configurationData?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
+  parameters?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<ConfigStatus>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
 

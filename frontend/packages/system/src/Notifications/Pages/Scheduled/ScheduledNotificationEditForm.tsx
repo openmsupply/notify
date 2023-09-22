@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   BasicTextInput,
-  Box,
   BufferedTextArea,
   DateTimeInput,
   Select,
@@ -125,14 +124,6 @@ export const ScheduledNotificationEditForm = ({
           { label: t('label.monthly'), value: 'monthly' },
         ]}
       />
-
-      <Box>
-        <Typography
-          sx={{ fontWeight: 700, fontSize: '13px', marginBottom: '10px' }}
-        >
-          Recipients
-        </Typography>
-      </Box>
     </>
   );
 };

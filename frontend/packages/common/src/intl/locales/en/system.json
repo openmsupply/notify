@@ -4,6 +4,8 @@
   "button.send-password-reset": "Send Password Reset",
   "config-kind.COLD_CHAIN": "Cold Chain",
   "config-kind.SCHEDULED": "Scheduled",
+  "config-status.DISABLED": "Disabled",
+  "config-status.ENABLED": "Enabled",
   "error.email-invalid": "Invalid email",
   "error.no-recipient-list-members": "No recipient list members",
   "error.no-recipient-lists": "No recipient lists",
