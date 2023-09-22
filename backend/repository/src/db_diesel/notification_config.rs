@@ -7,7 +7,7 @@ use super::{
 use crate::{
     diesel_macros::{apply_equal_filter, apply_sort_no_case, apply_string_filter},
     repository_error::RepositoryError,
-    EqualFilter, NotificationConfigKind, NotificationConfigRow, Pagination, Sort, StringFilter,
+    EqualFilter, NotificationConfigKind, NotificationConfigRow, Pagination, Sort, StringFilter, NotificationConfigStatus, 
 };
 
 use diesel::{dsl::IntoBoxed, prelude::*};
@@ -20,6 +20,7 @@ pub struct NotificationConfigFilter {
     pub kind: Option<EqualFilter<NotificationConfigKind>>,
     pub title: Option<StringFilter>,
     pub search: Option<String>,
+    pub status: Option<EqualFilter<NotificationConfigStatus>>,
 }
 
 #[derive(PartialEq, Debug)]
@@ -96,11 +97,13 @@ fn create_filtered_query(filter: Option<NotificationConfigFilter>) -> BoxedNotif
             kind,
             title,
             search,
+            status,
         } = f;
 
         apply_equal_filter!(query, id, notification_config_dsl::id);
         apply_equal_filter!(query, kind, notification_config_dsl::kind);
         apply_string_filter!(query, title, notification_config_dsl::title);
+        apply_equal_filter!(query, status, notification_config_dsl::status);
 
         if let Some(search) = search {
             let search_term = format!("%{}%", search);
@@ -130,6 +133,10 @@ impl NotificationConfigFilter {
     }
     pub fn search(mut self, filter: String) -> Self {
         self.search = Some(filter);
+        self
+    }
+    pub fn status(mut self, filter: EqualFilter<NotificationConfigStatus>) -> Self {
+        self.status = Some(filter);
         self
     }
 }

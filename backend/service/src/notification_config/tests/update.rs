@@ -5,6 +5,7 @@ mod notification_config_update_tests {
     };
     use crate::service_provider::{ServiceContext, ServiceProvider};
     use crate::test_utils::get_test_settings;
+    use repository::NotificationConfigStatus;
     use repository::{
         mock::{mock_coldchain_notification_config_a, MockDataInserts},
         test_db::setup_all,
@@ -92,6 +93,25 @@ mod notification_config_update_tests {
         assert_eq!(
             updated_notification_config.configuration_data,
             "{\"confirmOk\":true}".to_string()
+        );
+
+        // Update status
+        let updated_notification_config = context
+            .service_provider
+            .notification_config_service
+            .update_notification_config(
+                &context,
+                UpdateNotificationConfig {
+                    id: mock_coldchain_notification_config_a().id.clone(),
+                    status: Some(NotificationConfigStatus::Enabled),
+                    ..Default::default()
+                },
+            )
+            .unwrap();
+
+        assert_eq!(
+            updated_notification_config.status,
+            NotificationConfigStatus::Enabled
         );
     }
 }

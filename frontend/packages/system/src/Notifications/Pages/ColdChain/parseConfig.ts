@@ -38,6 +38,7 @@ export function parseColdChainNotificationConfig(
       locationIds,
       recipientIds,
       recipientListIds,
+      status: config.status,
       sqlRecipientListIds,
       parameters: config.parameters,
       parsedParameters: TeraUtils.keyedParamsFromTeraJson(config.parameters),
@@ -52,6 +53,7 @@ export function parseColdChainNotificationConfig(
       id: config.id,
       title: config.title,
       kind: config.kind,
+      status: config.status,
     } as CCNotification;
   }
 }
@@ -64,6 +66,7 @@ export function buildColdChainNotificationInputs(config: CCNotification): {
     id: config.id,
     title: config.title,
     configurationData: JSON.stringify(config),
+    status: config.status,
     parameters: config.parameters,
   };
 

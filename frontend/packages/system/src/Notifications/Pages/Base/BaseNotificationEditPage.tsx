@@ -13,6 +13,10 @@ import {
   CloseIcon,
   useBreadcrumbs,
   SaveIcon,
+  Checkbox,
+  ConfigStatus,
+  FormLabel,
+  Switch,
   useDetailPanel,
   AppBarButtonsPortal,
   KeyedParams,
@@ -61,6 +65,10 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
   const onUpdate = (patch: Partial<T>) => {
     setDraft({ ...draft, ...patch });
     setIsSaved(false);
+  };
+
+  const isEnabled = (status: ConfigStatus) => {
+    return status == ConfigStatus.Enabled;
   };
 
   const onUpdateParams = (key: string, value: string) => {
@@ -145,6 +153,36 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
                 alignItems="center"
                 height={64}
               >
+                <Box
+                  flex={1}
+                  display="flex"
+                  justifyContent="flex-start"
+                  gap={1}
+                >
+                  <FormLabel
+                    sx={{
+                      alignSelf: 'flex-start',
+                      alignItems: 'center',
+                      paddingTop: 1,
+                    }}
+                  >
+                    {t('label.enable')}
+                  </FormLabel>
+                  <Switch
+                    checked={isEnabled(draft.status)}
+                    onChange={() => {
+                      if (isEnabled(draft.status)) {
+                        onUpdate({
+                          status: ConfigStatus.Disabled,
+                        } as Partial<T>);
+                      } else {
+                        onUpdate({
+                          status: ConfigStatus.Enabled,
+                        } as Partial<T>);
+                      }
+                    }}
+                  />
+                </Box>
                 <Box flex={1} display="flex" justifyContent="flex-end" gap={2}>
                   <ButtonWithIcon
                     shrinkThreshold="lg"
@@ -154,6 +192,7 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
                     sx={{ fontSize: '12px' }}
                     onClick={navigateUpOne}
                   />
+
                   <LoadingButton
                     disabled={isSaved || isInvalid || !allParamsSet}
                     isLoading={isLoading}

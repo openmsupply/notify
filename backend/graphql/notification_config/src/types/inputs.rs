@@ -3,7 +3,7 @@ use graphql_core::{
     generic_filters::{EqualFilterStringInput, StringFilterInput},
     map_filter,
 };
-use graphql_types::types::ConfigKind;
+use graphql_types::types::{ConfigKind, ConfigStatus};
 use repository::{
     EqualFilter, NotificationConfigFilter, NotificationConfigSort, NotificationConfigSortField,
     StringFilter,
@@ -20,6 +20,13 @@ pub struct EqualFilterConfigKindInput {
     pub equal_to: Option<ConfigKind>,
     pub equal_any: Option<Vec<ConfigKind>>,
     pub not_equal_to: Option<ConfigKind>,
+}
+
+#[derive(InputObject, Clone)]
+pub struct EqualFilterConfigStatusInput {
+    pub equal_to: Option<ConfigStatus>,
+    pub equal_any: Option<Vec<ConfigStatus>>,
+    pub not_equal_to: Option<ConfigStatus>,
 }
 
 #[derive(InputObject)]
@@ -51,6 +58,7 @@ pub struct NotificationConfigFilterInput {
     pub title: Option<StringFilterInput>,
     pub kind: Option<EqualFilterConfigKindInput>,
     pub search: Option<String>,
+    pub status: Option<EqualFilterConfigStatusInput>,
 }
 
 impl From<NotificationConfigFilterInput> for NotificationConfigFilter {
@@ -60,6 +68,7 @@ impl From<NotificationConfigFilterInput> for NotificationConfigFilter {
             title: f.title.map(StringFilter::from),
             kind: f.kind.map(|t| map_filter!(t, ConfigKind::to_domain)),
             search: f.search,
+            status: f.status.map(|t| map_filter!(t, ConfigStatus::to_domain)),
         }
     }
 }

@@ -6,7 +6,7 @@ use crate::{audit_log::audit_log_entry, service_provider::ServiceContext};
 use chrono::Utc;
 use repository::{
     LogType, NotificationConfig, NotificationConfigRow, NotificationConfigRowRepository,
-    StorageConnection,
+    NotificationConfigStatus, StorageConnection,
 };
 
 #[derive(Clone, Default)]
@@ -14,6 +14,7 @@ pub struct UpdateNotificationConfig {
     pub id: String,
     pub title: Option<String>,
     pub configuration_data: Option<String>,
+    pub status: Option<NotificationConfigStatus>,
     pub parameters: Option<String>,
 }
 
@@ -63,6 +64,7 @@ pub fn generate(
         id: _id, //ID is already used for look up so we can assume it's the same
         title,
         configuration_data,
+        status,
         parameters,
     }: UpdateNotificationConfig,
     current_notification_config_row: NotificationConfigRow,
@@ -73,6 +75,10 @@ pub fn generate(
     }
     if let Some(configuration_data) = configuration_data {
         new_notification_config_row.configuration_data = configuration_data;
+    }
+
+    if let Some(status) = status {
+        new_notification_config_row.status = status;
     }
 
     if let Some(parameters) = parameters {

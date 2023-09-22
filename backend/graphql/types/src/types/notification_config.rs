@@ -1,7 +1,7 @@
 use super::{dataloader::DataLoader, LogNode};
 use async_graphql::{Context, Enum, Object, SimpleObject, Union};
 use graphql_core::{loader::AuditLogLoader, simple_generic_errors::NodeError, ContextExt};
-use repository::{NotificationConfig, NotificationConfigKind};
+use repository::{NotificationConfig, NotificationConfigKind, NotificationConfigStatus};
 use serde::Serialize;
 use service::ListResult;
 use util::usize_to_u32;
@@ -35,6 +35,9 @@ impl NotificationConfigNode {
     }
     pub async fn configuration_data(&self) -> &str {
         &self.row().configuration_data
+    }
+    pub async fn status(&self) -> ConfigStatus {
+        ConfigStatus::from_domain(&self.row().status)
     }
 
     pub async fn parameters(&self) -> &str {
@@ -115,6 +118,29 @@ impl ConfigKind {
         match kind {
             NotificationConfigKind::ColdChain => ConfigKind::ColdChain,
             NotificationConfigKind::Scheduled => ConfigKind::Scheduled,
+        }
+    }
+}
+
+#[derive(Enum, Copy, Clone, PartialEq, Eq, Debug, Serialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ConfigStatus {
+    Disabled,
+    Enabled,
+}
+
+impl ConfigStatus {
+    pub fn to_domain(self) -> NotificationConfigStatus {
+        match self {
+            ConfigStatus::Enabled => NotificationConfigStatus::Enabled,
+            ConfigStatus::Disabled => NotificationConfigStatus::Disabled,
+        }
+    }
+
+    pub fn from_domain(status: &NotificationConfigStatus) -> ConfigStatus {
+        match status {
+            NotificationConfigStatus::Enabled => ConfigStatus::Enabled,
+            NotificationConfigStatus::Disabled => ConfigStatus::Disabled,
         }
     }
 }

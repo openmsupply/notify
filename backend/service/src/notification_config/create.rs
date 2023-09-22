@@ -1,7 +1,7 @@
 use chrono::Utc;
 use repository::{
     LogType, NotificationConfig, NotificationConfigKind, NotificationConfigRow,
-    NotificationConfigRowRepository, StorageConnection,
+    NotificationConfigRowRepository, StorageConnection, NotificationConfigStatus, 
 };
 
 use crate::{audit_log::audit_log_entry, service_provider::ServiceContext};
@@ -63,6 +63,7 @@ pub fn generate(
         title: title.trim().to_string(),
         kind,
         configuration_data: "{}".to_string(),
+        status: NotificationConfigStatus::Disabled,
         parameters: "{}".to_string(),
         last_run_datetime: None,
         next_due_datetime: None,

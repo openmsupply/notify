@@ -4,6 +4,7 @@ import {
   ConfigKind,
   useTranslation,
   useNotification,
+  ConfigStatus,
   useParams,
 } from '@notify-frontend/common';
 import { CCNotificationEditForm } from './CCNotificationEditForm';
@@ -34,6 +35,7 @@ const createCCNotification = (
   locationIds: seed?.locationIds ?? [],
   recipientIds: seed?.recipientIds ?? [],
   recipientListIds: seed?.recipientListIds ?? [],
+  status: seed?.status ?? ConfigStatus.Disabled,
   sqlRecipientListIds: seed?.sqlRecipientListIds ?? [],
   parameters: seed?.parameters ?? '{}',
   parsedParameters: seed?.parsedParameters ?? {},

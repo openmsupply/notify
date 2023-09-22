@@ -4,7 +4,7 @@ import { KeyedParams } from '@common/utils';
 
 type BaseConfig = Pick<
   NotificationConfigRowFragment,
-  'id' | 'kind' | 'title' | 'parameters'
+  'id' | 'kind' | 'title' | 'status' | 'parameters'
 >;
 
 export interface BaseNotificationConfig extends BaseConfig {
@@ -24,6 +24,7 @@ export interface CCNotification extends BaseNotificationConfig {
   reminderUnits: 'seconds' | 'minutes' | 'hours';
   locationIds: string[];
 }
+
 export interface ScheduledNotification extends BaseNotificationConfig {
   kind: ConfigKind;
   parameters: string; // JSON for now
