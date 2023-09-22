@@ -10,7 +10,11 @@ import {
   Tooltip,
   InfoIcon,
 } from '@notify-frontend/common';
-import { CCNotification } from '../../types';
+import {
+  CCNotification,
+  getReminderUnitsAsOptions,
+  getReminderUnitsFromString,
+} from '../../types';
 
 type CCNotificationEditFormProps = {
   onUpdate: (patch: Partial<CCNotification>) => void;
@@ -35,10 +39,15 @@ export const CCNotificationEditForm = ({
   return (
     <>
       <Typography
-          sx={{ fontWeight: 700, fontSize: '13px', marginTop: '10px', marginBottom: '10px' }}
-        >
-          {t('heading.cold-chain-alerts')}
-        </Typography>
+        sx={{
+          fontWeight: 700,
+          fontSize: '13px',
+          marginTop: '10px',
+          marginBottom: '10px',
+        }}
+      >
+        {t('heading.cold-chain-alerts')}
+      </Typography>
       <ul style={{ listStyleType: 'none', padding: '0' }}>
         <li>
           <Checkbox
@@ -119,14 +128,10 @@ export const CCNotificationEditForm = ({
             disabled={!draft.noData}
             onChange={e =>
               onUpdate({
-                noDataUnits: e.target.value as CCNotification['noDataUnits'],
+                noDataUnits: getReminderUnitsFromString(e.target.value),
               })
             }
-            options={[
-              { label: t('label.seconds'), value: 'seconds' },
-              { label: t('label.minutes'), value: 'minutes' },
-              { label: t('label.hours'), value: 'hours' },
-            ]}
+            options={getReminderUnitsAsOptions(t)}
           />
         </Box>
         <li>
@@ -158,15 +163,10 @@ export const CCNotificationEditForm = ({
             disabled={!draft.remind}
             onChange={e =>
               onUpdate({
-                reminderUnits: e.target
-                  .value as CCNotification['reminderUnits'],
+                reminderUnits: getReminderUnitsFromString(e.target.value),
               })
             }
-            options={[
-              { label: t('label.seconds'), value: 'seconds' },
-              { label: t('label.minutes'), value: 'minutes' },
-              { label: t('label.hours'), value: 'hours' },
-            ]}
+            options={getReminderUnitsAsOptions(t)}
           />
         </Box>
       </ul>

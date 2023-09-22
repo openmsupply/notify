@@ -1,6 +1,37 @@
 import { ConfigKind } from '@common/types';
 import { NotificationConfigRowFragment } from './api';
 import { KeyedParams } from '@common/utils';
+import { LocaleKey, TypedTFunction } from '@common/intl';
+
+export enum ReminderUnits {
+  SECONDS = 'seconds',
+  MINUTES = 'minutes',
+  HOURS = 'hours',
+}
+
+export function getReminderUnitsFromString(str: string): ReminderUnits {
+  switch (str) {
+    case 'seconds':
+      return ReminderUnits.SECONDS;
+    case 'minutes':
+      return ReminderUnits.MINUTES;
+    case 'hours':
+      return ReminderUnits.HOURS;
+    default:
+      throw new Error(`Invalid reminder units: ${str}`);
+  }
+}
+
+export function getReminderUnitsAsOptions(t: TypedTFunction<LocaleKey>): {
+  label: string;
+  value: string;
+}[] {
+  return [
+    { label: t('label.seconds'), value: ReminderUnits.SECONDS },
+    { label: t('label.minutes'), value: ReminderUnits.MINUTES },
+    { label: t('label.hours'), value: ReminderUnits.HOURS },
+  ];
+}
 
 type BaseConfig = Pick<
   NotificationConfigRowFragment,
@@ -21,10 +52,10 @@ export interface CCNotification extends BaseNotificationConfig {
   confirmOk: boolean;
   noData: boolean;
   noDataInterval: number;
-  noDataUnits: 'seconds' | 'minutes' | 'hours';
+  noDataUnits: ReminderUnits;
   remind: boolean;
   reminderInterval: number;
-  reminderUnits: 'seconds' | 'minutes' | 'hours';
+  reminderUnits: ReminderUnits;
   locationIds: string[];
 }
 export interface ScheduledNotification extends BaseNotificationConfig {

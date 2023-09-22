@@ -8,7 +8,7 @@ import {
 } from '@notify-frontend/common';
 import { CCNotificationEditForm } from './CCNotificationEditForm';
 import { BaseNotificationEditPage } from '../Base/BaseNotificationEditPage';
-import { CCNotification } from '../../types';
+import { CCNotification, ReminderUnits } from '../../types';
 import {
   buildColdChainNotificationInputs,
   parseColdChainNotificationConfig,
@@ -29,11 +29,11 @@ const createCCNotification = (
   lowTemp: seed?.lowTemp ?? false,
   confirmOk: seed?.confirmOk ?? false,
   noData: seed?.noData ?? false,
-  noDataInterval: seed?.noDataInterval ?? 5,
-  noDataUnits: seed?.noDataUnits ?? 'minutes',
+  noDataInterval: seed?.noDataInterval ?? 1,
+  noDataUnits: seed?.noDataUnits ?? ReminderUnits.HOURS,
   remind: seed?.remind ?? false,
-  reminderInterval: seed?.reminderInterval ?? 5,
-  reminderUnits: seed?.reminderUnits ?? 'minutes',
+  reminderInterval: seed?.reminderInterval ?? 15,
+  reminderUnits: seed?.reminderUnits ?? ReminderUnits.MINUTES,
   locationIds: seed?.locationIds ?? [],
   recipientIds: seed?.recipientIds ?? [],
   recipientListIds: seed?.recipientListIds ?? [],
@@ -80,7 +80,11 @@ export const CCNotificationEditPage = () => {
   const isInvalid =
     !draft.title ||
     // nothing selected
-    (!draft.confirmOk && !draft.highTemp && !draft.lowTemp && draft.remind && draft.noData) ||
+    (!draft.confirmOk &&
+      !draft.highTemp &&
+      !draft.lowTemp &&
+      draft.remind &&
+      draft.noData) ||
     // no locations selected
     !draft.locationIds.length ||
     // no recipients selected
