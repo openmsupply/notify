@@ -20,11 +20,7 @@ pub fn process_scheduled_notifications(
     let scheduled_notifications = ctx
         .service_provider
         .notification_config_service
-        .get_notification_configs_by_kind_and_next_check_date(
-            ctx,
-            NotificationConfigKind::Scheduled,
-            current_time,
-        )
+        .find_all_due_by_kind(ctx, NotificationConfigKind::Scheduled, current_time)
         .map_err(|e| NotificationError::InternalError(format!("{:?}", e)))?;
     let notifications_processed = scheduled_notifications.len();
     let mut successful_notifications = 0;
@@ -37,9 +33,6 @@ pub fn process_scheduled_notifications(
             scheduled_notification.title
         );
         match try_process_scheduled_notifications(ctx, scheduled_notification, current_time) {
-            // Here, can save against notification config record
-            // Can also return next_due_datetime in result and save it here rather then in try_process_scheduled_notification
-            // And increment skipped notifications count
             Err(e) => {
                 log::error!("{:?}", e);
                 errored_notifications += 1;

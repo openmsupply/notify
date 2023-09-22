@@ -283,11 +283,7 @@ mod notification_config_query_test {
 
         // Check that it is returned by the due query
         let result = service
-            .get_notification_configs_by_kind_and_next_check_date(
-                &context,
-                config.kind.clone(),
-                Utc::now().naive_utc(),
-            )
+            .find_all_due_by_kind(&context, config.kind.clone(), Utc::now().naive_utc())
             .unwrap();
 
         assert_eq!(result.len(), 1);
@@ -301,18 +297,14 @@ mod notification_config_query_test {
 
         // Check that it is not returned by the due query now
         let result = service
-            .get_notification_configs_by_kind_and_next_check_date(
-                &context,
-                config.kind.clone(),
-                Utc::now().naive_utc(),
-            )
+            .find_all_due_by_kind(&context, config.kind.clone(), Utc::now().naive_utc())
             .unwrap();
 
         assert_eq!(result.len(), 0);
 
         // Check that it is returned by the due query after 1 hour
         let result = service
-            .get_notification_configs_by_kind_and_next_check_date(
+            .find_all_due_by_kind(
                 &context,
                 config.kind.clone(),
                 Utc::now().naive_utc() + chrono::Duration::hours(1),

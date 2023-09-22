@@ -25,7 +25,7 @@ pub mod update;
 pub mod validate;
 
 pub trait NotificationConfigServiceTrait: Sync + Send {
-    fn get_notification_configs_by_kind_and_next_check_date(
+    fn find_all_due_by_kind(
         &self,
         ctx: &ServiceContext,
         kind: NotificationConfigKind,
