@@ -1,7 +1,7 @@
 use super::{
     notification_query_row::notification_query::dsl as notification_query_dsl, StorageConnection,
 };
-use crate::{repository_error::RepositoryError, DBType};
+use crate::repository_error::RepositoryError;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 
@@ -56,14 +56,14 @@ impl<'a> NotificationQueryRowRepository<'a> {
 
     pub fn insert_one(&self, row: &NotificationQueryRow) -> Result<(), RepositoryError> {
         let query = diesel::insert_into(notification_query_dsl::notification_query).values(row);
-        println!("{}", diesel::debug_query::<DBType, _>(&query).to_string());
+        // println!("{}", diesel::debug_query::<DBType, _>(&query).to_string());
         query.execute(&self.connection.connection)?;
         Ok(())
     }
 
     pub fn update_one(&self, row: &NotificationQueryRow) -> Result<(), RepositoryError> {
         let query = diesel::update(row).set(row);
-        println!("{}", diesel::debug_query::<DBType, _>(&query).to_string());
+        // println!("{}", diesel::debug_query::<DBType, _>(&query).to_string());
         query.execute(&self.connection.connection)?;
         Ok(())
     }
