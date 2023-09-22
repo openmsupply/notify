@@ -1,5 +1,8 @@
 use chrono::{DateTime, NaiveDateTime, Utc};
-use repository::{NotificationConfigKind, NotificationConfigRowRepository, NotificationType};
+use repository::{
+    NotificationConfigKind, NotificationConfigRow, NotificationConfigRowRepository,
+    NotificationType,
+};
 use service::{
     notification::enqueue::{create_notification_events, NotificationContext, NotificationTarget},
     service_provider::ServiceContext,
@@ -12,10 +15,8 @@ pub fn process_scheduled_notifications(
     current_time: NaiveDateTime,
 ) -> Result<usize, NotificationError> {
     log::info!("Processing scheduled notifications due at {}", current_time);
-    // Check if any scheduled notifications are due
 
-    let mut notifications_processed = 0;
-
+    // Check if any scheduled notifications are due according to the database
     let scheduled_notifications = ctx
         .service_provider
         .notification_config_service
@@ -25,111 +26,120 @@ pub fn process_scheduled_notifications(
             current_time,
         )
         .map_err(|e| NotificationError::InternalError(format!("{:?}", e)))?;
-
-    let repository = NotificationConfigRowRepository::new(&ctx.connection);
-
-    let now = DateTime::from_utc(current_time, Utc);
-
+    let notifications_processed = scheduled_notifications.len();
+    let mut successful_notifications = 0;
+    let mut errored_notifications = 0;
+    let mut skipped_notifications = 0;
     for scheduled_notification in scheduled_notifications {
-        notifications_processed += 1;
         log::info!(
             "Processing scheduled notification: {} - {}",
             scheduled_notification.id,
             scheduled_notification.title
         );
-
-        // Load the notification config
-
-        let config = ScheduledNotificationPluginConfig::from_string(
-            &scheduled_notification.configuration_data,
-        )?;
-
-        // Check if the notification is due
-        let due_datetime = match config.next_due_date(now) {
-            Ok(dt) => dt,
+        match try_process_scheduled_notifications(ctx, scheduled_notification, current_time) {
+            // Here, can save against notification config record
+            // Can also return next_due_datetime in result and save it here rather then in try_process_scheduled_notification
+            // And increment skipped notifications count
             Err(e) => {
-                log::error!(
-                    "Invalid next due date for scheduled notification: {} - {:?}",
-                    &scheduled_notification.id,
-                    e
-                );
-                // Log the error but don't fail the whole process
-                continue;
+                log::error!("{:?}", e);
+                errored_notifications += 1;
             }
-        };
-
-        // Update the last_checked time and next_check time
-        // We do this before checking if the notification is due so that if the notification is new, we set a good next check time
-        repository
-            .set_last_checked_and_next_check_date(
-                scheduled_notification.id.clone(),
-                now.naive_utc(),
-                due_datetime.naive_utc(),
-            )
-            .map_err(|e| NotificationError::InternalError(format!("{:?}", e)))?;
-
-        let next_check_time = match scheduled_notification.next_check_datetime {
-            Some(time) => time,
-            None => {
-                log::info!(
-                    "No next check time for scheduled notification {}, setting to {}",
-                    scheduled_notification.id,
-                    due_datetime
-                );
-                continue;
+            Ok(ProcessingResult::Skipped(message)) => {
+                log::info!("{}", message);
+                skipped_notifications += 1;
             }
-        };
-
-        if next_check_time > current_time {
-            log::info!(
-                "Scheduled notification {} is not due yet, skipping",
-                scheduled_notification.id
-            );
-            continue;
-        }
-
-       
-        // TODO: Run SQL Queries to get the data https://github.com/openmsupply/notify/issues/137
-        // Put sql queries and appropriate data into Json Value for template
-        let template_data = match serde_json::from_str("{}") {
-            Ok(data) => data,
-            Err(e) => {
-                log::error!("Failed to parse template data: {:?}", e);
-                continue;
-            }
-        };
-
-        // TODO: get the real recipients - https://github.com/openmsupply/notify/issues/138
-        // Get the recipients
-        let recipient1 = NotificationTarget {
-            name: "test".to_string(),
-            to_address: "test@example.com".to_string(),
-            notification_type: NotificationType::Email,
-        };
-
-
-        // For now just send a test notification!
-        // TODO: Send the real notification template https://github.com/openmsupply/notify/issues/136
-        // Send the notification
-        let notification = NotificationContext {
-            title_template_name: Some("test_message/email_subject.html".to_string()),
-            body_template_name: "test_message/email.html".to_string(),
-            template_data: template_data,
-            recipients: vec![recipient1],
-        };
-
-        match create_notification_events(ctx, Some(scheduled_notification.id), notification) {
-            Ok(_) => {
+            Ok(ProcessingResult::Success) => {
                 log::info!("Successfully created notification events");
+                successful_notifications += 1;
             }
-            Err(e) => {
-                log::error!("Error creating notification events: {:?}", e);
-                continue;
-            }
-        };
+        }
     }
     // Return the number of notifications processed
+    log::info!(
+        "Processed {} out of {} scheduled notifications, skipped {} and errored {}",
+        successful_notifications,
+        notifications_processed,
+        skipped_notifications,
+        errored_notifications
+    );
     Ok(notifications_processed)
+}
+
+enum ProcessingResult {
+    Success,
+    Skipped(String),
+}
+
+fn try_process_scheduled_notifications(
+    ctx: &ServiceContext,
+    scheduled_notification: NotificationConfigRow,
+    now: NaiveDateTime,
+) -> Result<ProcessingResult, NotificationError> {
+    // Load the notification config
+    let config =
+        ScheduledNotificationPluginConfig::from_string(&scheduled_notification.configuration_data)?;
+
+    let previous_due_datetime = scheduled_notification.next_check_datetime;
+
+    // Get next notification due date
+    let next_due_datetime = config.next_due_date(DateTime::from_utc(now, Utc))?;
+
+    // Update the last_checked time and next_check time
+    // We do this before checking if the notification is due so that if the notification is skipped, we still set a good next check time
+    NotificationConfigRowRepository::new(&ctx.connection)
+        .update_one(&NotificationConfigRow {
+            last_check_datetime: Some(now),
+            next_check_datetime: Some(next_due_datetime.naive_utc()),
+            ..scheduled_notification.clone()
+        })
+        .map_err(|e| NotificationError::InternalError(format!("{:?}", e)))?;
+
+    // Should notification run ?
+    let previous_due_datetime = match previous_due_datetime {
+        Some(dt) => dt,
+        None => {
+            return Ok(ProcessingResult::Skipped(format!(
+                "No next check time for scheduled notification {}, setting to {}",
+                scheduled_notification.id, next_due_datetime
+            )));
+        }
+    };
+
+    if previous_due_datetime > now {
+        return Ok(ProcessingResult::Skipped(format!(
+            "Scheduled notification {} is not due yet, skipping",
+            scheduled_notification.id
+        )));
+    }
+
+    // TODO: Run SQL Queries to get the data https://github.com/openmsupply/notify/issues/137
+    // Put sql queries and appropriate data into Json Value for template
+    let template_data = serde_json::from_str("{}").map_err(|e| {
+        NotificationError::InternalError(format!("Failed to parse template data: {:?}", e))
+    })?;
+
+    // TODO: get the real recipients - https://github.com/openmsupply/notify/issues/138
+    // Get the recipients
+    let recipient1 = NotificationTarget {
+        name: "test".to_string(),
+        to_address: "test@example.com".to_string(),
+        notification_type: NotificationType::Email,
+    };
+
+    // For now just send a test notification!
+    // TODO: Send the real notification template https://github.com/openmsupply/notify/issues/136
+    // Send the notification
+    let notification = NotificationContext {
+        title_template_name: Some("test_message/email_subject.html".to_string()),
+        body_template_name: "test_message/email.html".to_string(),
+        template_data: template_data,
+        recipients: vec![recipient1],
+    };
+
+    create_notification_events(ctx, Some(scheduled_notification.id), notification)
+        .map_err(|e| NotificationError::InternalError(format!("{:?}", e)))?;
+
+    Ok(ProcessingResult::Success)
 }
 
 #[cfg(test)]
@@ -164,5 +174,9 @@ mod test {
         assert_eq!(result, 0);
 
         // TODO: More tests!
+
+        // Test that it runs with a scheduled notification with no due date
+        // Test that it skips a scheduled notification with a due date in the future
+        // Test that it runs a scheduled notification with a due date in the past
     }
 }
