@@ -79,5 +79,8 @@ pub fn generate(
         new_notification_config_row.parameters = parameters;
     }
 
+    // Reset the next check datetime in case the schedule has changed, or something needs to be recalculated
+    new_notification_config_row.next_due_datetime = None;
+
     Ok(new_notification_config_row)
 }

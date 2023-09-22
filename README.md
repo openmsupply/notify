@@ -74,6 +74,9 @@ After setting up your environment, There are some quick start tutorials you can 
 
 Until a documentation website is established, you can find some docs for setting up notify & notifications [here](./docs/notification_setup.md)
 
+## Frequently Asked Questions
+See the [FAQ here](./docs/faq.md)
+
 ## Contributing
 
 To contribute, there are several key areas

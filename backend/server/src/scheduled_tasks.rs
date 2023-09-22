@@ -1,9 +1,12 @@
-use service::service_provider::ServiceContext;
+use service::{plugin::PluginTrait, service_provider::ServiceContext};
 use std::time::Duration;
 
 static TASK_INTERVAL: Duration = Duration::from_secs(10);
 
-pub async fn scheduled_task_runner(service_context: ServiceContext) {
+pub async fn scheduled_task_runner(
+    service_context: ServiceContext,
+    plugins: Vec<Box<dyn PluginTrait>>,
+) {
     let mut interval = actix_web::rt::time::interval(TASK_INTERVAL);
 
     loop {
@@ -21,6 +24,17 @@ pub async fn scheduled_task_runner(service_context: ServiceContext) {
             }
             Err(error) => log::error!("Error sending queued emails: {:?}", error),
         };
+
+        // Process plugins
+        // Note: If a plugin starts an infinite loop here, we're a bit stuffed as no more scheduled tasks will be processed.
+        // Hopefully people will be smart enough not to do that?
+        // Ideally this should be done in spawn_blocking thread so that it doesn't block the rt thread. https://github.com/openmsupply/notify/issues/133
+        for plugin in &plugins {
+            let result = plugin.tick(&service_context);
+            if let Err(e) = result {
+                log::error!("Error processing {} plugin: {:?}", plugin.name(), e);
+            }
+        }
 
         // Send Notifications
         let send_notifications = service_context

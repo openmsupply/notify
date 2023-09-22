@@ -1,6 +1,7 @@
+use chrono::NaiveDateTime;
 use repository::{
-    EqualFilter, NotificationConfigFilter, NotificationConfigRepository, NotificationConfigSort,
-    PaginationOption,
+    EqualFilter, NotificationConfigFilter, NotificationConfigKind, NotificationConfigRepository,
+    NotificationConfigRowRepository, NotificationConfigSort, PaginationOption,
 };
 use util::i64_to_u32;
 
@@ -43,4 +44,15 @@ pub fn get_notification_config(
     } else {
         Err(SingleRecordError::NotFound(id))
     }
+}
+
+pub fn get_notification_configs_by_kind_and_next_check_date(
+    ctx: &ServiceContext,
+    kind: NotificationConfigKind,
+    datetime: NaiveDateTime,
+) -> Result<Vec<NotificationConfig>, ListError> {
+    let repository = NotificationConfigRowRepository::new(&ctx.connection);
+    let result = repository.find_all_due_by_kind(kind, datetime)?;
+
+    Ok(result)
 }

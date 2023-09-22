@@ -152,7 +152,7 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
                     label={t('button.close')}
                     color="secondary"
                     sx={{ fontSize: '12px' }}
-                    onClick={() => navigateUpOne()}
+                    onClick={navigateUpOne}
                   />
                   <LoadingButton
                     disabled={isSaved || isInvalid || !allParamsSet}
