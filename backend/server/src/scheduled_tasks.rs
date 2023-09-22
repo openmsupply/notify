@@ -31,11 +31,8 @@ pub async fn scheduled_task_runner(
         // Ideally this should be done in spawn_blocking thread so that it doesn't block the rt thread. https://github.com/openmsupply/notify/issues/133
         for plugin in &plugins {
             let result = plugin.tick(&service_context);
-            match result {
-                Ok(_) => {}
-                Err(error) => {
-                    log::error!("Error processing {} plugin: {:?} ", plugin.name(), error)
-                }
+            if let Err(e) = result {
+                log::error!("Error processing {} plugin: {:?}", plugin.name(), e);
             }
         }
 

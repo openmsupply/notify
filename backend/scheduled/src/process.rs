@@ -72,7 +72,7 @@ fn try_process_scheduled_notifications(
     let config =
         ScheduledNotificationPluginConfig::from_string(&scheduled_notification.configuration_data)?;
 
-    let previous_due_datetime = scheduled_notification.next_check_datetime;
+    let previous_due_datetime = scheduled_notification.next_due_datetime;
 
     // Get next notification due date
     let next_due_datetime = config.next_due_date(DateTime::from_utc(now, Utc))?;
@@ -81,8 +81,8 @@ fn try_process_scheduled_notifications(
     // We do this before checking if the notification is due so that if the notification is skipped, we still set a good next check time
     NotificationConfigRowRepository::new(&ctx.connection)
         .update_one(&NotificationConfigRow {
-            last_check_datetime: Some(now),
-            next_check_datetime: Some(next_due_datetime.naive_utc()),
+            last_run_datetime: Some(now),
+            next_due_datetime: Some(next_due_datetime.naive_utc()),
             ..scheduled_notification.clone()
         })
         .map_err(|e| NotificationError::InternalError(format!("{:?}", e)))?;

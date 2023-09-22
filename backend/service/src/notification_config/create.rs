@@ -64,7 +64,7 @@ pub fn generate(
         kind,
         configuration_data: "{}".to_string(),
         parameters: "{}".to_string(),
-        last_check_datetime: None,
-        next_check_datetime: None,
+        last_run_datetime: None,
+        next_due_datetime: None,
     })
 }

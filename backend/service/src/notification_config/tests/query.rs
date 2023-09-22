@@ -291,8 +291,8 @@ mod notification_config_query_test {
         // set the last check date to now
         // and next check to 1 hour from now
         let mut config = result[0].clone();
-        config.last_check_datetime = Some(Utc::now().naive_utc());
-        config.next_check_datetime = Some(Utc::now().naive_utc() + chrono::Duration::hours(1));
+        config.last_run_datetime = Some(Utc::now().naive_utc());
+        config.next_due_datetime = Some(Utc::now().naive_utc() + chrono::Duration::hours(1));
         repo.update_one(&config).unwrap();
 
         // Check that it is not returned by the due query now

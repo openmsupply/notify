@@ -13,8 +13,8 @@ table! {
         kind -> crate::db_diesel::notification_config_row::NotificationConfigKindMapping,
         configuration_data -> Text,
         parameters -> Text,
-        last_check_datetime -> Nullable<Timestamp>,
-        next_check_datetime -> Nullable<Timestamp>,
+        last_run_datetime -> Nullable<Timestamp>,
+        next_due_datetime -> Nullable<Timestamp>,
     }
 }
 
@@ -56,8 +56,8 @@ pub struct NotificationConfigRow {
     // it would appear the diesel JSON types are only available if the postgres feature is enabled...
     pub configuration_data: String,
     pub parameters: String,
-    pub last_check_datetime: Option<NaiveDateTime>,
-    pub next_check_datetime: Option<NaiveDateTime>,
+    pub last_run_datetime: Option<NaiveDateTime>,
+    pub next_due_datetime: Option<NaiveDateTime>,
 }
 
 pub struct NotificationConfigRowRepository<'a> {
@@ -110,27 +110,11 @@ impl<'a> NotificationConfigRowRepository<'a> {
         let result = notification_config_dsl::notification_config
             .filter(notification_config_dsl::kind.eq(notification_kind))
             .filter(
-                notification_config_dsl::next_check_datetime
+                notification_config_dsl::next_due_datetime
                     .is_null()
-                    .or(notification_config_dsl::next_check_datetime.le(current_time)),
+                    .or(notification_config_dsl::next_due_datetime.le(current_time)),
             )
             .load::<NotificationConfigRow>(&self.connection.connection)?;
         Ok(result)
-    }
-
-    pub fn set_last_checked_and_next_check_date(
-        &self,
-        id: String,
-        current_time: NaiveDateTime,
-        next_check_time: NaiveDateTime,
-    ) -> Result<(), RepositoryError> {
-        let query = diesel::update(notification_config_dsl::notification_config)
-            .filter(notification_config_dsl::id.eq(id))
-            .set((
-                notification_config_dsl::last_check_datetime.eq(current_time),
-                notification_config_dsl::next_check_datetime.eq(next_check_time),
-            ));
-        query.execute(&self.connection.connection)?;
-        Ok(())
     }
 }
