@@ -32,22 +32,18 @@ impl ScheduledNotificationPluginConfig {
             "weekly" => {
                 let mut next_due_date = self.schedule_start_time;
                 while next_due_date < now_utc {
-                    let option = next_due_date.checked_add_days(Days::new(7));
-                    next_due_date = match option {
-                        Some(d) => d,
-                        None => return Err(NotificationError::InvalidNextDueDate),
-                    };
+                    next_due_date = next_due_date
+                        .checked_add_days(Days::new(7))
+                        .ok_or(NotificationError::InvalidNextDueDate)?;
                 }
                 return Ok(next_due_date);
             }
             "daily" => {
                 let mut next_due_date = self.schedule_start_time;
                 while next_due_date < now_utc {
-                    let option = next_due_date.checked_add_days(Days::new(1));
-                    next_due_date = match option {
-                        Some(d) => d,
-                        None => return Err(NotificationError::InvalidNextDueDate),
-                    };
+                    next_due_date = next_due_date
+                        .checked_add_days(Days::new(1))
+                        .ok_or(NotificationError::InvalidNextDueDate)?;
                 }
                 return Ok(next_due_date);
             }
@@ -56,11 +52,9 @@ impl ScheduledNotificationPluginConfig {
                 while next_due_date < now_utc {
                     // Note: chrono automatically handles leap years and returns last day of the month if day isn't valid for that month
                     // https://docs.rs/chrono/latest/chrono/naive/struct.NaiveDateTime.html#method.checked_add_months
-                    let option = next_due_date.checked_add_months(Months::new(1));
-                    next_due_date = match option {
-                        Some(d) => d,
-                        None => return Err(NotificationError::InvalidNextDueDate),
-                    };
+                    next_due_date = next_due_date
+                        .checked_add_months(Months::new(1))
+                        .ok_or(NotificationError::InvalidNextDueDate)?;
                 }
                 return Ok(next_due_date);
             }
