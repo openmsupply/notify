@@ -1,6 +1,5 @@
 use async_graphql::{Enum, InputObject};
 use graphql_core::generic_filters::{EqualFilterStringInput, StringFilterInput};
-use graphql_types::types::{ConfigKind, ConfigStatus};
 use repository::{
     EqualFilter, NotificationQueryFilter, NotificationQuerySort, NotificationQuerySortField,
     StringFilter,
@@ -10,20 +9,6 @@ use repository::{
 #[graphql(rename_items = "camelCase")]
 pub enum NotificationQuerySortFieldInput {
     Name,
-}
-
-#[derive(InputObject, Clone)]
-pub struct EqualFilterConfigKindInput {
-    pub equal_to: Option<ConfigKind>,
-    pub equal_any: Option<Vec<ConfigKind>>,
-    pub not_equal_to: Option<ConfigKind>,
-}
-
-#[derive(InputObject, Clone)]
-pub struct EqualFilterConfigStatusInput {
-    pub equal_to: Option<ConfigStatus>,
-    pub equal_any: Option<Vec<ConfigStatus>>,
-    pub not_equal_to: Option<ConfigStatus>,
 }
 
 #[derive(InputObject)]
