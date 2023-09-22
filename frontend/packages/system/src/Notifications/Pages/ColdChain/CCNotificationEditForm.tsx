@@ -34,6 +34,11 @@ export const CCNotificationEditForm = ({
   const t = useTranslation('system');
   return (
     <>
+      <Typography
+          sx={{ fontWeight: 700, fontSize: '13px', marginTop: '10px', marginBottom: '10px' }}
+        >
+          {t('heading.cold-chain-alerts')}
+        </Typography>
       <ul style={{ listStyleType: 'none', padding: '0' }}>
         <li>
           <Checkbox
@@ -43,6 +48,12 @@ export const CCNotificationEditForm = ({
           />
           <label htmlFor="highTemp">
             {t('label.coldchain-high-temp-alerts')}
+            <Tooltip title={t('messages.cold-chain-temperature-information')}>
+              <span>
+                {' '}
+                <InfoIcon fontSize="small" color="inherit" />
+              </span>
+            </Tooltip>
           </label>
         </li>
         <li>
@@ -53,6 +64,12 @@ export const CCNotificationEditForm = ({
           />
           <label htmlFor="lowTemp">
             {t('label.coldchain-high-temp-alerts')}
+            <Tooltip title={t('messages.cold-chain-temperature-information')}>
+              <span>
+                {' '}
+                <InfoIcon fontSize="small" color="inherit" />
+              </span>
+            </Tooltip>
           </label>
         </li>
         <li>
@@ -158,7 +175,7 @@ export const CCNotificationEditForm = ({
         <Typography
           sx={{ fontWeight: 700, fontSize: '13px', marginBottom: '10px' }}
         >
-          Select Locations
+          {t('heading.select-locations')}
         </Typography>
         <Grid container>
           {dummyLocations.map(location => {
