@@ -66,7 +66,6 @@ export function buildColdChainNotificationInputs(config: CCNotification): {
   create: CreateNotificationConfigInput;
   update: UpdateNotificationConfigInput;
 } {
-
   const input = {
     id: config.id,
     title: config.title,
