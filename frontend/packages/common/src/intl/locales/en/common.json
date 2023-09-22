@@ -109,6 +109,9 @@
   "label.role": "Role",
   "label.save": "Save",
   "label.seconds": "Seconds",
+  "label.daily": "Daily",
+  "label.weekly": "Weekly",
+  "label.monthly": "Monthly",
   "label.select": "Select",
   "label.select-all": "Select all",
   "label.selected": "Selected",
@@ -126,7 +129,6 @@
   "label.username": "Username",
   "label.website": "Website",
   "label.query": "Query",
-  "label.parameters": "Parameters",
   "link.copy-to-clipboard": "Copy to Clipboard",
   "messages.ago": "{{time}} ago",
   "messages.answered-by": "Answered by",
@@ -152,6 +154,7 @@
   "messages.loading": "Loading",
   "messages.no-errors": "No errors found",
   "messages.no-log-entries": "No log entries available",
+  "messages.nothing-selected": "Nothing selected",
   "messages.select-rows-to-delete": "Select rows to delete them",
   "messages.select-rows-to-export": "Select rows to export",
   "messages.unexpected-error": "Unexpected Error",
@@ -169,5 +172,8 @@
   "placeholder.search": "Search",
   "placeholder.search-by-name": "Search by name",
   "success": "Success!",
-  "warning.caps-lock": "Warning: Caps lock is on"
+  "warning.caps-lock": "Warning: Caps lock is on",
+  "label.subject-template": "Subject template",
+  "label.body-template": "Body template",
+  "label.parameters": "Parameters"
 }

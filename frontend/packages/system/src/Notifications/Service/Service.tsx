@@ -3,6 +3,7 @@ import { Routes, Route, ConfigKind } from '@notify-frontend/common';
 import { AppRoute } from 'packages/config/src';
 import { ListView } from '../ListView/ListView';
 import { CCNotificationEditPage } from '../Pages/ColdChain/CCNotificationEditPage';
+import { ScheduledNotificationEditPage } from '../Pages/Scheduled/ScheduledNotificationEditPage';
 
 const NotificationsService = () => {
   return (
@@ -15,6 +16,14 @@ const NotificationsService = () => {
       <Route
         path={`${AppRoute.ColdChain}/:id`}
         element={<CCNotificationEditPage />}
+      />
+      <Route
+        path={`${AppRoute.Scheduled}`}
+        element={<ListView kind={ConfigKind.Scheduled} />}
+      />
+      <Route
+        path={`${AppRoute.Scheduled}/:id`}
+        element={<ScheduledNotificationEditPage />}
       />
     </Routes>
   );

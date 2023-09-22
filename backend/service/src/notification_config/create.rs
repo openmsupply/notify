@@ -68,5 +68,6 @@ pub fn generate(
         title: title.trim().to_string(),
         kind,
         configuration_data: "{}".to_string(),
+        parameters: "{}".to_string(),
     })
 }

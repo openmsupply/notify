@@ -37,6 +37,10 @@ impl NotificationConfigNode {
         &self.row().configuration_data
     }
 
+    pub async fn parameters(&self) -> &str {
+        &self.row().parameters
+    }
+
     pub async fn audit_logs(
         &self,
         ctx: &Context<'_>,
