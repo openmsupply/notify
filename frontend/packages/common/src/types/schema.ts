@@ -541,6 +541,9 @@ export type NotificationConfigNode = {
   id: Scalars['String']['output'];
   kind: ConfigKind;
   parameters: Scalars['String']['output'];
+  recipientIds: Array<Scalars['String']['output']>;
+  recipientListIds: Array<Scalars['String']['output']>;
+  sqlRecipientListIds: Array<Scalars['String']['output']>;
   status: ConfigStatus;
   title: Scalars['String']['output'];
 };
@@ -746,6 +749,9 @@ export type UpdateNotificationConfigInput = {
   configurationData?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
   parameters?: InputMaybe<Scalars['String']['input']>;
+  recipientIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  recipientListIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  sqlRecipientListIds?: InputMaybe<Array<Scalars['String']['input']>>;
   status?: InputMaybe<ConfigStatus>;
   title?: InputMaybe<Scalars['String']['input']>;
 };

@@ -36,10 +36,10 @@ export function parseColdChainNotificationConfig(
       reminderInterval,
       reminderUnits,
       locationIds,
-      recipientIds,
-      recipientListIds,
+      recipientIds: recipientIds ?? config.recipientIds,
+      recipientListIds: recipientListIds ?? config.recipientListIds,
+      sqlRecipientListIds: sqlRecipientListIds ?? config.sqlRecipientListIds,
       status: config.status,
-      sqlRecipientListIds,
       parameters: config.parameters,
       parsedParameters: TeraUtils.keyedParamsFromTeraJson(config.parameters),
     };
@@ -68,6 +68,9 @@ export function buildColdChainNotificationInputs(config: CCNotification): {
     configurationData: JSON.stringify(config),
     status: config.status,
     parameters: config.parameters,
+    recipientIds: config.recipientIds,
+    recipientListIds: config.recipientListIds,
+    sqlRecipientListIds: config.sqlRecipientListIds,
   };
 
   return {

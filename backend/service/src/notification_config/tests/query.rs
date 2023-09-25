@@ -269,7 +269,7 @@ mod notification_config_query_test {
         let service = &context.service_provider.notification_config_service;
 
         // Create a notification config
-        let config = NotificationConfigRow {
+        let mut config = NotificationConfigRow {
             id: uuid(),
             title: "test".to_string(),
             kind: mock_data["base"].notification_configs[0].kind.clone(),
@@ -290,7 +290,6 @@ mod notification_config_query_test {
 
         // set the last check date to now
         // and next check to 1 hour from now
-        let mut config = result[0].clone();
         config.last_run_datetime = Some(Utc::now().naive_utc());
         config.next_due_datetime = Some(Utc::now().naive_utc() + chrono::Duration::hours(1));
         repo.update_one(&config).unwrap();

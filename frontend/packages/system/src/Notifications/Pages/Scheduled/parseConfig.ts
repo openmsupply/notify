@@ -19,6 +19,10 @@ export function parseScheduledNotificationConfig(
       id: config.id,
       title: config.title,
       kind: config.kind,
+      parameters: config.parameters,
+      recipientIds: config.recipientIds,
+      recipientListIds: config.recipientListIds,
+      sqlRecipientListIds: config.sqlRecipientListIds,
       ...JSON.parse(config.configurationData),
     };
   } catch (e) {
@@ -65,6 +69,9 @@ export function buildScheduledNotificationInputs(
     configurationData: JSON.stringify(config),
     status: config.status,
     parameters: config.parameters,
+    recipientIds: config.recipientIds,
+    recipientListIds: config.recipientListIds,
+    sqlRecipientListIds: config.sqlRecipientListIds,
   };
   return {
     create: { ...input, kind: config.kind },

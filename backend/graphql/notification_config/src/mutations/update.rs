@@ -15,6 +15,9 @@ pub struct UpdateNotificationConfigInput {
     pub configuration_data: Option<String>,
     pub parameters: Option<String>,
     pub status: Option<ConfigStatus>,
+    pub recipient_ids: Option<Vec<String>>,
+    pub recipient_list_ids: Option<Vec<String>>,
+    pub sql_recipient_list_ids: Option<Vec<String>>,
 }
 
 pub fn update_notification_config(
@@ -49,6 +52,9 @@ impl From<UpdateNotificationConfigInput> for UpdateNotificationConfig {
             configuration_data,
             status,
             parameters,
+            recipient_ids,
+            recipient_list_ids,
+            sql_recipient_list_ids,
         }: UpdateNotificationConfigInput,
     ) -> Self {
         UpdateNotificationConfig {
@@ -57,6 +63,9 @@ impl From<UpdateNotificationConfigInput> for UpdateNotificationConfig {
             configuration_data,
             status: status.map(ConfigStatus::to_domain),
             parameters,
+            recipient_ids,
+            recipient_list_ids,
+            sql_recipient_list_ids,
         }
     }
 }
