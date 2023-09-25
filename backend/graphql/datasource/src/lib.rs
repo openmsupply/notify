@@ -38,4 +38,28 @@ impl DatasourceQueries {
             Err(error) => map_error(error),
         }
     }
+
+    pub async fn run_sql_query_with_parameters(
+        &self,
+        ctx: &Context<'_>,
+        sql_query: String,
+        parameters: String,
+    ) -> Result<String> {
+        let user = validate_auth(
+            ctx,
+            &ResourceAccessRequest {
+                resource: Resource::ServerAdmin,
+            },
+        )?;
+
+        let service_ctx = ctx.service_context(Some(&user))?;
+        let datasource_service = &service_ctx.service_provider.datasource_service;
+        // TODO some kind of query validation?
+
+        // Query datasource service and return result
+        match datasource_service.run_sql_query_with_parameters(sql_query, parameters) {
+            Ok(result) => Ok(result),
+            Err(error) => map_error(error),
+        }
+    }
 }
