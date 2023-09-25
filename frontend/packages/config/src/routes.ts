@@ -14,6 +14,8 @@ export enum AppRoute {
   RecipientLists = 'lists',
   SqlRecipientLists = 'sql',
 
+  Queries = 'queries',
+
   Admin = 'admin',
   Logout = 'logout',
 
