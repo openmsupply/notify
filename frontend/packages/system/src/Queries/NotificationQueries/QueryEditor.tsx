@@ -189,7 +189,7 @@ export const QueryEditor = ({
           label={t('label.query')}
           InputProps={{ sx: { backgroundColor: 'background.menu' } }}
           InputLabelProps={{ shrink: true }}
-          helperText={t('helper-text.recipient-sql-query')}
+          helperText={t('helper-text.sql-query')}
           minRows={4}
         />
         <Box sx={{ display: 'flex', gap: '8px' }}>
@@ -210,6 +210,8 @@ export const QueryEditor = ({
                 {TeraUtils.extractParams(draft.query).join(', ')}
               </Typography>
               <IconButton
+                height="24px"
+                width="24px"
                 onClick={openSidePanel}
                 icon={<EditIcon />}
                 label={t('label.edit')}
