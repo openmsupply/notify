@@ -12,7 +12,7 @@ use super::NotificationServiceError;
 
 // This struct is intended to be able to be created by a plugin from a datasource, and defines what a template can expect from a recipient
 // Often it will be derived RecipientRow which is why we implement From<RecipientRow> for NotificationRecipient
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct NotificationTarget {
     pub name: String,
     pub to_address: String,
