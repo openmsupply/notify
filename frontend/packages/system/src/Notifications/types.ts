@@ -4,15 +4,12 @@ import { KeyedParams } from '@common/utils';
 import { LocaleKey, TypedTFunction } from '@common/intl';
 
 export enum ReminderUnits {
-  SECONDS = 'seconds',
   MINUTES = 'minutes',
   HOURS = 'hours',
 }
 
 export function getReminderUnitsFromString(str: string): ReminderUnits {
   switch (str) {
-    case 'seconds':
-      return ReminderUnits.SECONDS;
     case 'minutes':
       return ReminderUnits.MINUTES;
     case 'hours':
@@ -27,7 +24,6 @@ export function getReminderUnitsAsOptions(t: TypedTFunction<LocaleKey>): {
   value: string;
 }[] {
   return [
-    { label: t('label.seconds'), value: ReminderUnits.SECONDS },
     { label: t('label.minutes'), value: ReminderUnits.MINUTES },
     { label: t('label.hours'), value: ReminderUnits.HOURS },
   ];
