@@ -5,7 +5,6 @@ mod logger;
 use actix_web::web::{self, Data, ReqData};
 use actix_web::HttpResponse;
 use actix_web::{guard, HttpRequest};
-use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql::{EmptySubscription, MergedObject, SchemaBuilder};
 use async_graphql_actix_web::{GraphQLRequest, GraphQLResponse};
 use graphql_core::loader::LoaderRegistry;
@@ -162,7 +161,7 @@ pub fn config(
 async fn playground() -> HttpResponse {
     HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")
-        .body(playground_source(GraphQLPlaygroundConfig::new("/graphql")))
+        .body(include_str!("playground.html"))
 }
 
 async fn graphql(
