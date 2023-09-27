@@ -46,8 +46,7 @@ export const DetailEdit = () => {
 
   const { mutateAsync: testNotificationQuery, isLoading: queryLoading } =
     useTestNotificationQuery();
-  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  const [sqlResults, setSqlResults] = React.useState([] as any[]);
+  const [sqlResults, setSqlResults] = React.useState([] as never[]);
   const [queryColumns, setQueryColumns] = React.useState(['id'] as string[]);
 
   const runQuery = async (query: string, params: string) => {
