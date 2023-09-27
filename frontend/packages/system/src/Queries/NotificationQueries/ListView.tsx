@@ -41,7 +41,7 @@ export const ListView = () => {
         sortable: false,
       },
       {
-        key: 'parameters',
+        key: 'requiredParameters',
         label: 'label.parameters',
         maxWidth: 300,
         sortable: false,
