@@ -7,8 +7,14 @@ import {
   Select,
   Typography,
   useTranslation,
+  Tooltip,
+  InfoIcon,
 } from '@notify-frontend/common';
-import { CCNotification } from '../../types';
+import {
+  CCNotification,
+  getReminderUnitsAsOptions,
+  getReminderUnitsFromString,
+} from '../../types';
 
 type CCNotificationEditFormProps = {
   onUpdate: (patch: Partial<CCNotification>) => void;
@@ -32,6 +38,16 @@ export const CCNotificationEditForm = ({
   const t = useTranslation('system');
   return (
     <>
+      <Typography
+        sx={{
+          fontWeight: 700,
+          fontSize: '13px',
+          marginTop: '10px',
+          marginBottom: '10px',
+        }}
+      >
+        {t('heading.cold-chain-alerts')}
+      </Typography>
       <ul style={{ listStyleType: 'none', padding: '0' }}>
         <li>
           <Checkbox
@@ -41,6 +57,12 @@ export const CCNotificationEditForm = ({
           />
           <label htmlFor="highTemp">
             {t('label.coldchain-high-temp-alerts')}
+            <Tooltip title={t('messages.cold-chain-temperature-information')}>
+              <span>
+                {' '}
+                <InfoIcon fontSize="small" color="inherit" />
+              </span>
+            </Tooltip>
           </label>
         </li>
         <li>
@@ -51,6 +73,12 @@ export const CCNotificationEditForm = ({
           />
           <label htmlFor="lowTemp">
             {t('label.coldchain-high-temp-alerts')}
+            <Tooltip title={t('messages.cold-chain-temperature-information')}>
+              <span>
+                {' '}
+                <InfoIcon fontSize="small" color="inherit" />
+              </span>
+            </Tooltip>
           </label>
         </li>
         <li>
@@ -63,6 +91,49 @@ export const CCNotificationEditForm = ({
             {t('label.coldchain-confirm-ok-alerts')}
           </label>
         </li>
+        <li>
+          <Checkbox
+            id="noData"
+            checked={draft.noData}
+            onClick={() => onUpdate({ noData: !draft.noData })}
+          />
+          <label htmlFor="noData">
+            {t('label.coldchain-no-data-alerts')}
+            <Tooltip title={t('messages.cold-chain-no-data-information')}>
+              <span>
+                {' '}
+                <InfoIcon fontSize="small" color="inherit" />
+              </span>
+            </Tooltip>
+          </label>
+        </li>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            marginLeft: '40px',
+          }}
+        >
+          <PositiveNumberInput
+            disabled={!draft.noData}
+            value={draft.noDataInterval}
+            required
+            onChange={newValue => onUpdate({ noDataInterval: newValue })}
+            sx={{ width: '60px' }}
+          />
+
+          <Select
+            value={draft.noDataUnits}
+            disabled={!draft.noData}
+            onChange={e =>
+              onUpdate({
+                noDataUnits: getReminderUnitsFromString(e.target.value),
+              })
+            }
+            options={getReminderUnitsAsOptions(t)}
+          />
+        </Box>
         <li>
           <Checkbox
             id="remind"
@@ -92,15 +163,10 @@ export const CCNotificationEditForm = ({
             disabled={!draft.remind}
             onChange={e =>
               onUpdate({
-                reminderUnits: e.target
-                  .value as CCNotification['reminderUnits'],
+                reminderUnits: getReminderUnitsFromString(e.target.value),
               })
             }
-            options={[
-              { label: t('label.seconds'), value: 'seconds' },
-              { label: t('label.minutes'), value: 'minutes' },
-              { label: t('label.hours'), value: 'hours' },
-            ]}
+            options={getReminderUnitsAsOptions(t)}
           />
         </Box>
       </ul>
@@ -109,7 +175,7 @@ export const CCNotificationEditForm = ({
         <Typography
           sx={{ fontWeight: 700, fontSize: '13px', marginBottom: '10px' }}
         >
-          Select Locations
+          {t('heading.select-locations')}
         </Typography>
         <Grid container>
           {dummyLocations.map(location => {
