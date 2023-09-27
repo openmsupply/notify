@@ -124,11 +124,10 @@
 
         var defaultQuery =
             `
-query Login {
-  authToken(password: "pass", username: "user") {
-    ... on AuthToken {
-      __typename
-      token
+query MyQuery {
+  me {
+    ... on UserAccountNode {
+      username
     }
   }
 }
