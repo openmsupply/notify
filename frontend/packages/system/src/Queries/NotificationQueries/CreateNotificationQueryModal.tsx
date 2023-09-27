@@ -35,45 +35,43 @@ export const CreateNotificationQueryModal = ({
   const isInvalid = !name;
 
   return (
-    <>
-      <Modal
-        okButton={
-          <LoadingButton
-            disabled={isInvalid}
-            onClick={() => {
-              const id = FnUtils.generateUUID();
-              create({
-                input: {
-                  id: id,
-                  name: name,
-                },
-              }).then(() => {
-                navigate(
-                  RouteBuilder.create(AppRoute.Queries).addPart(id).build()
-                );
-              });
-            }}
-            isLoading={isLoading}
-            startIcon={<ArrowRightIcon />}
-            sx={{ marginLeft: 1 }}
-          >
-            {t('button.create')}
-          </LoadingButton>
-        }
-        cancelButton={<DialogButton variant="cancel" onClick={onClose} />}
-        title={t('label.setup-notification', { type: '' })}
-      >
-        <Box>
-          <BasicTextInput
-            fullWidth
-            value={name}
-            required
-            onChange={e => setName(e.target.value)}
-            label={t('label.name')}
-            InputLabelProps={{ shrink: true }}
-          />
-        </Box>
-      </Modal>
-    </>
+    <Modal
+      okButton={
+        <LoadingButton
+          disabled={isInvalid}
+          onClick={() => {
+            const id = FnUtils.generateUUID();
+            create({
+              input: {
+                id: id,
+                name: name,
+              },
+            }).then(() => {
+              navigate(
+                RouteBuilder.create(AppRoute.Queries).addPart(id).build()
+              );
+            });
+          }}
+          isLoading={isLoading}
+          startIcon={<ArrowRightIcon />}
+          sx={{ marginLeft: 1 }}
+        >
+          {t('button.create')}
+        </LoadingButton>
+      }
+      cancelButton={<DialogButton variant="cancel" onClick={onClose} />}
+      title={t('label.setup-notification', { type: '' })}
+    >
+      <Box>
+        <BasicTextInput
+          fullWidth
+          value={name}
+          required
+          onChange={e => setName(e.target.value)}
+          label={t('label.name')}
+          InputLabelProps={{ shrink: true }}
+        />
+      </Box>
+    </Modal>
   );
 };
