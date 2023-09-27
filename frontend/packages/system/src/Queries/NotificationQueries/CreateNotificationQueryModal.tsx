@@ -60,7 +60,7 @@ export const CreateNotificationQueryModal = ({
         </LoadingButton>
       }
       cancelButton={<DialogButton variant="cancel" onClick={onClose} />}
-      title={t('label.setup-notification', { type: '' })}
+      title={t('label.new-query', { type: '' })}
     >
       <Box>
         <BasicTextInput
