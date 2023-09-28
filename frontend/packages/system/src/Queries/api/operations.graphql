@@ -6,12 +6,12 @@ fragment NotificationQueryRow on NotificationQueryNode {
   requiredParameters
 }
 
-query notificationQuerys(
+query notificationQueries(
   $filter: RecipientListFilterInput
   $page: PaginationInput
   $sort: [RecipientListSortInput!]
 ) {
-  notificationQuerys(filter: $filter, page: $page, sort: $sort) {
+  notificationQueries(filter: $filter, page: $page, sort: $sort) {
     ... on NotificationQueryConnector {
       totalCount
       nodes {

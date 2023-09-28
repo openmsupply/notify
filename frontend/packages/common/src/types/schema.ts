@@ -339,7 +339,7 @@ export type FullQuery = {
   logs: LogResponse;
   me: UserResponse;
   notificationConfigs: NotificationConfigsResponse;
-  notificationQuerys: NotificationQuerysResponse;
+  notificationQueries: NotificationQueriesResponse;
   /** Query "recipient_list" entries */
   recipientLists: RecipientListsResponse;
   /** Query "recipient" entries */
@@ -380,7 +380,7 @@ export type FullQueryNotificationConfigsArgs = {
 };
 
 
-export type FullQueryNotificationQuerysArgs = {
+export type FullQueryNotificationQueriesArgs = {
   filter?: InputMaybe<NotificationQueryFilterInput>;
   page?: InputMaybe<PaginationInput>;
   sort?: InputMaybe<Array<NotificationQuerySortInput>>;
@@ -605,6 +605,8 @@ export type NotificationConfigSortInput = {
 
 export type NotificationConfigsResponse = NotificationConfigConnector;
 
+export type NotificationQueriesResponse = NotificationQueryConnector;
+
 export type NotificationQueryConnector = {
   __typename: 'NotificationQueryConnector';
   nodes: Array<NotificationQueryNode>;
@@ -639,8 +641,6 @@ export type NotificationQuerySortInput = {
   /** Sort query result by `key` */
   key: NotificationQuerySortFieldInput;
 };
-
-export type NotificationQuerysResponse = NotificationQueryConnector;
 
 export enum NotificationTypeNode {
   Email = 'EMAIL',

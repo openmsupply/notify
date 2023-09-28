@@ -18,7 +18,7 @@ import {
   TableRow,
 } from '@common/ui';
 import { useTranslation } from '@common/intl';
-import { useNotificationQuerys, useTestNotificationQuery } from '../api';
+import { useNotificationQueries, useTestNotificationQuery } from '../api';
 import { useParams } from 'packages/common/src';
 import { QueryEditor } from './QueryEditor';
 import { stringifyObjectKey } from './utils';
@@ -34,7 +34,7 @@ export const DetailEdit = () => {
     initialFilter: { id: { equalTo: urlParams['id'] } },
   });
 
-  const { data, isLoading } = useNotificationQuerys(queryParams);
+  const { data, isLoading } = useNotificationQueries(queryParams);
   const entity = data?.nodes[0];
 
   useEffect(() => {

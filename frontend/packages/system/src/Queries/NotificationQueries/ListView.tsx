@@ -13,7 +13,7 @@ import {
 } from '@common/ui';
 import { useEditModal, useQueryParamsState } from '@common/hooks';
 import React from 'react';
-import { useDeleteNotificationQuery, useNotificationQuerys } from '../api';
+import { useDeleteNotificationQuery, useNotificationQueries } from '../api';
 import { NotificationQueryRowFragment } from '../api/operations.generated';
 import { CreateNotificationQueryModal } from './CreateNotificationQueryModal';
 import { useNavigate } from 'packages/common/src';
@@ -61,7 +61,7 @@ export const ListView = () => {
   const { isOpen, onClose, onOpen } =
     useEditModal<NotificationQueryRowFragment>();
 
-  const { data, isError, isLoading } = useNotificationQuerys(queryParams);
+  const { data, isError, isLoading } = useNotificationQueries(queryParams);
   const recipientLists = data?.nodes ?? [];
 
   const pagination = {

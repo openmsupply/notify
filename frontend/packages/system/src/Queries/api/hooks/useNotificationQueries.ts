@@ -8,7 +8,7 @@ import {
 import { NotificationQueryRowFragment, getSdk } from '../operations.generated';
 import { NOTIFICATION_QUERIES } from '../../../cacheKeys';
 
-export const useNotificationQuerys = ({
+export const useNotificationQueries = ({
   filterBy,
   sortBy,
   first,
@@ -25,7 +25,7 @@ export const useNotificationQuerys = ({
   const cacheKeys = [NOTIFICATION_QUERIES, first, offset, filterBy, sortBy];
 
   return useQuery(cacheKeys, async () => {
-    const response = await sdk.notificationQuerys({
+    const response = await sdk.notificationQueries({
       filter: filterBy,
       sort: sortBy?.key
         ? {
@@ -38,6 +38,6 @@ export const useNotificationQuerys = ({
         offset,
       },
     });
-    return response?.notificationQuerys;
+    return response?.notificationQueries;
   });
 };

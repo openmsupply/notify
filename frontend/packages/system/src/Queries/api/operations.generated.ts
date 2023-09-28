@@ -5,14 +5,14 @@ import * as Dom from 'graphql-request/dist/types.dom';
 import gql from 'graphql-tag';
 export type NotificationQueryRowFragment = { __typename: 'NotificationQueryNode', id: string, name: string, description: string, query: string, requiredParameters: Array<string> };
 
-export type NotificationQuerysQueryVariables = Types.Exact<{
+export type NotificationQueriesQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.RecipientListFilterInput>;
   page?: Types.InputMaybe<Types.PaginationInput>;
   sort?: Types.InputMaybe<Array<Types.RecipientListSortInput> | Types.RecipientListSortInput>;
 }>;
 
 
-export type NotificationQuerysQuery = { __typename: 'FullQuery', notificationQuerys: { __typename: 'NotificationQueryConnector', totalCount: number, nodes: Array<{ __typename: 'NotificationQueryNode', id: string, name: string, description: string, query: string, requiredParameters: Array<string> }> } };
+export type NotificationQueriesQuery = { __typename: 'FullQuery', notificationQueries: { __typename: 'NotificationQueryConnector', totalCount: number, nodes: Array<{ __typename: 'NotificationQueryNode', id: string, name: string, description: string, query: string, requiredParameters: Array<string> }> } };
 
 export type CreateNotificationQueryMutationVariables = Types.Exact<{
   input: Types.CreateNotificationQueryInput;
@@ -52,9 +52,9 @@ export const NotificationQueryRowFragmentDoc = gql`
   requiredParameters
 }
     `;
-export const NotificationQuerysDocument = gql`
-    query notificationQuerys($filter: RecipientListFilterInput, $page: PaginationInput, $sort: [RecipientListSortInput!]) {
-  notificationQuerys(filter: $filter, page: $page, sort: $sort) {
+export const NotificationQueriesDocument = gql`
+    query notificationQueries($filter: RecipientListFilterInput, $page: PaginationInput, $sort: [RecipientListSortInput!]) {
+  notificationQueries(filter: $filter, page: $page, sort: $sort) {
     ... on NotificationQueryConnector {
       totalCount
       nodes {
@@ -104,8 +104,8 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationTy
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-    notificationQuerys(variables?: NotificationQuerysQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<NotificationQuerysQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<NotificationQuerysQuery>(NotificationQuerysDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'notificationQuerys', 'query');
+    notificationQueries(variables?: NotificationQueriesQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<NotificationQueriesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<NotificationQueriesQuery>(NotificationQueriesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'notificationQueries', 'query');
     },
     createNotificationQuery(variables: CreateNotificationQueryMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateNotificationQueryMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateNotificationQueryMutation>(CreateNotificationQueryDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'createNotificationQuery', 'mutation');
