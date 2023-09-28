@@ -5,20 +5,6 @@ use crate::repository_error::RepositoryError;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 
-/*
-CREATE TABLE
-    notification_query (
-        id TEXT NOT NULL PRIMARY KEY,
-        name TEXT NOT NULL,
-        description TEXT NOT NULL,
-        query TEXT NOT NULL,
-        required_parameters TEXT NOT NULL, -- JSON e.g. {"limit": "number"}
-        created_at TIMESTAMP NOT NULL,
-        updated_at TIMESTAMP NOT NULL
-    );
-
-*/
-
 table! {
     notification_query (id) {
         id -> Text,
