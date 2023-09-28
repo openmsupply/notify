@@ -33,6 +33,8 @@ pub enum LogNodeType {
     UserAccountPasswordResetInitiated,
     SqlRecipientListCreated,
     SqlRecipientListUpdated,
+    NotificationQueryCreated,
+    NotificationQueryUpdated,
 }
 
 #[Object]
@@ -97,6 +99,8 @@ impl LogNodeType {
             LogType::UserAccountPasswordResetInitiated => {
                 LogNodeType::UserAccountPasswordResetInitiated
             }
+            LogType::NotificationQueryCreated => LogNodeType::NotificationQueryCreated,
+            LogType::NotificationQueryUpdated => LogNodeType::NotificationQueryUpdated,
         }
     }
 
@@ -118,6 +122,8 @@ impl LogNodeType {
             LogNodeType::UserAccountPasswordResetInitiated => {
                 LogType::UserAccountPasswordResetInitiated
             }
+            LogNodeType::NotificationQueryCreated => LogType::NotificationQueryCreated,
+            LogNodeType::NotificationQueryUpdated => LogType::NotificationQueryUpdated,
         }
     }
 }

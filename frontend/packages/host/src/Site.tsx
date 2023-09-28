@@ -23,6 +23,7 @@ import { RequireAuthentication } from './components/Navigation/RequireAuthentica
 import { QueryErrorHandler } from './QueryErrorHandler';
 import { RecipientsRouter } from './routers/RecipientsRouter';
 import { NotificationsRouter } from './routers/NotificationsRouter';
+import { QueriesRouter } from './routers/QueryRouter';
 
 export const Site: FC = () => {
   const location = useLocation();
@@ -65,6 +66,12 @@ export const Site: FC = () => {
                     .addWildCard()
                     .build()}
                   element={<NotificationsRouter />}
+                />
+                <Route
+                  path={RouteBuilder.create(AppRoute.Queries)
+                    .addWildCard()
+                    .build()}
+                  element={<QueriesRouter />}
                 />
                 <Route
                   path="/"

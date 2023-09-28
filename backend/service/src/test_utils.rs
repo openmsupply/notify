@@ -96,6 +96,14 @@ impl DatasourceServiceTrait for MockDatasourceService {
         todo!()
     }
 
+    fn run_sql_query_with_parameters(
+        &self,
+        _sql_query: String,
+        _parameters: String,
+    ) -> Result<String, crate::datasource::DatasourceServiceError> {
+        todo!()
+    }
+
     fn run_recipient_query(
         &self,
         _sql_query: String,
