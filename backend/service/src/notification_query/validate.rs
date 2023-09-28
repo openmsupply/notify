@@ -34,14 +34,14 @@ pub fn check_notification_query_name_is_unique(
     match list_name {
         None => Ok(true),
         Some(list_name) => {
-            let notification_querys = NotificationQueryRepository::new(connection)
+            let notification_queries = NotificationQueryRepository::new(connection)
                 .query_by_filter(
                     NotificationQueryFilter::new()
                         .name(StringFilter::equal_to(&list_name.trim().to_string()))
                         .id(EqualFilter::not_equal_to(id)),
                 )?;
 
-            Ok(notification_querys.is_empty())
+            Ok(notification_queries.is_empty())
         }
     }
 }

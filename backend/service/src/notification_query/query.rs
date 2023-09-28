@@ -14,7 +14,7 @@ use super::NotificationQuery;
 pub const MAX_LIMIT: u32 = 1000;
 pub const MIN_LIMIT: u32 = 1;
 
-pub fn get_notification_querys(
+pub fn get_notification_queries(
     ctx: &ServiceContext,
     pagination: Option<PaginationOption>,
     filter: Option<NotificationQueryFilter>,

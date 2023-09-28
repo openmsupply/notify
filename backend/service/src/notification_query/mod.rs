@@ -1,7 +1,7 @@
 use self::{
     create::{create_notification_query, CreateNotificationQuery},
     delete::{delete_notification_query, DeleteNotificationQueryError},
-    query::{get_notification_query, get_notification_querys},
+    query::{get_notification_queries, get_notification_query},
     update::{update_notification_query, UpdateNotificationQuery},
 };
 
@@ -23,14 +23,14 @@ pub mod update;
 pub mod validate;
 
 pub trait NotificationQueryServiceTrait: Sync + Send {
-    fn get_notification_querys(
+    fn get_notification_queries(
         &self,
         ctx: &ServiceContext,
         pagination: Option<PaginationOption>,
         filter: Option<NotificationQueryFilter>,
         sort: Option<NotificationQuerySort>,
     ) -> Result<ListResult<NotificationQuery>, ListError> {
-        get_notification_querys(ctx, pagination, filter, sort)
+        get_notification_queries(ctx, pagination, filter, sort)
     }
 
     fn get_notification_query(

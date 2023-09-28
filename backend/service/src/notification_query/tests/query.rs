@@ -6,7 +6,7 @@ mod notification_query_query_test {
         mock::MockDataInserts, test_db::setup_all, NotificationQueryFilter,
         NotificationQuerySortField,
     };
-    use repository::{Sort, NotificationQueryRow, NotificationQueryRowRepository, StringFilter};
+    use repository::{NotificationQueryRow, NotificationQueryRowRepository, Sort, StringFilter};
 
     use crate::service_provider::ServiceContext;
     use crate::test_utils::get_test_settings;
@@ -75,8 +75,8 @@ mod notification_query_query_test {
         repo.insert_one(&notification_query).unwrap();
 
         // Query to find the new record
-        let db_notification_querys = service
-            .get_notification_querys(
+        let db_notification_queries = service
+            .get_notification_queries(
                 &context,
                 None,
                 Some(NotificationQueryFilter::new().name(StringFilter::equal_to(&name))),
@@ -84,8 +84,8 @@ mod notification_query_query_test {
             )
             .unwrap();
 
-        assert_eq!(db_notification_querys.count, 1);
-        assert_eq!(db_notification_querys.rows[0].id, id);
+        assert_eq!(db_notification_queries.count, 1);
+        assert_eq!(db_notification_queries.rows[0].id, id);
     }
 
     #[actix_rt::test]
@@ -141,8 +141,8 @@ mod notification_query_query_test {
 
         // Query to find the new records
 
-        let db_notification_querys = service
-            .get_notification_querys(
+        let db_notification_queries = service
+            .get_notification_queries(
                 &context,
                 None,
                 Some(NotificationQueryFilter::new().search("Search String".to_string())),
@@ -153,8 +153,8 @@ mod notification_query_query_test {
             )
             .unwrap();
 
-        assert_eq!(db_notification_querys.count, 2);
-        assert_eq!(db_notification_querys.rows[0].id, id2);
-        assert_eq!(db_notification_querys.rows[1].id, id3);
+        assert_eq!(db_notification_queries.count, 2);
+        assert_eq!(db_notification_queries.rows[0].id, id2);
+        assert_eq!(db_notification_queries.rows[1].id, id3);
     }
 }
