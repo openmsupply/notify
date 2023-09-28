@@ -35,7 +35,7 @@ impl NotificationQueryNode {
     pub async fn query(&self) -> &str {
         &self.row().query
     }
-    pub async fn parameters(&self) -> Result<Vec<String>, async_graphql::Error> {
+    pub async fn required_parameters(&self) -> Result<Vec<String>, async_graphql::Error> {
         // Convert the parameters from a JSON array to a Vec<String>
         let parameters = serde_json::from_str::<Vec<String>>(&self.row().required_parameters)
             .map_err(|e| async_graphql::Error::new(e.to_string()))?;

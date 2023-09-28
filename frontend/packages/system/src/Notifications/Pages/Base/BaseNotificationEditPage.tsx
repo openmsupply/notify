@@ -13,7 +13,6 @@ import {
   CloseIcon,
   useBreadcrumbs,
   SaveIcon,
-  Checkbox,
   ConfigStatus,
   FormLabel,
   Switch,

@@ -24,6 +24,7 @@ import {
   SidebarIcon,
   MessagesIcon,
   PersonSearchIcon,
+  SearchIcon,
 } from '@notify-frontend/common';
 import { AppRoute, ExternalURL } from '@notify-frontend/config';
 import { AppDrawerIcon } from './AppDrawerIcon';
@@ -209,6 +210,11 @@ export const AppDrawer: React.FC = () => {
                 .build()}
               icon={<PersonSearchIcon fontSize="small" color="primary" />}
               text={t('sql-recipient-lists')}
+            />
+            <AppNavLink
+              to={RouteBuilder.create(AppRoute.Queries).build()}
+              icon={<SearchIcon fontSize="small" color="primary" />}
+              text={t('label.queries')}
             />
             <AppNavLink
               to={AppRoute.UserAccounts}

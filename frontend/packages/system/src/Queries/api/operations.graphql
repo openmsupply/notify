@@ -1,0 +1,50 @@
+fragment NotificationQueryRow on NotificationQueryNode {
+  id
+  name
+  description
+  query
+  requiredParameters
+}
+
+query notificationQueries(
+  $filter: RecipientListFilterInput
+  $page: PaginationInput
+  $sort: [RecipientListSortInput!]
+) {
+  notificationQueries(filter: $filter, page: $page, sort: $sort) {
+    ... on NotificationQueryConnector {
+      totalCount
+      nodes {
+        ...NotificationQueryRow
+      }
+    }
+  }
+}
+
+mutation createNotificationQuery($input: CreateNotificationQueryInput!) {
+  createNotificationQuery(input: $input) {
+    ... on NotificationQueryNode {
+      ...NotificationQueryRow
+    }
+  }
+}
+
+mutation updateNotificationQuery($input: UpdateNotificationQueryInput!) {
+  updateNotificationQuery(input: $input) {
+    ... on NotificationQueryNode {
+      ...NotificationQueryRow
+    }
+  }
+}
+
+mutation deleteNotificationQuery($sqlRecipientListId: String!) {
+  deleteNotificationQuery(sqlRecipientListId: $sqlRecipientListId) {
+    ... on DeleteResponse {
+      id
+    }
+  }
+}
+
+query testNotificationQuery($sqlQuery: String, $params: String) {
+  runSqlQueryWithParameters(sqlQuery: $sqlQuery, parameters: $params)
+}

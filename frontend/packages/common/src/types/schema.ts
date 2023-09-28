@@ -65,6 +65,11 @@ export type CreateNotificationConfigInput = {
   title: Scalars['String']['input'];
 };
 
+export type CreateNotificationQueryInput = {
+  id: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
 export type CreateRecipientInput = {
   id: Scalars['String']['input'];
   name: Scalars['String']['input'];
@@ -106,6 +111,8 @@ export type DatabaseError = RefreshTokenErrorInterface & {
 };
 
 export type DeleteNotificationConfigResponse = DeleteResponse;
+
+export type DeleteNotificationQueryResponse = DeleteResponse;
 
 export type DeleteRecipientListResponse = DeleteResponse;
 
@@ -156,11 +163,13 @@ export type FullMutation = {
   acceptUserInvite: InviteUserResponse;
   addRecipientToList: ModifyRecipientListMembersResponse;
   createNotificationConfig: ModifyNotificationConfigResponse;
+  createNotificationQuery: ModifyNotificationQueryResponse;
   createRecipient: CreateRecipientResponse;
   createRecipientList: ModifyRecipientListResponse;
   createSqlRecipientList: ModifySqlRecipientListResponse;
   createUserAccount: CreateUserAccountResponse;
   deleteNotificationConfig: DeleteNotificationConfigResponse;
+  deleteNotificationQuery: DeleteNotificationQueryResponse;
   deleteRecipient: DeleteRecipientResponse;
   deleteRecipientList: DeleteRecipientListResponse;
   deleteSqlRecipientList: DeleteSqlRecipientListResponse;
@@ -177,6 +186,7 @@ export type FullMutation = {
   resetPasswordUsingToken: PasswordResetResponse;
   sendTestTelegramMessage: TelegramMessageResponse;
   updateNotificationConfig: ModifyNotificationConfigResponse;
+  updateNotificationQuery: ModifyNotificationQueryResponse;
   updateRecipient: UpdateRecipientResponse;
   updateRecipientList: ModifyRecipientListResponse;
   updateSqlRecipientList: ModifySqlRecipientListResponse;
@@ -202,6 +212,11 @@ export type FullMutationCreateNotificationConfigArgs = {
 };
 
 
+export type FullMutationCreateNotificationQueryArgs = {
+  input: CreateNotificationQueryInput;
+};
+
+
 export type FullMutationCreateRecipientArgs = {
   input: CreateRecipientInput;
 };
@@ -223,6 +238,11 @@ export type FullMutationCreateUserAccountArgs = {
 
 
 export type FullMutationDeleteNotificationConfigArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type FullMutationDeleteNotificationQueryArgs = {
   id: Scalars['String']['input'];
 };
 
@@ -278,6 +298,11 @@ export type FullMutationUpdateNotificationConfigArgs = {
 };
 
 
+export type FullMutationUpdateNotificationQueryArgs = {
+  input: UpdateNotificationQueryInput;
+};
+
+
 export type FullMutationUpdateRecipientArgs = {
   input: UpdateRecipientInput;
 };
@@ -314,6 +339,7 @@ export type FullQuery = {
   logs: LogResponse;
   me: UserResponse;
   notificationConfigs: NotificationConfigsResponse;
+  notificationQueries: NotificationQueriesResponse;
   /** Query "recipient_list" entries */
   recipientLists: RecipientListsResponse;
   /** Query "recipient" entries */
@@ -324,6 +350,7 @@ export type FullQuery = {
    */
   refreshToken: RefreshTokenResponse;
   runSqlQuery: Scalars['String']['output'];
+  runSqlQueryWithParameters: Scalars['String']['output'];
   /** Query "sql_recipient_list" entries */
   sqlRecipientLists: SqlRecipientListsResponse;
   telegramBotName: Scalars['String']['output'];
@@ -353,6 +380,13 @@ export type FullQueryNotificationConfigsArgs = {
 };
 
 
+export type FullQueryNotificationQueriesArgs = {
+  filter?: InputMaybe<NotificationQueryFilterInput>;
+  page?: InputMaybe<PaginationInput>;
+  sort?: InputMaybe<Array<NotificationQuerySortInput>>;
+};
+
+
 export type FullQueryRecipientListsArgs = {
   filter?: InputMaybe<RecipientListFilterInput>;
   page?: InputMaybe<PaginationInput>;
@@ -368,6 +402,12 @@ export type FullQueryRecipientsArgs = {
 
 
 export type FullQueryRunSqlQueryArgs = {
+  sqlQuery: Scalars['String']['input'];
+};
+
+
+export type FullQueryRunSqlQueryWithParametersArgs = {
+  parameters: Scalars['String']['input'];
   sqlQuery: Scalars['String']['input'];
 };
 
@@ -451,6 +491,8 @@ export type LogNode = {
 export enum LogNodeType {
   NotificationConfigCreated = 'NOTIFICATION_CONFIG_CREATED',
   NotificationConfigUpdated = 'NOTIFICATION_CONFIG_UPDATED',
+  NotificationQueryCreated = 'NOTIFICATION_QUERY_CREATED',
+  NotificationQueryUpdated = 'NOTIFICATION_QUERY_UPDATED',
   RecipientAddedToList = 'RECIPIENT_ADDED_TO_LIST',
   RecipientCreated = 'RECIPIENT_CREATED',
   RecipientListCreated = 'RECIPIENT_LIST_CREATED',
@@ -503,6 +545,8 @@ export type LogoutErrorInterface = {
 export type LogoutResponse = Logout | LogoutError;
 
 export type ModifyNotificationConfigResponse = NotificationConfigNode;
+
+export type ModifyNotificationQueryResponse = NotificationQueryNode;
 
 export type ModifyRecipientListMembersResponse = IdResponse;
 
@@ -560,6 +604,43 @@ export type NotificationConfigSortInput = {
 };
 
 export type NotificationConfigsResponse = NotificationConfigConnector;
+
+export type NotificationQueriesResponse = NotificationQueryConnector;
+
+export type NotificationQueryConnector = {
+  __typename: 'NotificationQueryConnector';
+  nodes: Array<NotificationQueryNode>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type NotificationQueryFilterInput = {
+  id?: InputMaybe<EqualFilterStringInput>;
+  name?: InputMaybe<StringFilterInput>;
+  search?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type NotificationQueryNode = {
+  __typename: 'NotificationQueryNode';
+  description: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  query: Scalars['String']['output'];
+  requiredParameters: Array<Scalars['String']['output']>;
+};
+
+export enum NotificationQuerySortFieldInput {
+  Name = 'name'
+}
+
+export type NotificationQuerySortInput = {
+  /**
+   * Sort query result is sorted descending or ascending (if not provided the default is
+   * ascending)
+   */
+  desc?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Sort query result by `key` */
+  key: NotificationQuerySortFieldInput;
+};
 
 export enum NotificationTypeNode {
   Email = 'EMAIL',
@@ -748,6 +829,14 @@ export type UpdateNotificationConfigInput = {
   parameters?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<ConfigStatus>;
   title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateNotificationQueryInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  query?: InputMaybe<Scalars['String']['input']>;
+  requiredParameters?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type UpdateRecipientInput = {
