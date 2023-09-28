@@ -27,6 +27,8 @@ pub trait NotificationServiceTrait: Send + Sync {
 
     fn render_no_params(&self, template_name: &str) -> Result<String, NotificationServiceError>;
 
+    fn tera(&self) -> &Tera;
+
     async fn send_queued_notifications(
         &self,
         ctx: &ServiceContext,
@@ -92,6 +94,9 @@ impl NotificationServiceTrait for NotificationService {
             template_name,
             json!({}),
         )?)
+    }
+    fn tera(&self) -> &Tera {
+        &self.tera
     }
 
     async fn send_queued_notifications(
