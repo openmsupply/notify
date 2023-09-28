@@ -14,6 +14,7 @@ use graphql_datasource::DatasourceQueries;
 use graphql_general::GeneralQueries;
 
 use graphql_notification_config::{NotificationConfigMutations, NotificationConfigQueries};
+use graphql_notification_query::{NotificationQueryMutations, NotificationQueryQueries};
 use graphql_recipient::{RecipientMutations, RecipientQueries};
 use graphql_recipient_list::{RecipientListMutations, RecipientListQueries};
 use graphql_telegram::mutations::TelegramMutations;
@@ -35,6 +36,7 @@ pub struct FullQuery(
     pub RecipientListQueries,
     pub TelegramQueries,
     pub NotificationConfigQueries,
+    pub NotificationQueryQueries,
     pub DatasourceQueries,
 );
 
@@ -45,6 +47,7 @@ pub struct FullMutation(
     pub RecipientListMutations,
     pub TelegramMutations,
     pub NotificationConfigMutations,
+    pub NotificationQueryMutations,
 );
 
 pub type Schema = async_graphql::Schema<FullQuery, FullMutation, async_graphql::EmptySubscription>;
@@ -58,6 +61,7 @@ pub fn full_query() -> FullQuery {
         RecipientListQueries,
         TelegramQueries,
         NotificationConfigQueries,
+        NotificationQueryQueries,
         DatasourceQueries,
     )
 }
@@ -69,6 +73,7 @@ pub fn full_mutation() -> FullMutation {
         RecipientListMutations,
         TelegramMutations,
         NotificationConfigMutations,
+        NotificationQueryMutations,
     )
 }
 

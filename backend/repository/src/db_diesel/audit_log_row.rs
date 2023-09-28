@@ -33,6 +33,8 @@ pub enum LogType {
     NotificationConfigUpdated,
     SqlRecipientListCreated,
     SqlRecipientListUpdated,
+    NotificationQueryCreated,
+    NotificationQueryUpdated,
 }
 
 #[derive(Clone, Queryable, Insertable, AsChangeset, Debug, PartialEq)]

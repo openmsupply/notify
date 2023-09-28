@@ -2,6 +2,7 @@ use super::{
     sql_recipient_list_row::sql_recipient_list::dsl as sql_recipient_list_dsl, StorageConnection,
 };
 use crate::repository_error::RepositoryError;
+use chrono::NaiveDateTime;
 use diesel::prelude::*;
 
 /*
@@ -11,7 +12,7 @@ CREATE TABLE
         name TEXT NOT NULL,
         description TEXT NOT NULL,
         query TEXT NOT NULL,
-        required_parameters TEXT NOT NULL, -- JSON e.g. {"region":"string","tags":"string[]", "limit": "number"}
+        required_parameters TEXT NOT NULL, -- JSON e.g. {"region","tags","limit"}
         created_at TIMESTAMP NOT NULL,
         updated_at TIMESTAMP NOT NULL
     );
@@ -40,8 +41,8 @@ pub struct SqlRecipientListRow {
     pub description: String,
     pub query: String,
     pub required_parameters: String,
-    pub created_at: chrono::NaiveDateTime,
-    pub updated_at: chrono::NaiveDateTime,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 pub struct SqlRecipientListRowRepository<'a> {
