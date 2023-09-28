@@ -6,7 +6,7 @@ use service::ListResult;
 use util::usize_to_u32;
 
 #[derive(Union)]
-pub enum NotificationQuerysResponse {
+pub enum NotificationQueriesResponse {
     Response(NotificationQueryConnector),
 }
 

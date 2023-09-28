@@ -124,19 +124,16 @@ mod notification_query_create_test {
         let service = &context.service_provider.notification_query_service;
 
         let new_notification_query_id = uuid();
-        let result = service.create_notification_query(
-            &context,
-            CreateNotificationQuery {
-                id: new_notification_query_id.clone(),
-                name: "new_notification_query".to_string(),
-                ..Default::default()
-            },
-        );
-
-        if !result.is_ok() {
-            println!("Error: {:?}", result);
-        }
-        assert!(result.is_ok());
+        service
+            .create_notification_query(
+                &context,
+                CreateNotificationQuery {
+                    id: new_notification_query_id.clone(),
+                    name: "new_notification_query".to_string(),
+                    ..Default::default()
+                },
+            )
+            .unwrap();
 
         let result = notification_query_row_repository
             .find_one_by_id(&new_notification_query_id)
