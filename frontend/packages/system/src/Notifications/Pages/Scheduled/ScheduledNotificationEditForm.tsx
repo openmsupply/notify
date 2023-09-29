@@ -5,49 +5,12 @@ import {
   DateTimeInput,
   Select,
   Typography,
+  useQueryParamsState,
   useTranslation,
 } from '@notify-frontend/common';
 import { ScheduledNotification } from '../../types';
 import { SqlQuerySelector } from '../../components';
-
-const dummySqlQueries = [
-  {
-    id: '1',
-    name: 'Last Sync By Province',
-    query: `SELECT 
-  category3 AS project, category1_level2 AS province,
-  COUNT(last_sync_date) AS num_of_stores_synced_once 
-FROM store_categories sc 
-JOIN store s ON sc.code = s.code 
-JOIN (
-  SELECT site_id, MAX(date) AS last_sync_date FROM site_log GROUP BY site_id
-) sl ON s.sync_id_remote_site = sl.site_id
-WHERE mode IN ('store', 'dispensary')
-AND sc.disabled = false
-AND category3 IN ({{project}})
-AND category1_level2 IN ({{province}}) 
-GROUP BY category3, category1_level2`,
-    parameters: ['project', 'province'],
-  },
-  {
-    id: '2',
-    name: 'First Stock Take',
-    query: `SELECT 
-  category3 AS project, category1_level2 AS province,
-  COUNT(first_stock_take_date) AS first_stock_take_date 
-FROM store_categories sc 
-JOIN store s ON sc.code = s.code 
-JOIN (
-  SELECT store_id, MAX(stock_take_created_date) AS fist_stock_take_date FROM stock_take GROUP BY store_id
-) st ON s.id = st.store_id
-WHERE mode IN ('store', 'dispensary')
-AND sc.disabled = false
-AND category3 IN ({{project}})
-AND category1_level2 IN ({{province}}) 
-GROUP BY category3, category1_level2 `,
-    parameters: ['project', 'province'],
-  },
-];
+import { useNotificationQueries } from 'packages/system/src/Queries/api';
 
 type ScheduledNotificationEditFormProps = {
   onUpdate: (patch: Partial<ScheduledNotification>) => void;
@@ -59,6 +22,12 @@ export const ScheduledNotificationEditForm = ({
   draft,
 }: ScheduledNotificationEditFormProps) => {
   const t = useTranslation('system');
+
+  const { queryParams } = useQueryParamsState();
+
+  const { data, isLoading } = useNotificationQueries(queryParams);
+  const queries = data?.nodes ?? [];
+
   return (
     <>
       <BasicTextInput
@@ -90,14 +59,22 @@ export const ScheduledNotificationEditForm = ({
         InputLabelProps={{ shrink: true }}
       />
       <Typography sx={{ fontWeight: 700, fontSize: '13px' }}>
-        Queries
+        {t('label.queries')}
       </Typography>
-      <SqlQuerySelector records={dummySqlQueries} />
+      <SqlQuerySelector
+        allQueries={queries}
+        selectedQueryIds={draft.notificationQueryIds}
+        isLoading={isLoading}
+        setSelection={props => {
+          console.log('props', props);
+          onUpdate(props as Partial<ScheduledNotification>);
+        }}
+      />
 
       <Typography
         sx={{ fontWeight: 700, fontSize: '13px', marginBottom: '2px' }}
       >
-        Schedule
+        {t('label.schedule')}
       </Typography>
       <Typography sx={{ fontSize: '10px' }}>Starting From</Typography>
       <DateTimeInput

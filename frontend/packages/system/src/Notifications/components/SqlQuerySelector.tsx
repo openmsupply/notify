@@ -1,26 +1,39 @@
 import React, { FC } from 'react';
 import {
-  TableProvider,
-  DataTable,
   useColumns,
-  createTableStore,
   useTranslation,
   StringUtils,
+  useEditModal,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  IconButton,
+  EditIcon,
+  LocaleKey,
 } from '@notify-frontend/common';
+import { NotificationQuerySelectionModal } from './NotificationQuerySelectionModal';
+import { NotificationQueryRowFragment } from '../../Queries/api';
 
-interface SqlQuery {
-  id: string;
-  name: string;
-  query: string;
-  parameters: string[];
-}
+type QueryListProps = {
+  allQueries: NotificationQueryRowFragment[];
+  selectedQueryIds: string[];
+  setSelection: (input: { notificationQueryIds: string[] }) => void;
+  isLoading: boolean;
+};
 
-type QueryListProps = { records: SqlQuery[] };
-
-export const SqlQuerySelector: FC<QueryListProps> = ({ records }) => {
+export const SqlQuerySelector: FC<QueryListProps> = ({
+  allQueries,
+  selectedQueryIds,
+  setSelection,
+  isLoading,
+}) => {
   const t = useTranslation();
 
-  const columns = useColumns<SqlQuery>([
+  const { isOpen, onClose, onOpen } = useEditModal();
+
+  const columns = useColumns<NotificationQueryRowFragment>([
     {
       key: 'name',
       label: 'label.name',
@@ -35,21 +48,76 @@ export const SqlQuerySelector: FC<QueryListProps> = ({ records }) => {
       accessor: ({ rowData }) => StringUtils.ellipsis(rowData?.query, 35),
     },
     {
-      key: 'parameters',
+      key: 'requiredParameters',
       label: 'label.parameters',
       sortable: false,
-      accessor: ({ rowData }) => rowData?.parameters.join(', '),
+      accessor: ({ rowData }) => rowData?.requiredParameters.join(', '),
     },
   ]);
 
+  const selectedQueries = (allQueries ?? []).filter(q =>
+    selectedQueryIds.includes(q.id)
+  );
+
   return (
-    <TableProvider createStore={createTableStore}>
-      <DataTable
-        columns={columns}
-        data={records}
-        noDataMessage={t('messages.nothing-selected')}
-        dense
-      />
-    </TableProvider>
+    <>
+      {isLoading ? (
+        <div>Loading Queries...</div>
+      ) : (
+        <>
+          <NotificationQuerySelectionModal
+            sqlQueries={allQueries}
+            initialSelectedIds={selectedQueryIds}
+            isOpen={isOpen}
+            onClose={onClose}
+            setSelection={setSelection}
+          />
+          <IconButton
+            icon={<EditIcon />}
+            label={t('label.edit')}
+            onClick={onOpen}
+          />
+
+          <Table>
+            <TableHead>
+              <TableRow>
+                {columns.map(column => (
+                  <TableCell
+                    key={`header-${column.key}`}
+                    role="columnheader"
+                    sx={{
+                      backgroundColor: 'transparent',
+                      borderBottom: '0px',
+                      paddingLeft: '16px',
+                      paddingRight: '16px',
+                      fontWeight: 'bold',
+                      fontSize: '14px',
+                    }}
+                  >
+                    {t(column.label as LocaleKey)}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {selectedQueries.map((row, idx) => (
+                <TableRow key={`row-${idx}`}>
+                  {columns.map(column => (
+                    <TableCell key={`row-${idx}-${column}`}>
+                      {
+                        column.accessor({
+                          rowData: row,
+                          rows: selectedQueries,
+                        }) as string
+                      }
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </>
+      )}
+    </>
   );
 };

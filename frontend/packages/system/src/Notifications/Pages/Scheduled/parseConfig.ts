@@ -53,7 +53,7 @@ export const defaultSchedulerNotification: ScheduledNotification = {
   scheduleStartTime: new Date(),
   subjectTemplate: '',
   bodyTemplate: '',
-  sqlQueries: [],
+  notificationQueryIds: [],
   status: ConfigStatus.Disabled,
 };
 

@@ -85,5 +85,7 @@
   "helper-text.sql-query": "Your sql query can contain parameters, which are created using double curly braces within the query. For example: SELECT * FROM my_table WHERE id = {{param1}} AND name = {{param2}}",
   "label.test-sql-query": "Test SQL Query",
   "tooltip.manage-recipient-list": "Manage Recipient List",
-  "message.no-parameters": "No parameters found"
+  "message.no-parameters": "No parameters found",
+  "label.select-queries": "Select Queries",
+  "label.schedule": "Schedule"
 }
