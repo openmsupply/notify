@@ -22,13 +22,23 @@ type CCNotificationEditFormProps = {
 };
 
 const dummyLocations = [
-  { id: 'store-1-location-A', name: 'Store 1, Location A' },
-  { id: 'store-1-location-B', name: 'Store 1, Location B' },
-  { id: 'store-1-location-C', name: 'Store 1, Location C' },
-  { id: 'store-2-location-A', name: 'Store 1, Location A' },
-  { id: 'store-2-location-B', name: 'Store 1, Location B' },
-  { id: 'store-2-location-C', name: 'Store 1, Location C' },
-  { id: 'store-2-location-D', name: 'Store 1, Location D' },
+  { id: 'store-1-location-A', name: 'Central Medical Store, Cool room - East' },
+  { id: 'store-1-location-B', name: 'Central Medical Store,Cool room - West' },
+  {
+    id: 'store-1-location-C',
+    name: 'Central Medical Store, Ultra cold freezer 1',
+  },
+  { id: 'store-2-location-A', name: 'Central Medical Store, Location A' },
+  {
+    id: 'store-2-location-B',
+    name: 'Central Medical Store, Ultra cold freezer 2',
+  },
+  {
+    id: 'store-2-location-C',
+    name: 'Central Medical Store, Ultra cold freezer 3',
+  },
+  { id: 'store-2-location-D', name: 'District Hospital, Mini Fridge 1' },
+  { id: 'store-2-location-E', name: 'Rural Pharmacy, Mini Fridge 2' },
 ];
 
 export const CCNotificationEditForm = ({
@@ -72,7 +82,7 @@ export const CCNotificationEditForm = ({
             onClick={() => onUpdate({ lowTemp: !draft.lowTemp })}
           />
           <label htmlFor="lowTemp">
-            {t('label.coldchain-high-temp-alerts')}
+            {t('label.coldchain-low-temp-alerts')}
             <Tooltip title={t('messages.cold-chain-temperature-information')}>
               <span>
                 {' '}
