@@ -2,10 +2,12 @@ import React, { useEffect } from 'react';
 import { useTranslation } from '@common/intl';
 import {
   useBreadcrumbs,
+  useDetailPanel,
   useNotification,
   useQueryParamsState,
 } from '@common/hooks';
 import {
+  AppBarButtonsPortal,
   AppBarContentPortal,
   BasicSpinner,
   Box,
@@ -44,6 +46,7 @@ export const DetailEdit = () => {
   const urlParams = useParams();
   const { suffix, setSuffix } = useBreadcrumbs();
   const { error } = useNotification();
+  const { OpenButton } = useDetailPanel(t('label.parameters'));
 
   const { queryParams } = useQueryParamsState({
     initialFilter: { id: { equalTo: urlParams['listId'] } },
@@ -96,6 +99,7 @@ export const DetailEdit = () => {
 
   return (
     <>
+      <AppBarButtonsPortal>{OpenButton}</AppBarButtonsPortal>
       {/* Description/Details section */}
       <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
         <Paper

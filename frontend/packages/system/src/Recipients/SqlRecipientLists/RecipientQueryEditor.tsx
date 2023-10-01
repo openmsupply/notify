@@ -218,6 +218,8 @@ export const RecipientQueryEditor = ({
                 {TeraUtils.extractParams(draft.query).join(', ')}
               </Typography>
               <IconButton
+                height="24px"
+                width="24px"
                 onClick={openSidePanel}
                 icon={<EditIcon />}
                 label={t('label.edit')}
