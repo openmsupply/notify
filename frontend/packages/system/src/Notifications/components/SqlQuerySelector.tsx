@@ -4,14 +4,11 @@ import {
   useTranslation,
   StringUtils,
   useEditModal,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
   IconButton,
   EditIcon,
-  LocaleKey,
+  DataTable,
+  TableProvider,
+  createTableStore,
 } from '@notify-frontend/common';
 import { NotificationQuerySelectionModal } from './NotificationQuerySelectionModal';
 import { NotificationQueryRowFragment } from '../../Queries/api';
@@ -45,7 +42,7 @@ export const SqlQuerySelector: FC<QueryListProps> = ({
       label: 'label.query',
       width: 150,
       sortable: false,
-      accessor: ({ rowData }) => StringUtils.ellipsis(rowData?.query, 35),
+      accessor: ({ rowData }) => StringUtils.ellipsis(rowData?.query, 100),
     },
     {
       key: 'requiredParameters',
@@ -61,63 +58,27 @@ export const SqlQuerySelector: FC<QueryListProps> = ({
 
   return (
     <>
-      {isLoading ? (
-        <div>Loading Queries...</div>
-      ) : (
-        <>
-          <NotificationQuerySelectionModal
-            sqlQueries={allQueries}
-            initialSelectedIds={selectedQueryIds}
-            isOpen={isOpen}
-            onClose={onClose}
-            setSelection={setSelection}
-          />
-          <IconButton
-            icon={<EditIcon />}
-            label={t('label.edit')}
-            onClick={onOpen}
-          />
-
-          <Table>
-            <TableHead>
-              <TableRow>
-                {columns.map(column => (
-                  <TableCell
-                    key={`header-${column.key}`}
-                    role="columnheader"
-                    sx={{
-                      backgroundColor: 'transparent',
-                      borderBottom: '0px',
-                      paddingLeft: '16px',
-                      paddingRight: '16px',
-                      fontWeight: 'bold',
-                      fontSize: '14px',
-                    }}
-                  >
-                    {t(column.label as LocaleKey)}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {selectedQueries.map((row, idx) => (
-                <TableRow key={`row-${idx}`}>
-                  {columns.map(column => (
-                    <TableCell key={`row-${idx}-${column}`}>
-                      {
-                        column.accessor({
-                          rowData: row,
-                          rows: selectedQueries,
-                        }) as string
-                      }
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </>
-      )}
+      <NotificationQuerySelectionModal
+        sqlQueries={allQueries}
+        initialSelectedIds={selectedQueryIds}
+        isOpen={isOpen}
+        onClose={onClose}
+        setSelection={setSelection}
+      />
+      <IconButton
+        icon={<EditIcon />}
+        label={t('label.edit')}
+        onClick={onOpen}
+      />
+      <TableProvider createStore={createTableStore}>
+        <DataTable
+          isDisabled={false}
+          isLoading={isLoading}
+          columns={columns}
+          data={selectedQueries}
+          noDataMessage="No Queries Configured"
+        />
+      </TableProvider>
     </>
   );
 };
