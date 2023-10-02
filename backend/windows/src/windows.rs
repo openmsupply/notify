@@ -57,15 +57,6 @@ mod notify_service {
         let executable_path = current_exe().unwrap();
         let executable_directory = executable_path.parent().unwrap();
         set_current_dir(&executable_directory).unwrap();
-        let settings: Settings = match configuration::get_configuration() {
-            Ok(settings) => settings,
-            Err(e) => {
-                eventlog::init("Application", log::Level::Error).unwrap();
-                error!("Failed to parse configuration settings: {:?}", e);
-                return;
-            }
-        };
-        logging_init(settings.logging.clone(), None);
 
         panic::set_hook(Box::new(|panic_info| {
             error!("panic occurred {:?}", panic_info);
