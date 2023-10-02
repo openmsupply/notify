@@ -13,4 +13,5 @@ members = [
     "datasource",
     "coldchain",
     "scheduled",
+    "windows",
 ]
