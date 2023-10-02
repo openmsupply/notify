@@ -5,7 +5,6 @@ use repository::{
 };
 use serde::Serialize;
 use util::uuid::uuid;
-use std::cmp::Ordering;
 
 use crate::service_provider::ServiceContext;
 
@@ -45,15 +44,10 @@ pub fn create_notification_events(
 ) -> Result<(), NotificationServiceError> {
     let repo = NotificationEventRowRepository::new(&ctx.connection);
 
-    // Dedup recipients by name, to_address
+    // Dedup recipients by to_address
     let mut recipients = notification.recipients.clone();
-    recipients.sort_by(|a, b| {
-        match a.name.cmp(&b.name) {
-            Ordering::Equal => a.to_address.cmp(&b.to_address),
-            other => other,
-        }
-    });
-    recipients.dedup_by(|a, b| (a.name == b.name && a.to_address == b.to_address));
+    recipients.sort_by(|a, b| a.to_address.cmp(&b.to_address));
+    recipients.dedup_by(|a, b| (a.to_address == b.to_address));
 
     // TODO: Should this function use a notification config to get the template, users, etc?
 
