@@ -23,7 +23,7 @@ mod notify_service {
         panic,
         time::Duration,
     };
-    use tokio::sync::oneshot;
+    use tokio::sync::mpsc;
     use windows_service::{
         define_windows_service,
         service::{
@@ -85,7 +85,7 @@ mod notify_service {
 
     pub fn run_service(settings: Settings) -> Result<()> {
         // Create a channel to be able to poll a stop event from the service worker loop.
-        let (shutdown_tx, shutdown_rx) = oneshot::channel();
+        let (shutdown_tx, shutdown_rx) = mpsc::channel(1);
 
         // Define system service event handler that will be receiving service events.
         let event_handler = move |control_event| -> ServiceControlHandlerResult {
