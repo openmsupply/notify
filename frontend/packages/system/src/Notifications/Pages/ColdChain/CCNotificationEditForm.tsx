@@ -16,6 +16,7 @@ import {
   getReminderUnitsFromString,
 } from '../../types';
 import { useColdChainSensors } from '../../api';
+import { SensorSelector } from './SensorSelector';
 
 type CCNotificationEditFormProps = {
   onUpdate: (patch: Partial<CCNotification>) => void;
@@ -169,45 +170,18 @@ export const CCNotificationEditForm = ({
         <Typography
           sx={{ fontWeight: 700, fontSize: '13px', marginBottom: '10px' }}
         >
-          {t('heading.select-locations')}
+          {t('heading.selected-sensors')}
         </Typography>
         <Grid container>
-          {sensorsLoading && <Typography>Loading...</Typography>}
-          {sensors?.map(sensor => {
-            const isSelected = draft.sensorIds.includes(sensor.sensor_id);
-            return (
-              <Grid
-                item
-                md={4}
-                key={sensor.sensor_id}
-                sx={{ display: 'flex', alignItems: 'center' }}
-              >
-                <Checkbox
-                  id={sensor.sensor_id}
-                  checked={isSelected}
-                  onClick={() => {
-                    if (isSelected) {
-                      onUpdate({
-                        sensorIds: draft.sensorIds.filter(
-                          id => id !== sensor.sensor_id
-                        ),
-                      });
-                    } else {
-                      onUpdate({
-                        sensorIds: [...draft.sensorIds, sensor.sensor_id],
-                      });
-                    }
-                  }}
-                />
-                <label
-                  htmlFor={sensor.sensor_id}
-                  style={{ display: 'inline-block', lineHeight: 1.3 }}
-                >
-                  {`${sensor.store_name}, ${sensor.location_name}, ${sensor.sensor_name}`}
-                </label>
-              </Grid>
-            );
-          })}
+          <SensorSelector
+            records={sensors ?? []}
+            selectedIds={draft.sensorIds}
+            setSelection={props => {
+              console.log('props', props);
+              onUpdate(props as Partial<CCNotification>);
+            }}
+            isLoading={sensorsLoading}
+          />
         </Grid>
       </Box>
     </>

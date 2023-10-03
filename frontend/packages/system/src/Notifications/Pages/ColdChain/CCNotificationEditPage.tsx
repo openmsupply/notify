@@ -88,8 +88,8 @@ export const CCNotificationEditPage = () => {
       !draft.lowTemp &&
       draft.remind &&
       draft.noData) ||
-    // no locations selected
-    !draft.locationIds.length ||
+    // no sensor selected
+    !draft.sensorIds.length ||
     // no recipients selected
     (!draft.recipientListIds.length &&
       !draft.recipientIds.length &&

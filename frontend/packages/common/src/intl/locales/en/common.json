@@ -49,6 +49,8 @@
   "heading.quote-withdraw-title": "Specify reason",
   "heading.select-items": "Select Items",
   "heading.select-locations": "Select Locations",
+  "heading.select-sensors": "Select Sensors",
+  "heading.selected-sensors": "Selected Sensors",
   "heading.settings-display": "Display settings",
   "heading.username": "Username",
   "label.actions": "Actions",
