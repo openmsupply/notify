@@ -53,6 +53,7 @@ export interface CCNotification extends BaseNotificationConfig {
   reminderInterval: number;
   reminderUnits: ReminderUnits;
   locationIds: string[];
+  sensorIds: string[];
 }
 
 export interface ScheduledNotification extends BaseNotificationConfig {

@@ -36,6 +36,7 @@ const createCCNotification = (
   reminderInterval: seed?.reminderInterval ?? 15,
   reminderUnits: seed?.reminderUnits ?? ReminderUnits.MINUTES,
   locationIds: seed?.locationIds ?? [],
+  sensorIds: seed?.sensorIds ?? [],
   recipientIds: seed?.recipientIds ?? [],
   recipientListIds: seed?.recipientListIds ?? [],
   status: seed?.status ?? ConfigStatus.Disabled,

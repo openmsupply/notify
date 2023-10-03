@@ -35,6 +35,14 @@ export type DeleteNotificationConfigMutationVariables = Types.Exact<{
 
 export type DeleteNotificationConfigMutation = { __typename: 'FullMutation', deleteNotificationConfig: { __typename: 'DeleteResponse', id: string } };
 
+export type GetColdChainSensorsQueryVariables = Types.Exact<{
+  sqlQuery?: Types.InputMaybe<Types.Scalars['String']['input']>;
+  params?: Types.InputMaybe<Types.Scalars['String']['input']>;
+}>;
+
+
+export type GetColdChainSensorsQuery = { __typename: 'FullQuery', runSqlQueryWithParameters: string };
+
 export const NotificationConfigRowFragmentDoc = gql`
     fragment NotificationConfigRow on NotificationConfigNode {
   id
@@ -84,6 +92,11 @@ export const DeleteNotificationConfigDocument = gql`
   }
 }
     `;
+export const GetColdChainSensorsDocument = gql`
+    query getColdChainSensors($sqlQuery: String, $params: String) {
+  runSqlQueryWithParameters(sqlQuery: $sqlQuery, parameters: $params)
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string) => Promise<T>;
 
@@ -103,6 +116,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     deleteNotificationConfig(variables: DeleteNotificationConfigMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<DeleteNotificationConfigMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<DeleteNotificationConfigMutation>(DeleteNotificationConfigDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteNotificationConfig', 'mutation');
+    },
+    getColdChainSensors(variables?: GetColdChainSensorsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetColdChainSensorsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetColdChainSensorsQuery>(GetColdChainSensorsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getColdChainSensors', 'query');
     }
   };
 }

@@ -15,37 +15,21 @@ import {
   getReminderUnitsAsOptions,
   getReminderUnitsFromString,
 } from '../../types';
+import { useColdChainSensors } from '../../api';
 
 type CCNotificationEditFormProps = {
   onUpdate: (patch: Partial<CCNotification>) => void;
   draft: CCNotification;
 };
 
-const dummyLocations = [
-  { id: 'store-1-location-A', name: 'Central Medical Store, Cool room - East' },
-  { id: 'store-1-location-B', name: 'Central Medical Store,Cool room - West' },
-  {
-    id: 'store-1-location-C',
-    name: 'Central Medical Store, Ultra cold freezer 1',
-  },
-  { id: 'store-2-location-A', name: 'Central Medical Store, Location A' },
-  {
-    id: 'store-2-location-B',
-    name: 'Central Medical Store, Ultra cold freezer 2',
-  },
-  {
-    id: 'store-2-location-C',
-    name: 'Central Medical Store, Ultra cold freezer 3',
-  },
-  { id: 'store-2-location-D', name: 'District Hospital, Mini Fridge 1' },
-  { id: 'store-2-location-E', name: 'Rural Pharmacy, Mini Fridge 2' },
-];
-
 export const CCNotificationEditForm = ({
   onUpdate,
   draft,
 }: CCNotificationEditFormProps) => {
   const t = useTranslation('system');
+
+  const { data: sensors, isLoading: sensorsLoading } = useColdChainSensors();
+
   return (
     <>
       <Typography
@@ -188,37 +172,38 @@ export const CCNotificationEditForm = ({
           {t('heading.select-locations')}
         </Typography>
         <Grid container>
-          {dummyLocations.map(location => {
-            const isSelected = draft.locationIds.includes(location.id);
+          {sensorsLoading && <Typography>Loading...</Typography>}
+          {sensors?.map(sensor => {
+            const isSelected = draft.sensorIds.includes(sensor.sensor_id);
             return (
               <Grid
                 item
                 md={4}
-                key={location.id}
+                key={sensor.sensor_id}
                 sx={{ display: 'flex', alignItems: 'center' }}
               >
                 <Checkbox
-                  id={location.id}
+                  id={sensor.sensor_id}
                   checked={isSelected}
                   onClick={() => {
                     if (isSelected) {
                       onUpdate({
-                        locationIds: draft.locationIds.filter(
-                          id => id !== location.id
+                        sensorIds: draft.sensorIds.filter(
+                          id => id !== sensor.sensor_id
                         ),
                       });
                     } else {
                       onUpdate({
-                        locationIds: [...draft.locationIds, location.id],
+                        sensorIds: [...draft.sensorIds, sensor.sensor_id],
                       });
                     }
                   }}
                 />
                 <label
-                  htmlFor={location.id}
+                  htmlFor={sensor.sensor_id}
                   style={{ display: 'inline-block', lineHeight: 1.3 }}
                 >
-                  {location.name}
+                  {`${sensor.store_name}, ${sensor.location_name}, ${sensor.sensor_name}`}
                 </label>
               </Grid>
             );
