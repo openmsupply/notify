@@ -141,6 +141,7 @@ impl<'a> NotificationConfigRowRepository<'a> {
                     .is_null()
                     .or(notification_config_dsl::next_due_datetime.le(current_time)),
             )
+            .filter(notification_config_dsl::status.eq(NotificationConfigStatus::Enabled))
             .load::<NotificationConfigRow>(&self.connection.connection)?;
         Ok(result)
     }
