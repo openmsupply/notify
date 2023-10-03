@@ -19,7 +19,7 @@ use std::{
     ops::DerefMut,
     sync::{Arc, RwLock},
 };
-use tokio::sync::{oneshot, Mutex};
+use tokio::sync::{mpsc, Mutex};
 
 use service::{
     auth_data::AuthData,
@@ -52,7 +52,7 @@ fn auth_data(
 }
 async fn run_server(
     config_settings: Settings,
-    off_switch: Arc<Mutex<oneshot::Receiver<()>>>,
+    off_switch: Arc<Mutex<mpsc::Receiver<()>>>,
     token_bucket: Arc<RwLock<TokenBucket>>,
     token_secret: String,
     connection_manager: StorageConnectionManager,
@@ -164,7 +164,7 @@ async fn run_server(
     let ctrl_c = tokio::signal::ctrl_c();
     let restart = tokio::select! {
         _ = ctrl_c => false,
-        _ = off_switch => false,
+        Some(_) = off_switch.recv() => false,
         _ = restart_switch_receiver.recv() => true,
     };
 
@@ -178,7 +178,7 @@ async fn run_server(
 /// This method doesn't return until a message is send to the off_switch.
 pub async fn start_server(
     config_settings: Settings,
-    off_switch: oneshot::Receiver<()>,
+    off_switch: tokio::sync::mpsc::Receiver<()>,
 ) -> std::io::Result<()> {
     info!(
         "Server starting in {} mode",
