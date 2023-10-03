@@ -90,7 +90,7 @@ pub struct TelegramUser {
 pub struct TelegramMessage {
     pub message_id: u64,
     pub text: Option<String>,
-    pub from: TelegramUser,
+    pub from: Option<TelegramUser>,
     pub chat: TelegramChat,
 }
 
@@ -130,11 +130,18 @@ pub struct TelegramMessage {
                 }
             }
 */
-// Note: TelegramMyChatMember is triggered when the bot is first added to a chat group
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone, Default)]
+pub struct TelegramChatMember {
+    pub user: TelegramUser,
+    pub status: String,
+}
+
+// Note: TelegramMyChatMember is triggered when the bot is first added to a chat group, and when the bot is removed from a chat group
+#[derive(Debug, Deserialize, Serialize, Default, Clone)]
 pub struct TelegramMyChatMember {
     pub chat: TelegramChat,
     pub from: TelegramUser,
+    pub new_chat_member: TelegramChatMember,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

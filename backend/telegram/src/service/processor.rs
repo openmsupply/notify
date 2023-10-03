@@ -363,8 +363,8 @@ mod test {
         assert!(telegram_update.message.is_some());
         let message = telegram_update.clone().message.unwrap();
         assert_eq!(message.message_id, 4444);
-        assert_eq!(message.from.id, 5555);
-        assert!(message.from.is_bot == false);
+        assert_eq!(message.from.clone().unwrap_or_default().id, 5555);
+        assert!(message.from.unwrap_or_default().is_bot == false);
         assert_eq!(
             telegram_update.chat().unwrap().name(),
             "Telegram: User1 Last1".to_string()
@@ -412,8 +412,8 @@ mod test {
         assert!(telegram_update.message.is_some());
         let message = telegram_update.clone().message.unwrap();
         assert_eq!(message.message_id, 33);
-        assert_eq!(message.from.id, 5068627745);
-        assert!(message.from.is_bot == false);
+        assert_eq!(message.from.clone().unwrap_or_default().id, 5068627745);
+        assert!(message.from.unwrap_or_default().is_bot == false);
         assert_eq!(
             telegram_update.chat().unwrap().name(),
             "User1 & bot-name".to_string()
@@ -692,5 +692,302 @@ mod test {
 
         // We quietly skip the bad update_id
         assert_eq!(last_update_id, Some(794348052));
+    }
+
+    #[tokio::test]
+    async fn test_handle_json_updates_added_to_group() {
+        let json = r#"[
+        {
+            "update_id": 794348170,
+            "my_chat_member": {
+                "chat": {
+                    "id": -914917543,
+                    "title": "TestGroup1",
+                    "type": "group",
+                    "all_members_are_administrators": true
+                },
+                "from": {
+                    "id": 5068627745,
+                    "is_bot": false,
+                    "first_name": "User1",
+                    "last_name": "Last1",
+                    "language_code": "en"
+                },
+                "date": 1696280488,
+                "old_chat_member": {
+                    "user": {
+                        "id": 6544022299,
+                        "is_bot": true,
+                        "first_name": "botname",
+                        "username": "botusername"
+                    },
+                    "status": "left"
+                },
+                "new_chat_member": {
+                    "user": {
+                        "id": 6544022299,
+                        "is_bot": true,
+                        "first_name": "botname",
+                        "username": "botusername"
+                    },
+                    "status": "member"
+                }
+            }
+        }
+    ]"#;
+
+        let updates: Vec<serde_json::Value> = serde_json::from_str(json).unwrap();
+        const TELEGRAM_UPDATE_BUFFER_SIZE: usize = 8;
+        let (tx, mut rx) =
+            tokio::sync::broadcast::channel::<TelegramUpdate>(TELEGRAM_UPDATE_BUFFER_SIZE);
+
+        let last_update_id = handle_json_updates(updates, &tx).await;
+
+        assert_eq!(last_update_id, Some(794348170));
+
+        // Get the update from the channel
+        let telegram_update = rx.recv().await.unwrap();
+        assert!(telegram_update.my_chat_member.is_some());
+        let member = telegram_update.clone().my_chat_member.unwrap();
+        assert_eq!(member.chat.id, -914917543);
+        assert_eq!(member.new_chat_member.status, "member");
+    }
+
+    #[tokio::test]
+    async fn test_handle_json_updates_added_to_channel() {
+        let json = r#"[
+        {
+            "update_id": 794348166,
+            "my_chat_member": {
+                "chat": {
+                    "id": -1001843666415,
+                    "title": "Test Channel",
+                    "type": "channel"
+                },
+                "from": {
+                    "id": 5068627745,
+                    "is_bot": false,
+                    "first_name": "User1",
+                    "last_name": "Last1",
+                    "language_code": "en"
+                },
+                "date": 1696280295,
+                "old_chat_member": {
+                    "user": {
+                        "id": 6544022299,
+                        "is_bot": true,
+                        "first_name": "botname",
+                        "username": "botusername"
+                    },
+                    "status": "left"
+                },
+                "new_chat_member": {
+                    "user": {
+                        "id": 6544022299,
+                        "is_bot": true,
+                        "first_name": "botname",
+                        "username": "botusername"
+                    },
+                    "status": "administrator",
+                    "can_be_edited": false,
+                    "can_manage_chat": true,
+                    "can_change_info": false,
+                    "can_post_messages": true,
+                    "can_edit_messages": true,
+                    "can_delete_messages": true,
+                    "can_invite_users": false,
+                    "can_restrict_members": true,
+                    "can_promote_members": false,
+                    "can_manage_video_chats": false,
+                    "can_post_stories": false,
+                    "can_edit_stories": false,
+                    "can_delete_stories": false,
+                    "is_anonymous": false,
+                    "can_manage_voice_chats": false
+                }
+            }
+        }
+    ]"#;
+
+        let updates: Vec<serde_json::Value> = serde_json::from_str(json).unwrap();
+        const TELEGRAM_UPDATE_BUFFER_SIZE: usize = 8;
+        let (tx, mut rx) =
+            tokio::sync::broadcast::channel::<TelegramUpdate>(TELEGRAM_UPDATE_BUFFER_SIZE);
+
+        let last_update_id = handle_json_updates(updates, &tx).await;
+
+        assert_eq!(last_update_id, Some(794348166));
+
+        // Get the update from the channel
+        let telegram_update = rx.recv().await.unwrap();
+        assert!(telegram_update.my_chat_member.is_some());
+        let member = telegram_update.clone().my_chat_member.unwrap();
+        assert_eq!(member.chat.id, -1001843666415);
+        assert_eq!(member.new_chat_member.status, "administrator");
+    }
+
+    // Removed from a channel
+    #[tokio::test]
+    async fn test_handle_json_updates_removed_from_channel() {
+        let json = r#"[
+        {
+            "update_id": 794348167,
+            "my_chat_member": {
+                "chat": {
+                    "id": -1001843666415,
+                    "title": "Test Channel",
+                    "type": "channel"
+                },
+                "from": {
+                    "id": 136817688,
+                    "is_bot": true,
+                    "first_name": "Channel",
+                    "username": "Channel_Bot"
+                },
+                "date": 1696280385,
+                "old_chat_member": {
+                    "user": {
+                        "id": 6544022299,
+                        "is_bot": true,
+                        "first_name": "botname",
+                        "username": "botusername"
+                    },
+                    "status": "administrator",
+                    "can_be_edited": false,
+                    "can_manage_chat": true,
+                    "can_change_info": false,
+                    "can_post_messages": true,
+                    "can_edit_messages": true,
+                    "can_delete_messages": true,
+                    "can_invite_users": false,
+                    "can_restrict_members": true,
+                    "can_promote_members": false,
+                    "can_manage_video_chats": false,
+                    "can_post_stories": false,
+                    "can_edit_stories": false,
+                    "can_delete_stories": false,
+                    "is_anonymous": false,
+                    "can_manage_voice_chats": false
+                },
+                "new_chat_member": {
+                    "user": {
+                        "id": 6544022299,
+                        "is_bot": true,
+                        "first_name": "botname",
+                        "username": "botusername"
+                    },
+                    "status": "left"
+                }
+            }
+        }
+    ]"#;
+
+        let updates: Vec<serde_json::Value> = serde_json::from_str(json).unwrap();
+        const TELEGRAM_UPDATE_BUFFER_SIZE: usize = 8;
+        let (tx, mut rx) =
+            tokio::sync::broadcast::channel::<TelegramUpdate>(TELEGRAM_UPDATE_BUFFER_SIZE);
+
+        let last_update_id = handle_json_updates(updates, &tx).await;
+
+        assert_eq!(last_update_id, Some(794348167));
+
+        // Get the update from the channel
+        let telegram_update = rx.recv().await.unwrap();
+        assert!(telegram_update.my_chat_member.is_some());
+        let member = telegram_update.clone().my_chat_member.unwrap();
+        assert_eq!(member.chat.id, -1001843666415);
+        assert_eq!(member.new_chat_member.status, "left");
+    }
+
+    // Removed from group
+    #[tokio::test]
+    async fn test_handle_json_updates_removed_from_group() {
+        let json = r#"[
+        {
+            "update_id": 794348168,
+            "my_chat_member": {
+                "chat": {
+                    "id": -914917543,
+                    "title": "Notify Bot Testing Group1",
+                    "type": "group",
+                    "all_members_are_administrators": true
+                },
+                "from": {
+                    "id": 5068627745,
+                    "is_bot": false,
+                    "first_name": "User1",
+                    "last_name": "Last1",
+                    "language_code": "en"
+                },
+                "date": 1696280442,
+                "old_chat_member": {
+                    "user": {
+                        "id": 6544022299,
+                        "is_bot": true,
+                        "first_name": "botname",
+                        "username": "botusername"
+                    },
+                    "status": "member"
+                },
+                "new_chat_member": {
+                    "user": {
+                        "id": 6544022299,
+                        "is_bot": true,
+                        "first_name": "botname",
+                        "username": "botusername"
+                    },
+                    "status": "left"
+                }
+            }
+        },
+        {
+            "update_id": 794348169,
+            "message": {
+                "message_id": 186,
+                "from": {
+                    "id": 5068627745,
+                    "is_bot": false,
+                    "first_name": "User1",
+                    "last_name": "Last1",
+                    "language_code": "en"
+                },
+                "chat": {
+                    "id": -914917543,
+                    "title": "Notify Bot Testing Group1",
+                    "type": "group",
+                    "all_members_are_administrators": true
+                },
+                "date": 1696280442,
+                "left_chat_participant": {
+                    "id": 6544022299,
+                    "is_bot": true,
+                    "first_name": "botname",
+                    "username": "botusername"
+                },
+                "left_chat_member": {
+                    "id": 6544022299,
+                    "is_bot": true,
+                    "first_name": "botname",
+                    "username": "botusername"
+                }
+            }
+        }
+    ]"#;
+
+        let updates: Vec<serde_json::Value> = serde_json::from_str(json).unwrap();
+        const TELEGRAM_UPDATE_BUFFER_SIZE: usize = 8;
+        let (tx, mut rx) =
+            tokio::sync::broadcast::channel::<TelegramUpdate>(TELEGRAM_UPDATE_BUFFER_SIZE);
+
+        let last_update_id = handle_json_updates(updates, &tx).await;
+
+        assert_eq!(last_update_id, Some(794348169));
+
+        // Get the update from the channel
+        let telegram_update = rx.recv().await.unwrap();
+        assert!(telegram_update.my_chat_member.is_some());
+        let member = telegram_update.clone().my_chat_member.unwrap();
+        assert_eq!(member.chat.id, -914917543);
+        assert_eq!(member.new_chat_member.status, "left");
     }
 }
