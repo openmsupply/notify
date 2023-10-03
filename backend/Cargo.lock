@@ -933,6 +933,7 @@ name = "coldchain"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "log",
  "repository",
  "serde",
  "serde_json",
@@ -3225,6 +3226,7 @@ dependencies = [
  "actix-http",
  "actix-multipart",
  "actix-web",
+ "coldchain",
  "config",
  "datasource",
  "env_logger",
