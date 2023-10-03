@@ -132,7 +132,6 @@ export const CCNotificationEditForm = ({
             onChange={newValue => onUpdate({ noDataInterval: newValue })}
             sx={{ width: '60px' }}
           />
-
           <Select
             value={draft.noDataUnits}
             disabled={!draft.noData}
@@ -144,6 +143,18 @@ export const CCNotificationEditForm = ({
             options={getReminderUnitsAsOptions(t)}
           />
         </Box>
+      </ul>
+      <Typography
+          sx={{
+            fontWeight: 700,
+            fontSize: '13px',
+            marginTop: '10px',
+            marginBottom: '10px',
+          }}
+      >
+        {t('heading.preference')}
+      </Typography>
+      <ul style={{ listStyleType: 'none', padding: '0' }}>
         <li>
           <Checkbox
             id="remind"
@@ -179,6 +190,16 @@ export const CCNotificationEditForm = ({
             options={getReminderUnitsAsOptions(t)}
           />
         </Box>
+        <li>
+          <Checkbox
+            id="messageAlertResolved"
+            checked={draft.messageAlertResolved}
+            onClick={() => onUpdate({ messageAlertResolved: !draft.messageAlertResolved })}
+          />
+          <label htmlFor="messageAlertResolved">
+            {t('label.coldchain-message-alerts-resolved')}
+          </label>
+        </li>
       </ul>
 
       <Box>
