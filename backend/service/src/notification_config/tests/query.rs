@@ -294,7 +294,7 @@ mod notification_config_query_test {
         };
         repo.insert_one(&config2).unwrap();
 
-        // Check that it is returned by the due query
+        // Check that only the enabled config is returned by the due query
         let result = service
             .find_all_due_by_kind(&context, config.kind.clone(), Utc::now().naive_utc())
             .unwrap();
