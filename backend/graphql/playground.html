@@ -72,7 +72,6 @@
                     }).then((res) => res.json()).then((res) => {
                         const token = res.data.authToken.token;
                         localStorage.setItem("token", token);
-                        alert("Login successful");
                         window.location.reload();
                     });
                 },
