@@ -7,6 +7,9 @@ pub mod alerts;
 pub mod latest_temperatures;
 pub mod parse;
 pub mod process;
+pub mod sensor_state;
+
+const PLUGIN_NAME: &str = "ColdChain";
 
 #[derive(Debug)]
 pub enum ColdChainError {
@@ -26,19 +29,19 @@ impl PluginTrait for ColdChainPlugin {
     }
 
     fn name(&self) -> String {
-        "ColdChain".to_string()
+        PLUGIN_NAME.to_string()
     }
 
     fn tick(&self, ctx: &ServiceContext) -> Result<(), PluginError> {
         log::debug!("Running ColdChainPlugin");
-        log::error!("WARNING: COLD CHAIN NOT YET IMPLEMENTED");
+        log::error!("WARNING: COLD CHAIN NOT YET FULLY IMPLEMENTED");
         // process any configurations that are due
         let current_time = chrono::Utc::now().naive_utc();
         let result = process::process_coldchain_alerts(ctx, current_time);
         match result {
             Ok(count) => {
                 if count > 0 {
-                    log::info!("Successfully processed {} cold chain configurations", count);
+                    log::info!("Processed {} cold chain configurations", count);
                 }
                 Ok(())
             }
