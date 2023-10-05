@@ -8,7 +8,7 @@ table! {
         id -> Text,
         plugin_name -> Text,
         key -> Text,
-        value_string -> Text,
+        value -> Text,
     }
 }
 
@@ -19,7 +19,7 @@ pub struct PluginStoreRow {
     pub id: String,
     pub plugin_name: String,
     pub key: String,
-    pub value_string: String,
+    pub value: String,
 }
 
 pub struct PluginStoreRepository<'a> {
@@ -63,7 +63,7 @@ impl<'a> PluginStoreRepository<'a> {
             id: id,
             plugin_name: plugin_name,
             key: key,
-            value_string: value,
+            value: value,
         })
     }
 
@@ -73,6 +73,6 @@ impl<'a> PluginStoreRepository<'a> {
         key: String,
     ) -> Result<Option<String>, RepositoryError> {
         let row = self.get_row(plugin_name, key)?;
-        Ok(row.and_then(|row| Some(row.value_string)))
+        Ok(row.and_then(|row| Some(row.value)))
     }
 }
