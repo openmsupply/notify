@@ -66,7 +66,7 @@ pub fn get_notification_targets(
                         notification_type: repository::NotificationType::from_str(
                             &row.notification_type,
                         )
-                        .unwrap_or_default(),
+                        .unwrap_or_default(), // Default to an email address if the notification type is invalid, probably won't work but doesn't hurt to try something
                     })
                     .collect();
                 notification_targets.extend(sql_recipients);
