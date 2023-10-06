@@ -139,7 +139,7 @@ pub fn create_notification_events(
                 ..base_row_with_title
             },
             Err(e) => {
-                log::error!("Failed to render notification title template: {:?}", e);
+                log::error!("Failed to render notification body template: {:?}", e);
                 NotificationEventRow {
                     status: NotificationEventStatus::Errored,
                     error_message: Some(format!("{:?}", e)),
