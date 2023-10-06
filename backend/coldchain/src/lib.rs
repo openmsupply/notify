@@ -3,7 +3,9 @@ use serde::Serialize;
 use service::{
     notification::{
         self,
-        enqueue::{create_notification_events, NotificationContext, NotificationTarget},
+        enqueue::{
+            create_notification_events, NotificationContext, NotificationTarget, TemplateDefinition,
+        },
     },
     service_provider::ServiceContext,
 };
@@ -44,11 +46,15 @@ pub async fn send_high_temperature_alert_telegram(
     recipients: Vec<NotificationTarget>,
 ) -> Result<(), notification::NotificationServiceError> {
     let notification = NotificationContext {
-        title_template_name: Some("coldchain/telegram/temperature_title.html".to_string()),
-        body_template_name: "coldchain/telegram/temperature.html".to_string(),
+        title_template: Some(TemplateDefinition::TemplateName(
+            "coldchain/telegram/temperature_title.html".to_string(),
+        )),
+        body_template: TemplateDefinition::TemplateName(
+            "coldchain/telegram/temperature.html".to_string(),
+        ),
         recipients,
         template_data: serde_json::to_value(alert).map_err(|e| {
-            notification::NotificationServiceError::GenericError(format!(
+            notification::NotificationServiceError::InternalError(format!(
                 "Error serializing template data: {}",
                 e
             ))

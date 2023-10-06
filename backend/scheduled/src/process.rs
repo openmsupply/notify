@@ -1,7 +1,7 @@
 use chrono::{DateTime, NaiveDateTime, Utc};
 use repository::{NotificationConfigKind, NotificationConfigRowRepository};
 use service::{
-    notification::enqueue::{create_notification_events, NotificationContext},
+    notification::enqueue::{create_notification_events, NotificationContext, TemplateDefinition},
     notification_config::{query::NotificationConfig, recipients::get_notification_targets},
     service_provider::ServiceContext,
 };
@@ -116,12 +116,10 @@ fn try_process_scheduled_notifications(
             NotificationError::InternalError(format!("Failed to get notification targets: {:?}", e))
         })?;
 
-    // For now just send a test notification!
-    // TODO: Send the real notification template https://github.com/openmsupply/notify/issues/136
     // Send the notification
     let notification = NotificationContext {
-        title_template_name: Some("test_message/email_subject.html".to_string()),
-        body_template_name: "test_message/email.html".to_string(),
+        title_template: Some(TemplateDefinition::Template(config.subject_template)),
+        body_template: TemplateDefinition::Template(config.body_template),
         template_data: template_data,
         recipients: notification_targets,
     };
