@@ -1,8 +1,8 @@
 use chrono::{DateTime, NaiveDateTime, Utc};
-use repository::{NotificationConfigKind, NotificationConfigRowRepository, NotificationType};
+use repository::{NotificationConfigKind, NotificationConfigRowRepository};
 use service::{
-    notification::enqueue::{create_notification_events, NotificationContext, NotificationTarget},
-    notification_config::query::NotificationConfig,
+    notification::enqueue::{create_notification_events, NotificationContext},
+    notification_config::{query::NotificationConfig, recipients::get_notification_targets},
     service_provider::ServiceContext,
 };
 
@@ -56,6 +56,7 @@ pub fn process_scheduled_notifications(
     Ok(notifications_processed)
 }
 
+#[derive(Debug, PartialEq)]
 enum ProcessingResult {
     Success,
     Skipped(String),
@@ -109,13 +110,11 @@ fn try_process_scheduled_notifications(
         NotificationError::InternalError(format!("Failed to parse template data: {:?}", e))
     })?;
 
-    // TODO: get the real recipients - https://github.com/openmsupply/notify/issues/138
     // Get the recipients
-    let recipient1 = NotificationTarget {
-        name: "test".to_string(),
-        to_address: "test@example.com".to_string(),
-        notification_type: NotificationType::Email,
-    };
+    let notification_targets =
+        get_notification_targets(ctx, &scheduled_notification).map_err(|e| {
+            NotificationError::InternalError(format!("Failed to get notification targets: {:?}", e))
+        })?;
 
     // For now just send a test notification!
     // TODO: Send the real notification template https://github.com/openmsupply/notify/issues/136
@@ -124,7 +123,7 @@ fn try_process_scheduled_notifications(
         title_template_name: Some("test_message/email_subject.html".to_string()),
         body_template_name: "test_message/email.html".to_string(),
         template_data: template_data,
-        recipients: vec![recipient1],
+        recipients: notification_targets,
     };
 
     create_notification_events(ctx, Some(scheduled_notification.id), notification)
@@ -138,10 +137,17 @@ mod test {
 
     use std::sync::Arc;
 
+    use chrono::Days;
+    use repository::mock::{
+        mock_recipient_a, mock_recipient_list_with_recipient_members_a_and_b,
+        mock_sql_recipient_list_with_no_param, mock_sql_recipient_list_with_param,
+    };
+    use repository::NotificationEventRowRepository;
     use repository::{mock::MockDataInserts, test_db::setup_all};
     use service::test_utils::get_test_settings;
 
     use service::service_provider::ServiceProvider;
+    use service::test_utils::telegram_test::send_test_notifications;
 
     use super::*;
 
@@ -169,5 +175,173 @@ mod test {
         // Test that it runs with a scheduled notification with no due date
         // Test that it skips a scheduled notification with a due date in the future
         // Test that it runs a scheduled notification with a due date in the past
+    }
+
+    // Test that we get a notification when we have a recipient list configured
+    #[tokio::test]
+    async fn test_try_process_scheduled_notifications_with_recipient_list() {
+        let (_, _, connection_manager, _) = setup_all(
+            "test_try_process_scheduled_notifications_with_recipient_list",
+            MockDataInserts::none()
+                .recipients()
+                .recipient_lists()
+                .recipient_list_members(),
+        )
+        .await;
+
+        let service_provider = Arc::new(ServiceProvider::new(
+            connection_manager,
+            get_test_settings(""),
+        ));
+
+        let service_context = ServiceContext::new(service_provider).unwrap();
+
+        // Daily Scheduled Notification that started this time yesterday
+        let sch_config = ScheduledNotificationPluginConfig {
+            body_template: "TestTemplate".to_string(),
+            subject_template: "TestSubject".to_string(),
+            schedule_frequency: "daily".to_string(),
+            schedule_start_time: Utc::now().checked_sub_days(Days::new(1)).unwrap(),
+        };
+
+        // Create a notification config with a recipient list
+        let notification_config = NotificationConfig {
+            id: "notification_config_1".to_string(),
+            kind: NotificationConfigKind::Scheduled,
+            recipient_ids: vec![],
+            recipient_list_ids: vec![mock_recipient_list_with_recipient_members_a_and_b().id],
+            sql_recipient_list_ids: vec![],
+            next_due_datetime: Some(chrono::Utc::now().naive_utc()),
+            configuration_data: serde_json::to_string(&sch_config).unwrap(),
+            ..Default::default()
+        };
+
+        // Try to process the notification (Should be due now)
+        let result = try_process_scheduled_notifications(
+            &service_context,
+            notification_config,
+            chrono::Utc::now().naive_utc(),
+        )
+        .unwrap();
+
+        assert_eq!(result, ProcessingResult::Success);
+
+        // Query the database to check that we have a notification events for each recipient
+        let repo = NotificationEventRowRepository::new(&service_context.connection);
+        let notification_events = repo.un_sent().unwrap();
+
+        assert_eq!(notification_events.len(), 2);
+
+        send_test_notifications(&service_context).await;
+    }
+
+    // Test that we get a notification when we have a recipient configured
+    #[tokio::test]
+    async fn test_try_process_scheduled_notifications_with_recipient() {
+        let (_, _, connection_manager, _) = setup_all(
+            "test_try_process_scheduled_notifications_with_recipient",
+            MockDataInserts::none().recipients(),
+        )
+        .await;
+
+        let service_provider = Arc::new(ServiceProvider::new(
+            connection_manager,
+            get_test_settings(""),
+        ));
+
+        let service_context = ServiceContext::new(service_provider).unwrap();
+
+        // Daily Scheduled Notification that started this time yesterday
+        let sch_config = ScheduledNotificationPluginConfig {
+            body_template: "TestTemplate".to_string(),
+            subject_template: "TestSubject".to_string(),
+            schedule_frequency: "daily".to_string(),
+            schedule_start_time: Utc::now().checked_sub_days(Days::new(1)).unwrap(),
+        };
+
+        // Create a notification config with a recipient list
+        let notification_config = NotificationConfig {
+            id: "notification_config_1".to_string(),
+            kind: NotificationConfigKind::Scheduled,
+            recipient_ids: vec![mock_recipient_a().id],
+            recipient_list_ids: vec![],
+            sql_recipient_list_ids: vec![],
+            next_due_datetime: Some(chrono::Utc::now().naive_utc()),
+            configuration_data: serde_json::to_string(&sch_config).unwrap(),
+            ..Default::default()
+        };
+
+        // Try to process the notification (Should be due now)
+        let result = try_process_scheduled_notifications(
+            &service_context,
+            notification_config,
+            chrono::Utc::now().naive_utc(),
+        )
+        .unwrap();
+
+        assert_eq!(result, ProcessingResult::Success);
+
+        // Query the database to check that we have a notification events for the 1 configured recipient
+        let repo = NotificationEventRowRepository::new(&service_context.connection);
+        let notification_events = repo.un_sent().unwrap();
+
+        assert_eq!(notification_events.len(), 1);
+    }
+
+    // Test that we get a notification when we have a sql recipient list configured
+    #[tokio::test]
+    async fn test_try_process_scheduled_notifications_with_sql_recipients() {
+        let (_, _, connection_manager, _) = setup_all(
+            "test_try_process_scheduled_notifications_with_sql_recipients",
+            MockDataInserts::none().sql_recipient_lists(),
+        )
+        .await;
+
+        let service_provider = Arc::new(ServiceProvider::new(
+            connection_manager,
+            get_test_settings(""),
+        ));
+
+        let service_context = ServiceContext::new(service_provider).unwrap();
+
+        // Daily Scheduled Notification that started this time yesterday
+        let sch_config = ScheduledNotificationPluginConfig {
+            body_template: "TestTemplate".to_string(),
+            subject_template: "TestSubject".to_string(),
+            schedule_frequency: "daily".to_string(),
+            schedule_start_time: Utc::now().checked_sub_days(Days::new(1)).unwrap(),
+        };
+
+        // Create a notification config with 2 sql recipient lists
+        let notification_config = NotificationConfig {
+            id: "notification_config_1".to_string(),
+            kind: NotificationConfigKind::Scheduled,
+            recipient_ids: vec![],
+            recipient_list_ids: vec![],
+            sql_recipient_list_ids: vec![
+                mock_sql_recipient_list_with_no_param().id,
+                mock_sql_recipient_list_with_param().id,
+            ],
+            parameters: "{ \"email_address\": \"test-user@example.com\"}".to_string(),
+            next_due_datetime: Some(chrono::Utc::now().naive_utc()),
+            configuration_data: serde_json::to_string(&sch_config).unwrap(),
+            ..Default::default()
+        };
+
+        // Try to process the notification (Should be due now)
+        let result = try_process_scheduled_notifications(
+            &service_context,
+            notification_config,
+            chrono::Utc::now().naive_utc(),
+        )
+        .unwrap();
+
+        assert_eq!(result, ProcessingResult::Success);
+
+        // Query the database to check that we have a notification events for the 1 configured recipient
+        let repo = NotificationEventRowRepository::new(&service_context.connection);
+        let notification_events = repo.un_sent().unwrap();
+
+        assert_eq!(notification_events.len(), 2);
     }
 }

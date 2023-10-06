@@ -14,7 +14,7 @@ use crate::{
 pub const MAX_LIMIT: u32 = 1000;
 pub const MIN_LIMIT: u32 = 1;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct NotificationConfig {
     pub id: String,
     pub title: String,
