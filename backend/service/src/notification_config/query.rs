@@ -30,20 +30,34 @@ pub struct NotificationConfig {
 }
 
 impl From<NotificationConfigRow> for NotificationConfig {
-    fn from(row: NotificationConfigRow) -> Self {
+    fn from(
+        NotificationConfigRow {
+            id,
+            title,
+            kind,
+            configuration_data,
+            status,
+            parameters,
+            recipient_ids,
+            recipient_list_ids,
+            sql_recipient_list_ids,
+            last_run_datetime,
+            next_due_datetime,
+        }: NotificationConfigRow,
+    ) -> Self {
         NotificationConfig {
-            id: row.id,
-            title: row.title,
-            kind: row.kind,
-            configuration_data: row.configuration_data,
-            status: row.status,
-            parameters: row.parameters,
-            recipient_ids: serde_json::from_str(&row.recipient_ids).unwrap_or_default(),
-            recipient_list_ids: serde_json::from_str(&row.recipient_list_ids).unwrap_or_default(),
-            sql_recipient_list_ids: serde_json::from_str(&row.sql_recipient_list_ids)
+            id,
+            title,
+            kind,
+            configuration_data,
+            status,
+            parameters,
+            recipient_ids: serde_json::from_str(&recipient_ids).unwrap_or_default(),
+            recipient_list_ids: serde_json::from_str(&recipient_list_ids).unwrap_or_default(),
+            sql_recipient_list_ids: serde_json::from_str(&sql_recipient_list_ids)
                 .unwrap_or_default(),
-            last_run_datetime: row.last_run_datetime,
-            next_due_datetime: row.next_due_datetime,
+            last_run_datetime,
+            next_due_datetime,
         }
     }
 }
