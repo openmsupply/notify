@@ -154,12 +154,12 @@ mod test {
             update_id: 2,
             message: Some(TelegramMessage {
                 message_id: 1,
-                from: TelegramUser {
+                from: Some(TelegramUser {
                     id: 1,
                     is_bot: false,
                     username: None,
                     ..Default::default()
-                },
+                }),
                 chat: telegram::TelegramChat {
                     id: 1234,
                     title: Some("telegram_chat_name".to_string()),
@@ -188,12 +188,12 @@ mod test {
             update_id: 3,
             message: Some(TelegramMessage {
                 message_id: 1,
-                from: TelegramUser {
+                from: Some(TelegramUser {
                     id: 1,
                     is_bot: false,
                     username: None,
                     ..Default::default()
-                },
+                }),
                 chat: telegram::TelegramChat {
                     id: 1234,
                     title: Some("telegram_chat_name_changed".to_string()),
@@ -243,6 +243,7 @@ mod test {
                     username: None,
                     ..Default::default()
                 },
+                ..Default::default()
             }),
         };
 
@@ -286,12 +287,12 @@ mod test {
             update_id: 4,
             message: Some(TelegramMessage {
                 message_id: 1,
-                from: TelegramUser {
+                from: Some(TelegramUser {
                     id: 1,
                     is_bot: false,
                     username: None,
                     ..Default::default()
-                },
+                }),
                 chat: telegram::TelegramChat {
                     id: -9999,
                     title: Some("Notification Group 1a".to_string()),

@@ -161,6 +161,8 @@ impl TelegramClient {
         let response = self.http_client.get(&url).form(&params).send().await?;
         let response_text = response.text().await?;
 
+        log::debug!("Response from telegram: {}", response_text);
+
         let telegram_response: TelegramApiResponse = serde_json::from_str(&response_text)
             .map_err(|e| TelegramError::Fatal(e.to_string()))?;
 
