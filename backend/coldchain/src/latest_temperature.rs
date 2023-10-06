@@ -5,7 +5,7 @@ use diesel::result::Error as DieselError;
 use diesel::sql_types::{Array, Double, Nullable, Text, Timestamp};
 use diesel::{sql_query, RunQueryDsl};
 
-#[derive(QueryableByName, Debug, PartialEq)]
+#[derive(QueryableByName, Debug, PartialEq, Clone)]
 #[diesel(table_name = temperature_data)]
 pub struct LatestTemperatureRow {
     #[diesel(sql_type = Text)]
@@ -18,27 +18,24 @@ pub struct LatestTemperatureRow {
     pub temperature: Option<f64>,
 }
 
-pub fn latest_temperatures(
+pub fn latest_temperature(
     connection: &mut PgConnection,
-    sensor_ids: Vec<String>,
-) -> Result<Vec<LatestTemperatureRow>, DieselError> {
-    let query = "SELECT id, sensor_id, log_datetime, temperature FROM 
-(SELECT 
+    sensor_id: String,
+) -> Result<Option<LatestTemperatureRow>, DieselError> {
+    let query = "SELECT 
     id,
     sensor_id,
     CONCAT(TO_CHAR(date,'YYYY-MM-DD'),' ', TO_CHAR(time,'HH24:MI:SS'))::timestamp AS log_datetime,
-    temperature, 
-    ROW_NUMBER() OVER (PARTITION BY sensor_id ORDER BY CONCAT(TO_CHAR(date,'YYYY-MM-DD'),' ', TO_CHAR(time,'HH24:MI:SS'))::timestamp DESC) rn										  
-FROM temperature_log) as latest_temps 
-WHERE rn=1
-AND sensor_id = ANY ($1)
-ORDER BY sensor_id";
+    temperature
+    FROM temperature_log
+    WHERE sensor_id = $1
+    ORDER BY date DESC, time DESC
+    LIMIT 1";
 
-    let query = sql_query(query).bind::<Array<Text>, _>(sensor_ids);
+    let query = sql_query(query).bind::<Text, _>(sensor_id);
     // println!("query: {:?}", query);
-    let results: Vec<LatestTemperatureRow> = query.load(connection)?;
-
-    Ok(results)
+    let result: Option<LatestTemperatureRow> = query.get_result(connection).optional()?;
+    Ok(result)
 }
 
 #[cfg(test)]

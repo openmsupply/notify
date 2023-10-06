@@ -9,7 +9,7 @@ use service::{
 };
 
 use crate::{
-    latest_temperatures::latest_temperatures,
+    latest_temperature::latest_temperature,
     parse::ColdChainPluginConfig,
     sensor_state::{SensorState, SensorStatus},
     ColdChainError, PLUGIN_NAME,
@@ -95,7 +95,7 @@ fn try_process_coldchain_notifications(
             .get()
             .map_err(|e| ColdChainError::InternalError(format!("{:?}", e)))?;
 
-        let latest_temperature_row = latest_temperatures(&mut connection, vec![sensor_id.clone()])
+        let latest_temperature_row = latest_temperature(&mut connection, sensor_id.clone())
             .map_err(|e| {
                 ColdChainError::InternalError(format!(
                     "Failed to get latest temperature for sensor {}: {:?}",
@@ -104,9 +104,10 @@ fn try_process_coldchain_notifications(
             })?;
         // TODO(optimise) might be more efficient to get all latest temperatures in one query?
 
-        let sensor_status = match latest_temperature_row.len() {
-            0 => SensorStatus::NoData, // No rows returned, means no data!
-            _ => match latest_temperature_row[0].temperature {
+        let sensor_status = match latest_temperature_row.clone() {
+            None => SensorStatus::NoData, // No rows returned, means no data!
+            Some(row) => match row.temperature {
+                // TODO: check if the row is too old and should be considered no data row!
                 Some(t) => match t {
                     t if (t > high_temp_threshold) => SensorStatus::HighTemp,
                     t if (t < low_temp_threshold) => SensorStatus::LowTemp,
@@ -116,10 +117,13 @@ fn try_process_coldchain_notifications(
             },
         };
 
-        let current_temp = match latest_temperature_row.get(0) {
-            Some(t) => t.temperature.unwrap_or(0.0),
-            None => 0.0,
-        }; // This current temp is just used for the log message, so we just set it to 0.0 if there's no data which is ok I think...
+        let current_temp: String = match latest_temperature_row {
+            Some(row) => match row.temperature {
+                Some(t) => t.to_string(),
+                None => "Null".to_string(),
+            },
+            None => "Never Recorded".to_string(),
+        }; // This temperature will probably be in the alert message, but for now we'll just log it...
 
         log::info!(
             "Sensor {} is currently {:?} with a temperature of {}",
@@ -145,35 +149,18 @@ fn try_process_coldchain_notifications(
         let prev_sensor_status = match prev_sensor_status {
             Some(s) => SensorState::from_string(&s),
             None => {
-                // No previous status, so set it and skip
+                // No previous status found, so assume we were previously in the `Ok` State
+                // This means we should send a notification if the sensor is not in the `Ok` state, even the first time we see it...
                 log::info!(
-                    "No previous status for sensor {}, so setting to {:?}",
-                    sensor_id,
-                    sensor_status
+                    "No previous status for sensor {}, assuming it used to be Ok",
+                    sensor_id
                 );
 
                 let sensor_state = SensorState {
                     sensor_id: sensor_id.clone(),
-                    status: sensor_status.clone(),
+                    status: SensorStatus::Ok,
                     timestamp: now,
                 };
-
-                let state_json = sensor_state.to_json_string()?;
-
-                let result = ctx.service_provider.plugin_service.set_value(
-                    ctx,
-                    PLUGIN_NAME.to_string(),
-                    sensor_status_key,
-                    state_json,
-                );
-                match result {
-                    Ok(_) => {
-                        log::debug!("Successfully set status for sensor {}", sensor_id);
-                    }
-                    Err(e) => {
-                        log::error!("Failed to set status for sensor {}: {:?}", sensor_id, e);
-                    }
-                }
                 Ok(sensor_state)
             }
         };
@@ -186,12 +173,13 @@ fn try_process_coldchain_notifications(
                     sensor_id,
                     e
                 );
+                // TODO: Should we continue or just assume ok in this case???
                 continue;
             }
         };
 
         if sensor_status == prev_sensor_status.status {
-            // Status has not changed, so skip
+            // Status has not changed
             log::info!(
                 "Status for sensor {} has not changed since last check",
                 sensor_id
@@ -208,11 +196,47 @@ fn try_process_coldchain_notifications(
             prev_sensor_status,
             sensor_status
         );
+
+        // Persist the new status
+        // Note: Since we only persist `new` statuses, if a sensor has always been in the ok state, it won't have a record in the plugin store
+        let sensor_state = SensorState {
+            sensor_id: sensor_id.clone(),
+            status: sensor_status.clone(),
+            timestamp: now,
+        };
+
+        let result = ctx.service_provider.plugin_service.set_value(
+            ctx,
+            PLUGIN_NAME.to_string(),
+            sensor_status_key,
+            sensor_state.to_json_string()?,
+        );
+        match result {
+            Ok(_) => {
+                log::debug!("Saved new state for sensor {}", sensor_id);
+            }
+            Err(e) => {
+                log::error!(
+                    "Failed to persist new state for sensor {}: {:?}",
+                    sensor_id,
+                    e
+                );
+                continue;
+            }
+        }
         //TODO: Notifications!!!
 
-        // create_notification_events(ctx, Some(scheduled_notification.id), notification)
-        //     .map_err(|e| NotificationError::InternalError(format!("{:?}", e)))?;
+        // High Temp
+        // Low Temp
+        // No Data
+        // Ok (confirmation)
     }
+
+    // create_notification_events(ctx, Some(scheduled_notification.id), notification)
+    //     .map_err(|e| NotificationError::InternalError(format!("{:?}", e)))?;
+
+    // TODO: Suppress too many notifications in a short period of time
+    // https://github.com/openmsupply/notify/issues/177
 
     Ok(ProcessingResult::Success)
 }

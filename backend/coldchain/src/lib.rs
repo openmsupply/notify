@@ -4,7 +4,7 @@ use service::{
 };
 
 pub mod alerts;
-pub mod latest_temperatures;
+pub mod latest_temperature;
 pub mod parse;
 pub mod process;
 pub mod sensor_state;
