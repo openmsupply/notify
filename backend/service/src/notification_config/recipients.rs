@@ -41,8 +41,10 @@ pub fn get_notification_targets(
         .query_by_filter(RecipientFilter::new().id(EqualFilter::equal_any(all_recipient_ids)))?;
 
     // Convert the recipients into NotificationTargets
-    let recipients: Vec<NotificationTarget> =
-        recipients.into_iter().map(|row| row.into()).collect();
+    let recipients: Vec<NotificationTarget> = recipients
+        .into_iter()
+        .map(NotificationTarget::from)
+        .collect();
     notification_targets.extend(recipients);
 
     // loop through all the sql recipient lists
