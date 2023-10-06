@@ -58,7 +58,7 @@ pub fn create_notification_events(
     // Add any configured templates to out new tera instance
     tera.extend(ctx.service_provider.notification_service.tera())
         .map_err(|e| {
-            NotificationServiceError::GenericError(format!(
+            NotificationServiceError::InternalError(format!(
                 "Failed to extend tera instance with notification service templates: {:?}",
                 e
             ))
@@ -70,7 +70,7 @@ pub fn create_notification_events(
             // Add the title template to the tera instance
             tera.add_raw_template("title_template", &title_template)
                 .map_err(|e| {
-                    NotificationServiceError::GenericError(format!(
+                    NotificationServiceError::InternalError(format!(
                         "Failed to add title template to tera instance: {:?}",
                         e
                     ))
@@ -86,7 +86,7 @@ pub fn create_notification_events(
             // Add the body template to the tera instance
             tera.add_raw_template("body_template", &body_template)
                 .map_err(|e| {
-                    NotificationServiceError::GenericError(format!(
+                    NotificationServiceError::InternalError(format!(
                         "Failed to add body template to tera instance: {:?}",
                         e
                     ))
@@ -95,8 +95,7 @@ pub fn create_notification_events(
         }
     };
 
-    let mut tera_context = Context::from_serialize(notification.template_data.clone())
-        .map_err(|e| NotificationServiceError::GenericError(format!("{:?}", e)))?;
+    let mut tera_context = Context::from_value(notification.template_data)?;
 
     // Loop through recipients and create a notification for each
     for recipient in notification.recipients {

@@ -41,7 +41,7 @@ pub struct NotificationService {
 
 #[derive(Debug)]
 pub enum NotificationServiceError {
-    GenericError(String),
+    InternalError(String),
     RenderError(tera::Error),
     AddressError(AddressError),
     LettreError(lettre::error::Error),
