@@ -1,9 +1,9 @@
 use super::{dataloader::DataLoader, LogNode};
 use async_graphql::{Context, Enum, Object, SimpleObject, Union};
 use graphql_core::{loader::AuditLogLoader, simple_generic_errors::NodeError, ContextExt};
-use repository::{NotificationConfig, NotificationConfigKind, NotificationConfigStatus};
+use repository::{NotificationConfigKind, NotificationConfigStatus};
 use serde::Serialize;
-use service::ListResult;
+use service::{notification_config::query::NotificationConfig, ListResult};
 use util::usize_to_u32;
 
 #[derive(Union)]
@@ -42,6 +42,18 @@ impl NotificationConfigNode {
 
     pub async fn parameters(&self) -> &str {
         &self.row().parameters
+    }
+
+    pub async fn recipient_ids(&self) -> &[String] {
+        &self.row().recipient_ids
+    }
+
+    pub async fn recipient_list_ids(&self) -> &[String] {
+        &self.row().recipient_list_ids
+    }
+
+    pub async fn sql_recipient_list_ids(&self) -> &[String] {
+        &self.row().sql_recipient_list_ids
     }
 
     pub async fn audit_logs(

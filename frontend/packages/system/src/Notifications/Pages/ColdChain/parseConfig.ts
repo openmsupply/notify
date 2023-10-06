@@ -24,7 +24,7 @@ export function parseColdChainNotificationConfig(
       reminderUnits,
       messageAlertResolved,
       locationIds,
-      recipientIds,
+      recipientIds, // TODO: Remove recipientIds, recipientListIds, and sqlRecipientListIds from the config data after all configs have been updated
       recipientListIds,
       sqlRecipientListIds,
     } = JSON.parse(config.configurationData);
@@ -44,10 +44,10 @@ export function parseColdChainNotificationConfig(
       reminderUnits,
       messageAlertResolved,
       locationIds,
-      recipientIds,
-      recipientListIds,
+      recipientIds: config.recipientIds ?? recipientIds, // This should really be just config.recipientIds but we fallback to the configuratData for backwards compatibilty
+      recipientListIds: config.recipientListIds ?? recipientListIds, // TODO: remove this fallback after all configs have been updated, and in future we should use a migration process to avoid runtime checks like this
+      sqlRecipientListIds: config.sqlRecipientListIds ?? sqlRecipientListIds, // Same for this one...
       status: config.status,
-      sqlRecipientListIds,
       parameters: config.parameters,
       parsedParameters: TeraUtils.keyedParamsFromTeraJson(config.parameters),
     };
@@ -76,6 +76,9 @@ export function buildColdChainNotificationInputs(config: CCNotification): {
     configurationData: JSON.stringify(config),
     status: config.status,
     parameters: config.parameters,
+    recipientIds: config.recipientIds,
+    recipientListIds: config.recipientListIds,
+    sqlRecipientListIds: config.sqlRecipientListIds,
   };
 
   return {
