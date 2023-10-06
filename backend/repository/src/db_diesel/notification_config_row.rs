@@ -151,10 +151,10 @@ impl<'a> NotificationConfigRowRepository<'a> {
         Ok(result)
     }
 
-    pub fn set_next_due_by_id(
+    pub fn set_last_run_by_id(
         &self,
         id: &str,
-        last_run: Option<NaiveDateTime>,
+        last_run: NaiveDateTime,
         next_due: Option<NaiveDateTime>,
     ) -> Result<(), RepositoryError> {
         let query = diesel::update(notification_config_dsl::notification_config)
