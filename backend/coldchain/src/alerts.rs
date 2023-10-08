@@ -35,6 +35,7 @@ pub struct TemperatureAlert {
     pub sensor_name: String,
     pub datetime: NaiveDateTime,
     pub temperature: f64,
+    pub sensor_status: String,
 }
 
 // Later this function probably won't exist, but serves as a reminder/POC...
@@ -100,6 +101,7 @@ mod tests {
             sensor_name: "E5:4G:D4:6D:A4".to_string(),
             datetime: NaiveDateTime::from_str("2023-07-17T17:04:00").unwrap(),
             temperature: 10.12345,
+            sensor_status: "High".to_string(),
         };
 
         let recipient1 = NotificationTarget {

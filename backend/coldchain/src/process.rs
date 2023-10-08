@@ -9,7 +9,7 @@ use service::{
 };
 
 use crate::{
-    latest_temperature::latest_temperature,
+    latest_temperature::{self, latest_temperature},
     parse::ColdChainPluginConfig,
     sensor_state::{SensorState, SensorStatus},
     ColdChainError, PLUGIN_NAME,
@@ -48,9 +48,6 @@ pub fn process_coldchain_alerts(
             Err(e) => {
                 log::error!("{:?}", e);
             }
-            Ok(ProcessingResult::Skipped(message)) => {
-                log::info!("{}", message);
-            }
             Ok(ProcessingResult::Success) => {
                 log::debug!("Successfully processed coldchain config");
             }
@@ -62,7 +59,6 @@ pub fn process_coldchain_alerts(
 
 enum ProcessingResult {
     Success,
-    Skipped(String),
 }
 
 fn try_process_coldchain_notifications(
@@ -83,6 +79,7 @@ fn try_process_coldchain_notifications(
 
     let high_temp_threshold: f64 = 22.0; // TODO: Get this from config
     let low_temp_threshold: f64 = 20.0; // TODO: Get this from config
+    let max_age = chrono::Duration::hours(1); // TODO: Get this from config
 
     // Loop through checking the current status for each sensor
     for sensor_id in config.sensor_ids {
@@ -102,22 +99,16 @@ fn try_process_coldchain_notifications(
                     sensor_id, e
                 ))
             })?;
-        // TODO(optimise) might be more efficient to get all latest temperatures in one query?
 
-        let sensor_status = match latest_temperature_row.clone() {
-            None => SensorStatus::NoData, // No rows returned, means no data!
-            Some(row) => match row.temperature {
-                // TODO: check if the row is too old and should be considered no data row!
-                Some(t) => match t {
-                    t if (t > high_temp_threshold) => SensorStatus::HighTemp,
-                    t if (t < low_temp_threshold) => SensorStatus::LowTemp,
-                    _ => SensorStatus::Ok,
-                },
-                None => SensorStatus::NoData, // There's a row returned but the temperature is null, so no data again!
-            },
-        };
+        let sensor_status = evaluate_sensor_status(
+            now,
+            latest_temperature_row.clone(),
+            high_temp_threshold,
+            low_temp_threshold,
+            max_age,
+        );
 
-        let current_temp: String = match latest_temperature_row {
+        let current_temp: String = match latest_temperature_row.clone() {
             Some(row) => match row.temperature {
                 Some(t) => t.to_string(),
                 None => "Null".to_string(),
@@ -160,6 +151,7 @@ fn try_process_coldchain_notifications(
                     sensor_id: sensor_id.clone(),
                     status: SensorStatus::Ok,
                     timestamp: now,
+                    temperature: None,
                 };
                 Ok(sensor_state)
             }
@@ -173,6 +165,7 @@ fn try_process_coldchain_notifications(
                     sensor_id,
                     e
                 );
+                // Unable to parse the previous state, so we can't continue
                 // TODO: Should we continue or just assume ok in this case???
                 continue;
             }
@@ -203,6 +196,9 @@ fn try_process_coldchain_notifications(
             sensor_id: sensor_id.clone(),
             status: sensor_status.clone(),
             timestamp: now,
+            temperature: latest_temperature_row
+                .map(|row| row.temperature)
+                .unwrap_or(None),
         };
 
         let result = ctx.service_provider.plugin_service.set_value(
@@ -241,15 +237,154 @@ fn try_process_coldchain_notifications(
     Ok(ProcessingResult::Success)
 }
 
+fn evaluate_sensor_status(
+    now: NaiveDateTime,
+    latest_temperature_row: Option<latest_temperature::LatestTemperatureRow>,
+    high_temp_threshold: f64,
+    low_temp_threshold: f64,
+    max_age: chrono::Duration,
+) -> SensorStatus {
+    let sensor_status = match latest_temperature_row.clone() {
+        None => SensorStatus::NoData, // No rows returned, means no data!
+        Some(row) => match row.temperature {
+            Some(t) => {
+                // check if the row is too old and should be considered no data row!
+                if (now - row.log_datetime) > max_age {
+                    return SensorStatus::NoData;
+                }
+                match t {
+                    t if (t > high_temp_threshold) => SensorStatus::HighTemp,
+                    t if (t < low_temp_threshold) => SensorStatus::LowTemp,
+                    _ => SensorStatus::Ok,
+                }
+            }
+            None => SensorStatus::NoData, // There's a row returned but the temperature is null, so no data again!
+        },
+    };
+    return sensor_status;
+}
+
 #[cfg(test)]
 mod test {
 
-    use std::sync::Arc;
-
-    use repository::{mock::MockDataInserts, test_db::setup_all};
-    use service::test_utils::get_test_settings;
-
-    use service::service_provider::ServiceProvider;
-
     use super::*;
+
+    #[test]
+    fn test_evaluate_sensor_status() {
+        let now =
+            NaiveDateTime::parse_from_str("2020-01-01T00:00:00", "%Y-%m-%dT%H:%M:%S").unwrap();
+        let high_temp_threshold = 8.0;
+        let low_temp_threshold = 2.0;
+        let max_age = chrono::Duration::hours(1);
+
+        // Ok (High and low thresholds are within limits)
+        let row = latest_temperature::LatestTemperatureRow {
+            id: "1".to_string(),
+            sensor_id: "1".to_string(),
+            log_datetime: now,
+            temperature: Some(low_temp_threshold),
+        };
+
+        let status = evaluate_sensor_status(
+            now,
+            Some(row),
+            high_temp_threshold,
+            low_temp_threshold,
+            max_age,
+        );
+        assert_eq!(status, SensorStatus::Ok);
+
+        let row = latest_temperature::LatestTemperatureRow {
+            id: "1".to_string(),
+            sensor_id: "1".to_string(),
+            log_datetime: now,
+            temperature: Some(high_temp_threshold),
+        };
+
+        let status = evaluate_sensor_status(
+            now,
+            Some(row),
+            high_temp_threshold,
+            low_temp_threshold,
+            max_age,
+        );
+        assert_eq!(status, SensorStatus::Ok);
+
+        // High Temp
+        let row = latest_temperature::LatestTemperatureRow {
+            id: "1".to_string(),
+            sensor_id: "1".to_string(),
+            log_datetime: now,
+            temperature: Some(high_temp_threshold + 1.0),
+        };
+
+        let status = evaluate_sensor_status(
+            now,
+            Some(row),
+            high_temp_threshold,
+            low_temp_threshold,
+            max_age,
+        );
+        assert_eq!(status, SensorStatus::HighTemp);
+
+        // Low Temp
+
+        let row = latest_temperature::LatestTemperatureRow {
+            id: "1".to_string(),
+            sensor_id: "1".to_string(),
+            log_datetime: now,
+            temperature: Some(low_temp_threshold - 1.0),
+        };
+
+        let status = evaluate_sensor_status(
+            now,
+            Some(row),
+            high_temp_threshold,
+            low_temp_threshold,
+            max_age,
+        );
+        assert_eq!(status, SensorStatus::LowTemp);
+
+        // No Data (no Row)
+
+        let status =
+            evaluate_sensor_status(now, None, high_temp_threshold, low_temp_threshold, max_age);
+        assert_eq!(status, SensorStatus::NoData);
+
+        // No Data (row with null temp)
+        let row = latest_temperature::LatestTemperatureRow {
+            id: "1".to_string(),
+            sensor_id: "1".to_string(),
+            log_datetime: now,
+            temperature: None,
+        };
+
+        let status = evaluate_sensor_status(
+            now,
+            Some(row),
+            high_temp_threshold,
+            low_temp_threshold,
+            max_age,
+        );
+        assert_eq!(status, SensorStatus::NoData);
+
+        // No Data (row too old)
+
+        let row = latest_temperature::LatestTemperatureRow {
+            id: "1".to_string(),
+            sensor_id: "1".to_string(),
+            log_datetime: now - chrono::Duration::hours(2),
+            temperature: Some(low_temp_threshold),
+        };
+
+        let status = evaluate_sensor_status(
+            now,
+            Some(row),
+            high_temp_threshold,
+            low_temp_threshold,
+            max_age,
+        );
+        // TODO: Old Data Logic https://github.com/openmsupply/notify/issues/179
+        assert_eq!(status, SensorStatus::NoData);
+    }
 }

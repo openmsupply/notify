@@ -10,6 +10,7 @@ pub struct SensorState {
     pub sensor_id: String,
     pub status: SensorStatus,
     pub timestamp: NaiveDateTime,
+    pub temperature: Option<f64>,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq, Clone)]

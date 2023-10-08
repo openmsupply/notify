@@ -2,7 +2,7 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::Error as DieselError;
 
-use diesel::sql_types::{Array, Double, Nullable, Text, Timestamp};
+use diesel::sql_types::{Double, Nullable, Text, Timestamp};
 use diesel::{sql_query, RunQueryDsl};
 
 #[derive(QueryableByName, Debug, PartialEq, Clone)]
