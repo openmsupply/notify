@@ -1,7 +1,7 @@
 use chrono::NaiveDateTime;
 use repository::{
-    NotificationConfig, NotificationConfigFilter, NotificationConfigKind, NotificationConfigSort,
-    PaginationOption, RepositoryError,
+    NotificationConfigFilter, NotificationConfigKind, NotificationConfigSort, PaginationOption,
+    RepositoryError,
 };
 
 use crate::{service_provider::ServiceContext, ListError, ListResult, SingleRecordError};
@@ -10,8 +10,7 @@ use self::{
     create::{create_notification_config, CreateNotificationConfig},
     delete::{delete_notification_config, DeleteNotificationConfigError},
     query::{
-        get_notification_config, get_notification_configs,
-        get_notification_configs_by_kind_and_next_check_date,
+        find_all_due_by_kind, get_notification_config, get_notification_configs, NotificationConfig,
     },
     update::{update_notification_config, UpdateNotificationConfig},
 };
@@ -21,6 +20,7 @@ mod tests;
 pub mod create;
 pub mod delete;
 pub mod query;
+pub mod recipients;
 pub mod update;
 pub mod validate;
 
@@ -31,7 +31,7 @@ pub trait NotificationConfigServiceTrait: Sync + Send {
         kind: NotificationConfigKind,
         datetime: NaiveDateTime,
     ) -> Result<Vec<NotificationConfig>, ListError> {
-        get_notification_configs_by_kind_and_next_check_date(ctx, kind, datetime)
+        find_all_due_by_kind(ctx, kind, datetime)
     }
 
     fn get_notification_configs(
@@ -86,7 +86,8 @@ pub enum ModifyNotificationConfigError {
     ModifiedRecordNotFound,
     DatabaseError(RepositoryError),
     NotificationConfigDoesNotExist,
-    GenericError(String),
+    InternalError(String),
+    BadUserInput(String),
 }
 
 // PartialEq is only needed for tests

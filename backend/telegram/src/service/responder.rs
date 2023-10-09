@@ -15,7 +15,7 @@ pub async fn handle_telegram_updates(
         let result = rx.recv().await;
         let update = match result {
             Ok(update) => {
-                log::info!("Received Telegram Update Ready to respond: {:?}", update);
+                log::debug!("Received Telegram Update Ready to respond: {:?}", update);
                 update
             }
             Err(tokio::sync::broadcast::error::RecvError::Closed) => return,
@@ -52,6 +52,27 @@ pub async fn handle_telegram_updates(
             }
             None => {
                 log::debug!("No message received!: {:?}", update);
+            }
+        };
+
+        // Respond to my chat member updates
+        if let Some(chat_member) = update.my_chat_member {
+            log::debug!(
+                "Received Telegram MyChatMember Ready to respond: {:?}",
+                chat_member
+            );
+            let chat_id = chat_member.chat.id.to_string();
+            if chat_member.new_chat_member.status != "left" {
+                log::info!(
+                    "Joining Telegram chat, sending hello message to chat id {}",
+                    chat_id
+                );
+
+                let response = format!("Hello! This chat_id is {}", chat_id);
+                match client.send_html_message(&chat_id, &response).await {
+                    Ok(_) => log::debug!("Sent hello message to chat id {}", chat_id),
+                    Err(_) => log::error!("Failed to send hello message to chat id {}", chat_id),
+                }
             }
         }
     }

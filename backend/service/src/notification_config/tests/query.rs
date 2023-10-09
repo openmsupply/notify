@@ -9,7 +9,7 @@ mod notification_config_query_test {
         NotificationConfigSortField,
     };
     use repository::{
-        EqualFilter, NotificationConfigRow, NotificationConfigRowRepository, PaginationOption, Sort,
+        EqualFilter, NotificationConfigRow, NotificationConfigRowRepository, PaginationOption, Sort, NotificationConfigStatus,
     };
     use util::uuid::uuid;
 
@@ -269,11 +269,12 @@ mod notification_config_query_test {
         let service = &context.service_provider.notification_config_service;
 
         // Create a notification config
-        let config = NotificationConfigRow {
+        let mut config = NotificationConfigRow {
             id: uuid(),
             title: "test".to_string(),
             kind: mock_data["base"].notification_configs[0].kind.clone(),
             configuration_data: "{}".to_string(),
+            status: NotificationConfigStatus::Enabled,
             parameters: "{}".to_string(),
             ..Default::default()
         };
@@ -281,7 +282,19 @@ mod notification_config_query_test {
         let repo = NotificationConfigRowRepository::new(&context.connection);
         repo.insert_one(&config).unwrap();
 
-        // Check that it is returned by the due query
+        // Create a disabled notification config
+        let config2 = NotificationConfigRow {
+            id: uuid(),
+            title: "test1".to_string(),
+            kind: mock_data["base"].notification_configs[0].kind.clone(),
+            configuration_data: "{}".to_string(),
+            status: NotificationConfigStatus::Disabled,
+            parameters: "{}".to_string(),
+            ..Default::default()
+        };
+        repo.insert_one(&config2).unwrap();
+
+        // Check that only the enabled config is returned by the due query
         let result = service
             .find_all_due_by_kind(&context, config.kind.clone(), Utc::now().naive_utc())
             .unwrap();
@@ -290,7 +303,6 @@ mod notification_config_query_test {
 
         // set the last check date to now
         // and next check to 1 hour from now
-        let mut config = result[0].clone();
         config.last_run_datetime = Some(Utc::now().naive_utc());
         config.next_due_datetime = Some(Utc::now().naive_utc() + chrono::Duration::hours(1));
         repo.update_one(&config).unwrap();

@@ -3,7 +3,7 @@ import * as Types from '@notify-frontend/common';
 import { GraphQLClient } from 'graphql-request';
 import * as Dom from 'graphql-request/dist/types.dom';
 import gql from 'graphql-tag';
-export type NotificationConfigRowFragment = { __typename: 'NotificationConfigNode', id: string, title: string, kind: Types.ConfigKind, configurationData: string, status: Types.ConfigStatus, parameters: string };
+export type NotificationConfigRowFragment = { __typename: 'NotificationConfigNode', id: string, title: string, kind: Types.ConfigKind, configurationData: string, status: Types.ConfigStatus, parameters: string, recipientIds: Array<string>, recipientListIds: Array<string>, sqlRecipientListIds: Array<string> };
 
 export type NotificationConfigsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.NotificationConfigFilterInput>;
@@ -12,21 +12,21 @@ export type NotificationConfigsQueryVariables = Types.Exact<{
 }>;
 
 
-export type NotificationConfigsQuery = { __typename: 'FullQuery', notificationConfigs: { __typename: 'NotificationConfigConnector', totalCount: number, nodes: Array<{ __typename: 'NotificationConfigNode', id: string, title: string, kind: Types.ConfigKind, configurationData: string, status: Types.ConfigStatus, parameters: string }> } };
+export type NotificationConfigsQuery = { __typename: 'FullQuery', notificationConfigs: { __typename: 'NotificationConfigConnector', totalCount: number, nodes: Array<{ __typename: 'NotificationConfigNode', id: string, title: string, kind: Types.ConfigKind, configurationData: string, status: Types.ConfigStatus, parameters: string, recipientIds: Array<string>, recipientListIds: Array<string>, sqlRecipientListIds: Array<string> }> } };
 
 export type CreateNotificationConfigMutationVariables = Types.Exact<{
   input: Types.CreateNotificationConfigInput;
 }>;
 
 
-export type CreateNotificationConfigMutation = { __typename: 'FullMutation', createNotificationConfig: { __typename: 'NotificationConfigNode', id: string, title: string, kind: Types.ConfigKind, configurationData: string, status: Types.ConfigStatus, parameters: string } };
+export type CreateNotificationConfigMutation = { __typename: 'FullMutation', createNotificationConfig: { __typename: 'NotificationConfigNode', id: string, title: string, kind: Types.ConfigKind, configurationData: string, status: Types.ConfigStatus, parameters: string, recipientIds: Array<string>, recipientListIds: Array<string>, sqlRecipientListIds: Array<string> } };
 
 export type UpdateNotificationConfigMutationVariables = Types.Exact<{
   input: Types.UpdateNotificationConfigInput;
 }>;
 
 
-export type UpdateNotificationConfigMutation = { __typename: 'FullMutation', updateNotificationConfig: { __typename: 'NotificationConfigNode', id: string, title: string, kind: Types.ConfigKind, configurationData: string, status: Types.ConfigStatus, parameters: string } };
+export type UpdateNotificationConfigMutation = { __typename: 'FullMutation', updateNotificationConfig: { __typename: 'NotificationConfigNode', id: string, title: string, kind: Types.ConfigKind, configurationData: string, status: Types.ConfigStatus, parameters: string, recipientIds: Array<string>, recipientListIds: Array<string>, sqlRecipientListIds: Array<string> } };
 
 export type DeleteNotificationConfigMutationVariables = Types.Exact<{
   id: Types.Scalars['String']['input'];
@@ -51,6 +51,9 @@ export const NotificationConfigRowFragmentDoc = gql`
   configurationData
   status
   parameters
+  recipientIds
+  recipientListIds
+  sqlRecipientListIds
 }
     `;
 export const NotificationConfigsDocument = gql`

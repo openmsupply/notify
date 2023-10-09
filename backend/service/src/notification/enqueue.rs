@@ -4,6 +4,7 @@ use repository::{
     NotificationType, RecipientRow,
 };
 use serde::Serialize;
+use tera::{Context, Tera};
 use util::uuid::uuid;
 
 use crate::service_provider::ServiceContext;
@@ -12,7 +13,7 @@ use super::NotificationServiceError;
 
 // This struct is intended to be able to be created by a plugin from a datasource, and defines what a template can expect from a recipient
 // Often it will be derived RecipientRow which is why we implement From<RecipientRow> for NotificationRecipient
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct NotificationTarget {
     pub name: String,
     pub to_address: String,
@@ -30,9 +31,15 @@ impl From<RecipientRow> for NotificationTarget {
 }
 
 #[derive(Debug)]
+pub enum TemplateDefinition {
+    TemplateName(String),
+    Template(String),
+}
+
+#[derive(Debug)]
 pub struct NotificationContext {
-    pub title_template_name: Option<String>,
-    pub body_template_name: String,
+    pub title_template: Option<TemplateDefinition>,
+    pub body_template: TemplateDefinition,
     pub recipients: Vec<NotificationTarget>,
     pub template_data: serde_json::Value,
 }
@@ -44,14 +51,61 @@ pub fn create_notification_events(
 ) -> Result<(), NotificationServiceError> {
     let repo = NotificationEventRowRepository::new(&ctx.connection);
 
-    // TODO: Should this function use a notification config to get the template, users, etc?
+    // Dedup recipients by to_address
+    let mut recipients = notification.recipients.clone();
+    recipients.sort_by(|a, b| a.to_address.cmp(&b.to_address));
+    recipients.dedup_by(|a, b| (a.to_address == b.to_address));
+
+    // Create a tera instance for this notification
+    let mut tera = Tera::default();
+    // Add any configured templates to out new tera instance
+    tera.extend(ctx.service_provider.notification_service.tera())
+        .map_err(|e| {
+            NotificationServiceError::InternalError(format!(
+                "Failed to extend tera instance with notification service templates: {:?}",
+                e
+            ))
+        })?;
+
+    let title_template_name = match notification.title_template {
+        Some(TemplateDefinition::TemplateName(title_template_name)) => title_template_name,
+        Some(TemplateDefinition::Template(title_template)) => {
+            // Add the title template to the tera instance
+            tera.add_raw_template("title_template", &title_template)
+                .map_err(|e| {
+                    NotificationServiceError::InternalError(format!(
+                        "Failed to add title template to tera instance: {:?}",
+                        e
+                    ))
+                })?;
+            "title_template".to_string()
+        }
+        None => "default/title.html".to_string(),
+    };
+
+    let body_template_name = match notification.body_template {
+        TemplateDefinition::TemplateName(body_template_name) => body_template_name,
+        TemplateDefinition::Template(body_template) => {
+            // Add the body template to the tera instance
+            tera.add_raw_template("body_template", &body_template)
+                .map_err(|e| {
+                    NotificationServiceError::InternalError(format!(
+                        "Failed to add body template to tera instance: {:?}",
+                        e
+                    ))
+                })?;
+            "body_template".to_string()
+        }
+    };
+
+    let mut tera_context = Context::from_value(notification.template_data)?;
 
     // Loop through recipients and create a notification for each
-    for recipient in notification.recipients {
+    for recipient in recipients {
         let notification_type = recipient.notification_type.clone();
 
-        let mut template_context: serde_json::Value = notification.template_data.clone();
-        template_context["recipient"] = serde_json::to_value(recipient.clone()).unwrap_or_default();
+        // Replace the recipient data in the template context
+        tera_context.insert("recipient", &recipient);
 
         let base_row = NotificationEventRow {
             id: uuid(),
@@ -67,53 +121,32 @@ pub fn create_notification_events(
             ..Default::default()
         };
 
-        let base_row_with_title = match notification.title_template_name.clone() {
-            Some(title_template_name) => {
-                let title = ctx
-                    .service_provider
-                    .notification_service
-                    .render(&title_template_name, &template_context);
-
-                match title {
-                    Ok(title) => NotificationEventRow {
-                        title: Some(title),
-                        ..base_row
-                    },
-                    Err(e) => {
-                        log::error!("Failed to render notification title template: {:?}", e);
-                        NotificationEventRow {
-                            status: NotificationEventStatus::Errored,
-                            error_message: Some(format!("{:?}", e)),
-                            ..base_row
-                        }
-                    }
+        let base_row_with_title = match tera.render(&title_template_name, &tera_context) {
+            Ok(title) => NotificationEventRow {
+                title: Some(title),
+                ..base_row
+            },
+            Err(e) => {
+                log::error!("Failed to render notification title template: {:?}", e);
+                NotificationEventRow {
+                    status: NotificationEventStatus::Errored,
+                    error_message: Some(format!("{:?}", e)),
+                    ..base_row
                 }
             }
-            None => base_row,
         };
 
-        let notification_queue_row = match base_row_with_title.status {
-            NotificationEventStatus::Errored => base_row_with_title,
-            _ => {
-                let message = ctx
-                    .service_provider
-                    .notification_service
-                    .render(&notification.body_template_name.clone(), &template_context);
-
-                match message {
-                    Ok(message) => NotificationEventRow {
-                        status: NotificationEventStatus::Queued,
-                        message,
-                        ..base_row_with_title
-                    },
-                    Err(e) => {
-                        log::error!("Failed to render notification template: {:?}", e);
-                        NotificationEventRow {
-                            status: NotificationEventStatus::Failed, // Permanent Error TODO: check if this is permanent or temporary failure, retries, and exponential backoff etc
-                            error_message: Some(format!("{:?}", e)),
-                            ..base_row_with_title
-                        }
-                    }
+        let notification_queue_row = match tera.render(&body_template_name, &tera_context) {
+            Ok(body) => NotificationEventRow {
+                message: body,
+                ..base_row_with_title
+            },
+            Err(e) => {
+                log::error!("Failed to render notification body template: {:?}", e);
+                NotificationEventRow {
+                    status: NotificationEventStatus::Errored,
+                    error_message: Some(format!("{:?}", e)),
+                    ..base_row_with_title
                 }
             }
         };
@@ -137,7 +170,7 @@ mod test {
 
     use crate::{
         notification::enqueue::{
-            create_notification_events, NotificationContext, NotificationTarget,
+            create_notification_events, NotificationContext, NotificationTarget, TemplateDefinition,
         },
         service_provider::{ServiceContext, ServiceProvider},
         test_utils::get_test_settings,
@@ -162,13 +195,22 @@ mod test {
             &context,
             None,
             NotificationContext {
-                title_template_name: Some("test_message/email_subject.html".to_string()),
-                body_template_name: "test_message/email.html".to_string(),
+                title_template: Some(TemplateDefinition::TemplateName(
+                    "test_message/email_subject.html".to_string(),
+                )),
+                body_template: TemplateDefinition::TemplateName(
+                    "test_message/email.html".to_string(),
+                ),
                 recipients: vec![NotificationTarget {
                     name: "test".to_string(),
                     to_address: "test@example.com".to_string(),
                     notification_type: NotificationType::Email,
-                }],
+                }, NotificationTarget {
+                    name: "test2".to_string(),
+                    to_address: "test@example.com".to_string(),
+                    notification_type: NotificationType::Email,
+                },
+                ],
                 template_data: serde_json::json!({}),
             },
         );
@@ -206,10 +248,16 @@ mod test {
             &context,
             None,
             NotificationContext {
-                title_template_name: None,
-                body_template_name: "test_message/telegram.html".to_string(),
+                title_template: None,
+                body_template: TemplateDefinition::TemplateName(
+                    "test_message/telegram.html".to_string(),
+                ),
                 recipients: vec![NotificationTarget {
                     name: "telegram".to_string(),
+                    to_address: "-12345".to_string(),
+                    notification_type: NotificationType::Telegram,
+                }, NotificationTarget {
+                    name: "telegram2".to_string(),
                     to_address: "-12345".to_string(),
                     notification_type: NotificationType::Telegram,
                 }],

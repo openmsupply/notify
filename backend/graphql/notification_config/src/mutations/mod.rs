@@ -29,7 +29,8 @@ pub fn map_error(error: ModifyNotificationConfigError) -> Result<ModifyNotificat
         }
         ModifyNotificationConfigError::ModifiedRecordNotFound => InternalError(formatted_error),
         ModifyNotificationConfigError::DatabaseError(_) => InternalError(formatted_error),
-        ModifyNotificationConfigError::GenericError(s) => InternalError(s),
+        ModifyNotificationConfigError::InternalError(s) => InternalError(s),
+        ModifyNotificationConfigError::BadUserInput(s) => BadUserInput(s),
     };
 
     Err(graphql_error.extend())

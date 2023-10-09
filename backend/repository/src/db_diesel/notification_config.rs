@@ -7,12 +7,11 @@ use super::{
 use crate::{
     diesel_macros::{apply_equal_filter, apply_sort_no_case, apply_string_filter},
     repository_error::RepositoryError,
-    EqualFilter, NotificationConfigKind, NotificationConfigRow, Pagination, Sort, StringFilter, NotificationConfigStatus, 
+    EqualFilter, NotificationConfigKind, NotificationConfigRow, NotificationConfigStatus,
+    Pagination, Sort, StringFilter,
 };
 
 use diesel::{dsl::IntoBoxed, prelude::*};
-
-pub type NotificationConfig = NotificationConfigRow;
 
 #[derive(Clone, Default, Debug, PartialEq)]
 pub struct NotificationConfigFilter {
@@ -48,14 +47,14 @@ impl<'a> NotificationConfigRepository<'a> {
     pub fn query_by_filter(
         &self,
         filter: NotificationConfigFilter,
-    ) -> Result<Vec<NotificationConfig>, RepositoryError> {
+    ) -> Result<Vec<NotificationConfigRow>, RepositoryError> {
         self.query(Pagination::new(), Some(filter), None)
     }
 
     pub fn query_one(
         &self,
         filter: NotificationConfigFilter,
-    ) -> Result<Option<NotificationConfig>, RepositoryError> {
+    ) -> Result<Option<NotificationConfigRow>, RepositoryError> {
         Ok(self.query_by_filter(filter)?.pop())
     }
 
@@ -64,7 +63,7 @@ impl<'a> NotificationConfigRepository<'a> {
         pagination: Pagination,
         filter: Option<NotificationConfigFilter>,
         sort: Option<NotificationConfigSort>,
-    ) -> Result<Vec<NotificationConfig>, RepositoryError> {
+    ) -> Result<Vec<NotificationConfigRow>, RepositoryError> {
         let mut query = create_filtered_query(filter);
 
         if let Some(sort) = sort {
@@ -81,7 +80,7 @@ impl<'a> NotificationConfigRepository<'a> {
             .offset(pagination.offset as i64)
             .limit(pagination.limit as i64);
 
-        let result = final_query.load::<NotificationConfig>(&self.connection.connection)?;
+        let result = final_query.load::<NotificationConfigRow>(&self.connection.connection)?;
         Ok(result)
     }
 }

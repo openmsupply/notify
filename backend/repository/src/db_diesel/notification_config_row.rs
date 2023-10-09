@@ -14,6 +14,9 @@ table! {
         configuration_data -> Text,
         status -> crate::db_diesel::notification_config_row::NotificationConfigStatusMapping,
         parameters -> Text,
+        recipient_ids -> Text,
+        recipient_list_ids -> Text,
+        sql_recipient_list_ids -> Text,
         last_run_datetime -> Nullable<Timestamp>,
         next_due_datetime -> Nullable<Timestamp>,
     }
@@ -82,7 +85,10 @@ pub struct NotificationConfigRow {
     // it would appear the diesel JSON types are only available if the postgres feature is enabled...
     pub configuration_data: String,
     pub status: NotificationConfigStatus,
-    pub parameters: String,
+    pub parameters: String,             // JSON object {key: "value"}
+    pub recipient_ids: String,          // JSON array of strings (ids)
+    pub recipient_list_ids: String,     // JSON array of strings (ids)
+    pub sql_recipient_list_ids: String, // JSON array of strings (ids)
     pub last_run_datetime: Option<NaiveDateTime>,
     pub next_due_datetime: Option<NaiveDateTime>,
 }
@@ -141,7 +147,25 @@ impl<'a> NotificationConfigRowRepository<'a> {
                     .is_null()
                     .or(notification_config_dsl::next_due_datetime.le(current_time)),
             )
+            .filter(notification_config_dsl::status.eq(NotificationConfigStatus::Enabled))
             .load::<NotificationConfigRow>(&self.connection.connection)?;
         Ok(result)
+    }
+
+    pub fn set_last_run_by_id(
+        &self,
+        id: &str,
+        last_run: NaiveDateTime,
+        next_due: Option<NaiveDateTime>,
+    ) -> Result<(), RepositoryError> {
+        let query = diesel::update(notification_config_dsl::notification_config)
+            .filter(notification_config_dsl::id.eq(id))
+            .set((
+                notification_config_dsl::next_due_datetime.eq(next_due),
+                notification_config_dsl::last_run_datetime.eq(last_run),
+            ));
+
+        query.execute(&self.connection.connection)?;
+        Ok(())
     }
 }
