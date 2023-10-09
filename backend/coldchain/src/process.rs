@@ -124,7 +124,11 @@ fn try_process_coldchain_notifications(
             current_temp
         );
 
-        let sensor_status_key = format!("sensor_status_{}", sensor_id);
+        // We need this sensor status to be unique per notification config, so we include the notification config id in the key
+        // This means that the same sensor can alarm in tow different configs
+        // And duplicate notifications would be sent, e.g. if your email address is in two configuration & you have the same sensor in both
+        // Future deduplication efforts could be considered for this...
+        let sensor_status_key = format!("sensor_status_{}_{}", sensor_id, notification_config.id);
 
         // Check if the status has changed since the last time we checked
         let prev_sensor_status = ctx
