@@ -45,7 +45,7 @@ WHERE sn.id = $1
 }
 
 #[cfg(test)]
-// #[cfg(feature = "coldchain-tests")]
+#[cfg(feature = "coldchain-tests")]
 mod tests {
     use super::*;
     use std::env;
@@ -53,6 +53,8 @@ mod tests {
     /*
         These tests are more for development, to allow you to test the queries, it's not really designed to be run automatically, hence behind the coldchain-tests feature flag
         We'd need to setup a specific postgres db for the test cases, which could be done, but we'll see if it's worth it later...
+
+         When we do https://github.com/openmsupply/notify/issues/176 this should change to use a test database
     */
 
     #[test]

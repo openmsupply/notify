@@ -26,6 +26,7 @@ pub fn process_coldchain_alerts(
     );
 
     // Check if any cold chain configurations are due to be processed
+    // Currently because we don't set a `next_due_time` all configurations are processed on every tick
     let configs = ctx
         .service_provider
         .notification_config_service
@@ -33,7 +34,7 @@ pub fn process_coldchain_alerts(
         .map_err(|e| ColdChainError::InternalError(format!("{:?}", e)))?;
     let num_configs = configs.len();
 
-    println!("Found {} cold chain configurations to process", num_configs);
+    log::debug!("Found {} cold chain configurations to process", num_configs);
 
     for config in configs {
         if config.status != NotificationConfigStatus::Enabled {
@@ -226,7 +227,7 @@ fn try_process_coldchain_notifications(
             }
         }
 
-        // Create the notification events
+        // Create the a notification if correct type of notification is enabled
 
         // Get Sensor information from the database to use in alerts
         let sensor_row = sensor_info(&mut connection, sensor_id.clone()).map_err(|e| {

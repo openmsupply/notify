@@ -45,8 +45,10 @@ mod tests {
     use std::env;
 
     /*
-        These tests are more for development, to allow you to test the queries, it's not really designed to be run automatically, hence behind the coldchain-tests feature flag
+        These tests are only useful for development at the moment to allow you to test the queries, it's not really designed to be run automatically, hence behind the coldchain-tests feature flag
         We'd need to setup a specific postgres db for the test cases, which could be done, but we'll see if it's worth it later...
+
+        When we do https://github.com/openmsupply/notify/issues/176 this should change to use a test database
     */
 
     #[test]
