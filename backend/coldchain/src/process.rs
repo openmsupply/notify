@@ -77,7 +77,7 @@ fn try_process_coldchain_notifications(
 
     let high_temp_threshold: f64 = config.high_temp_threshold;
     let low_temp_threshold: f64 = config.low_temp_threshold;
-    let max_age = chrono::Duration::hours(600); // TODO: Get this from config
+    let max_age = chrono::Duration::hours(24); // TODO: Get this from config https://github.com/openmsupply/notify/issues/179
 
     // Put all the alerts into a vector, to simply the logic for sending alerts
     let mut alerts: Vec<TemperatureAlert> = Vec::new();
@@ -115,7 +115,7 @@ fn try_process_coldchain_notifications(
                 None => "Null".to_string(),
             },
             None => "Never Recorded".to_string(),
-        }; // This temperature will probably be in the alert message, but for now we'll just log it...
+        };
 
         log::info!(
             "Sensor {} is currently {:?} with a temperature of {}",
@@ -278,7 +278,7 @@ fn try_process_coldchain_notifications(
                 None
             }
             SensorStatus::NoData => {
-                // TODO: Send No Data message if enabled
+                // TODO: Send No Data message if enabled https://github.com/openmsupply/notify/issues/179
                 log::error!("Not sending No Data alert for sensor {}", sensor_id);
                 None // Ignore all other types for now
             }
