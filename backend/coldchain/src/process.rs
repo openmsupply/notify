@@ -1,10 +1,11 @@
 use chrono::NaiveDateTime;
 use repository::{
-    NotificationConfigKind, NotificationConfigRow, NotificationConfigRowRepository,
-    NotificationConfigStatus, NotificationType,
+    NotificationConfigKind, NotificationConfigRowRepository, NotificationConfigStatus,
+    NotificationType,
 };
 use service::{
     notification::enqueue::{create_notification_events, NotificationContext, NotificationTarget},
+    notification_config::query::NotificationConfig,
     service_provider::ServiceContext,
 };
 
@@ -63,7 +64,7 @@ enum ProcessingResult {
 
 fn try_process_coldchain_notifications(
     ctx: &ServiceContext,
-    notification_config: NotificationConfigRow,
+    notification_config: NotificationConfig,
     now: NaiveDateTime,
 ) -> Result<ProcessingResult, ColdChainError> {
     // Load the notification config
@@ -71,10 +72,7 @@ fn try_process_coldchain_notifications(
 
     // Update the last_checked time
     NotificationConfigRowRepository::new(&ctx.connection)
-        .update_one(&NotificationConfigRow {
-            last_run_datetime: Some(now),
-            ..notification_config.clone()
-        })
+        .set_last_run_by_id(&notification_config.id, now, None)
         .map_err(|e| ColdChainError::InternalError(format!("{:?}", e)))?;
 
     let high_temp_threshold: f64 = 22.0; // TODO: Get this from config
