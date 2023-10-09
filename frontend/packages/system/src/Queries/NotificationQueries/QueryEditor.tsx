@@ -13,15 +13,18 @@ import {
   TeraUtils,
   Typography,
   ZapIcon,
+  isValidVariableName,
   useDetailPanel,
   useNotification,
   useToggle,
   useTranslation,
+  validateVariableNameHelperText,
 } from '@notify-frontend/common';
 import { DraftNotificationQuery } from './types';
 import { useUpdateNotificationQuery } from '../api';
 import { NotificationQueryRowFragment } from '../api/operations.generated';
 import { SidePanel } from './SidePanel';
+import { validate } from 'graphql';
 
 const createNotificationQuery = (
   seed?: DraftNotificationQuery | null
@@ -158,6 +161,7 @@ export const QueryEditor = ({
               autoFocus
               required
               value={draft.name}
+              error={invalidName(draft.name)}
               helperText={
                 invalidName(draft.name)
                   ? t('helper-text.recipient-list-name')
@@ -171,11 +175,11 @@ export const QueryEditor = ({
               autoFocus
               required
               value={draft.referenceName}
-              helperText={
-                invalidName(draft.referenceName)
-                  ? t('helper-text.recipient-list-name')
-                  : null
-              }
+              error={!isValidVariableName(draft.referenceName)}
+              helperText={validateVariableNameHelperText(
+                draft.referenceName,
+                t
+              )}
               onChange={e => onUpdate({ referenceName: e.target.value })}
               label={t('label.reference-name')}
               InputLabelProps={{ shrink: true }}
