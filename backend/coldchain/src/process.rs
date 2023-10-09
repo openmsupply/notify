@@ -111,7 +111,7 @@ fn try_process_coldchain_notifications(
 
         let current_temp: String = match latest_temperature_row.clone() {
             Some(row) => match row.temperature {
-                Some(t) => t.to_string(),
+                Some(t) => format!("{:.2}", t), // round to 2 decimal places
                 None => "Null".to_string(),
             },
             None => "Never Recorded".to_string(),
