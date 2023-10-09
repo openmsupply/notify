@@ -7,6 +7,7 @@ pub mod alerts;
 pub mod latest_temperature;
 pub mod parse;
 pub mod process;
+pub mod sensor_info;
 pub mod sensor_state;
 
 const PLUGIN_NAME: &str = "ColdChain";

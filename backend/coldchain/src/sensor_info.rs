@@ -2,44 +2,50 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::Error as DieselError;
 
-use diesel::sql_types::{Double, Nullable, Text, Timestamp};
+use diesel::sql_types::{Double, Nullable, Text};
 use diesel::{sql_query, RunQueryDsl};
 
 #[derive(QueryableByName, Debug, PartialEq, Clone)]
-#[diesel(table_name = temperature_data)]
-pub struct LatestTemperatureRow {
+#[diesel(table_name = sensor_info)]
+pub struct SensorInfoRow {
     #[diesel(sql_type = Text)]
     pub id: String,
     #[diesel(sql_type = Text)]
-    pub sensor_id: String,
-    #[diesel(sql_type = Timestamp)]
-    pub log_datetime: chrono::NaiveDateTime,
+    pub store_name: String,
+    #[diesel(sql_type = Text)]
+    pub store_id: String,
+    #[diesel(sql_type = Text)]
+    pub location_name: String,
+    #[diesel(sql_type = Text)]
+    pub sensor_name: String,
     #[diesel(sql_type = Nullable<Double>)]
-    pub temperature: Option<f64>,
+    pub batterylevel: Option<f64>,
 }
 
-pub fn latest_temperature(
+pub fn sensor_info(
     connection: &mut PgConnection,
     sensor_id: String,
-) -> Result<Option<LatestTemperatureRow>, DieselError> {
-    let query = "SELECT 
-    id,
-    sensor_id,
-    CONCAT(TO_CHAR(date,'YYYY-MM-DD'),' ', TO_CHAR(time,'HH24:MI:SS'))::timestamp AS log_datetime,
-    temperature
-    FROM temperature_log
-    WHERE sensor_id = $1
-    ORDER BY date DESC, time DESC
+) -> Result<Option<SensorInfoRow>, DieselError> {
+    let query = "SELECT sn.id as id,
+batterylevel, 
+s.name as store_name, 
+s.id as store_id,
+coalesce(l.description, '') as location_name, 
+sn.name as sensor_name 
+FROM SENSOR sn 
+JOIN store s ON sn.storeid = s.id 
+LEFT JOIN location l on sn.locationid = l.id 
+WHERE sn.id = $1 
     LIMIT 1";
 
     let query = sql_query(query).bind::<Text, _>(sensor_id);
     // println!("query: {:?}", query);
-    let result: Option<LatestTemperatureRow> = query.get_result(connection).optional()?;
+    let result: Option<SensorInfoRow> = query.get_result(connection).optional()?;
     Ok(result)
 }
 
 #[cfg(test)]
-#[cfg(feature = "coldchain-tests")]
+// #[cfg(feature = "coldchain-tests")]
 mod tests {
     use super::*;
     use std::env;
@@ -50,15 +56,15 @@ mod tests {
     */
 
     #[test]
-    fn can_get_latest_temperatures() {
+    fn can_get_sensor_info() {
         let database_url =
             env::var("DATABASE_URL").expect("the DATABASE_URL environment variable must be set");
 
         let mut connection = PgConnection::establish(&database_url)
             .unwrap_or_else(|e| panic!("Error connecting to {} : {}", database_url, e));
 
-        let sensor_id = "YOUR_SENSOR_ID_HERE".to_string();
-        let result = latest_temperatures(&mut connection, sensor_id).unwrap();
+        let sensor_id = "71dde2604abb11ed8c370d27b7187d58".to_string();
+        let result = sensor_info(&mut connection, sensor_id).unwrap();
         println!("result: {:?}", result);
     }
 }

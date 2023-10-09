@@ -48,6 +48,32 @@ pub struct ColdChainPluginConfig {
     pub low_temp: bool,
     #[serde(default)]
     pub sensor_ids: Vec<String>,
+    #[serde(default = "default_low_temp_limit")]
+    pub low_temp_threshold: f64,
+    #[serde(default = "default_high_temp_limit")]
+    pub high_temp_threshold: f64,
+    #[serde(default)]
+    pub no_data: bool,
+    #[serde(default = "default_no_data_interval")]
+    pub no_data_interval: u32,
+    #[serde(default = "default_no_data_units")]
+    pub no_data_units: String,
+}
+
+fn default_low_temp_limit() -> f64 {
+    2.0
+}
+
+fn default_high_temp_limit() -> f64 {
+    8.0
+}
+
+fn default_no_data_interval() -> u32 {
+    1
+}
+
+fn default_no_data_units() -> String {
+    "hours".to_string()
 }
 
 impl ColdChainPluginConfig {

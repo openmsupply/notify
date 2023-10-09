@@ -1,17 +1,17 @@
 use chrono::NaiveDateTime;
 use repository::{
     NotificationConfigKind, NotificationConfigRowRepository, NotificationConfigStatus,
-    NotificationType,
 };
 use service::{
-    notification::enqueue::{create_notification_events, NotificationContext, NotificationTarget},
-    notification_config::query::NotificationConfig,
+    notification_config::{query::NotificationConfig, recipients::get_notification_targets},
     service_provider::ServiceContext,
 };
 
 use crate::{
+    alerts::{send_temperature_alert, TemperatureAlert},
     latest_temperature::{self, latest_temperature},
     parse::ColdChainPluginConfig,
+    sensor_info::sensor_info,
     sensor_state::{SensorState, SensorStatus},
     ColdChainError, PLUGIN_NAME,
 };
@@ -75,9 +75,12 @@ fn try_process_coldchain_notifications(
         .set_last_run_by_id(&notification_config.id, now, None)
         .map_err(|e| ColdChainError::InternalError(format!("{:?}", e)))?;
 
-    let high_temp_threshold: f64 = 22.0; // TODO: Get this from config
-    let low_temp_threshold: f64 = 20.0; // TODO: Get this from config
-    let max_age = chrono::Duration::hours(1); // TODO: Get this from config
+    let high_temp_threshold: f64 = config.high_temp_threshold;
+    let low_temp_threshold: f64 = config.low_temp_threshold;
+    let max_age = chrono::Duration::hours(600); // TODO: Get this from config
+
+    // Put all the alerts into a vector, to simply the logic for sending alerts
+    let mut alerts: Vec<TemperatureAlert> = Vec::new();
 
     // Loop through checking the current status for each sensor
     for sensor_id in config.sensor_ids {
@@ -171,10 +174,10 @@ fn try_process_coldchain_notifications(
 
         if sensor_status == prev_sensor_status.status {
             // Status has not changed
-            log::info!(
+            log::debug!(
                 "Status for sensor {} has not changed since last check",
                 sensor_id
-            ); // TODO: change to debug, once we're confident in the logic!
+            );
 
             // TODO Check if we need to send a reminder notification
 
@@ -218,19 +221,104 @@ fn try_process_coldchain_notifications(
                 continue;
             }
         }
-        //TODO: Notifications!!!
 
-        // High Temp
-        // Low Temp
-        // No Data
-        // Ok (confirmation)
+        // Create the notification events
+
+        // Get Sensor information from the database to use in alerts
+        let sensor_row = sensor_info(&mut connection, sensor_id.clone()).map_err(|e| {
+            ColdChainError::InternalError(format!(
+                "Failed to get sensor info from the database {}: {:?}",
+                sensor_id, e
+            ))
+        })?;
+
+        let sensor_row = match sensor_row {
+            Some(row) => row,
+            None => {
+                log::error!("No sensor info found for sensor {}", sensor_id);
+                continue;
+            }
+        };
+
+        let alert = match sensor_status {
+            SensorStatus::HighTemp => match config.high_temp {
+                true => Some(TemperatureAlert {
+                    store_name: sensor_row.store_name.clone(),
+                    location_name: sensor_row.location_name.clone(),
+                    sensor_id: sensor_id.clone(),
+                    sensor_name: sensor_row.sensor_name.clone(),
+                    datetime: now,
+                    temperature: current_temp,
+                    alert_type: "High".to_string(),
+                }),
+                false => {
+                    log::info!("High temp alert disabled for sensor {}", sensor_id);
+                    None
+                }
+            },
+
+            SensorStatus::LowTemp => match config.low_temp {
+                true => Some(TemperatureAlert {
+                    store_name: sensor_row.store_name.clone(),
+                    location_name: sensor_row.location_name.clone(),
+                    sensor_id: sensor_id.clone(),
+                    sensor_name: sensor_row.sensor_name.clone(),
+                    datetime: now,
+                    temperature: current_temp,
+                    alert_type: "Low".to_string(),
+                }),
+                false => {
+                    log::info!("Low temp alert disabled for sensor {}", sensor_id);
+                    None
+                }
+            },
+            SensorStatus::Ok => {
+                // TODO: Send OK message if enabled
+                log::error!("Not sending Ok alert for sensor {}", sensor_id);
+                None
+            }
+            SensorStatus::NoData => {
+                // TODO: Send No Data message if enabled
+                log::error!("Not sending No Data alert for sensor {}", sensor_id);
+                None // Ignore all other types for now
+            }
+        };
+
+        if let Some(alert) = alert {
+            alerts.push(alert);
+        }
     }
 
-    // create_notification_events(ctx, Some(scheduled_notification.id), notification)
-    //     .map_err(|e| NotificationError::InternalError(format!("{:?}", e)))?;
-
+    if alerts.len() == 0 {
+        log::info!("No cold chain alerts to send");
+        return Ok(ProcessingResult::Success);
+    }
     // TODO: Suppress too many notifications in a short period of time
     // https://github.com/openmsupply/notify/issues/177
+
+    // look up the recipients for the notification config
+    let notification_targets =
+        get_notification_targets(ctx, &notification_config).map_err(|e| {
+            ColdChainError::InternalError(format!("Failed to get notification targets: {:?}", e))
+        })?;
+
+    for alert in alerts {
+        // Send the notifications
+        let result = send_temperature_alert(
+            ctx,
+            Some(notification_config.id.clone()),
+            alert,
+            notification_targets.clone(),
+        );
+        match result {
+            Ok(_) => {
+                log::info!("Successfully sent cold chain alert");
+            }
+            Err(e) => {
+                log::error!("Failed to send cold chain alert: {:?}", e);
+            }
+        }
+    }
 
     Ok(ProcessingResult::Success)
 }
