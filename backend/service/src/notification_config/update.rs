@@ -1,12 +1,13 @@
 use super::{
-    query::get_notification_config, validate::check_notification_config_exists,
+    query::{get_notification_config, NotificationConfig},
+    validate::check_notification_config_exists,
     ModifyNotificationConfigError,
 };
 use crate::{audit_log::audit_log_entry, service_provider::ServiceContext};
 use chrono::Utc;
 use repository::{
-    LogType, NotificationConfig, NotificationConfigRow, NotificationConfigRowRepository,
-    NotificationConfigStatus, StorageConnection,
+    LogType, NotificationConfigRow, NotificationConfigRowRepository, NotificationConfigStatus,
+    StorageConnection,
 };
 
 #[derive(Clone, Default)]
@@ -16,6 +17,9 @@ pub struct UpdateNotificationConfig {
     pub configuration_data: Option<String>,
     pub status: Option<NotificationConfigStatus>,
     pub parameters: Option<String>,
+    pub recipient_ids: Option<Vec<String>>,
+    pub recipient_list_ids: Option<Vec<String>>,
+    pub sql_recipient_list_ids: Option<Vec<String>>,
 }
 
 pub fn update_notification_config(
@@ -66,6 +70,9 @@ pub fn generate(
         configuration_data,
         status,
         parameters,
+        recipient_ids,
+        recipient_list_ids,
+        sql_recipient_list_ids,
     }: UpdateNotificationConfig,
     current_notification_config_row: NotificationConfigRow,
 ) -> Result<NotificationConfigRow, ModifyNotificationConfigError> {
@@ -83,6 +90,33 @@ pub fn generate(
 
     if let Some(parameters) = parameters {
         new_notification_config_row.parameters = parameters;
+    }
+
+    if let Some(recipient_ids) = recipient_ids {
+        let recipient_json = serde_json::to_string(&recipient_ids).map_err(|_| {
+            ModifyNotificationConfigError::BadUserInput(
+                "Could not convert recipients to JSON".to_string(),
+            )
+        })?;
+        new_notification_config_row.recipient_ids = recipient_json;
+    }
+
+    if let Some(recipient_list_ids) = recipient_list_ids {
+        let recipient_json = serde_json::to_string(&recipient_list_ids).map_err(|_| {
+            ModifyNotificationConfigError::BadUserInput(
+                "Could not convert recipients to JSON".to_string(),
+            )
+        })?;
+        new_notification_config_row.recipient_list_ids = recipient_json;
+    }
+
+    if let Some(sql_recipient_list_ids) = sql_recipient_list_ids {
+        let recipient_json = serde_json::to_string(&sql_recipient_list_ids).map_err(|_| {
+            ModifyNotificationConfigError::BadUserInput(
+                "Could not convert recipients to JSON".to_string(),
+            )
+        })?;
+        new_notification_config_row.sql_recipient_list_ids = recipient_json;
     }
 
     // Reset the next check datetime in case the schedule has changed, or something needs to be recalculated

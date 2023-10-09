@@ -1,13 +1,14 @@
 use chrono::Utc;
 use repository::{
-    LogType, NotificationConfig, NotificationConfigKind, NotificationConfigRow,
-    NotificationConfigRowRepository, StorageConnection, NotificationConfigStatus, 
+    LogType, NotificationConfigKind, NotificationConfigRow, NotificationConfigRowRepository,
+    NotificationConfigStatus, StorageConnection,
 };
 
 use crate::{audit_log::audit_log_entry, service_provider::ServiceContext};
 
 use super::{
-    query::get_notification_config, validate::check_notification_config_does_not_exist,
+    query::{get_notification_config, NotificationConfig},
+    validate::check_notification_config_does_not_exist,
     ModifyNotificationConfigError,
 };
 
@@ -65,6 +66,9 @@ pub fn generate(
         configuration_data: "{}".to_string(),
         status: NotificationConfigStatus::Disabled,
         parameters: "{}".to_string(),
+        recipient_ids: "[]".to_string(),
+        recipient_list_ids: "[]".to_string(),
+        sql_recipient_list_ids: "[]".to_string(),
         last_run_datetime: None,
         next_due_datetime: None,
     })

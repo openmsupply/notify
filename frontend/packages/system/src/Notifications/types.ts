@@ -1,4 +1,3 @@
-import { ConfigKind } from '@common/types';
 import { NotificationConfigRowFragment } from './api';
 import { KeyedParams } from '@common/utils';
 import { LocaleKey, TypedTFunction } from '@common/intl';
@@ -31,18 +30,21 @@ export function getReminderUnitsAsOptions(t: TypedTFunction<LocaleKey>): {
 
 type BaseConfig = Pick<
   NotificationConfigRowFragment,
-  'id' | 'kind' | 'title' | 'status' | 'parameters'
+  | 'id'
+  | 'kind'
+  | 'title'
+  | 'status'
+  | 'parameters'
+  | 'recipientIds'
+  | 'recipientListIds'
+  | 'sqlRecipientListIds'
 >;
 
 export interface BaseNotificationConfig extends BaseConfig {
-  recipientIds: string[];
-  recipientListIds: string[];
-  sqlRecipientListIds: string[];
   parsedParameters: KeyedParams;
 }
 
 export interface CCNotification extends BaseNotificationConfig {
-  kind: ConfigKind;
   highTemp: boolean;
   lowTemp: boolean;
   confirmOk: boolean;
@@ -52,13 +54,12 @@ export interface CCNotification extends BaseNotificationConfig {
   remind: boolean;
   reminderInterval: number;
   reminderUnits: ReminderUnits;
+  messageAlertResolved: boolean;
   locationIds: string[];
   sensorIds: string[];
 }
 
 export interface ScheduledNotification extends BaseNotificationConfig {
-  kind: ConfigKind;
-  parameters: string; // JSON for now
   scheduleFrequency: string;
   scheduleStartTime: Date;
   subjectTemplate: string;
