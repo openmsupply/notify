@@ -35,7 +35,6 @@ impl PluginTrait for ColdChainPlugin {
 
     fn tick(&self, ctx: &ServiceContext) -> Result<(), PluginError> {
         log::debug!("Running ColdChainPlugin");
-        log::error!("WARNING: COLD CHAIN NOT YET FULLY IMPLEMENTED");
         // process any configurations that are due
         let current_time = chrono::Utc::now().naive_utc();
         let result = process::process_coldchain_alerts(ctx, current_time);
