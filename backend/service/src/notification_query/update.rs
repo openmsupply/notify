@@ -17,6 +17,7 @@ use repository::{
 pub struct UpdateNotificationQuery {
     pub id: String,
     pub name: Option<String>,
+    pub reference_name: Option<String>,
     pub description: Option<String>,
     pub query: Option<String>,
     pub required_parameters: Option<Vec<String>>,
@@ -85,6 +86,7 @@ pub fn generate(
     UpdateNotificationQuery {
         id: _id, //ID is already used for look up so we can assume it's the same
         name,
+        reference_name,
         description,
         query,
         required_parameters,
@@ -94,6 +96,9 @@ pub fn generate(
     let mut new_notification_query_row = current_notification_query_row;
     if let Some(name) = name {
         new_notification_query_row.name = name.trim().to_string();
+    }
+    if let Some(reference_name) = reference_name {
+        new_notification_query_row.reference_name = reference_name.trim().to_string();
     }
     if let Some(description) = description {
         new_notification_query_row.description = description;

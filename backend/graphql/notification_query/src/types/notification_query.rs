@@ -29,6 +29,9 @@ impl NotificationQueryNode {
     pub async fn name(&self) -> &str {
         &self.row().name
     }
+    pub async fn reference_name(&self) -> &str {
+        &self.row().reference_name
+    }
     pub async fn description(&self) -> &str {
         &self.row().description
     }

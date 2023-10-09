@@ -1,6 +1,7 @@
 fragment NotificationQueryRow on NotificationQueryNode {
   id
   name
+  referenceName
   description
   query
   requiredParameters

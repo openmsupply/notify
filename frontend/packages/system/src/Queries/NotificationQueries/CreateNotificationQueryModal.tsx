@@ -29,6 +29,7 @@ export const CreateNotificationQueryModal = ({
   const { mutateAsync: create, isLoading } = useCreateNotificationQuery();
 
   const [name, setName] = useState<string>('');
+  const [referenceName, setReferenceName] = useState<string>('');
 
   const { Modal } = useDialog({ isOpen, onClose });
 
@@ -45,6 +46,7 @@ export const CreateNotificationQueryModal = ({
               input: {
                 id: id,
                 name: name,
+                referenceName: referenceName,
               },
             }).then(() => {
               navigate(
@@ -69,6 +71,14 @@ export const CreateNotificationQueryModal = ({
           required
           onChange={e => setName(e.target.value)}
           label={t('label.name')}
+          InputLabelProps={{ shrink: true }}
+        />
+        <BasicTextInput
+          fullWidth
+          value={referenceName}
+          required
+          onChange={e => setReferenceName(e.target.value)}
+          label={t('label.reference-name')}
           InputLabelProps={{ shrink: true }}
         />
       </Box>

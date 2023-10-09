@@ -35,6 +35,7 @@ mod notification_query_update_tests {
         let notification_query = NotificationQueryRow {
             id: id1.clone(),
             name: name1.clone(),
+            reference_name: "reference_name1".to_string(),
             ..Default::default()
         };
         repo.insert_one(&notification_query).unwrap();
@@ -44,6 +45,7 @@ mod notification_query_update_tests {
         let notification_query = NotificationQueryRow {
             id: id2.clone(),
             name: name2.clone(),
+            reference_name: "reference_name2".to_string(),
             ..Default::default()
         };
         repo.insert_one(&notification_query).unwrap();

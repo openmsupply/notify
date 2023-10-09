@@ -181,5 +181,6 @@
   "warning.caps-lock": "Warning: Caps lock is on",
   "label.subject-template": "Subject template",
   "label.body-template": "Body template",
-  "label.parameters": "Parameters"
+  "label.parameters": "Parameters",
+  "label.reference-name": "Reference Name"
 }

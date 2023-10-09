@@ -19,6 +19,7 @@ use repository::{
 pub struct CreateNotificationQuery {
     pub id: String,
     pub name: String,
+    pub reference_name: String,
 }
 
 pub fn create_notification_query(
@@ -77,11 +78,16 @@ pub fn validate(
 }
 
 pub fn generate(
-    CreateNotificationQuery { id, name }: CreateNotificationQuery,
+    CreateNotificationQuery {
+        id,
+        name,
+        reference_name,
+    }: CreateNotificationQuery,
 ) -> Result<NotificationQueryRow, ModifyNotificationQueryError> {
     Ok(NotificationQueryRow {
         id,
         name: name.trim().to_string(),
+        reference_name: reference_name.trim().to_string(),
         description: "".to_string(),
         query: "".to_string(),
         required_parameters: "[]".to_string(),
