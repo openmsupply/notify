@@ -38,8 +38,8 @@ mutation updateNotificationQuery($input: UpdateNotificationQueryInput!) {
   }
 }
 
-mutation deleteNotificationQuery($sqlRecipientListId: String!) {
-  deleteNotificationQuery(sqlRecipientListId: $sqlRecipientListId) {
+mutation deleteNotificationQuery($id: String!) {
+  deleteNotificationQuery(id: $id) {
     ... on DeleteResponse {
       id
     }

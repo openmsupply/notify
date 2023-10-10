@@ -24,7 +24,6 @@ import { DraftNotificationQuery } from './types';
 import { useUpdateNotificationQuery } from '../api';
 import { NotificationQueryRowFragment } from '../api/operations.generated';
 import { SidePanel } from './SidePanel';
-import { validate } from 'graphql';
 
 const createNotificationQuery = (
   seed?: DraftNotificationQuery | null

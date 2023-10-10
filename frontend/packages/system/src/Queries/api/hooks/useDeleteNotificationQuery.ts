@@ -9,7 +9,7 @@ export const useDeleteNotificationQuery = () => {
   const queryClient = useQueryClient();
 
   const result = useMutation(async (id: string) =>
-    sdk.deleteNotificationQuery({ sqlRecipientListId: id })
+    sdk.deleteNotificationQuery({ id: id })
   );
   return {
     ...result,

@@ -29,7 +29,7 @@ export type UpdateNotificationQueryMutationVariables = Types.Exact<{
 export type UpdateNotificationQueryMutation = { __typename: 'FullMutation', updateNotificationQuery: { __typename: 'NotificationQueryNode', id: string, name: string, referenceName: string, description: string, query: string, requiredParameters: Array<string> } };
 
 export type DeleteNotificationQueryMutationVariables = Types.Exact<{
-  sqlRecipientListId: Types.Scalars['String']['input'];
+  id: Types.Scalars['String']['input'];
 }>;
 
 
@@ -84,8 +84,8 @@ export const UpdateNotificationQueryDocument = gql`
 }
     ${NotificationQueryRowFragmentDoc}`;
 export const DeleteNotificationQueryDocument = gql`
-    mutation deleteNotificationQuery($sqlRecipientListId: String!) {
-  deleteNotificationQuery(sqlRecipientListId: $sqlRecipientListId) {
+    mutation deleteNotificationQuery($id: String!) {
+  deleteNotificationQuery(id: $id) {
     ... on DeleteResponse {
       id
     }
