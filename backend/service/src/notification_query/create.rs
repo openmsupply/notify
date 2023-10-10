@@ -3,6 +3,7 @@ use super::{
     validate::{
         check_list_name_doesnt_contain_special_characters, check_list_name_is_appropriate_length,
         check_notification_query_does_not_exist, check_notification_query_name_is_unique,
+        check_notification_query_reference_name_is_unique,
     },
     ModifyNotificationQueryError,
 };
@@ -72,6 +73,14 @@ pub fn validate(
         connection,
     )? {
         return Err(ModifyNotificationQueryError::NotificationQueryAlreadyExists);
+    }
+
+    if !check_notification_query_reference_name_is_unique(
+        &new_notification_query.id,
+        Some(new_notification_query.reference_name.clone()),
+        connection,
+    )? {
+        return Err(ModifyNotificationQueryError::ReferenceNameAlreadyExists);
     }
 
     Ok(())

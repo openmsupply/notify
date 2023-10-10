@@ -76,13 +76,26 @@ mod notification_query_update_tests {
             Err(ModifyNotificationQueryError::NotificationQueryAlreadyExists)
         );
 
+        // Trying to update to a reference_name that already exists should fail (even with added whitespace)
+        assert_eq!(
+            service.update_notification_query(
+                &context,
+                UpdateNotificationQuery {
+                    id: id1.clone(),
+                    reference_name: Some("reference_name2  ".to_string()),
+                    ..Default::default()
+                },
+            ),
+            Err(ModifyNotificationQueryError::ReferenceNameAlreadyExists)
+        );
+
         // Trying to update to a name with illegal characters should fail
         assert_eq!(
             service.update_notification_query(
                 &context,
                 UpdateNotificationQuery {
                     id: id1.clone(),
-                    name: Some("name'; DROP TABLE Students;--".to_string()),
+                    name: Some("name1!".to_string()),
                     ..Default::default()
                 },
             ),

@@ -72,6 +72,7 @@ impl NotificationQueryServiceTrait for NotificationQueryService {}
 #[derive(Debug)]
 pub enum ModifyNotificationQueryError {
     NotificationQueryAlreadyExists,
+    ReferenceNameAlreadyExists,
     ModifiedRecordNotFound,
     DatabaseError(RepositoryError),
     NotificationQueryDoesNotExist,
@@ -88,7 +89,10 @@ impl PartialEq for ModifyNotificationQueryError {
                 ModifyNotificationQueryError::NotificationQueryAlreadyExists,
                 ModifyNotificationQueryError::NotificationQueryAlreadyExists,
             ) => true,
-
+            (
+                ModifyNotificationQueryError::ReferenceNameAlreadyExists,
+                ModifyNotificationQueryError::ReferenceNameAlreadyExists,
+            ) => true,
             (
                 ModifyNotificationQueryError::ModifiedRecordNotFound,
                 ModifyNotificationQueryError::ModifiedRecordNotFound,
@@ -106,6 +110,15 @@ impl PartialEq for ModifyNotificationQueryError {
                 ModifyNotificationQueryError::InvalidNotificationQueryName,
                 ModifyNotificationQueryError::InvalidNotificationQueryName,
             ) => true,
+            (
+                ModifyNotificationQueryError::InternalError(self_err),
+                ModifyNotificationQueryError::InternalError(other_err),
+            ) => self_err == other_err,
+            (
+                ModifyNotificationQueryError::BadUserInput(self_err),
+                ModifyNotificationQueryError::BadUserInput(other_err),
+            ) => self_err == other_err,
+
             _ => false,
         }
     }

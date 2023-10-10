@@ -46,6 +46,26 @@ pub fn check_notification_query_name_is_unique(
     }
 }
 
+pub fn check_notification_query_reference_name_is_unique(
+    id: &str,
+    reference_name: Option<String>,
+    connection: &StorageConnection,
+) -> Result<bool, RepositoryError> {
+    match reference_name {
+        None => Ok(true),
+        Some(reference_name) => {
+            let notification_queries = NotificationQueryRepository::new(connection)
+                .query_by_filter(
+                    NotificationQueryFilter::new()
+                        .reference_name(StringFilter::equal_to(&reference_name.trim().to_string()))
+                        .id(EqualFilter::not_equal_to(id)),
+                )?;
+
+            Ok(notification_queries.is_empty())
+        }
+    }
+}
+
 // TODO: Refactor as part of https://github.com/openmsupply/notify/issues/140
 pub fn check_list_name_is_appropriate_length(name: &str) -> Result<bool, RepositoryError> {
     Ok(name.trim().len() >= 3 && name.len() <= 70)
