@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 import {
   useDialog,
   DialogButton,
@@ -10,6 +12,9 @@ import {
   BasicTextInput,
   Box,
   RouteBuilder,
+  isValidVariableName,
+  validateVariableNameHelperText,
+  Tooltip,
 } from '@notify-frontend/common';
 import { useCreateNotificationQuery } from '../api';
 import { AppRoute } from 'packages/config/src';
@@ -29,6 +34,9 @@ export const CreateNotificationQueryModal = ({
   const { mutateAsync: create, isLoading } = useCreateNotificationQuery();
 
   const [name, setName] = useState<string>('');
+  const [referenceName, setReferenceName] = useState<string>('');
+  const [referenceNameEdited, setReferenceNameEdited] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const { Modal } = useDialog({ isOpen, onClose });
 
@@ -45,12 +53,18 @@ export const CreateNotificationQueryModal = ({
               input: {
                 id: id,
                 name: name,
+                referenceName: referenceName,
               },
-            }).then(() => {
-              navigate(
-                RouteBuilder.create(AppRoute.Queries).addPart(id).build()
-              );
-            });
+            }).then(
+              () => {
+                navigate(
+                  RouteBuilder.create(AppRoute.Queries).addPart(id).build()
+                );
+              },
+              e => {
+                setErrorMessage(e.message);
+              }
+            );
           }}
           isLoading={isLoading}
           startIcon={<ArrowRightIcon />}
@@ -67,10 +81,50 @@ export const CreateNotificationQueryModal = ({
           fullWidth
           value={name}
           required
-          onChange={e => setName(e.target.value)}
+          onChange={e => {
+            setName(e.target.value);
+            if (!referenceNameEdited) {
+              const referenceName = e.target.value
+                .replace(/[^a-zA-Z0-9]/g, '_')
+                .toLocaleLowerCase();
+              setReferenceName(referenceName);
+            }
+          }}
           label={t('label.name')}
           InputLabelProps={{ shrink: true }}
         />
+        <BasicTextInput
+          fullWidth
+          value={referenceName}
+          error={!isValidVariableName(referenceName)}
+          helperText={
+            <Tooltip title={t('helper-text.reference_name')}>
+              <span>
+                {validateVariableNameHelperText(referenceName, t) ??
+                  t('helper-text.reference_name')}
+              </span>
+            </Tooltip>
+          }
+          required
+          onChange={e => {
+            setReferenceName(e.target.value);
+            setReferenceNameEdited(true);
+          }}
+          label={t('label.reference-name')}
+          InputLabelProps={{ shrink: true }}
+        />
+        {errorMessage ? (
+          <Alert
+            sx={{ marginTop: 2 }}
+            severity="error"
+            onClose={() => {
+              setErrorMessage('');
+            }}
+          >
+            <AlertTitle>{t('error')}</AlertTitle>
+            {errorMessage}
+          </Alert>
+        ) : null}
       </Box>
     </Modal>
   );

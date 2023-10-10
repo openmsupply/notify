@@ -33,6 +33,9 @@ pub fn map_error(error: ModifyNotificationQueryError) -> Result<ModifyNotificati
         ModifyNotificationQueryError::InternalError(s) => InternalError(s),
         ModifyNotificationQueryError::InvalidNotificationQueryName => BadUserInput(formatted_error),
         ModifyNotificationQueryError::BadUserInput(s) => BadUserInput(s),
+        ModifyNotificationQueryError::ReferenceNameAlreadyExists => {
+            BadUserInput("Reference name must be unique".to_string())
+        }
     };
 
     Err(graphql_error.extend())

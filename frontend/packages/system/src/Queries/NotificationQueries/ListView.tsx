@@ -28,6 +28,7 @@ export const ListView = () => {
   const columns = useColumns<NotificationQueryRowFragment>(
     [
       { key: 'name', label: 'label.name' },
+      { key: 'referenceName', label: 'label.reference-name' },
       {
         key: 'description',
         label: 'label.description',

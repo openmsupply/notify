@@ -9,6 +9,7 @@ table! {
     notification_query (id) {
         id -> Text,
         name -> Text,
+        reference_name -> Text,
         description -> Text,
         query -> Text,
         required_parameters -> Text,
@@ -24,6 +25,7 @@ table! {
 pub struct NotificationQueryRow {
     pub id: String,
     pub name: String,
+    pub reference_name: String,
     pub description: String,
     pub query: String,
     pub required_parameters: String,
