@@ -33,7 +33,6 @@ pub enum AlertType {
     Low,
     Ok,
     NoData,
-    Recovered,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -43,6 +42,7 @@ pub struct ColdchainAlert {
     pub store_name: String,
     pub location_name: String,
     pub datetime: NaiveDateTime,
+    pub data_age: String,
     pub temperature: String,
     pub alert_type: AlertType,
 }
@@ -64,20 +64,16 @@ pub fn send_individual_coldchain_alert(
     };
 
     let body_template = match alert.alert_type {
-        AlertType::High |     AlertType::Low => TemplateDefinition::TemplateName("coldchain/temperature.html".to_string()),
-        AlertType::Ok => {
-            log::
-            TemplateDefinition::Template("Temperature has returned to normal".to_string());
-
-        },
-        AlertType::NoData => todo!(),
-        AlertType::Recovered => todo!(),
-        
+        AlertType::High | AlertType::Low => {
+            TemplateDefinition::TemplateName("coldchain/temperature.html".to_string())
+        }
+        AlertType::Ok => TemplateDefinition::TemplateName("coldchain/recovered.html".to_string()),
+        AlertType::NoData => TemplateDefinition::TemplateName("coldchain/no_data.html".to_string()),
     };
 
     let notification = NotificationContext {
-        title_template: title_template
-        body_template: TemplateDefinition::TemplateName("coldchain/temperature.html".to_string()),
+        title_template,
+        body_template,
         recipients,
         template_data: serde_json::to_value(alert).map_err(|e| {
             notification::NotificationServiceError::InternalError(format!(
@@ -128,6 +124,7 @@ mod tests {
             sensor_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b3".to_string(),
             sensor_name: "E5:4G:D4:6D:A4".to_string(),
             datetime: NaiveDateTime::from_str("2023-07-17T17:04:00").unwrap(),
+            data_age: "1 minutes".to_string(),
             temperature: 10.12345.to_string(),
             alert_type: AlertType::High,
         };
@@ -193,6 +190,7 @@ mod tests {
             sensor_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b3".to_string(),
             sensor_name: "E5:4G:D4:6D:A4".to_string(),
             datetime: NaiveDateTime::from_str("2023-07-17T17:04:00").unwrap(),
+            data_age: "2 minutes".to_string(),
             temperature: 1.01.to_string(),
             alert_type: AlertType::Low,
         };
@@ -241,5 +239,68 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_no_data_alert() {}
+    async fn test_no_data_alert() {
+        let (_, _, connection_manager, _) =
+            setup_all("test_no_data_alert", MockDataInserts::none()).await;
+
+        let connection = connection_manager.connection().unwrap();
+        let service_provider = Arc::new(ServiceProvider::new(
+            connection_manager,
+            get_test_settings(""),
+        ));
+        let context = ServiceContext::as_server_admin(service_provider).unwrap();
+
+        let example_alert = ColdchainAlert {
+            store_name: "Store A".to_string(),
+            location_name: "Fridge 1".to_string(),
+            sensor_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b3".to_string(),
+            sensor_name: "E5:4G:D4:6D:A4".to_string(),
+            datetime: NaiveDateTime::from_str("2023-07-17T00:04:00").unwrap(),
+            data_age: "60 minutes".to_string(),
+            temperature: 1.01.to_string(),
+            alert_type: AlertType::NoData,
+        };
+
+        let recipient1 = NotificationTarget {
+            name: "test".to_string(),
+            to_address: get_default_telegram_chat_id(),
+            notification_type: NotificationType::Telegram,
+        };
+        let recipient2 = NotificationTarget {
+            name: "test-email".to_string(),
+            to_address: "test@example.com".to_string(),
+            notification_type: NotificationType::Email,
+        };
+
+        let result = send_individual_coldchain_alert(
+            &context,
+            None,
+            example_alert.clone(),
+            vec![recipient1, recipient2],
+        );
+
+        assert!(result.is_ok());
+
+        // Check we have a notification event
+        let notification_event_row_repository = NotificationEventRowRepository::new(&connection);
+        let notification_event_rows = notification_event_row_repository.un_sent().unwrap();
+
+        assert_eq!(notification_event_rows.len(), 2);
+        assert_eq!(
+            notification_event_rows[0].to_address,
+            get_default_telegram_chat_id()
+        );
+        assert!(notification_event_rows[0]
+            .message
+            .contains(&example_alert.store_name));
+
+        // Check email recipient
+        assert_eq!(notification_event_rows[1].to_address, "test@example.com");
+        assert!(notification_event_rows[1]
+            .message
+            .contains(&example_alert.store_name));
+
+        send_test_notifications(&context).await;
+        send_test_emails(&context);
+    }
 }

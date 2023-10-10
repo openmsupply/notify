@@ -118,6 +118,14 @@ fn try_process_coldchain_notifications(
             None => "Never Recorded".to_string(),
         };
 
+        let data_age: String = match latest_temperature_row.clone() {
+            Some(row) => format!(
+                "{} minutes",
+                (now - row.log_datetime).num_minutes().to_string() // TODO: Improve this to show the age in hours/days/weeks/months/years? Ideally it would be translatable?
+            ),
+            None => "?? minutes".to_string(),
+        };
+
         log::info!(
             "Sensor {} is currently {:?} with a temperature of {}",
             sensor_id,
@@ -253,6 +261,7 @@ fn try_process_coldchain_notifications(
                     sensor_id: sensor_id.clone(),
                     sensor_name: sensor_row.sensor_name.clone(),
                     datetime: now,
+                    data_age: data_age,
                     temperature: current_temp,
                     alert_type: AlertType::High,
                 }),
@@ -269,6 +278,7 @@ fn try_process_coldchain_notifications(
                     sensor_id: sensor_id.clone(),
                     sensor_name: sensor_row.sensor_name.clone(),
                     datetime: now,
+                    data_age: data_age,
                     temperature: current_temp,
                     alert_type: AlertType::Low,
                 }),
@@ -277,18 +287,30 @@ fn try_process_coldchain_notifications(
                     None
                 }
             },
-            SensorStatus::Ok => {
-                // TODO: Send OK message if enabled
-                log::error!("Not sending Ok alert for sensor {}", sensor_id);
-                None
-            }
-            SensorStatus::NoData => match config.low_temp {
+            SensorStatus::Ok => match config.confirm_ok {
                 true => Some(ColdchainAlert {
                     store_name: sensor_row.store_name.clone(),
                     location_name: sensor_row.location_name.clone(),
                     sensor_id: sensor_id.clone(),
                     sensor_name: sensor_row.sensor_name.clone(),
                     datetime: now,
+                    data_age: data_age,
+                    temperature: current_temp,
+                    alert_type: AlertType::Ok,
+                }),
+                false => {
+                    log::info!("Confirm Ok alert disabled for sensor {}", sensor_id);
+                    None
+                }
+            },
+            SensorStatus::NoData => match config.no_data {
+                true => Some(ColdchainAlert {
+                    store_name: sensor_row.store_name.clone(),
+                    location_name: sensor_row.location_name.clone(),
+                    sensor_id: sensor_id.clone(),
+                    sensor_name: sensor_row.sensor_name.clone(),
+                    datetime: now,
+                    data_age: data_age,
                     temperature: current_temp,
                     alert_type: AlertType::NoData,
                 }),

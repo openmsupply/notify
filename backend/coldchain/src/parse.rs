@@ -43,6 +43,8 @@ use crate::ColdChainError;
 #[serde(rename_all = "camelCase")]
 pub struct ColdChainPluginConfig {
     #[serde(default)]
+    pub confirm_ok: bool,
+    #[serde(default)]
     pub high_temp: bool,
     #[serde(default)]
     pub low_temp: bool,
