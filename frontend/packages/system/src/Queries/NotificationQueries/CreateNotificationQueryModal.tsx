@@ -14,6 +14,7 @@ import {
   RouteBuilder,
   isValidVariableName,
   validateVariableNameHelperText,
+  Tooltip,
 } from '@notify-frontend/common';
 import { useCreateNotificationQuery } from '../api';
 import { AppRoute } from 'packages/config/src';
@@ -96,7 +97,14 @@ export const CreateNotificationQueryModal = ({
           fullWidth
           value={referenceName}
           error={!isValidVariableName(referenceName)}
-          helperText={validateVariableNameHelperText(referenceName, t)}
+          helperText={
+            <Tooltip title={t('helper-text.reference_name')}>
+              <span>
+                {validateVariableNameHelperText(referenceName, t) ??
+                  t('helper-text.reference_name')}
+              </span>
+            </Tooltip>
+          }
           required
           onChange={e => {
             setReferenceName(e.target.value);

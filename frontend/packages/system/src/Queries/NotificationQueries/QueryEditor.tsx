@@ -11,6 +11,7 @@ import {
   LoadingButton,
   SaveIcon,
   TeraUtils,
+  Tooltip,
   Typography,
   ZapIcon,
   isValidVariableName,
@@ -175,10 +176,14 @@ export const QueryEditor = ({
               required
               value={draft.referenceName}
               error={!isValidVariableName(draft.referenceName)}
-              helperText={validateVariableNameHelperText(
-                draft.referenceName,
-                t
-              )}
+              helperText={
+                <Tooltip title={t('helper-text.reference_name')}>
+                  <span>
+                    {validateVariableNameHelperText(draft.referenceName, t) ??
+                      t('helper-text.reference_name')}
+                  </span>
+                </Tooltip>
+              }
               onChange={e => onUpdate({ referenceName: e.target.value })}
               label={t('label.reference-name')}
               InputLabelProps={{ shrink: true }}
