@@ -116,30 +116,13 @@ export const CCNotificationEditForm = ({
             checked={draft.noData}
             onClick={() => onUpdate({ noData: !draft.noData })}
           />
-          <label htmlFor="noData">
-            {t('label.coldchain-no-data-alerts')}
-            <Tooltip title={t('messages.cold-chain-no-data-information')}>
-              <span>
-                {' '}
-                <InfoIcon fontSize="small" color="inherit" />
-              </span>
-            </Tooltip>
-          </label>
-        </li>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            marginLeft: '40px',
-          }}
-        >
+          <label htmlFor="noData">{t('label.coldchain-no-data-alerts')}</label>
           <PositiveNumberInput
             disabled={!draft.noData}
             value={draft.noDataInterval}
             required
             onChange={newValue => onUpdate({ noDataInterval: newValue })}
-            sx={{ width: '60px' }}
+            sx={{ marginLeft: '10px', width: '60px' }}
           />
           <Select
             value={draft.noDataUnits}
@@ -150,8 +133,15 @@ export const CCNotificationEditForm = ({
               })
             }
             options={getReminderUnitsAsOptions(t)}
+            sx={{ marginLeft: '10px' }}
           />
-        </Box>
+          <Tooltip title={t('messages.cold-chain-no-data-information')}>
+            <span>
+              {' '}
+              <InfoIcon fontSize="small" color="inherit" />
+            </span>
+          </Tooltip>
+        </li>
       </ul>
       <Typography
         sx={{
@@ -171,21 +161,12 @@ export const CCNotificationEditForm = ({
             onClick={() => onUpdate({ remind: !draft.remind })}
           />
           <label htmlFor="remind">{t('label.coldchain-reminder-alerts')}</label>
-        </li>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            marginLeft: '40px',
-          }}
-        >
           <PositiveNumberInput
             disabled={!draft.remind}
             value={draft.reminderInterval}
             required
             onChange={newValue => onUpdate({ reminderInterval: newValue })}
-            sx={{ width: '60px' }}
+            sx={{ marginLeft: '10px', width: '60px' }}
           />
 
           <Select
@@ -197,8 +178,9 @@ export const CCNotificationEditForm = ({
               })
             }
             options={getReminderUnitsAsOptions(t)}
+            sx={{ marginLeft: '10px' }}
           />
-        </Box>
+        </li>
         <li>
           <Checkbox
             id="messageAlertResolved"
