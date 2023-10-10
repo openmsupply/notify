@@ -9,6 +9,7 @@ import {
   useTranslation,
   Tooltip,
   InfoIcon,
+  NumberInput,
 } from '@notify-frontend/common';
 import {
   CCNotification,
@@ -50,15 +51,27 @@ export const CCNotificationEditForm = ({
             checked={draft.highTemp}
             onClick={() => onUpdate({ highTemp: !draft.highTemp })}
           />
+
           <label htmlFor="highTemp">
             {t('label.coldchain-high-temp-alerts')}
-            <Tooltip title={t('messages.cold-chain-temperature-information')}>
-              <span>
-                {' '}
-                <InfoIcon fontSize="small" color="inherit" />
-              </span>
-            </Tooltip>
+            {'  '}
           </label>
+          <NumberInput
+            id={'highTempThreshold'}
+            disabled={!draft.highTemp}
+            value={draft.highTempThreshold}
+            required
+            onChange={newValue => onUpdate({ highTempThreshold: newValue })}
+            sx={{ width: '60px' }}
+          />
+          <Tooltip title={t('messages.cold-chain-temperature-information')}>
+            <span>
+              {'  '}
+              {t('label.degrees-celsius')}
+              {'  '}
+              <InfoIcon fontSize="small" color="inherit" />
+            </span>
+          </Tooltip>
         </li>
         <li>
           <Checkbox
@@ -68,13 +81,24 @@ export const CCNotificationEditForm = ({
           />
           <label htmlFor="lowTemp">
             {t('label.coldchain-low-temp-alerts')}
-            <Tooltip title={t('messages.cold-chain-temperature-information')}>
-              <span>
-                {' '}
-                <InfoIcon fontSize="small" color="inherit" />
-              </span>
-            </Tooltip>
+            {'  '}
           </label>
+          <NumberInput
+            id={'lowTempThreshold'}
+            disabled={!draft.highTemp}
+            value={draft.lowTempThreshold}
+            required
+            onChange={newValue => onUpdate({ lowTempThreshold: newValue })}
+            sx={{ width: '60px' }}
+          />
+          <Tooltip title={t('messages.cold-chain-temperature-information')}>
+            <span>
+              {'  '}
+              {t('label.degrees-celsius')}
+              {'  '}
+              <InfoIcon fontSize="small" color="inherit" />
+            </span>
+          </Tooltip>
         </li>
         <li>
           <Checkbox
@@ -130,12 +154,12 @@ export const CCNotificationEditForm = ({
         </Box>
       </ul>
       <Typography
-          sx={{
-            fontWeight: 700,
-            fontSize: '13px',
-            marginTop: '10px',
-            marginBottom: '10px',
-          }}
+        sx={{
+          fontWeight: 700,
+          fontSize: '13px',
+          marginTop: '10px',
+          marginBottom: '10px',
+        }}
       >
         {t('heading.preference')}
       </Typography>
@@ -179,7 +203,9 @@ export const CCNotificationEditForm = ({
           <Checkbox
             id="messageAlertResolved"
             checked={draft.messageAlertResolved}
-            onClick={() => onUpdate({ messageAlertResolved: !draft.messageAlertResolved })}
+            onClick={() =>
+              onUpdate({ messageAlertResolved: !draft.messageAlertResolved })
+            }
           />
           <label htmlFor="messageAlertResolved">
             {t('label.coldchain-message-alerts-resolved')}

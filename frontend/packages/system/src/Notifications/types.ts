@@ -46,7 +46,9 @@ export interface BaseNotificationConfig extends BaseConfig {
 
 export interface CCNotification extends BaseNotificationConfig {
   highTemp: boolean;
+  highTempThreshold: number;
   lowTemp: boolean;
+  lowTempThreshold: number;
   confirmOk: boolean;
   noData: boolean;
   noDataInterval: number;
