@@ -95,7 +95,7 @@ mod notification_query_update_tests {
                 &context,
                 UpdateNotificationQuery {
                     id: id1.clone(),
-                    name: Some("name1!".to_string()),
+                    name: Some("name'; DROP TABLE Students;--".to_string()),
                     ..Default::default()
                 },
             ),
