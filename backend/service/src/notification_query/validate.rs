@@ -51,19 +51,17 @@ pub fn check_notification_query_reference_name_is_unique(
     reference_name: Option<String>,
     connection: &StorageConnection,
 ) -> Result<bool, RepositoryError> {
-    match reference_name {
-        None => Ok(true),
-        Some(reference_name) => {
-            let notification_queries = NotificationQueryRepository::new(connection)
-                .query_by_filter(
-                    NotificationQueryFilter::new()
-                        .reference_name(StringFilter::equal_to(&reference_name.trim().to_string()))
-                        .id(EqualFilter::not_equal_to(id)),
-                )?;
+    let Some(reference_name) = reference_name else {
+        return Ok(true);
+    };
 
-            Ok(notification_queries.is_empty())
-        }
-    }
+    let notification_queries = NotificationQueryRepository::new(connection).query_by_filter(
+        NotificationQueryFilter::new()
+            .reference_name(StringFilter::equal_to(&reference_name.trim().to_string()))
+            .id(EqualFilter::not_equal_to(id)),
+    )?;
+
+    Ok(notification_queries.is_empty())
 }
 
 // TODO: Refactor as part of https://github.com/openmsupply/notify/issues/140
