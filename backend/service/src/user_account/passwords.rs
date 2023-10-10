@@ -98,8 +98,8 @@ pub fn hash_password(password: &str) -> Result<String, ModifyUserAccountError> {
     match hash(password, DEFAULT_COST) {
         Ok(pwd) => Ok(pwd),
         Err(err) => {
-            error!("create_user: Failed to hash password");
-            Err(ModifyUserAccountError::PasswordHashError(err))
+            error!("create_user: Failed to hash password: {:?}", err);
+            Err(ModifyUserAccountError::PasswordHashError)
         }
     }
 }

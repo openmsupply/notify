@@ -94,8 +94,7 @@ fn map_error(error: ModifyUserAccountError) -> Result<CreateUserAccountResponse>
         }
         ModifyUserAccountError::DatabaseError(_) => InternalError(formatted_error),
         ModifyUserAccountError::ModifiedRecordNotFound => InternalError(formatted_error),
-        ModifyUserAccountError::PasswordHashError(_) => InternalError(formatted_error),
-        ModifyUserAccountError::UnableToSendEmail(_) => InternalError(formatted_error),
+        ModifyUserAccountError::PasswordHashError => InternalError(formatted_error),
         ModifyUserAccountError::InvalidToken => BadUserInput(formatted_error),
         ModifyUserAccountError::TokenExpired => {
             BadUserInput("Token has expired, please request a new invite".to_string())

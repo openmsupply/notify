@@ -80,7 +80,7 @@ pub trait NotificationConfigServiceTrait: Sync + Send {
 pub struct NotificationConfigService {}
 impl NotificationConfigServiceTrait for NotificationConfigService {}
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ModifyNotificationConfigError {
     NotificationConfigAlreadyExists,
     ModifiedRecordNotFound,
@@ -88,33 +88,6 @@ pub enum ModifyNotificationConfigError {
     NotificationConfigDoesNotExist,
     InternalError(String),
     BadUserInput(String),
-}
-
-// PartialEq is only needed for tests
-impl PartialEq for ModifyNotificationConfigError {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (
-                ModifyNotificationConfigError::NotificationConfigAlreadyExists,
-                ModifyNotificationConfigError::NotificationConfigAlreadyExists,
-            ) => true,
-
-            (
-                ModifyNotificationConfigError::ModifiedRecordNotFound,
-                ModifyNotificationConfigError::ModifiedRecordNotFound,
-            ) => true,
-            (
-                ModifyNotificationConfigError::DatabaseError(self_err),
-                ModifyNotificationConfigError::DatabaseError(other_err),
-            ) => self_err == other_err,
-
-            (
-                ModifyNotificationConfigError::NotificationConfigDoesNotExist,
-                ModifyNotificationConfigError::NotificationConfigDoesNotExist,
-            ) => true,
-            _ => false,
-        }
-    }
 }
 
 impl From<RepositoryError> for ModifyNotificationConfigError {
