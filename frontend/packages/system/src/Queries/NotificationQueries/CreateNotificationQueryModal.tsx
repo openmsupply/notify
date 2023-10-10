@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 import {
   useDialog,
   DialogButton,
@@ -33,6 +35,7 @@ export const CreateNotificationQueryModal = ({
   const [name, setName] = useState<string>('');
   const [referenceName, setReferenceName] = useState<string>('');
   const [referenceNameEdited, setReferenceNameEdited] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const { Modal } = useDialog({ isOpen, onClose });
 
@@ -51,11 +54,16 @@ export const CreateNotificationQueryModal = ({
                 name: name,
                 referenceName: referenceName,
               },
-            }).then(() => {
-              navigate(
-                RouteBuilder.create(AppRoute.Queries).addPart(id).build()
-              );
-            });
+            }).then(
+              () => {
+                navigate(
+                  RouteBuilder.create(AppRoute.Queries).addPart(id).build()
+                );
+              },
+              e => {
+                setErrorMessage(e.message);
+              }
+            );
           }}
           isLoading={isLoading}
           startIcon={<ArrowRightIcon />}
@@ -97,6 +105,18 @@ export const CreateNotificationQueryModal = ({
           label={t('label.reference-name')}
           InputLabelProps={{ shrink: true }}
         />
+        {errorMessage ? (
+          <Alert
+            sx={{ marginTop: 2 }}
+            severity="error"
+            onClose={() => {
+              setErrorMessage('');
+            }}
+          >
+            <AlertTitle>{t('error')}</AlertTitle>
+            {errorMessage}
+          </Alert>
+        ) : null}
       </Box>
     </Modal>
   );
