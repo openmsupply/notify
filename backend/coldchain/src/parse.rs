@@ -69,7 +69,7 @@ fn default_high_temp_limit() -> f64 {
 }
 
 fn default_no_data_interval() -> u32 {
-    1
+    2
 }
 
 fn default_no_data_units() -> String {
@@ -82,6 +82,18 @@ impl ColdChainPluginConfig {
             .map_err(|e| ColdChainError::UnableToParseConfig(format!("{:?}", e)))?;
 
         Ok(config)
+    }
+
+    pub fn no_data_duration(&self) -> chrono::Duration {
+        match self.no_data_units.as_str() {
+            "minutes" => chrono::Duration::minutes(self.no_data_interval as i64),
+            "hours" => chrono::Duration::hours(self.no_data_interval as i64),
+            "days" => chrono::Duration::days(self.no_data_interval as i64),
+            _ => {
+                log::error!("Invalid no data units: {}", self.no_data_units);
+                chrono::Duration::hours(default_no_data_interval() as i64)
+            }
+        }
     }
 }
 

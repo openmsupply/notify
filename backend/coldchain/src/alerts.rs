@@ -28,27 +28,55 @@ Temperature: 10° C
 */
 
 #[derive(Clone, Debug, Serialize)]
-pub struct TemperatureAlert {
+pub enum AlertType {
+    High,
+    Low,
+    Ok,
+    NoData,
+    Recovered,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct ColdchainAlert {
     pub sensor_id: String,
     pub sensor_name: String,
     pub store_name: String,
     pub location_name: String,
     pub datetime: NaiveDateTime,
     pub temperature: String,
-    pub alert_type: String,
+    pub alert_type: AlertType,
 }
 
-// Later this function probably won't exist, but serves as a reminder/POC...
-pub fn send_temperature_alert(
+pub fn send_individual_coldchain_alert(
     ctx: &ServiceContext,
     config_id: Option<String>,
-    alert: TemperatureAlert,
+    alert: ColdchainAlert,
     recipients: Vec<NotificationTarget>,
 ) -> Result<(), notification::NotificationServiceError> {
-    let notification = NotificationContext {
-        title_template: Some(TemplateDefinition::TemplateName(
+    let title_template = match alert.alert_type {
+        AlertType::High => Some(TemplateDefinition::TemplateName(
             "coldchain/temperature_title.html".to_string(),
         )),
+        AlertType::Low => Some(TemplateDefinition::TemplateName(
+            "coldchain/temperature_title.html".to_string(),
+        )),
+        _ => None,
+    };
+
+    let body_template = match alert.alert_type {
+        AlertType::High |     AlertType::Low => TemplateDefinition::TemplateName("coldchain/temperature.html".to_string()),
+        AlertType::Ok => {
+            log::
+            TemplateDefinition::Template("Temperature has returned to normal".to_string());
+
+        },
+        AlertType::NoData => todo!(),
+        AlertType::Recovered => todo!(),
+        
+    };
+
+    let notification = NotificationContext {
+        title_template: title_template
         body_template: TemplateDefinition::TemplateName("coldchain/temperature.html".to_string()),
         recipients,
         template_data: serde_json::to_value(alert).map_err(|e| {
@@ -85,7 +113,7 @@ mod tests {
     #[tokio::test]
     async fn test_send_high_temperature_alert() {
         let (_, _, connection_manager, _) =
-            setup_all("test_enqueue_telegram_and_email", MockDataInserts::none()).await;
+            setup_all("test_send_high_temperature_alert", MockDataInserts::none()).await;
 
         let connection = connection_manager.connection().unwrap();
         let service_provider = Arc::new(ServiceProvider::new(
@@ -94,14 +122,14 @@ mod tests {
         ));
         let context = ServiceContext::as_server_admin(service_provider).unwrap();
 
-        let example_alert = TemperatureAlert {
+        let example_alert = ColdchainAlert {
             store_name: "Store A".to_string(),
             location_name: "Fridge 1".to_string(),
             sensor_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b3".to_string(),
             sensor_name: "E5:4G:D4:6D:A4".to_string(),
             datetime: NaiveDateTime::from_str("2023-07-17T17:04:00").unwrap(),
             temperature: 10.12345.to_string(),
-            alert_type: "High".to_string(),
+            alert_type: AlertType::High,
         };
 
         let recipient1 = NotificationTarget {
@@ -115,7 +143,7 @@ mod tests {
             notification_type: NotificationType::Email,
         };
 
-        let result = send_temperature_alert(
+        let result = send_individual_coldchain_alert(
             &context,
             None,
             example_alert.clone(),
@@ -146,4 +174,72 @@ mod tests {
         send_test_notifications(&context).await;
         send_test_emails(&context);
     }
+
+    #[tokio::test]
+    async fn test_send_low_temperature_alert() {
+        let (_, _, connection_manager, _) =
+            setup_all("test_send_low_temperature_alert", MockDataInserts::none()).await;
+
+        let connection = connection_manager.connection().unwrap();
+        let service_provider = Arc::new(ServiceProvider::new(
+            connection_manager,
+            get_test_settings(""),
+        ));
+        let context = ServiceContext::as_server_admin(service_provider).unwrap();
+
+        let example_alert = ColdchainAlert {
+            store_name: "Store A".to_string(),
+            location_name: "Fridge 1".to_string(),
+            sensor_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b3".to_string(),
+            sensor_name: "E5:4G:D4:6D:A4".to_string(),
+            datetime: NaiveDateTime::from_str("2023-07-17T17:04:00").unwrap(),
+            temperature: 1.01.to_string(),
+            alert_type: AlertType::Low,
+        };
+
+        let recipient1 = NotificationTarget {
+            name: "test".to_string(),
+            to_address: get_default_telegram_chat_id(),
+            notification_type: NotificationType::Telegram,
+        };
+        let recipient2 = NotificationTarget {
+            name: "test-email".to_string(),
+            to_address: "test@example.com".to_string(),
+            notification_type: NotificationType::Email,
+        };
+
+        let result = send_individual_coldchain_alert(
+            &context,
+            None,
+            example_alert.clone(),
+            vec![recipient1, recipient2],
+        );
+
+        assert!(result.is_ok());
+
+        // Check we have a notification event
+        let notification_event_row_repository = NotificationEventRowRepository::new(&connection);
+        let notification_event_rows = notification_event_row_repository.un_sent().unwrap();
+
+        assert_eq!(notification_event_rows.len(), 2);
+        assert_eq!(
+            notification_event_rows[0].to_address,
+            get_default_telegram_chat_id()
+        );
+        assert!(notification_event_rows[0]
+            .message
+            .contains(&example_alert.store_name));
+
+        // Check email recipient
+        assert_eq!(notification_event_rows[1].to_address, "test@example.com");
+        assert!(notification_event_rows[1]
+            .message
+            .contains(&example_alert.store_name));
+
+        send_test_notifications(&context).await;
+        send_test_emails(&context);
+    }
+
+    #[tokio::test]
+    async fn test_no_data_alert() {}
 }

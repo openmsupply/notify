@@ -8,7 +8,7 @@ use service::{
 };
 
 use crate::{
-    alerts::{send_temperature_alert, TemperatureAlert},
+    alerts::{send_individual_coldchain_alert, AlertType, ColdchainAlert},
     latest_temperature::{self, latest_temperature},
     parse::ColdChainPluginConfig,
     sensor_info::sensor_info,
@@ -78,10 +78,10 @@ fn try_process_coldchain_notifications(
 
     let high_temp_threshold: f64 = config.high_temp_threshold;
     let low_temp_threshold: f64 = config.low_temp_threshold;
-    let max_age = chrono::Duration::hours(24); // TODO: Get this from config https://github.com/openmsupply/notify/issues/179
+    let max_age = config.no_data_duration();
 
     // Put all the alerts into a vector, to simply the logic for sending alerts
-    let mut alerts: Vec<TemperatureAlert> = Vec::new();
+    let mut alerts: Vec<ColdchainAlert> = Vec::new();
 
     // Loop through checking the current status for each sensor
     for sensor_id in config.sensor_ids {
@@ -247,14 +247,14 @@ fn try_process_coldchain_notifications(
 
         let alert = match sensor_status {
             SensorStatus::HighTemp => match config.high_temp {
-                true => Some(TemperatureAlert {
+                true => Some(ColdchainAlert {
                     store_name: sensor_row.store_name.clone(),
                     location_name: sensor_row.location_name.clone(),
                     sensor_id: sensor_id.clone(),
                     sensor_name: sensor_row.sensor_name.clone(),
                     datetime: now,
                     temperature: current_temp,
-                    alert_type: "High".to_string(),
+                    alert_type: AlertType::High,
                 }),
                 false => {
                     log::info!("High temp alert disabled for sensor {}", sensor_id);
@@ -263,14 +263,14 @@ fn try_process_coldchain_notifications(
             },
 
             SensorStatus::LowTemp => match config.low_temp {
-                true => Some(TemperatureAlert {
+                true => Some(ColdchainAlert {
                     store_name: sensor_row.store_name.clone(),
                     location_name: sensor_row.location_name.clone(),
                     sensor_id: sensor_id.clone(),
                     sensor_name: sensor_row.sensor_name.clone(),
                     datetime: now,
                     temperature: current_temp,
-                    alert_type: "Low".to_string(),
+                    alert_type: AlertType::Low,
                 }),
                 false => {
                     log::info!("Low temp alert disabled for sensor {}", sensor_id);
@@ -282,11 +282,21 @@ fn try_process_coldchain_notifications(
                 log::error!("Not sending Ok alert for sensor {}", sensor_id);
                 None
             }
-            SensorStatus::NoData => {
-                // TODO: Send No Data message if enabled https://github.com/openmsupply/notify/issues/179
-                log::error!("Not sending No Data alert for sensor {}", sensor_id);
-                None // Ignore all other types for now
-            }
+            SensorStatus::NoData => match config.low_temp {
+                true => Some(ColdchainAlert {
+                    store_name: sensor_row.store_name.clone(),
+                    location_name: sensor_row.location_name.clone(),
+                    sensor_id: sensor_id.clone(),
+                    sensor_name: sensor_row.sensor_name.clone(),
+                    datetime: now,
+                    temperature: current_temp,
+                    alert_type: AlertType::NoData,
+                }),
+                false => {
+                    log::info!("No data alert disabled for sensor {}", sensor_id);
+                    None
+                }
+            },
         };
 
         if let Some(alert) = alert {
@@ -309,7 +319,7 @@ fn try_process_coldchain_notifications(
 
     for alert in alerts {
         // Send the notifications
-        let result = send_temperature_alert(
+        let result = send_individual_coldchain_alert(
             ctx,
             Some(notification_config.id.clone()),
             alert,
