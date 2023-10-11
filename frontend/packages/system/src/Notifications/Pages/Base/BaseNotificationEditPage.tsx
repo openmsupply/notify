@@ -90,10 +90,14 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
     });
   };
 
-  const requiredParams = (sqlRecipientLists?.nodes ?? [])
+  const requiredRecipientParams = (sqlRecipientLists?.nodes ?? [])
     .filter(list => draft.sqlRecipientListIds.includes(list.id))
     .map(list => list.parameters)
     .flat(1);
+
+  const requiredConfigParams = draft.requiredParameters;
+
+  const requiredParams = requiredRecipientParams.concat(requiredConfigParams);
 
   const allParamsSet = requiredParams.every(param => {
     if (param) {

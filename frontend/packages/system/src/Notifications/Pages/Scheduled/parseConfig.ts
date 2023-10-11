@@ -43,6 +43,7 @@ export const defaultSchedulerNotification: ScheduledNotification = {
   sqlRecipientListIds: [],
   parameters: '{}',
   parsedParameters: {},
+  requiredParameters: [],
   scheduleFrequency: 'daily',
   scheduleStartTime: new Date(),
   subjectTemplate: '',

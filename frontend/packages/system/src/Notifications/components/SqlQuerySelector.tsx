@@ -16,7 +16,10 @@ import { NotificationQueryRowFragment } from '../../Queries/api';
 type QueryListProps = {
   allQueries: NotificationQueryRowFragment[];
   selectedQueryIds: string[];
-  setSelection: (input: { notificationQueryIds: string[] }) => void;
+  setSelection: (input: {
+    notificationQueryIds: string[];
+    requiredParameters: string[];
+  }) => void;
   isLoading: boolean;
 };
 

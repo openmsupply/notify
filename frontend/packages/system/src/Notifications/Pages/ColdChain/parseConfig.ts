@@ -50,6 +50,7 @@ export function parseColdChainNotificationConfig(
       status: config.status,
       parameters: config.parameters,
       parsedParameters: TeraUtils.keyedParamsFromTeraJson(config.parameters),
+      requiredParameters: [],
     };
   } catch (e) {
     showError();

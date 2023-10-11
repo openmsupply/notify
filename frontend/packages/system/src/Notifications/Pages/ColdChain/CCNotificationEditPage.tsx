@@ -43,6 +43,7 @@ const createCCNotification = (
   sqlRecipientListIds: seed?.sqlRecipientListIds ?? [],
   parameters: seed?.parameters ?? '{}',
   parsedParameters: seed?.parsedParameters ?? {},
+  requiredParameters: seed?.requiredParameters ?? [],
 });
 
 export const CCNotificationEditPage = () => {

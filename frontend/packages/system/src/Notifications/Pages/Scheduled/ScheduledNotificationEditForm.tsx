@@ -66,7 +66,6 @@ export const ScheduledNotificationEditForm = ({
         selectedQueryIds={draft.notificationQueryIds}
         isLoading={isLoading}
         setSelection={props => {
-          console.log('props', props);
           onUpdate(props as Partial<ScheduledNotification>);
         }}
       />

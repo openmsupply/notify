@@ -42,6 +42,7 @@ type BaseConfig = Pick<
 
 export interface BaseNotificationConfig extends BaseConfig {
   parsedParameters: KeyedParams;
+  requiredParameters: string[];
 }
 
 export interface CCNotification extends BaseNotificationConfig {

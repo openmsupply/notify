@@ -21,7 +21,10 @@ interface NotificationQuerySelectionModalProps {
   initialSelectedIds: string[];
   isOpen: boolean;
   onClose: () => void;
-  setSelection: (input: { notificationQueryIds: string[] }) => void;
+  setSelection: (input: {
+    notificationQueryIds: string[];
+    requiredParameters: string[];
+  }) => void;
 }
 
 interface NotificationQueryOption {
@@ -52,7 +55,11 @@ export const NotificationQuerySelectionModal: FC<
   };
 
   const onSubmit = async () => {
-    setSelection({ notificationQueryIds: selectedIds });
+    const requiredParameters = sqlQueries
+      .filter(sqlQuery => selectedIds.includes(sqlQuery.id))
+      .map(sqlQuery => sqlQuery.requiredParameters)
+      .flat();
+    setSelection({ notificationQueryIds: selectedIds, requiredParameters });
     onClose();
   };
 
