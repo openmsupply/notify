@@ -52,11 +52,6 @@ export const NotificationQuerySelectionModal: FC<
   };
 
   const onSubmit = async () => {
-    if (selectedIds.length === 0) {
-      setErrorMessage(t('messages.nothing-selected'));
-      return;
-    }
-
     setSelection({ notificationQueryIds: selectedIds });
     onClose();
   };
@@ -72,7 +67,7 @@ export const NotificationQuerySelectionModal: FC<
         <Tooltip title={t('label.select-queries')}>
           <span>
             <LoadingButton
-              disabled={!selectedIds.length}
+              disabled={false}
               onClick={onSubmit}
               isLoading={false}
               startIcon={<CheckIcon />}
