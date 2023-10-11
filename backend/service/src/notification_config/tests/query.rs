@@ -9,7 +9,7 @@ mod notification_config_query_test {
         NotificationConfigSortField,
     };
     use repository::{
-        EqualFilter, NotificationConfigRow, NotificationConfigRowRepository, PaginationOption, Sort,
+        EqualFilter, NotificationConfigRow, NotificationConfigRowRepository, PaginationOption, Sort, NotificationConfigStatus,
     };
     use util::uuid::uuid;
 
@@ -274,6 +274,7 @@ mod notification_config_query_test {
             title: "test".to_string(),
             kind: mock_data["base"].notification_configs[0].kind.clone(),
             configuration_data: "{}".to_string(),
+            status: NotificationConfigStatus::Enabled,
             parameters: "{}".to_string(),
             ..Default::default()
         };
@@ -281,7 +282,19 @@ mod notification_config_query_test {
         let repo = NotificationConfigRowRepository::new(&context.connection);
         repo.insert_one(&config).unwrap();
 
-        // Check that it is returned by the due query
+        // Create a disabled notification config
+        let config2 = NotificationConfigRow {
+            id: uuid(),
+            title: "test1".to_string(),
+            kind: mock_data["base"].notification_configs[0].kind.clone(),
+            configuration_data: "{}".to_string(),
+            status: NotificationConfigStatus::Disabled,
+            parameters: "{}".to_string(),
+            ..Default::default()
+        };
+        repo.insert_one(&config2).unwrap();
+
+        // Check that only the enabled config is returned by the due query
         let result = service
             .find_all_due_by_kind(&context, config.kind.clone(), Utc::now().naive_utc())
             .unwrap();

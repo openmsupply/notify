@@ -51,14 +51,17 @@ pub fn create_notification_events(
 ) -> Result<(), NotificationServiceError> {
     let repo = NotificationEventRowRepository::new(&ctx.connection);
 
-    // TODO: Should this function use a notification config to get the template, users, etc?
+    // Dedup recipients by to_address
+    let mut recipients = notification.recipients.clone();
+    recipients.sort_by(|a, b| a.to_address.cmp(&b.to_address));
+    recipients.dedup_by(|a, b| (a.to_address == b.to_address));
 
     // Create a tera instance for this notification
     let mut tera = Tera::default();
     // Add any configured templates to out new tera instance
     tera.extend(ctx.service_provider.notification_service.tera())
         .map_err(|e| {
-            NotificationServiceError::GenericError(format!(
+            NotificationServiceError::InternalError(format!(
                 "Failed to extend tera instance with notification service templates: {:?}",
                 e
             ))
@@ -70,7 +73,7 @@ pub fn create_notification_events(
             // Add the title template to the tera instance
             tera.add_raw_template("title_template", &title_template)
                 .map_err(|e| {
-                    NotificationServiceError::GenericError(format!(
+                    NotificationServiceError::InternalError(format!(
                         "Failed to add title template to tera instance: {:?}",
                         e
                     ))
@@ -86,7 +89,7 @@ pub fn create_notification_events(
             // Add the body template to the tera instance
             tera.add_raw_template("body_template", &body_template)
                 .map_err(|e| {
-                    NotificationServiceError::GenericError(format!(
+                    NotificationServiceError::InternalError(format!(
                         "Failed to add body template to tera instance: {:?}",
                         e
                     ))
@@ -95,11 +98,10 @@ pub fn create_notification_events(
         }
     };
 
-    let mut tera_context = Context::from_serialize(notification.template_data.clone())
-        .map_err(|e| NotificationServiceError::GenericError(format!("{:?}", e)))?;
+    let mut tera_context = Context::from_value(notification.template_data)?;
 
     // Loop through recipients and create a notification for each
-    for recipient in notification.recipients {
+    for recipient in recipients {
         let notification_type = recipient.notification_type.clone();
 
         // Replace the recipient data in the template context
@@ -140,7 +142,7 @@ pub fn create_notification_events(
                 ..base_row_with_title
             },
             Err(e) => {
-                log::error!("Failed to render notification title template: {:?}", e);
+                log::error!("Failed to render notification body template: {:?}", e);
                 NotificationEventRow {
                     status: NotificationEventStatus::Errored,
                     error_message: Some(format!("{:?}", e)),
@@ -203,7 +205,12 @@ mod test {
                     name: "test".to_string(),
                     to_address: "test@example.com".to_string(),
                     notification_type: NotificationType::Email,
-                }],
+                }, NotificationTarget {
+                    name: "test2".to_string(),
+                    to_address: "test@example.com".to_string(),
+                    notification_type: NotificationType::Email,
+                },
+                ],
                 template_data: serde_json::json!({}),
             },
         );
@@ -247,6 +254,10 @@ mod test {
                 ),
                 recipients: vec![NotificationTarget {
                     name: "telegram".to_string(),
+                    to_address: "-12345".to_string(),
+                    notification_type: NotificationType::Telegram,
+                }, NotificationTarget {
+                    name: "telegram2".to_string(),
                     to_address: "-12345".to_string(),
                     notification_type: NotificationType::Telegram,
                 }],

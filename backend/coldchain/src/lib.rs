@@ -54,7 +54,7 @@ pub async fn send_high_temperature_alert_telegram(
         ),
         recipients,
         template_data: serde_json::to_value(alert).map_err(|e| {
-            notification::NotificationServiceError::GenericError(format!(
+            notification::NotificationServiceError::InternalError(format!(
                 "Error serializing template data: {}",
                 e
             ))

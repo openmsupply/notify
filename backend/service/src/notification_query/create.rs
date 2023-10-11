@@ -3,6 +3,7 @@ use super::{
     validate::{
         check_list_name_doesnt_contain_special_characters, check_list_name_is_appropriate_length,
         check_notification_query_does_not_exist, check_notification_query_name_is_unique,
+        check_notification_query_reference_name_is_unique,
     },
     ModifyNotificationQueryError,
 };
@@ -19,6 +20,7 @@ use repository::{
 pub struct CreateNotificationQuery {
     pub id: String,
     pub name: String,
+    pub reference_name: String,
 }
 
 pub fn create_notification_query(
@@ -73,15 +75,28 @@ pub fn validate(
         return Err(ModifyNotificationQueryError::NotificationQueryAlreadyExists);
     }
 
+    if !check_notification_query_reference_name_is_unique(
+        &new_notification_query.id,
+        Some(new_notification_query.reference_name.clone()),
+        connection,
+    )? {
+        return Err(ModifyNotificationQueryError::ReferenceNameAlreadyExists);
+    }
+
     Ok(())
 }
 
 pub fn generate(
-    CreateNotificationQuery { id, name }: CreateNotificationQuery,
+    CreateNotificationQuery {
+        id,
+        name,
+        reference_name,
+    }: CreateNotificationQuery,
 ) -> Result<NotificationQueryRow, ModifyNotificationQueryError> {
     Ok(NotificationQueryRow {
         id,
         name: name.trim().to_string(),
+        reference_name: reference_name.trim().to_string(),
         description: "".to_string(),
         query: "".to_string(),
         required_parameters: "[]".to_string(),

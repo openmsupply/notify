@@ -16,13 +16,7 @@ export function parseScheduledNotificationConfig(
   try {
     return {
       ...defaultSchedulerNotification,
-      id: config.id,
-      title: config.title,
-      kind: config.kind,
-      parameters: config.parameters,
-      recipientIds: config.recipientIds,
-      recipientListIds: config.recipientListIds,
-      sqlRecipientListIds: config.sqlRecipientListIds,
+      ...config,
       ...JSON.parse(config.configurationData),
     };
   } catch (e) {

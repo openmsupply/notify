@@ -79,9 +79,9 @@ fn try_process_scheduled_notifications(
     // Update the last_checked time and next_check time
     // We do this before checking if the notification is due so that if the notification is skipped, we still set a good next check time
     NotificationConfigRowRepository::new(&ctx.connection)
-        .set_next_due_by_id(
+        .set_last_run_by_id(
             &scheduled_notification.id,
-            Some(now),
+            now,
             Some(next_due_datetime.naive_utc()),
         )
         .map_err(|e| NotificationError::InternalError(format!("{:?}", e)))?;

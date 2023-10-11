@@ -3,6 +3,7 @@ use super::{
     validate::{
         check_list_name_doesnt_contain_special_characters, check_list_name_is_appropriate_length,
         check_notification_query_exists, check_notification_query_name_is_unique,
+        check_notification_query_reference_name_is_unique,
     },
     ModifyNotificationQueryError,
 };
@@ -17,6 +18,7 @@ use repository::{
 pub struct UpdateNotificationQuery {
     pub id: String,
     pub name: Option<String>,
+    pub reference_name: Option<String>,
     pub description: Option<String>,
     pub query: Option<String>,
     pub required_parameters: Option<Vec<String>>,
@@ -78,6 +80,14 @@ pub fn validate(
         return Err(ModifyNotificationQueryError::NotificationQueryAlreadyExists);
     }
 
+    if !check_notification_query_reference_name_is_unique(
+        &new_notification_query.id,
+        new_notification_query.reference_name.clone(),
+        connection,
+    )? {
+        return Err(ModifyNotificationQueryError::ReferenceNameAlreadyExists);
+    }
+
     Ok(notification_query_row)
 }
 
@@ -85,6 +95,7 @@ pub fn generate(
     UpdateNotificationQuery {
         id: _id, //ID is already used for look up so we can assume it's the same
         name,
+        reference_name,
         description,
         query,
         required_parameters,
@@ -94,6 +105,9 @@ pub fn generate(
     let mut new_notification_query_row = current_notification_query_row;
     if let Some(name) = name {
         new_notification_query_row.name = name.trim().to_string();
+    }
+    if let Some(reference_name) = reference_name {
+        new_notification_query_row.reference_name = reference_name.trim().to_string();
     }
     if let Some(description) = description {
         new_notification_query_row.description = description;

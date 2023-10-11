@@ -54,6 +54,7 @@ export interface CCNotification extends BaseNotificationConfig {
   remind: boolean;
   reminderInterval: number;
   reminderUnits: ReminderUnits;
+  messageAlertResolved: boolean;
   locationIds: string[];
 }
 

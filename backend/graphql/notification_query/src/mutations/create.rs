@@ -13,6 +13,7 @@ use super::{map_error, ModifyNotificationQueryResponse};
 pub struct CreateNotificationQueryInput {
     pub id: String,
     pub name: String,
+    pub reference_name: String,
 }
 
 pub fn create_notification_query(
@@ -41,7 +42,17 @@ pub fn create_notification_query(
 }
 
 impl From<CreateNotificationQueryInput> for CreateNotificationQuery {
-    fn from(CreateNotificationQueryInput { id, name }: CreateNotificationQueryInput) -> Self {
-        CreateNotificationQuery { id, name }
+    fn from(
+        CreateNotificationQueryInput {
+            id,
+            name,
+            reference_name,
+        }: CreateNotificationQueryInput,
+    ) -> Self {
+        CreateNotificationQuery {
+            id,
+            name,
+            reference_name,
+        }
     }
 }
