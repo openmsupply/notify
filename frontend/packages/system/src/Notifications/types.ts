@@ -56,6 +56,7 @@ export interface CCNotification extends BaseNotificationConfig {
   reminderUnits: ReminderUnits;
   messageAlertResolved: boolean;
   locationIds: string[];
+  sensorIds: string[];
 }
 
 export interface ScheduledNotification extends BaseNotificationConfig {

@@ -39,6 +39,7 @@ datasource = {path = "../datasource"}
 repository = { path = "../repository" }
 service = { path = "../service" }
 scheduled = { path = "../scheduled" }
+coldchain = { path = "../coldchain" }
 telegram = { path = "../telegram" }
 util = { path = "../util" }
 

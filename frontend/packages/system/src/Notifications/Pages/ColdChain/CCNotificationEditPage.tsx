@@ -36,6 +36,7 @@ const createCCNotification = (
   reminderInterval: seed?.reminderInterval ?? 15,
   reminderUnits: seed?.reminderUnits ?? ReminderUnits.MINUTES,
   locationIds: seed?.locationIds ?? [],
+  sensorIds: seed?.sensorIds ?? [],
   recipientIds: seed?.recipientIds ?? [],
   recipientListIds: seed?.recipientListIds ?? [],
   messageAlertResolved: seed?.messageAlertResolved ?? false,
@@ -88,8 +89,8 @@ export const CCNotificationEditPage = () => {
       !draft.lowTemp &&
       draft.remind &&
       draft.noData) ||
-    // no locations selected
-    !draft.locationIds.length ||
+    // no sensor selected
+    !draft.sensorIds.length ||
     // no recipients selected
     (!draft.recipientListIds.length &&
       !draft.recipientIds.length &&

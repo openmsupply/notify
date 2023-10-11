@@ -15,37 +15,22 @@ import {
   getReminderUnitsAsOptions,
   getReminderUnitsFromString,
 } from '../../types';
+import { useColdChainSensors } from '../../api';
+import { SensorSelector } from './SensorSelector';
 
 type CCNotificationEditFormProps = {
   onUpdate: (patch: Partial<CCNotification>) => void;
   draft: CCNotification;
 };
 
-const dummyLocations = [
-  { id: 'store-1-location-A', name: 'Central Medical Store, Cool room - East' },
-  { id: 'store-1-location-B', name: 'Central Medical Store,Cool room - West' },
-  {
-    id: 'store-1-location-C',
-    name: 'Central Medical Store, Ultra cold freezer 1',
-  },
-  { id: 'store-2-location-A', name: 'Central Medical Store, Location A' },
-  {
-    id: 'store-2-location-B',
-    name: 'Central Medical Store, Ultra cold freezer 2',
-  },
-  {
-    id: 'store-2-location-C',
-    name: 'Central Medical Store, Ultra cold freezer 3',
-  },
-  { id: 'store-2-location-D', name: 'District Hospital, Mini Fridge 1' },
-  { id: 'store-2-location-E', name: 'Rural Pharmacy, Mini Fridge 2' },
-];
-
 export const CCNotificationEditForm = ({
   onUpdate,
   draft,
 }: CCNotificationEditFormProps) => {
   const t = useTranslation('system');
+
+  const { data: sensors, isLoading: sensorsLoading } = useColdChainSensors();
+
   return (
     <>
       <Typography
@@ -145,12 +130,12 @@ export const CCNotificationEditForm = ({
         </Box>
       </ul>
       <Typography
-          sx={{
-            fontWeight: 700,
-            fontSize: '13px',
-            marginTop: '10px',
-            marginBottom: '10px',
-          }}
+        sx={{
+          fontWeight: 700,
+          fontSize: '13px',
+          marginTop: '10px',
+          marginBottom: '10px',
+        }}
       >
         {t('heading.preference')}
       </Typography>
@@ -194,7 +179,9 @@ export const CCNotificationEditForm = ({
           <Checkbox
             id="messageAlertResolved"
             checked={draft.messageAlertResolved}
-            onClick={() => onUpdate({ messageAlertResolved: !draft.messageAlertResolved })}
+            onClick={() =>
+              onUpdate({ messageAlertResolved: !draft.messageAlertResolved })
+            }
           />
           <label htmlFor="messageAlertResolved">
             {t('label.coldchain-message-alerts-resolved')}
@@ -206,44 +193,17 @@ export const CCNotificationEditForm = ({
         <Typography
           sx={{ fontWeight: 700, fontSize: '13px', marginBottom: '10px' }}
         >
-          {t('heading.select-locations')}
+          {t('heading.selected-sensors')}
         </Typography>
         <Grid container>
-          {dummyLocations.map(location => {
-            const isSelected = draft.locationIds.includes(location.id);
-            return (
-              <Grid
-                item
-                md={4}
-                key={location.id}
-                sx={{ display: 'flex', alignItems: 'center' }}
-              >
-                <Checkbox
-                  id={location.id}
-                  checked={isSelected}
-                  onClick={() => {
-                    if (isSelected) {
-                      onUpdate({
-                        locationIds: draft.locationIds.filter(
-                          id => id !== location.id
-                        ),
-                      });
-                    } else {
-                      onUpdate({
-                        locationIds: [...draft.locationIds, location.id],
-                      });
-                    }
-                  }}
-                />
-                <label
-                  htmlFor={location.id}
-                  style={{ display: 'inline-block', lineHeight: 1.3 }}
-                >
-                  {location.name}
-                </label>
-              </Grid>
-            );
-          })}
+          <SensorSelector
+            records={sensors ?? []}
+            selectedIds={draft.sensorIds}
+            setSelection={props => {
+              onUpdate(props as Partial<CCNotification>);
+            }}
+            isLoading={sensorsLoading}
+          />
         </Grid>
       </Box>
     </>

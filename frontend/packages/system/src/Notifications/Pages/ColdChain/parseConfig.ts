@@ -24,6 +24,7 @@ export function parseColdChainNotificationConfig(
       reminderUnits,
       messageAlertResolved,
       locationIds,
+      sensorIds,
       recipientIds, // TODO: Remove recipientIds, recipientListIds, and sqlRecipientListIds from the config data after all configs have been updated
       recipientListIds,
       sqlRecipientListIds,
@@ -44,6 +45,7 @@ export function parseColdChainNotificationConfig(
       reminderUnits,
       messageAlertResolved,
       locationIds,
+      sensorIds,
       recipientIds: config.recipientIds ?? recipientIds, // This should really be just config.recipientIds but we fallback to the configuratData for backwards compatibilty
       recipientListIds: config.recipientListIds ?? recipientListIds, // TODO: remove this fallback after all configs have been updated, and in future we should use a migration process to avoid runtime checks like this
       sqlRecipientListIds: config.sqlRecipientListIds ?? sqlRecipientListIds, // Same for this one...

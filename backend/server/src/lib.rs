@@ -13,6 +13,7 @@ use middleware::{add_authentication_context, limit_content_length};
 use repository::{get_storage_connection_manager, run_db_migrations, StorageConnectionManager};
 
 use actix_web::{web::Data, App, HttpServer};
+use coldchain::ColdChainPlugin;
 use scheduled::ScheduledNotificationPlugin;
 use std::{
     ops::DerefMut,
@@ -89,8 +90,10 @@ async fn run_server(
     };
 
     // Setup plugins
-    let plugins: Vec<Box<dyn service::plugin::PluginTrait>> =
-        vec![Box::new(ScheduledNotificationPlugin::new())];
+    let plugins: Vec<Box<dyn service::plugin::PluginTrait>> = vec![
+        Box::new(ScheduledNotificationPlugin::new()),
+        Box::new(ColdChainPlugin::new()),
+    ];
 
     let scheduled_task_handle = actix_web::rt::spawn(async move {
         scheduled_task_runner(scheduled_task_context, plugins).await;
