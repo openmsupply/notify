@@ -85,7 +85,7 @@ export const SqlQuerySelector: FC<QueryListProps> = ({
           isLoading={isLoading}
           columns={columns}
           data={selectedQueries}
-          noDataMessage="No Queries Configured"
+          noDataMessage={t('message.no-queries-selected')}
         />
       </TableProvider>
     </>
