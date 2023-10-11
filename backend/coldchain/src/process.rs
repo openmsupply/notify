@@ -1,4 +1,4 @@
-use chrono::NaiveDateTime;
+use chrono::{Local, NaiveDateTime};
 use repository::{
     NotificationConfigKind, NotificationConfigRowRepository, NotificationConfigStatus,
 };
@@ -252,7 +252,7 @@ fn try_process_coldchain_notifications(
                     location_name: sensor_row.location_name.clone(),
                     sensor_id: sensor_id.clone(),
                     sensor_name: sensor_row.sensor_name.clone(),
-                    datetime: now,
+                    datetime: Local::now().naive_local(),
                     temperature: current_temp,
                     alert_type: "High".to_string(),
                 }),
