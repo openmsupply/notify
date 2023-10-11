@@ -4,11 +4,11 @@ import {
   useTranslation,
   StringUtils,
   useEditModal,
-  IconButton,
   EditIcon,
   DataTable,
   TableProvider,
   createTableStore,
+  LoadingButton,
 } from '@notify-frontend/common';
 import { NotificationQuerySelectionModal } from './NotificationQuerySelectionModal';
 import { NotificationQueryRowFragment } from '../../Queries/api';
@@ -26,16 +26,22 @@ export const SqlQuerySelector: FC<QueryListProps> = ({
   setSelection,
   isLoading,
 }) => {
-  const t = useTranslation();
+  const t = useTranslation('system');
 
   const { isOpen, onClose, onOpen } = useEditModal();
 
   const columns = useColumns<NotificationQueryRowFragment>([
     {
+      key: 'referenceName',
+      label: 'label.reference-name',
+      width: 200,
+      sortable: false,
+    },
+    {
       key: 'name',
       label: 'label.name',
       width: 150,
-      sortable: true,
+      sortable: false,
     },
     {
       key: 'query',
@@ -65,11 +71,14 @@ export const SqlQuerySelector: FC<QueryListProps> = ({
         onClose={onClose}
         setSelection={setSelection}
       />
-      <IconButton
-        icon={<EditIcon />}
-        label={t('label.edit')}
+      <LoadingButton
+        disabled={false}
         onClick={onOpen}
-      />
+        isLoading={false}
+        startIcon={<EditIcon />}
+      >
+        {t('label.select-queries')}
+      </LoadingButton>
       <TableProvider createStore={createTableStore}>
         <DataTable
           isDisabled={false}
