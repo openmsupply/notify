@@ -71,7 +71,7 @@ fn default_high_temp_limit() -> f64 {
 }
 
 fn default_no_data_interval() -> u32 {
-    2
+    4
 }
 
 fn default_no_data_units() -> String {
