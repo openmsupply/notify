@@ -365,7 +365,7 @@ mod test {
 
         assert_eq!(result, ProcessingResult::Success);
 
-        // Query the database to check that we have a notification events for the 1 configured recipient
+        // Query the database to check that we have a notification events
         let repo = NotificationEventRowRepository::new(&service_context.connection);
         let notification_events = repo.un_sent().unwrap();
 
@@ -426,7 +426,7 @@ mod test {
 
         assert_eq!(result, ProcessingResult::Success);
 
-        // Query the database to check that we have a notification events for the 1 configured recipient
+        // Query the database to check that we have a notification events
         let repo = NotificationEventRowRepository::new(&service_context.connection);
         let notification_events = repo.un_sent().unwrap();
 
@@ -495,7 +495,7 @@ mod test {
 
         assert_eq!(result, ProcessingResult::Success); // TODO: This shouldn't be a success I think!
 
-        // Query the database to check that we have no unsent notification events
+        // Query the database to check that we have no unsent notification events (There is a template error so nothing should be sent!)
         let repo = NotificationEventRowRepository::new(&service_context.connection);
         let notification_events = repo.un_sent().unwrap();
 
