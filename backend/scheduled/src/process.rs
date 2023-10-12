@@ -126,7 +126,7 @@ fn try_process_scheduled_notifications(
     let sql_query_parameters =
         get_notification_query_results(ctx, &scheduled_notification, &config)?;
 
-    // Template data should include the notification config parameters, plug the results of any queries
+    // Template data should include the notification config parameters, plus the results of any queries
 
     template_params.extend(sql_query_parameters);
 
