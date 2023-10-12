@@ -5,6 +5,7 @@ use service::{
 
 pub mod parse;
 pub mod process;
+pub mod query;
 
 #[derive(Debug)]
 pub enum NotificationError {

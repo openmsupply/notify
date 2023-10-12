@@ -3,13 +3,50 @@ use serde::{Deserialize, Serialize};
 
 use crate::NotificationError;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/* Example config:
+{
+    "bodyTemplate": "Some Template",
+    "configurationData": "{}",
+    "id": "fc2a0e0c-440a-4abc-a13b-6b1270a59ff0",
+    "kind": "SCHEDULED",
+    "notificationQueryIds": [
+        "72e5342f-08b7-499b-8a51-339ae142f68a",
+        "98533e08-99bb-4b18-a045-db67e1852d73",
+        "aca03f15-96a1-4f36-bd80-1fd34331a5f1"
+    ],
+    "parameters": "{\"email_address\":\"test@example.com\",\"project\":\"prj1\",\"province\":\"prov1\"}",
+    "parsedParameters": {
+        "email_address": "test@example.com",
+        "project": "prj1",
+        "province": "prov1"
+    },
+    "recipientIds": [],
+    "recipientListIds": [],
+    "requiredParameters": [
+        "email_address",
+        "project",
+        "province"
+    ],
+    "scheduleFrequency": "daily",
+    "scheduleStartTime": "2023-10-11T02:09:31.221Z",
+    "sqlRecipientListIds": [
+        "3f6194ad-1fbb-494b-8ffb-c0f2e1b455d0"
+    ],
+    "status": "DISABLED",
+    "subjectTemplate": "Title Template",
+    "title": "Some Notification Name"
+}
+*/
+
+#[derive(Debug, Clone, Serialize, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ScheduledNotificationPluginConfig {
     pub body_template: String,
     pub subject_template: String,
     pub schedule_frequency: String,
     pub schedule_start_time: DateTime<Utc>,
+    #[serde(default)]
+    pub notification_query_ids: Vec<String>,
 }
 
 impl ScheduledNotificationPluginConfig {
@@ -128,6 +165,7 @@ mod test {
             subject_template: "".to_string(),
             schedule_frequency: "daily".to_string(),
             schedule_start_time: Utc.with_ymd_and_hms(2023, 08, 29, 7, 0, 0).unwrap(),
+            ..Default::default()
         };
 
         let now_utc: DateTime<Utc> = Utc.with_ymd_and_hms(2023, 08, 29, 0, 0, 0).unwrap();
@@ -171,6 +209,7 @@ mod test {
             subject_template: "".to_string(),
             schedule_frequency: "weekly".to_string(),
             schedule_start_time: Utc.with_ymd_and_hms(2023, 08, 29, 7, 0, 0).unwrap(),
+            ..Default::default()
         };
 
         let now_utc: DateTime<Utc> = Utc.with_ymd_and_hms(2023, 08, 29, 0, 0, 0).unwrap();
@@ -197,6 +236,7 @@ mod test {
             subject_template: "".to_string(),
             schedule_frequency: "monthly".to_string(),
             schedule_start_time: Utc.with_ymd_and_hms(2023, 08, 29, 7, 0, 0).unwrap(),
+            ..Default::default()
         };
 
         let now_utc: DateTime<Utc> = Utc.with_ymd_and_hms(2023, 08, 29, 0, 0, 0).unwrap();
