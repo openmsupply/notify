@@ -19,6 +19,7 @@ mod tests;
 
 pub mod create;
 pub mod delete;
+pub mod intervals;
 pub mod query;
 pub mod recipients;
 pub mod update;

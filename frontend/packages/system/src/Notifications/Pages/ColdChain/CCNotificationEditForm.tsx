@@ -118,11 +118,11 @@ export const CCNotificationEditForm = ({
             sx={{ width: '60px' }}
           />
           <Select
-            value={draft.noDataUnits}
+            value={draft.noDataIntervalUnits}
             disabled={!draft.noData}
             onChange={e =>
               onUpdate({
-                noDataUnits: getReminderUnitsFromString(e.target.value),
+                noDataIntervalUnits: getReminderUnitsFromString(e.target.value),
               })
             }
             options={getReminderUnitsAsOptions(t)}

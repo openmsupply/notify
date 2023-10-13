@@ -31,7 +31,7 @@ const createCCNotification = (
   confirmOk: seed?.confirmOk ?? false,
   noData: seed?.noData ?? false,
   noDataInterval: seed?.noDataInterval ?? 1,
-  noDataUnits: seed?.noDataUnits ?? ReminderUnits.HOURS,
+  noDataIntervalUnits: seed?.noDataIntervalUnits ?? ReminderUnits.HOURS,
   remind: seed?.remind ?? false,
   reminderInterval: seed?.reminderInterval ?? 15,
   reminderUnits: seed?.reminderUnits ?? ReminderUnits.MINUTES,

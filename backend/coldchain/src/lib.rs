@@ -4,6 +4,20 @@ use service::{
 };
 
 pub mod alerts;
+pub mod latest_temperature;
+pub mod parse;
+pub mod process;
+pub mod sensor_info;
+pub mod sensor_state;
+
+const PLUGIN_NAME: &str = "ColdChain";
+
+#[derive(Debug)]
+pub enum ColdChainError {
+    InvalidRecipient,
+    UnableToParseConfig(String),
+    InternalError(String),
+}
 
 pub struct ColdChainPlugin {}
 
@@ -16,13 +30,29 @@ impl PluginTrait for ColdChainPlugin {
     }
 
     fn name(&self) -> String {
-        "ColdChain".to_string()
+        PLUGIN_NAME.to_string()
     }
 
-    fn tick(&self, _ctx: &ServiceContext) -> Result<(), PluginError> {
+    fn tick(&self, ctx: &ServiceContext) -> Result<(), PluginError> {
         log::debug!("Running ColdChainPlugin");
-        log::error!("COLD CHAIN NOT YET IMPLEMENTED");
-        Ok(())
+        // process any configurations that are due
+        let current_time = chrono::Utc::now().naive_utc();
+        let result = process::process_coldchain_alerts(ctx, current_time);
+        match result {
+            Ok(count) => {
+                if count > 0 {
+                    log::info!("Processed {} cold chain configurations", count);
+                }
+                Ok(())
+            }
+            Err(e) => {
+                log::error!("Error processing cold chain configurations: {:?}", e);
+                Err(PluginError::UnableToProcessTick(format!(
+                    "Error processing cold chain configurations: {:?}",
+                    e
+                )))
+            }
+        }
     }
 }
 

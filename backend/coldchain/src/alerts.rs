@@ -29,29 +29,27 @@ Temperature: 10° C
 
 #[derive(Clone, Debug, Serialize)]
 pub struct TemperatureAlert {
-    pub store_id: String,
-    pub store_name: String,
-    pub location_id: String,
-    pub location_name: String,
     pub sensor_id: String,
     pub sensor_name: String,
+    pub store_name: String,
+    pub location_name: String,
     pub datetime: NaiveDateTime,
-    pub temperature: f64,
+    pub temperature: String,
+    pub alert_type: String,
 }
 
 // Later this function probably won't exist, but serves as a reminder/POC...
-pub async fn send_high_temperature_alert_telegram(
+pub fn queue_temperature_alert(
     ctx: &ServiceContext,
+    config_id: Option<String>,
     alert: TemperatureAlert,
     recipients: Vec<NotificationTarget>,
 ) -> Result<(), notification::NotificationServiceError> {
     let notification = NotificationContext {
         title_template: Some(TemplateDefinition::TemplateName(
-            "coldchain/telegram/temperature_title.html".to_string(),
+            "coldchain/temperature_title.html".to_string(),
         )),
-        body_template: TemplateDefinition::TemplateName(
-            "coldchain/telegram/temperature.html".to_string(),
-        ),
+        body_template: TemplateDefinition::TemplateName("coldchain/temperature.html".to_string()),
         recipients,
         template_data: serde_json::to_value(alert).map_err(|e| {
             notification::NotificationServiceError::InternalError(format!(
@@ -61,9 +59,7 @@ pub async fn send_high_temperature_alert_telegram(
         })?,
     };
 
-    // TODO : Get the config ID for this notification
-
-    create_notification_events(ctx, None, notification)
+    create_notification_events(ctx, config_id, notification)
 }
 
 #[cfg(test)]
@@ -99,14 +95,13 @@ mod tests {
         let context = ServiceContext::as_server_admin(service_provider).unwrap();
 
         let example_alert = TemperatureAlert {
-            store_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b1".to_string(),
             store_name: "Store A".to_string(),
-            location_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b2".to_string(),
             location_name: "Fridge 1".to_string(),
             sensor_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b3".to_string(),
             sensor_name: "E5:4G:D4:6D:A4".to_string(),
             datetime: NaiveDateTime::from_str("2023-07-17T17:04:00").unwrap(),
-            temperature: 10.12345,
+            temperature: 10.12345.to_string(),
+            alert_type: "High".to_string(),
         };
 
         let recipient1 = NotificationTarget {
@@ -120,12 +115,12 @@ mod tests {
             notification_type: NotificationType::Email,
         };
 
-        let result = send_high_temperature_alert_telegram(
+        let result = queue_temperature_alert(
             &context,
+            None,
             example_alert.clone(),
             vec![recipient1, recipient2],
-        )
-        .await;
+        );
 
         assert!(result.is_ok());
 

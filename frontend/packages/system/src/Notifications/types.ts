@@ -50,7 +50,7 @@ export interface CCNotification extends BaseNotificationConfig {
   confirmOk: boolean;
   noData: boolean;
   noDataInterval: number;
-  noDataUnits: ReminderUnits;
+  noDataIntervalUnits: ReminderUnits;
   remind: boolean;
   reminderInterval: number;
   reminderUnits: ReminderUnits;

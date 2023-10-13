@@ -1,4 +1,4 @@
-<strong>High temperature alert!</strong>
+<strong>{{ alert_type }} temperature alert!</strong>
 
 <strong>Facility</strong>: {{ store_name }}
 <strong>Location</strong>: {{ location_name }}
@@ -7,4 +7,4 @@
 <strong>Date</strong>: {{ datetime | date(format="%d %b %Y") }}
 <strong>Time</strong>: {{ datetime | date(format="%H:%M")}}
 
-<strong>Temperature</strong>: {{ temperature | round(precision=2) }}°C
+<strong>Temperature</strong>: {{ temperature }}°C
