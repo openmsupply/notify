@@ -1,4 +1,4 @@
-use chrono::NaiveDateTime;
+use chrono::{Local, NaiveDateTime};
 use repository::{
     NotificationConfigKind, NotificationConfigRowRepository, NotificationConfigStatus,
 };
@@ -8,7 +8,7 @@ use service::{
 };
 
 use crate::{
-    alerts::{send_temperature_alert, TemperatureAlert},
+    alerts::{queue_temperature_alert, TemperatureAlert},
     latest_temperature::{self, latest_temperature},
     parse::ColdChainPluginConfig,
     sensor_info::sensor_info,
@@ -252,7 +252,7 @@ fn try_process_coldchain_notifications(
                     location_name: sensor_row.location_name.clone(),
                     sensor_id: sensor_id.clone(),
                     sensor_name: sensor_row.sensor_name.clone(),
-                    datetime: now,
+                    datetime: Local::now().naive_local(), // TODO: Should this be last data time?
                     temperature: current_temp,
                     alert_type: "High".to_string(),
                 }),
@@ -268,7 +268,7 @@ fn try_process_coldchain_notifications(
                     location_name: sensor_row.location_name.clone(),
                     sensor_id: sensor_id.clone(),
                     sensor_name: sensor_row.sensor_name.clone(),
-                    datetime: now,
+                    datetime: Local::now().naive_local(), // TODO: Should this be last data time?
                     temperature: current_temp,
                     alert_type: "Low".to_string(),
                 }),
@@ -309,7 +309,7 @@ fn try_process_coldchain_notifications(
 
     for alert in alerts {
         // Send the notifications
-        let result = send_temperature_alert(
+        let result = queue_temperature_alert(
             ctx,
             Some(notification_config.id.clone()),
             alert,

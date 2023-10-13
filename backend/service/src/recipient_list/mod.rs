@@ -87,7 +87,7 @@ pub trait RecipientListServiceTrait: Sync + Send {
 pub struct RecipientListService {}
 impl RecipientListServiceTrait for RecipientListService {}
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ModifyRecipientListError {
     RecipientListAlreadyExists,
     ModifiedRecordNotFound,
@@ -98,49 +98,6 @@ pub enum ModifyRecipientListError {
     RecipientListMemberDoesNotExist,
     RecipientDoesNotExist,
     GenericError(String),
-}
-
-// PartialEq is only needed for tests
-impl PartialEq for ModifyRecipientListError {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (
-                ModifyRecipientListError::RecipientListAlreadyExists,
-                ModifyRecipientListError::RecipientListAlreadyExists,
-            ) => true,
-
-            (
-                ModifyRecipientListError::ModifiedRecordNotFound,
-                ModifyRecipientListError::ModifiedRecordNotFound,
-            ) => true,
-            (
-                ModifyRecipientListError::DatabaseError(self_err),
-                ModifyRecipientListError::DatabaseError(other_err),
-            ) => self_err == other_err,
-
-            (
-                ModifyRecipientListError::RecipientListDoesNotExist,
-                ModifyRecipientListError::RecipientListDoesNotExist,
-            ) => true,
-            (
-                ModifyRecipientListError::RecipientDoesNotExist,
-                ModifyRecipientListError::RecipientDoesNotExist,
-            ) => true,
-            (
-                ModifyRecipientListError::RecipientListMemberDoesNotExist,
-                ModifyRecipientListError::RecipientListMemberDoesNotExist,
-            ) => true,
-            (
-                ModifyRecipientListError::RecipientListMemberAlreadyExists,
-                ModifyRecipientListError::RecipientListMemberAlreadyExists,
-            ) => true,
-            (
-                ModifyRecipientListError::InvalidRecipientListName,
-                ModifyRecipientListError::InvalidRecipientListName,
-            ) => true,
-            _ => false,
-        }
-    }
 }
 
 impl From<RepositoryError> for ModifyRecipientListError {

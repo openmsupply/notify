@@ -18,6 +18,7 @@ pub type NotificationQuery = NotificationQueryRow;
 pub struct NotificationQueryFilter {
     pub id: Option<EqualFilter<String>>,
     pub name: Option<StringFilter>,
+    pub reference_name: Option<StringFilter>,
     pub search: Option<String>,
 }
 
@@ -100,17 +101,29 @@ fn create_filtered_query(filter: Option<NotificationQueryFilter>) -> BoxedQuery 
     let mut query = notification_query_dsl::notification_query.into_boxed();
 
     if let Some(f) = filter {
-        let NotificationQueryFilter { id, name, search } = f;
+        let NotificationQueryFilter {
+            id,
+            name,
+            reference_name,
+            search,
+        } = f;
 
         apply_equal_filter!(query, id, notification_query_dsl::id);
         apply_string_filter!(query, name, notification_query_dsl::name);
+        apply_string_filter!(
+            query,
+            reference_name,
+            notification_query_dsl::reference_name
+        );
 
         if let Some(search) = search {
             let search_term = format!("%{}%", search);
             query = query.filter(
                 notification_query_dsl::name
                     .like(search_term.clone())
-                    .or(notification_query_dsl::description.like(search_term)),
+                    .or(notification_query_dsl::description.like(search_term.clone()))
+                    .or(notification_query_dsl::reference_name.like(search_term.clone()))
+                    .or(notification_query_dsl::query.like(search_term.clone())),
             );
         }
     }
@@ -129,6 +142,10 @@ impl NotificationQueryFilter {
     }
     pub fn name(mut self, filter: StringFilter) -> Self {
         self.name = Some(filter);
+        self
+    }
+    pub fn reference_name(mut self, filter: StringFilter) -> Self {
+        self.reference_name = Some(filter);
         self
     }
 

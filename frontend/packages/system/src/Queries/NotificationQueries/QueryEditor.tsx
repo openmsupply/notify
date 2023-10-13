@@ -11,12 +11,15 @@ import {
   LoadingButton,
   SaveIcon,
   TeraUtils,
+  Tooltip,
   Typography,
   ZapIcon,
+  isValidVariableName,
   useDetailPanel,
   useNotification,
   useToggle,
   useTranslation,
+  validateVariableNameHelperText,
 } from '@notify-frontend/common';
 import { DraftNotificationQuery } from './types';
 import { useUpdateNotificationQuery } from '../api';
@@ -28,6 +31,7 @@ const createNotificationQuery = (
 ): DraftNotificationQuery => ({
   id: FnUtils.generateUUID(),
   name: '',
+  referenceName: '',
   description: '',
   query: '',
   requiredParameters: [],
@@ -92,8 +96,16 @@ export const QueryEditor = ({
     useUpdateNotificationQuery();
 
   const onSave = async (draft: DraftNotificationQuery) => {
-    const { id, name, description, query, requiredParameters } = draft;
-    const input = { id, name, description, query, requiredParameters };
+    const { id, name, referenceName, description, query, requiredParameters } =
+      draft;
+    const input = {
+      id,
+      name,
+      referenceName,
+      description,
+      query,
+      requiredParameters,
+    };
 
     await update({ input });
     editNameToggleOff();
@@ -144,19 +156,39 @@ export const QueryEditor = ({
       />
       <Grid flexDirection="column" display="flex" gap={1}>
         {isEditingName ? (
-          <BasicTextInput
-            autoFocus
-            required
-            value={draft.name}
-            helperText={
-              invalidName(draft.name)
-                ? t('helper-text.recipient-list-name')
-                : null
-            }
-            onChange={e => onUpdate({ name: e.target.value })}
-            label={t('label.name')}
-            InputLabelProps={{ shrink: true }}
-          />
+          <>
+            <BasicTextInput
+              autoFocus
+              required
+              value={draft.name}
+              error={invalidName(draft.name)}
+              helperText={
+                invalidName(draft.name)
+                  ? t('helper-text.recipient-list-name')
+                  : null
+              }
+              onChange={e => onUpdate({ name: e.target.value })}
+              label={t('label.name')}
+              InputLabelProps={{ shrink: true }}
+            />
+            <BasicTextInput
+              autoFocus
+              required
+              value={draft.referenceName}
+              error={!isValidVariableName(draft.referenceName)}
+              helperText={
+                <Tooltip title={t('helper-text.reference_name')}>
+                  <span>
+                    {validateVariableNameHelperText(draft.referenceName, t) ??
+                      t('helper-text.reference_name')}
+                  </span>
+                </Tooltip>
+              }
+              onChange={e => onUpdate({ referenceName: e.target.value })}
+              label={t('label.reference-name')}
+              InputLabelProps={{ shrink: true }}
+            />
+          </>
         ) : (
           <Typography
             sx={{
@@ -166,7 +198,7 @@ export const QueryEditor = ({
             }}
             onClick={editNameToggleOn}
           >
-            {draft?.name}
+            {draft?.name} ({draft?.referenceName})
             <IconButton
               onClick={editNameToggleOn}
               icon={<EditIcon />}

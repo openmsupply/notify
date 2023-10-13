@@ -68,6 +68,7 @@ export type CreateNotificationConfigInput = {
 export type CreateNotificationQueryInput = {
   id: Scalars['String']['input'];
   name: Scalars['String']['input'];
+  referenceName: Scalars['String']['input'];
 };
 
 export type CreateRecipientInput = {
@@ -628,6 +629,7 @@ export type NotificationQueryNode = {
   id: Scalars['String']['output'];
   name: Scalars['String']['output'];
   query: Scalars['String']['output'];
+  referenceName: Scalars['String']['output'];
   requiredParameters: Array<Scalars['String']['output']>;
 };
 
@@ -842,6 +844,7 @@ export type UpdateNotificationQueryInput = {
   id: Scalars['String']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   query?: InputMaybe<Scalars['String']['input']>;
+  referenceName?: InputMaybe<Scalars['String']['input']>;
   requiredParameters?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 

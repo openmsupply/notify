@@ -65,40 +65,13 @@ pub trait RecipientServiceTrait: Sync + Send {
 pub struct RecipientService {}
 impl RecipientServiceTrait for RecipientService {}
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ModifyRecipientError {
     RecipientAlreadyExists,
     ModifiedRecordNotFound,
     DatabaseError(RepositoryError),
     RecipientDoesNotExist,
     GenericError(String),
-}
-
-// PartialEq is only needed for tests
-impl PartialEq for ModifyRecipientError {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (
-                ModifyRecipientError::RecipientAlreadyExists,
-                ModifyRecipientError::RecipientAlreadyExists,
-            ) => true,
-
-            (
-                ModifyRecipientError::ModifiedRecordNotFound,
-                ModifyRecipientError::ModifiedRecordNotFound,
-            ) => true,
-            (
-                ModifyRecipientError::DatabaseError(self_err),
-                ModifyRecipientError::DatabaseError(other_err),
-            ) => self_err == other_err,
-
-            (
-                ModifyRecipientError::RecipientDoesNotExist,
-                ModifyRecipientError::RecipientDoesNotExist,
-            ) => true,
-            _ => false,
-        }
-    }
 }
 
 impl From<RepositoryError> for ModifyRecipientError {

@@ -24,10 +24,14 @@ export const useColdChainSensors = () => {
   return useQuery(cacheKeys, async () => {
     const sensorQuery =
       "SELECT sn.id as id, s.name as store_name,coalesce(l.description, '') as location_name, sn.name as sensor_name FROM SENSOR sn JOIN store s ON sn.storeid = s.id LEFT JOIN location l on sn.locationid = l.id WHERE sn.is_active = true ORDER BY 2,3,4 LIMIT 1000";
-    const response = await sdk.getColdChainSensors({
+    const response = await sdk.runSqlQueryWithParameters({
       sqlQuery: sensorQuery,
       params: '{}',
     });
+
+    if (!response) {
+      return [];
+    }
 
     const sensors: SensorData[] = JSON.parse(
       response?.runSqlQueryWithParameters

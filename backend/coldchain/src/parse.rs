@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use service::notification_config::intervals::IntervalUnits;
 
 use crate::ColdChainError;
 
@@ -11,7 +12,7 @@ use crate::ColdChainError;
     "lowTemp": true,
     "noData": true,
     "noDataInterval": 1,
-    "noDataUnits": "hours",
+    "noDataIntervalUnits": "hours",
     "parameters": "{}",
     "parsedParameters": {},
     "recipientIds": [
@@ -57,7 +58,7 @@ pub struct ColdChainPluginConfig {
     #[serde(default = "default_no_data_interval")]
     pub no_data_interval: u32,
     #[serde(default = "default_no_data_units")]
-    pub no_data_units: String,
+    pub no_data_interval_units: IntervalUnits,
 }
 
 fn default_low_temp_limit() -> f64 {
@@ -72,8 +73,8 @@ fn default_no_data_interval() -> u32 {
     1
 }
 
-fn default_no_data_units() -> String {
-    "hours".to_string()
+fn default_no_data_units() -> IntervalUnits {
+    IntervalUnits::Hours
 }
 
 impl ColdChainPluginConfig {
@@ -97,7 +98,7 @@ mod test {
     }
 
     #[test]
-    fn test_parse_config_high_temp() {
+    fn test_parse_config_example1() {
         let example1 = r#"{
     "confirmOk": true,
     "highTemp": true,
@@ -106,7 +107,7 @@ mod test {
     "lowTemp": true,
     "noData": true,
     "noDataInterval": 1,
-    "noDataUnits": "hours",
+    "noDataIntervalUnits": "minutes",
     "parameters": "{}",
     "parsedParameters": {},
     "recipientIds": [
@@ -139,5 +140,7 @@ mod test {
         assert!(config.high_temp);
         assert!(config.low_temp);
         assert_eq!(config.sensor_ids.len(), 9);
+        assert_eq!(config.no_data_interval, 1);
+        assert_eq!(config.no_data_interval_units, IntervalUnits::Minutes);
     }
 }
