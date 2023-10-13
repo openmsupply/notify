@@ -118,11 +118,11 @@ export const CCNotificationEditForm = ({
             sx={{ width: '60px' }}
           />
           <Select
-            value={draft.noDataUnits}
+            value={draft.noDataIntervalUnits}
             disabled={!draft.noData}
             onChange={e =>
               onUpdate({
-                noDataUnits: getReminderUnitsFromString(e.target.value),
+                noDataIntervalUnits: getReminderUnitsFromString(e.target.value),
               })
             }
             options={getReminderUnitsAsOptions(t)}
@@ -130,12 +130,12 @@ export const CCNotificationEditForm = ({
         </Box>
       </ul>
       <Typography
-          sx={{
-            fontWeight: 700,
-            fontSize: '13px',
-            marginTop: '10px',
-            marginBottom: '10px',
-          }}
+        sx={{
+          fontWeight: 700,
+          fontSize: '13px',
+          marginTop: '10px',
+          marginBottom: '10px',
+        }}
       >
         {t('heading.preference')}
       </Typography>
@@ -179,7 +179,9 @@ export const CCNotificationEditForm = ({
           <Checkbox
             id="messageAlertResolved"
             checked={draft.messageAlertResolved}
-            onClick={() => onUpdate({ messageAlertResolved: !draft.messageAlertResolved })}
+            onClick={() =>
+              onUpdate({ messageAlertResolved: !draft.messageAlertResolved })
+            }
           />
           <label htmlFor="messageAlertResolved">
             {t('label.coldchain-message-alerts-resolved')}
