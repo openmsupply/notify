@@ -16,9 +16,9 @@ import { useTranslation } from '@common/intl';
 
 export interface ParamsPanelProps {
   requiredParams: string[];
-  params: KeyedParams;
-  onUpdateParams: (key: string, value: string) => void;
-  onDeleteParam: (key: string) => void;
+  params: KeyedParams[];
+  onUpdateParams: (idx: number, key: string, value: string) => void;
+  onDeleteParam: (idx: number, key: string) => void;
 }
 
 export const NotificationDetailPanel = ({
@@ -29,7 +29,13 @@ export const NotificationDetailPanel = ({
 }: ParamsPanelProps) => {
   const t = useTranslation('system');
 
-  const allParams = [...new Set(requiredParams.concat(Object.keys(params)))];
+  const allParams = [
+    ...new Set(requiredParams.concat(Object.keys(params[0] ?? {}))),
+  ];
+
+  if (params.length === 0 || params[0] === undefined) {
+    params = [{} as KeyedParams];
+  }
 
   const paramEditor = (
     <DetailPanelSection title={t('label.parameters')}>
@@ -47,14 +53,14 @@ export const NotificationDetailPanel = ({
                     backgroundColor: 'background.white',
                   },
                 }}
-                value={params[param ?? '']}
-                onChange={e => onUpdateParams(param ?? '', e.target.value)}
+                value={params[0]![param ?? ''] ?? ''} // TODO: Don't hardcode to 0
+                onChange={e => onUpdateParams(0, param ?? '', e.target.value)} // TODO: Don't hardcode to 0
               />
               {
                 // if param is not required allow it to be removed
                 !requiredParams.includes(param) && (
                   <IconButton
-                    onClick={() => onDeleteParam(param ?? '')}
+                    onClick={() => onDeleteParam(0, param ?? '')}
                     icon={<DeleteIcon />}
                     label={t('label.delete')}
                   />

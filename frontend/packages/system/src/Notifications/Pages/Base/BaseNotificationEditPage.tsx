@@ -70,23 +70,47 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
     return status == ConfigStatus.Enabled;
   };
 
-  const onUpdateParams = (key: string, value: string) => {
+  const onUpdateParams = (idx: number = 0, key: string, value: string) => {
     const updatedParam = { [key]: value } as KeyedParams;
-    const parseParams = { ...draft.parsedParameters, ...updatedParam };
+
+    const parseParams = draft.parsedParameters;
+    if (idx >= draft.parsedParameters.length) {
+      parseParams.push(updatedParam);
+    } else {
+      parseParams[idx] = { ...draft.parsedParameters[idx], ...updatedParam };
+    }
+
+    const params = [];
+    for (const param of parseParams) {
+      params.push(TeraUtils.keyedParamsAsTeraJson(param));
+    }
     onUpdate({
       ...draft,
       parsedParameters: parseParams,
-      parameters: TeraUtils.keyedParamsAsTeraJson(parseParams),
+      parameters: params,
     });
   };
 
-  const onDeleteParam = (key: string) => {
+  const onDeleteParam = (idx: number, key: string) => {
     const updatedParams = draft.parsedParameters;
-    delete updatedParams[key];
+    if (
+      updatedParams.length == 0 ||
+      idx > updatedParams.length ||
+      idx < 0 ||
+      updatedParams[idx] == undefined
+    ) {
+      return;
+    }
+    delete updatedParams[0]![key];
+
+    const params = [];
+    for (const param of updatedParams) {
+      params.push(TeraUtils.keyedParamsAsTeraJson(param));
+    }
     onUpdate({
       ...draft,
       parsedParameters: updatedParams,
-      parameters: TeraUtils.keyedParamsAsTeraJson(updatedParams),
+      parameters: params,
     });
   };
 
@@ -101,7 +125,11 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
 
   const allParamsSet = requiredParams.every(param => {
     if (param) {
-      return draft.parsedParameters[param] !== undefined; // This allows the user to set the param to an empty string if they edit the field then delete the value
+      if (!Array.isArray(draft.parsedParameters)) {
+        draft.parsedParameters = [draft.parsedParameters];
+      }
+
+      return draft.parsedParameters.every(obj => obj[param] !== undefined); // This allows the user to set the param to an empty string if they edit the field then delete the value
     } else {
       return false;
     }

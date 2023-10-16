@@ -42,7 +42,7 @@ const createCCNotification = (
   status: seed?.status ?? ConfigStatus.Disabled,
   sqlRecipientListIds: seed?.sqlRecipientListIds ?? [],
   parameters: seed?.parameters ?? '{}',
-  parsedParameters: seed?.parsedParameters ?? {},
+  parsedParameters: seed?.parsedParameters ?? [],
   requiredParameters: seed?.requiredParameters ?? [],
 });
 
