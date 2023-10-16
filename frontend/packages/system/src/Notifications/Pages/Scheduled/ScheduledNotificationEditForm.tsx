@@ -51,13 +51,6 @@ export const ScheduledNotificationEditForm = ({
         InputLabelProps={{ shrink: true }}
       />
 
-      <BufferedTextArea
-        value={draft.parameters}
-        onChange={e => onUpdate({ parameters: e.target.value })}
-        label={t('label.parameters')}
-        InputProps={{ sx: { backgroundColor: 'background.menu' } }}
-        InputLabelProps={{ shrink: true }}
-      />
       <Typography sx={{ fontWeight: 700, fontSize: '13px' }}>
         {t('label.queries')}
       </Typography>

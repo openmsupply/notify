@@ -82,16 +82,16 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
 
     const params = [];
     for (const param of parseParams) {
-      params.push(TeraUtils.keyedParamsAsTeraJson(param));
+      params.push(TeraUtils.keyedParamsAsTeraParams(param));
     }
     onUpdate({
       ...draft,
       parsedParameters: parseParams,
-      parameters: params,
+      parameters: JSON.stringify(params),
     });
   };
 
-  const onDeleteParam = (idx: number, key: string) => {
+  const onDeleteParam = (idx: number, key: string | null) => {
     const updatedParams = draft.parsedParameters;
     if (
       updatedParams.length == 0 ||
@@ -101,7 +101,12 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
     ) {
       return;
     }
-    delete updatedParams[0]![key];
+
+    if (key == null) {
+      updatedParams.splice(idx, 1); // Delete everything for that index
+    } else {
+      delete updatedParams[idx]![key];
+    }
 
     const params = [];
     for (const param of updatedParams) {
