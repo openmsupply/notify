@@ -1,10 +1,12 @@
 import {
+  ConfigKind,
+  ConfigStatus,
   CreateNotificationConfigInput,
   UpdateNotificationConfigInput,
 } from '@common/types';
-import { CCNotification } from '../../types';
+import { CCNotification, ReminderUnits } from '../../types';
 import { NotificationConfigRowFragment } from '../../api';
-import { TeraUtils } from '@common/utils';
+import { FnUtils } from '@common/utils';
 
 export function parseColdChainNotificationConfig(
   config: NotificationConfigRowFragment | null,
@@ -12,45 +14,10 @@ export function parseColdChainNotificationConfig(
 ): CCNotification | null {
   if (!config) return null;
   try {
-    const {
-      highTemp,
-      lowTemp,
-      confirmOk,
-      noData,
-      noDataInterval,
-      noDataUnits,
-      remind,
-      reminderInterval,
-      reminderUnits,
-      messageAlertResolved,
-      locationIds,
-      recipientIds, // TODO: Remove recipientIds, recipientListIds, and sqlRecipientListIds from the config data after all configs have been updated
-      recipientListIds,
-      sqlRecipientListIds,
-    } = JSON.parse(config.configurationData);
-
     return {
-      id: config.id,
-      title: config.title,
-      kind: config.kind,
-      highTemp,
-      lowTemp,
-      confirmOk,
-      noData,
-      noDataInterval,
-      noDataUnits,
-      remind,
-      reminderInterval,
-      reminderUnits,
-      messageAlertResolved,
-      locationIds,
-      recipientIds: config.recipientIds ?? recipientIds, // This should really be just config.recipientIds but we fallback to the configuratData for backwards compatibilty
-      recipientListIds: config.recipientListIds ?? recipientListIds, // TODO: remove this fallback after all configs have been updated, and in future we should use a migration process to avoid runtime checks like this
-      sqlRecipientListIds: config.sqlRecipientListIds ?? sqlRecipientListIds, // Same for this one...
-      status: config.status,
-      parameters: config.parameters,
-      parsedParameters: TeraUtils.keyedParamsFromTeraJson(config.parameters),
-      requiredParameters: [],
+      ...defaultCCNotification,
+      ...config,
+      ...JSON.parse(config.configurationData),
     };
   } catch (e) {
     showError();
@@ -59,6 +26,7 @@ export function parseColdChainNotificationConfig(
     // The missing fields will be populated by default values in the edit modal, but we'll return
     // the base NotificationConfig data that is still usable:
     return {
+      ...defaultCCNotification,
       id: config.id,
       title: config.title,
       kind: config.kind,
@@ -66,6 +34,30 @@ export function parseColdChainNotificationConfig(
     } as CCNotification;
   }
 }
+
+export const defaultCCNotification: CCNotification = {
+  id: FnUtils.generateUUID(),
+  title: '',
+  kind: ConfigKind.ColdChain,
+  status: ConfigStatus.Disabled,
+  recipientListIds: [],
+  recipientIds: [],
+  sqlRecipientListIds: [],
+  parameters: '[{}]',
+  parsedParameters: [],
+  highTemp: true,
+  lowTemp: true,
+  confirmOk: true,
+  noData: true,
+  noDataInterval: 4,
+  noDataUnits: ReminderUnits.HOURS,
+  remind: true,
+  reminderInterval: 2,
+  reminderUnits: ReminderUnits.HOURS,
+  messageAlertResolved: true,
+  locationIds: [],
+  requiredParameters: [],
+};
 
 export function buildColdChainNotificationInputs(config: CCNotification): {
   create: CreateNotificationConfigInput;
