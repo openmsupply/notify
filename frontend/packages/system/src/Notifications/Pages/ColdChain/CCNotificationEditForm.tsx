@@ -7,9 +7,8 @@ import {
   Select,
   Typography,
   useTranslation,
-  Tooltip,
-  InfoIcon,
   NumberInput,
+  InfoTooltipIcon,
 } from '@notify-frontend/common';
 import {
   CCNotification,
@@ -64,14 +63,10 @@ export const CCNotificationEditForm = ({
             onChange={newValue => onUpdate({ highTempThreshold: newValue })}
             sx={{ width: '60px' }}
           />
-          <Tooltip title={t('messages.cold-chain-temperature-information')}>
-            <span>
-              {'  '}
-              {t('label.degrees-celsius')}
-              {'  '}
-              <InfoIcon fontSize="small" color="inherit" />
-            </span>
-          </Tooltip>
+          {`  ${t('label.degrees-celsius')}`}
+          <InfoTooltipIcon
+            title={t('messages.cold-chain-temperature-information')}
+          />
         </li>
         <li>
           <Checkbox
@@ -80,8 +75,7 @@ export const CCNotificationEditForm = ({
             onClick={() => onUpdate({ lowTemp: !draft.lowTemp })}
           />
           <label htmlFor="lowTemp">
-            {t('label.coldchain-low-temp-alerts')}
-            {'  '}
+            {`${t('label.coldchain-low-temp-alerts')}  `}
           </label>
           <NumberInput
             id={'lowTempThreshold'}
@@ -91,14 +85,10 @@ export const CCNotificationEditForm = ({
             onChange={newValue => onUpdate({ lowTempThreshold: newValue })}
             sx={{ width: '60px' }}
           />
-          <Tooltip title={t('messages.cold-chain-temperature-information')}>
-            <span>
-              {'  '}
-              {t('label.degrees-celsius')}
-              {'  '}
-              <InfoIcon fontSize="small" color="inherit" />
-            </span>
-          </Tooltip>
+          {`  ${t('label.degrees-celsius')}`}
+          <InfoTooltipIcon
+            title={t('messages.cold-chain-temperature-information')}
+          />
         </li>
         <li>
           <Checkbox
@@ -135,12 +125,9 @@ export const CCNotificationEditForm = ({
             options={getReminderUnitsAsOptions(t)}
             sx={{ marginLeft: '10px' }}
           />
-          <Tooltip title={t('messages.cold-chain-no-data-information')}>
-            <span>
-              {' '}
-              <InfoIcon fontSize="small" color="inherit" />
-            </span>
-          </Tooltip>
+          <InfoTooltipIcon
+            title={t('messages.cold-chain-no-data-information')}
+          />
         </li>
       </ul>
       <Typography
