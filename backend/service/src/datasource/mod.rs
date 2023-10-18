@@ -11,7 +11,7 @@ pub trait DatasourceServiceTrait: Send + Sync {
     fn run_sql_query_with_parameters(
         &self,
         sql_query: String,
-        parameters: String,
+        parameters: serde_json::Value,
     ) -> Result<String, DatasourceServiceError>;
     fn run_recipient_query(
         &self,
@@ -81,7 +81,7 @@ impl DatasourceServiceTrait for DatasourceService {
     fn run_sql_query_with_parameters(
         &self,
         sql_query: String,
-        parameters: String,
+        parameters: serde_json::Value,
     ) -> Result<String, DatasourceServiceError> {
         let connection = &mut self.connection_pool.pool.get().map_err(|error| {
             DatasourceServiceError::InternalError(format!(
@@ -90,16 +90,8 @@ impl DatasourceServiceTrait for DatasourceService {
             ))
         })?;
 
-        // Parse Params as json
-        let json_params = serde_json::from_str(&parameters).map_err(|e| {
-            DatasourceServiceError::BadUserInput(format!(
-                "Failed to parse params as json: {}",
-                e.to_string()
-            ))
-        })?;
-
         // Pass params to template to get the full query
-        let tera_context = Context::from_value(json_params).map_err(|e| {
+        let tera_context = Context::from_value(parameters).map_err(|e| {
             DatasourceServiceError::InternalError(format!(
                 "Failed to convert params to tera context: {}",
                 e.to_string()

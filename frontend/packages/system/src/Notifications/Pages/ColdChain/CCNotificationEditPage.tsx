@@ -41,7 +41,7 @@ const createCCNotification = (
   messageAlertResolved: seed?.messageAlertResolved ?? false,
   status: seed?.status ?? ConfigStatus.Disabled,
   sqlRecipientListIds: seed?.sqlRecipientListIds ?? [],
-  parameters: seed?.parameters ?? '{}',
+  parameters: seed?.parameters ?? '[{}]',
   parsedParameters: seed?.parsedParameters ?? [],
   requiredParameters: seed?.requiredParameters ?? [],
 });

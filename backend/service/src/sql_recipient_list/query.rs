@@ -50,7 +50,7 @@ pub fn get_sql_recipient_list(
 pub fn get_sql_recipients(
     ctx: &ServiceContext,
     sql_recipient_list_id: String,
-    params: String,
+    params: serde_json::Value,
 ) -> Result<ListResult<BasicRecipientRow>, ListError> {
     let repository = SqlRecipientListRowRepository::new(&ctx.connection);
 
@@ -71,15 +71,10 @@ pub fn get_sql_recipients(
 pub fn get_sql_recipients_by_sql_query(
     ctx: &ServiceContext,
     query: String,
-    params: String,
+    params: serde_json::Value,
 ) -> Result<ListResult<BasicRecipientRow>, ListError> {
-    // Parse Params as json
-    let json_params = serde_json::from_str(&params).map_err(|e| {
-        ListError::InvalidRequest(format!("Failed to parse params as json: {}", e.to_string()))
-    })?;
-
     // Pass params to template to get the full query
-    let tera_context = Context::from_value(json_params).map_err(|e| {
+    let tera_context = Context::from_value(params).map_err(|e| {
         ListError::InvalidRequest(format!(
             "Failed to convert params to tera context: {}",
             e.to_string()

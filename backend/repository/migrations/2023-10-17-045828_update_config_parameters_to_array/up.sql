@@ -1,0 +1,1 @@
+UPDATE notification_config SET parameters = '['|| parameters || ']' WHERE parameters not like '[%';

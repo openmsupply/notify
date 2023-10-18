@@ -99,7 +99,7 @@ impl DatasourceServiceTrait for MockDatasourceService {
     fn run_sql_query_with_parameters(
         &self,
         _sql_query: String,
-        _parameters: String,
+        _parameters: serde_json::Value,
     ) -> Result<String, crate::datasource::DatasourceServiceError> {
         todo!()
     }

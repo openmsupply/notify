@@ -6,7 +6,7 @@ import {
 } from '@common/types';
 import { NotificationConfigRowFragment } from '../../api';
 import { ScheduledNotification } from '../../types';
-import { FnUtils } from '@common/utils';
+import { FnUtils, TeraUtils } from '@common/utils';
 
 export function parseScheduledNotificationConfig(
   config: NotificationConfigRowFragment | null,
@@ -41,7 +41,7 @@ export const defaultSchedulerNotification: ScheduledNotification = {
   recipientListIds: [],
   recipientIds: [],
   sqlRecipientListIds: [],
-  parameters: '[{}]',
+  parameters: '[]',
   parsedParameters: [],
   requiredParameters: [],
   scheduleFrequency: 'daily',
@@ -58,12 +58,17 @@ export function buildScheduledNotificationInputs(
   create: CreateNotificationConfigInput;
   update: UpdateNotificationConfigInput;
 } {
+  const params = [];
+  for (const param of config.parsedParameters) {
+    params.push(TeraUtils.keyedParamsAsTeraParams(param));
+  }
+
   const input = {
     id: config.id,
     title: config.title,
     configurationData: JSON.stringify(config),
     status: config.status,
-    parameters: config.parameters,
+    parameters: JSON.stringify(params),
     recipientIds: config.recipientIds,
     recipientListIds: config.recipientListIds,
     sqlRecipientListIds: config.sqlRecipientListIds,

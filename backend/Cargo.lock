@@ -1678,6 +1678,8 @@ dependencies = [
  "async-graphql",
  "graphql_core",
  "graphql_types",
+ "serde",
+ "serde_json",
  "service",
  "util",
 ]

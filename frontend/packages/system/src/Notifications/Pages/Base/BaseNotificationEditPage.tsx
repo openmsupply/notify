@@ -19,7 +19,6 @@ import {
   useDetailPanel,
   AppBarButtonsPortal,
   KeyedParams,
-  TeraUtils,
 } from '@notify-frontend/common';
 
 import { BaseNotificationConfig } from '../../types';
@@ -79,15 +78,9 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
     } else {
       parseParams[idx] = { ...draft.parsedParameters[idx], ...updatedParam };
     }
-
-    const params = [];
-    for (const param of parseParams) {
-      params.push(TeraUtils.keyedParamsAsTeraParams(param));
-    }
     onUpdate({
       ...draft,
       parsedParameters: parseParams,
-      parameters: JSON.stringify(params),
     });
   };
 
@@ -108,14 +101,9 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
       delete updatedParams[idx]![key];
     }
 
-    const params = [];
-    for (const param of updatedParams) {
-      params.push(TeraUtils.keyedParamsAsTeraJson(param));
-    }
     onUpdate({
       ...draft,
       parsedParameters: updatedParams,
-      parameters: params,
     });
   };
 
@@ -132,6 +120,7 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
     if (param) {
       if (!Array.isArray(draft.parsedParameters)) {
         draft.parsedParameters = [draft.parsedParameters];
+        draft.parameters = JSON.stringify(draft.parsedParameters);
       }
 
       return draft.parsedParameters.every(obj => obj[param] !== undefined); // This allows the user to set the param to an empty string if they edit the field then delete the value

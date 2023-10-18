@@ -6,7 +6,7 @@ import {
 } from '@common/types';
 import { CCNotification, ReminderUnits } from '../../types';
 import { NotificationConfigRowFragment } from '../../api';
-import { FnUtils } from '@common/utils';
+import { FnUtils, TeraUtils } from '@common/utils';
 
 export function parseColdChainNotificationConfig(
   config: NotificationConfigRowFragment | null,
@@ -43,7 +43,7 @@ export const defaultCCNotification: CCNotification = {
   recipientListIds: [],
   recipientIds: [],
   sqlRecipientListIds: [],
-  parameters: '[{}]',
+  parameters: '[]',
   parsedParameters: [],
   highTemp: true,
   lowTemp: true,
@@ -63,12 +63,17 @@ export function buildColdChainNotificationInputs(config: CCNotification): {
   create: CreateNotificationConfigInput;
   update: UpdateNotificationConfigInput;
 } {
+  const params = [];
+  for (const param of config.parsedParameters) {
+    params.push(TeraUtils.keyedParamsAsTeraParams(param));
+  }
+
   const input = {
     id: config.id,
     title: config.title,
     configurationData: JSON.stringify(config),
     status: config.status,
-    parameters: config.parameters,
+    parameters: JSON.stringify(params),
     recipientIds: config.recipientIds,
     recipientListIds: config.recipientListIds,
     sqlRecipientListIds: config.sqlRecipientListIds,
