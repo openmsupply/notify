@@ -96,6 +96,7 @@
   "label.kind": "Kind",
   "label.line": "Line {{line, number}}",
   "label.line-total": "Line total",
+  "label.location": "Location",
   "label.log": "Log",
   "label.manage": "Manage",
   "label.message": "Message",
@@ -125,6 +126,7 @@
   "label.showing": "Showing",
   "label.status": "Status",
   "label.status-reason": "Enter reason",
+  "label.store": "Store",
   "label.time": "Time",
   "label.title": "Title",
   "label.toggle-password-visibility": "Toggle Password Visibility",
@@ -183,5 +185,6 @@
   "warning.caps-lock": "Warning: Caps lock is on",
   "label.subject-template": "Subject template",
   "label.body-template": "Body template",
-  "label.parameters": "Parameters"
+  "label.parameters": "Parameters",
+  "label.reference-name": "Reference Name"
 }

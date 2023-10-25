@@ -47,7 +47,8 @@ pub struct ColdchainAlert {
     pub alert_type: AlertType,
 }
 
-pub fn send_individual_coldchain_alert(
+// Later this function probably won't exist, but serves as a reminder/POC...
+pub fn queue_temperature_alert(
     ctx: &ServiceContext,
     config_id: Option<String>,
     alert: ColdchainAlert,
@@ -140,7 +141,7 @@ mod tests {
             notification_type: NotificationType::Email,
         };
 
-        let result = send_individual_coldchain_alert(
+        let result = queue_temperature_alert(
             &context,
             None,
             example_alert.clone(),
@@ -206,7 +207,7 @@ mod tests {
             notification_type: NotificationType::Email,
         };
 
-        let result = send_individual_coldchain_alert(
+        let result = queue_temperature_alert(
             &context,
             None,
             example_alert.clone(),
@@ -272,7 +273,7 @@ mod tests {
             notification_type: NotificationType::Email,
         };
 
-        let result = send_individual_coldchain_alert(
+        let result = queue_temperature_alert(
             &context,
             None,
             example_alert.clone(),

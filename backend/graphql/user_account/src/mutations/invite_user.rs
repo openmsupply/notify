@@ -131,23 +131,34 @@ fn map_error(error: ModifyUserAccountError) -> Result<InviteUserResponse> {
     use StandardGraphqlError::*;
 
     let graphql_error = match error {
-        ModifyUserAccountError::UnableToSendEmail(_) => InternalError(
-            "Unable to send email. Please try again later or contact mSupply Support for assistance".to_string()),
         ModifyUserAccountError::DatabaseError(_) => {
             InternalError("Database error while creating password reset link".to_string())
         }
-        ModifyUserAccountError::UserAccountAlreadyExists => BadUserInput("Username already exists, please choose another.".to_string()),
-        ModifyUserAccountError::EmailAddressAlreadyExists => BadUserInput("Email Address already exists, you may need to do a password reset instead?".to_string()),
-        ModifyUserAccountError::ModifiedRecordNotFound => InternalError("Modified record not found".to_string()),
-        ModifyUserAccountError::PasswordHashError(_) => InternalError("Password hash error".to_string()),
-        ModifyUserAccountError::UserAccountDoesNotExist => BadUserInput("User does not exist".to_string()),
+        ModifyUserAccountError::UserAccountAlreadyExists => {
+            BadUserInput("Username already exists, please choose another.".to_string())
+        }
+        ModifyUserAccountError::EmailAddressAlreadyExists => BadUserInput(
+            "Email Address already exists, you may need to do a password reset instead?"
+                .to_string(),
+        ),
+        ModifyUserAccountError::ModifiedRecordNotFound => {
+            InternalError("Modified record not found".to_string())
+        }
+        ModifyUserAccountError::PasswordHashError => {
+            InternalError("Password hash error".to_string())
+        }
+        ModifyUserAccountError::UserAccountDoesNotExist => {
+            BadUserInput("User does not exist".to_string())
+        }
         ModifyUserAccountError::InvalidPassword => BadUserInput(
             "Please ensure your password meets the minimum complexity standards".to_string(),
         ),
         ModifyUserAccountError::InvalidUsername => BadUserInput(
             "Invalid Username, username can only include english letters and numbers".to_string(),
         ),
-        ModifyUserAccountError::PermissionsMissing => BadUserInput("Permissions missing".to_string()),
+        ModifyUserAccountError::PermissionsMissing => {
+            BadUserInput("Permissions missing".to_string())
+        }
         ModifyUserAccountError::InvalidToken => BadUserInput("Invalid token".to_string()),
         ModifyUserAccountError::TokenExpired => BadUserInput("Token expired".to_string()),
         ModifyUserAccountError::GenericError(s) => InternalError(s),

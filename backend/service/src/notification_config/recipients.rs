@@ -74,7 +74,6 @@ pub fn get_notification_targets(
                 notification_targets.extend(sql_recipients);
             }
             Err(err) => {
-                println!("err: {:?}", err);
                 log::error!(
                     "Error running SQL Recipient List query: {:?}, skipping this recipient list",
                     err

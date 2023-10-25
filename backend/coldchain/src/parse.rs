@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use service::notification_config::intervals::IntervalUnits;
 
 use crate::ColdChainError;
 
@@ -11,7 +12,7 @@ use crate::ColdChainError;
     "lowTemp": true,
     "noData": true,
     "noDataInterval": 1,
-    "noDataUnits": "hours",
+    "noDataIntervalUnits": "hours",
     "parameters": "{}",
     "parsedParameters": {},
     "recipientIds": [
@@ -59,7 +60,7 @@ pub struct ColdChainPluginConfig {
     #[serde(default = "default_no_data_interval")]
     pub no_data_interval: u32,
     #[serde(default = "default_no_data_units")]
-    pub no_data_units: String,
+    pub no_data_interval_units: IntervalUnits,
 }
 
 fn default_low_temp_limit() -> f64 {
@@ -74,8 +75,8 @@ fn default_no_data_interval() -> u32 {
     4
 }
 
-fn default_no_data_units() -> String {
-    "hours".to_string()
+fn default_no_data_units() -> IntervalUnits {
+    IntervalUnits::Hours
 }
 
 impl ColdChainPluginConfig {
@@ -87,14 +88,13 @@ impl ColdChainPluginConfig {
     }
 
     pub fn no_data_duration(&self) -> chrono::Duration {
-        match self.no_data_units.as_str() {
-            "minutes" => chrono::Duration::minutes(self.no_data_interval as i64),
-            "hours" => chrono::Duration::hours(self.no_data_interval as i64),
-            "days" => chrono::Duration::days(self.no_data_interval as i64),
-            _ => {
-                log::error!("Invalid no data units: {}", self.no_data_units);
-                chrono::Duration::hours(default_no_data_interval() as i64)
-            }
+        match self.no_data_interval_units {
+            IntervalUnits::Minutes => chrono::Duration::minutes(self.no_data_interval as i64),
+            IntervalUnits::Hours => chrono::Duration::hours(self.no_data_interval as i64),
+            IntervalUnits::Days => chrono::Duration::days(self.no_data_interval as i64),
+            IntervalUnits::Weeks => chrono::Duration::weeks(self.no_data_interval as i64),
+            IntervalUnits::Months => chrono::Duration::days(self.no_data_interval as i64 * 30),
+            IntervalUnits::Years => chrono::Duration::days(self.no_data_interval as i64 * 365),
         }
     }
 }
@@ -111,7 +111,7 @@ mod test {
     }
 
     #[test]
-    fn test_parse_config_high_temp() {
+    fn test_parse_config_example1() {
         let example1 = r#"{
     "confirmOk": true,
     "highTemp": true,
@@ -120,7 +120,7 @@ mod test {
     "lowTemp": true,
     "noData": true,
     "noDataInterval": 1,
-    "noDataUnits": "hours",
+    "noDataIntervalUnits": "minutes",
     "parameters": "{}",
     "parsedParameters": {},
     "recipientIds": [
@@ -153,5 +153,7 @@ mod test {
         assert!(config.high_temp);
         assert!(config.low_temp);
         assert_eq!(config.sensor_ids.len(), 9);
+        assert_eq!(config.no_data_interval, 1);
+        assert_eq!(config.no_data_interval_units, IntervalUnits::Minutes);
     }
 }

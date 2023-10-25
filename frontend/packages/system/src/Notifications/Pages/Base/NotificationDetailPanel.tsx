@@ -42,6 +42,7 @@ export const NotificationDetailPanel = ({
             <PanelRow>
               <BufferedTextInput
                 key={`param-value-${param}`}
+                required={requiredParams.includes(param)}
                 InputProps={{
                   sx: {
                     backgroundColor: 'background.white',
@@ -49,6 +50,7 @@ export const NotificationDetailPanel = ({
                 }}
                 value={params[param ?? '']}
                 onChange={e => onUpdateParams(param ?? '', e.target.value)}
+                error={requiredParams.includes(param) && !params[param ?? '']}
               />
               {
                 // if param is not required allow it to be removed

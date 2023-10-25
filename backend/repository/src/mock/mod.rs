@@ -14,12 +14,15 @@ mod recipient_list_members;
 pub use recipient_list_members::*;
 mod sql_recipient_list;
 pub use sql_recipient_list::*;
+mod notification_query;
+pub use notification_query::*;
 
 use crate::{
-    NotificationConfigRow, NotificationConfigRowRepository, RecipientListMemberRow,
-    RecipientListMemberRowRepository, RecipientListRow, RecipientListRowRepository, RecipientRow,
-    RecipientRowRepository, SqlRecipientListRow, SqlRecipientListRowRepository, UserAccountRow,
-    UserAccountRowRepository, UserPermissionRow, UserPermissionRowRepository,
+    NotificationConfigRow, NotificationConfigRowRepository, NotificationQueryRow,
+    NotificationQueryRowRepository, RecipientListMemberRow, RecipientListMemberRowRepository,
+    RecipientListRow, RecipientListRowRepository, RecipientRow, RecipientRowRepository,
+    SqlRecipientListRow, SqlRecipientListRowRepository, UserAccountRow, UserAccountRowRepository,
+    UserPermissionRow, UserPermissionRowRepository,
 };
 
 use super::StorageConnection;
@@ -33,6 +36,7 @@ pub struct MockData {
     pub recipient_list_members: Vec<RecipientListMemberRow>,
     pub sql_recipient_lists: Vec<SqlRecipientListRow>,
     pub notification_configs: Vec<NotificationConfigRow>,
+    pub notification_queries: Vec<NotificationQueryRow>,
 }
 
 #[derive(Default)]
@@ -44,6 +48,7 @@ pub struct MockDataInserts {
     pub recipient_list_members: bool,
     pub sql_recipient_lists: bool,
     pub notification_configs: bool,
+    pub notification_queries: bool,
 }
 
 impl MockDataInserts {
@@ -56,6 +61,7 @@ impl MockDataInserts {
             recipient_list_members: true,
             sql_recipient_lists: true,
             notification_configs: true,
+            notification_queries: true,
         }
     }
 
@@ -98,6 +104,11 @@ impl MockDataInserts {
 
     pub fn notification_configs(mut self) -> Self {
         self.notification_configs = true;
+        self
+    }
+
+    pub fn notification_queries(mut self) -> Self {
+        self.notification_queries = true;
         self
     }
 }
@@ -144,6 +155,7 @@ fn all_mock_data() -> MockDataCollection {
             recipient_list_members: mock_recipient_list_members(),
             sql_recipient_lists: mock_sql_recipient_lists(),
             notification_configs: mock_notification_configs(),
+            notification_queries: mock_notification_queries(),
         },
     );
     data
@@ -204,6 +216,12 @@ pub async fn insert_mock_data(
                 repo.insert_one(row).unwrap();
             }
         }
+        if inserts.notification_queries {
+            let repo = NotificationQueryRowRepository::new(connection);
+            for row in &mock_data.notification_queries {
+                repo.insert_one(row).unwrap();
+            }
+        }
     }
 
     mock_data
@@ -219,6 +237,7 @@ impl MockData {
             mut recipient_list_members,
             mut sql_recipient_lists,
             mut notification_configs,
+            mut notification_queries,
         } = other;
 
         self.user_accounts.append(&mut user_accounts);
@@ -229,6 +248,7 @@ impl MockData {
             .append(&mut recipient_list_members);
         self.sql_recipient_lists.append(&mut sql_recipient_lists);
         self.notification_configs.append(&mut notification_configs);
+        self.notification_queries.append(&mut notification_queries);
 
         self
     }

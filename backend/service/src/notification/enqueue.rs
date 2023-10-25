@@ -129,7 +129,7 @@ pub fn create_notification_events(
             Err(e) => {
                 log::error!("Failed to render notification title template: {:?}", e);
                 NotificationEventRow {
-                    status: NotificationEventStatus::Errored,
+                    status: NotificationEventStatus::Failed,
                     error_message: Some(format!("{:?}", e)),
                     ..base_row
                 }
@@ -144,7 +144,7 @@ pub fn create_notification_events(
             Err(e) => {
                 log::error!("Failed to render notification body template: {:?}", e);
                 NotificationEventRow {
-                    status: NotificationEventStatus::Errored,
+                    status: NotificationEventStatus::Failed, // Failed means this message will not be sent
                     error_message: Some(format!("{:?}", e)),
                     ..base_row_with_title
                 }
@@ -201,15 +201,17 @@ mod test {
                 body_template: TemplateDefinition::TemplateName(
                     "test_message/email.html".to_string(),
                 ),
-                recipients: vec![NotificationTarget {
-                    name: "test".to_string(),
-                    to_address: "test@example.com".to_string(),
-                    notification_type: NotificationType::Email,
-                }, NotificationTarget {
-                    name: "test2".to_string(),
-                    to_address: "test@example.com".to_string(),
-                    notification_type: NotificationType::Email,
-                },
+                recipients: vec![
+                    NotificationTarget {
+                        name: "test".to_string(),
+                        to_address: "test@example.com".to_string(),
+                        notification_type: NotificationType::Email,
+                    },
+                    NotificationTarget {
+                        name: "test2".to_string(),
+                        to_address: "test@example.com".to_string(),
+                        notification_type: NotificationType::Email,
+                    },
                 ],
                 template_data: serde_json::json!({}),
             },
@@ -252,15 +254,18 @@ mod test {
                 body_template: TemplateDefinition::TemplateName(
                     "test_message/telegram.html".to_string(),
                 ),
-                recipients: vec![NotificationTarget {
-                    name: "telegram".to_string(),
-                    to_address: "-12345".to_string(),
-                    notification_type: NotificationType::Telegram,
-                }, NotificationTarget {
-                    name: "telegram2".to_string(),
-                    to_address: "-12345".to_string(),
-                    notification_type: NotificationType::Telegram,
-                }],
+                recipients: vec![
+                    NotificationTarget {
+                        name: "telegram".to_string(),
+                        to_address: "-12345".to_string(),
+                        notification_type: NotificationType::Telegram,
+                    },
+                    NotificationTarget {
+                        name: "telegram2".to_string(),
+                        to_address: "-12345".to_string(),
+                        notification_type: NotificationType::Telegram,
+                    },
+                ],
                 template_data: serde_json::json!({}),
             },
         );

@@ -29,15 +29,27 @@ export const SensorSelector: FC<SensorSelectorProps> = ({
 
   const { isOpen, onClose, onOpen } = useEditModal();
 
+  //  store_name: string;
+  // location_name: string;
+  // sensor_name: string;
   const columns = useColumns<SensorData>([
     {
-      key: 'name',
+      key: 'sensor_name',
       label: 'label.name',
       width: 150,
-      sortable: true,
-      accessor: ({ rowData }) => {
-        return sensorDisplayName(rowData);
-      },
+      sortable: false,
+    },
+    {
+      key: 'store_name',
+      label: 'label.store',
+      width: 150,
+      sortable: false,
+    },
+    {
+      key: 'location_name',
+      label: 'label.location',
+      width: 150,
+      sortable: false,
     },
   ]);
 

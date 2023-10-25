@@ -46,6 +46,7 @@ impl From<NotificationQueryFilterInput> for NotificationQueryFilter {
         NotificationQueryFilter {
             id: f.id.map(EqualFilter::from),
             name: f.name.map(StringFilter::from),
+            reference_name: None,
             search: f.search,
         }
     }
