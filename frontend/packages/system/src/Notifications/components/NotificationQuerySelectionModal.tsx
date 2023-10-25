@@ -9,10 +9,8 @@ import {
   AutocompleteOptionRenderer,
   Checkbox,
   DialogButton,
-  LoadingButton,
   Tooltip,
 } from '@common/components';
-import { CheckIcon } from '@common/icons';
 import { NotificationQueryRowFragment } from '../../Queries/api';
 import { Grid } from '@common/ui';
 
@@ -71,18 +69,7 @@ export const NotificationQuerySelectionModal: FC<
       height={modalHeight}
       width={modalWidth}
       okButton={
-        <Tooltip title={t('label.select-queries')}>
-          <span>
-            <LoadingButton
-              disabled={false}
-              onClick={onSubmit}
-              isLoading={false}
-              startIcon={<CheckIcon />}
-            >
-              {t('label.select-queries')}
-            </LoadingButton>
-          </span>
-        </Tooltip>
+        <DialogButton variant="ok" disabled={false} onClick={onSubmit} />
       }
       cancelButton={<DialogButton variant="cancel" onClick={onClose} />}
       title={t('label.select-queries')}
