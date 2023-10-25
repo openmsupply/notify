@@ -70,7 +70,9 @@
   "messages.recipients-added_other": "{{count}} recipients added to list",
   "messages.recipients-added_one": "{{count}} recipient added to list",
   "messages.cold-chain-no-data-information": "Alert will be triggered if no temperature data is received by the server within the specified timeframe",
-  "messages.cold-chain-temperature-information": "Default Temperature thresholds are 2-8 degrees Celsius for cold chain",
+
+-   "messages.cold-chain-temperature-information": "Default Temperature thresholds are 2°C and 8°C",
+
   "not-logged-in": "Not logged in",
   "password-reset.initiate": "Initiate Password Reset",
   "text.here": "here",
