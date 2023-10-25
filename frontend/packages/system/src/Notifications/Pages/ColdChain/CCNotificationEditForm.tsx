@@ -122,7 +122,7 @@ export const CCNotificationEditForm = ({
                 noDataUnits: getReminderUnitsFromString(e.target.value),
               })
             }
-            options={getReminderUnitsAsOptions(t)}
+            options={getReminderUnitsAsOptions(t, draft.noDataInterval)}
             sx={{ marginLeft: '10px' }}
           />
           <InfoTooltipIcon
@@ -164,7 +164,7 @@ export const CCNotificationEditForm = ({
                 reminderUnits: getReminderUnitsFromString(e.target.value),
               })
             }
-            options={getReminderUnitsAsOptions(t)}
+            options={getReminderUnitsAsOptions(t, draft.reminderInterval)}
             sx={{ marginLeft: '10px' }}
           />
         </li>
