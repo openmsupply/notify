@@ -8,6 +8,14 @@ pub struct DatasourcePool {
     pub pool: Pool<ConnectionManager<PgConnection>>,
 }
 
+impl Clone for DatasourcePool {
+    fn clone(&self) -> Self {
+        DatasourcePool {
+            pool: self.pool.clone(),
+        }
+    }
+}
+
 pub fn get_datasource_pool(settings: &PostgresSettings) -> DatasourcePool {
     let url = settings.connection_string();
     let manager = ConnectionManager::<PgConnection>::new(url);

@@ -6,6 +6,7 @@
   "scripts": {
     "start": "lerna run --scope @notify-frontend/* --parallel start",
     "build": "lerna run --scope @notify-frontend/* build",
+    "build-windows": "lerna run --scope @notify-frontend/* build-windows",
     "build-stats": "lerna run --scope @notify-frontend/* build-stats",
     "serve": "lerna run --scope @notify-frontend/* --parallel serve",
     "clean": "lerna run --scope @notify-frontend/* --parallel clean",

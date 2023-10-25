@@ -10,6 +10,8 @@ pub mod login;
 pub mod notification;
 pub mod notification_config;
 pub mod notification_query;
+pub mod plugin;
+pub mod plugin_store;
 pub mod recipient;
 pub mod recipient_list;
 pub mod service_provider;
@@ -20,7 +22,6 @@ pub mod test_utils;
 pub mod token;
 pub mod token_bucket;
 pub mod user_account;
-pub mod plugin;
 
 #[derive(PartialEq, Debug)]
 pub struct ListResult<T> {

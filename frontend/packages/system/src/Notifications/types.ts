@@ -51,12 +51,13 @@ export interface CCNotification extends BaseNotificationConfig {
   confirmOk: boolean;
   noData: boolean;
   noDataInterval: number;
-  noDataUnits: ReminderUnits;
+  noDataIntervalUnits: ReminderUnits;
   remind: boolean;
   reminderInterval: number;
   reminderUnits: ReminderUnits;
   messageAlertResolved: boolean;
   locationIds: string[];
+  sensorIds: string[];
 }
 
 export interface ScheduledNotification extends BaseNotificationConfig {

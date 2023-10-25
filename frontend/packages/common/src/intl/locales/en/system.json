@@ -90,6 +90,7 @@
   "label.test-sql-query": "Test SQL Query",
   "tooltip.manage-recipient-list": "Manage Recipient List",
   "message.no-parameters": "No parameters found",
+  "message.no-sensors-selected": "No sensors selected",
   "label.select-queries": "Select Queries",
   "message.no-queries-selected": "No queries selected",
   "label.schedule": "Schedule"

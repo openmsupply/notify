@@ -11,8 +11,7 @@ use self::{
 };
 
 use super::{ListError, ListResult};
-use crate::{email::EmailServiceError, service_provider::ServiceContext, SingleRecordError};
-use bcrypt::BcryptError;
+use crate::{service_provider::ServiceContext, SingleRecordError};
 use repository::{
     PaginationOption, RepositoryError, UserAccount, UserAccountFilter, UserAccountSort,
 };
@@ -126,12 +125,11 @@ pub trait UserAccountServiceTrait: Sync + Send {
 pub struct UserAccountService {}
 impl UserAccountServiceTrait for UserAccountService {}
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ModifyUserAccountError {
     UserAccountAlreadyExists,
-    UnableToSendEmail(EmailServiceError),
     ModifiedRecordNotFound,
-    PasswordHashError(BcryptError),
+    PasswordHashError,
     DatabaseError(RepositoryError),
     UserAccountDoesNotExist,
     InvalidPassword,
@@ -141,50 +139,6 @@ pub enum ModifyUserAccountError {
     PermissionsMissing,
     GenericError(String),
     EmailAddressAlreadyExists,
-}
-
-// PartialEq is only needed for tests
-// BcryptError doesn't support PartialEq, so we implement a custom comparison here...
-impl PartialEq for ModifyUserAccountError {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (
-                ModifyUserAccountError::UserAccountAlreadyExists,
-                ModifyUserAccountError::UserAccountAlreadyExists,
-            ) => true,
-
-            (
-                ModifyUserAccountError::ModifiedRecordNotFound,
-                ModifyUserAccountError::ModifiedRecordNotFound,
-            ) => true,
-
-            (
-                ModifyUserAccountError::PasswordHashError(_),
-                ModifyUserAccountError::PasswordHashError(_),
-            ) => true,
-
-            (
-                ModifyUserAccountError::DatabaseError(self_err),
-                ModifyUserAccountError::DatabaseError(other_err),
-            ) => self_err == other_err,
-
-            (
-                ModifyUserAccountError::UserAccountDoesNotExist,
-                ModifyUserAccountError::UserAccountDoesNotExist,
-            ) => true,
-            (ModifyUserAccountError::InvalidPassword, ModifyUserAccountError::InvalidPassword) => {
-                true
-            }
-            (ModifyUserAccountError::InvalidUsername, ModifyUserAccountError::InvalidUsername) => {
-                true
-            }
-            (
-                ModifyUserAccountError::PermissionsMissing,
-                ModifyUserAccountError::PermissionsMissing,
-            ) => true,
-            _ => false,
-        }
-    }
 }
 
 impl From<RepositoryError> for ModifyUserAccountError {
