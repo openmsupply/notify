@@ -62,6 +62,7 @@ export const CCNotificationEditForm = ({
             required
             onChange={newValue => onUpdate({ highTempThreshold: newValue })}
             sx={{ width: '60px' }}
+            error={draft.highTempThreshold < draft.lowTempThreshold}
           />
           {`  ${t('label.degrees-celsius')}`}
           <InfoTooltipIcon
@@ -84,6 +85,7 @@ export const CCNotificationEditForm = ({
             required
             onChange={newValue => onUpdate({ lowTempThreshold: newValue })}
             sx={{ width: '60px' }}
+            error={draft.highTempThreshold < draft.lowTempThreshold}
           />
           {`  ${t('label.degrees-celsius')}`}
           <InfoTooltipIcon
