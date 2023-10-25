@@ -14,7 +14,9 @@ export function parseColdChainNotificationConfig(
   try {
     const {
       highTemp,
+      highTempThreshold,
       lowTemp,
+      lowTempThreshold,
       confirmOk,
       noData,
       noDataInterval,
@@ -32,7 +34,9 @@ export function parseColdChainNotificationConfig(
       title: config.title,
       kind: config.kind,
       highTemp,
+      highTempThreshold,
       lowTemp,
+      lowTempThreshold,
       confirmOk,
       noData,
       noDataInterval,
