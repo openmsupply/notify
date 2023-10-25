@@ -9,6 +9,7 @@ import {
   TableProvider,
   createTableStore,
   LoadingButton,
+  Box,
 } from '@notify-frontend/common';
 import { NotificationQuerySelectionModal } from './NotificationQuerySelectionModal';
 import { NotificationQueryRowFragment } from '../../Queries/api';
@@ -74,14 +75,6 @@ export const SqlQuerySelector: FC<QueryListProps> = ({
         onClose={onClose}
         setSelection={setSelection}
       />
-      <LoadingButton
-        disabled={false}
-        onClick={onOpen}
-        isLoading={false}
-        startIcon={<EditIcon />}
-      >
-        {t('label.select-queries')}
-      </LoadingButton>
       <TableProvider createStore={createTableStore}>
         <DataTable
           isDisabled={false}
@@ -91,6 +84,16 @@ export const SqlQuerySelector: FC<QueryListProps> = ({
           noDataMessage={t('message.no-queries-selected')}
         />
       </TableProvider>
+      <Box padding={2}>
+        <LoadingButton
+          disabled={false}
+          onClick={onOpen}
+          isLoading={false}
+          startIcon={<EditIcon />}
+        >
+          {t('label.select-queries')}
+        </LoadingButton>
+      </Box>
     </>
   );
 };
