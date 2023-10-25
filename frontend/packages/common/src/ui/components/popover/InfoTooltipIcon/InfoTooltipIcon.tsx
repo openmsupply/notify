@@ -4,7 +4,13 @@ import { InfoIcon } from '../../../icons';
 
 export const InfoTooltipIcon = ({ title }: { title: string }) => (
   <Tooltip title={title}>
-    <div style={{ transform: 'scale(0.7)', cursor: 'help' }}>
+    <div
+      style={{
+        transform: 'scale(0.7)',
+        cursor: 'help',
+        display: 'inline-flex',
+      }}
+    >
       <InfoIcon fontSize="small" />
     </div>
   </Tooltip>
