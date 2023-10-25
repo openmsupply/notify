@@ -35,6 +35,7 @@ mod notification_query_update_tests {
         let notification_query = NotificationQueryRow {
             id: id1.clone(),
             name: name1.clone(),
+            reference_name: "reference_name1".to_string(),
             ..Default::default()
         };
         repo.insert_one(&notification_query).unwrap();
@@ -44,6 +45,7 @@ mod notification_query_update_tests {
         let notification_query = NotificationQueryRow {
             id: id2.clone(),
             name: name2.clone(),
+            reference_name: "reference_name2".to_string(),
             ..Default::default()
         };
         repo.insert_one(&notification_query).unwrap();
@@ -72,6 +74,19 @@ mod notification_query_update_tests {
                 },
             ),
             Err(ModifyNotificationQueryError::NotificationQueryAlreadyExists)
+        );
+
+        // Trying to update to a reference_name that already exists should fail (even with added whitespace)
+        assert_eq!(
+            service.update_notification_query(
+                &context,
+                UpdateNotificationQuery {
+                    id: id1.clone(),
+                    reference_name: Some("reference_name2  ".to_string()),
+                    ..Default::default()
+                },
+            ),
+            Err(ModifyNotificationQueryError::ReferenceNameAlreadyExists)
         );
 
         // Trying to update to a name with illegal characters should fail

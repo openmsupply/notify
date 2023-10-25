@@ -3,7 +3,7 @@ import * as Types from '@notify-frontend/common';
 import { GraphQLClient } from 'graphql-request';
 import * as Dom from 'graphql-request/dist/types.dom';
 import gql from 'graphql-tag';
-export type NotificationQueryRowFragment = { __typename: 'NotificationQueryNode', id: string, name: string, description: string, query: string, requiredParameters: Array<string> };
+export type NotificationQueryRowFragment = { __typename: 'NotificationQueryNode', id: string, name: string, referenceName: string, description: string, query: string, requiredParameters: Array<string> };
 
 export type NotificationQueriesQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.RecipientListFilterInput>;
@@ -12,24 +12,24 @@ export type NotificationQueriesQueryVariables = Types.Exact<{
 }>;
 
 
-export type NotificationQueriesQuery = { __typename: 'FullQuery', notificationQueries: { __typename: 'NotificationQueryConnector', totalCount: number, nodes: Array<{ __typename: 'NotificationQueryNode', id: string, name: string, description: string, query: string, requiredParameters: Array<string> }> } };
+export type NotificationQueriesQuery = { __typename: 'FullQuery', notificationQueries: { __typename: 'NotificationQueryConnector', totalCount: number, nodes: Array<{ __typename: 'NotificationQueryNode', id: string, name: string, referenceName: string, description: string, query: string, requiredParameters: Array<string> }> } };
 
 export type CreateNotificationQueryMutationVariables = Types.Exact<{
   input: Types.CreateNotificationQueryInput;
 }>;
 
 
-export type CreateNotificationQueryMutation = { __typename: 'FullMutation', createNotificationQuery: { __typename: 'NotificationQueryNode', id: string, name: string, description: string, query: string, requiredParameters: Array<string> } };
+export type CreateNotificationQueryMutation = { __typename: 'FullMutation', createNotificationQuery: { __typename: 'NotificationQueryNode', id: string, name: string, referenceName: string, description: string, query: string, requiredParameters: Array<string> } };
 
 export type UpdateNotificationQueryMutationVariables = Types.Exact<{
   input: Types.UpdateNotificationQueryInput;
 }>;
 
 
-export type UpdateNotificationQueryMutation = { __typename: 'FullMutation', updateNotificationQuery: { __typename: 'NotificationQueryNode', id: string, name: string, description: string, query: string, requiredParameters: Array<string> } };
+export type UpdateNotificationQueryMutation = { __typename: 'FullMutation', updateNotificationQuery: { __typename: 'NotificationQueryNode', id: string, name: string, referenceName: string, description: string, query: string, requiredParameters: Array<string> } };
 
 export type DeleteNotificationQueryMutationVariables = Types.Exact<{
-  sqlRecipientListId: Types.Scalars['String']['input'];
+  id: Types.Scalars['String']['input'];
 }>;
 
 
@@ -47,6 +47,7 @@ export const NotificationQueryRowFragmentDoc = gql`
     fragment NotificationQueryRow on NotificationQueryNode {
   id
   name
+  referenceName
   description
   query
   requiredParameters
@@ -83,8 +84,8 @@ export const UpdateNotificationQueryDocument = gql`
 }
     ${NotificationQueryRowFragmentDoc}`;
 export const DeleteNotificationQueryDocument = gql`
-    mutation deleteNotificationQuery($sqlRecipientListId: String!) {
-  deleteNotificationQuery(sqlRecipientListId: $sqlRecipientListId) {
+    mutation deleteNotificationQuery($id: String!) {
+  deleteNotificationQuery(id: $id) {
     ... on DeleteResponse {
       id
     }

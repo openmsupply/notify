@@ -39,7 +39,7 @@ pub struct TemperatureAlert {
 }
 
 // Later this function probably won't exist, but serves as a reminder/POC...
-pub fn send_temperature_alert(
+pub fn queue_temperature_alert(
     ctx: &ServiceContext,
     config_id: Option<String>,
     alert: TemperatureAlert,
@@ -115,7 +115,7 @@ mod tests {
             notification_type: NotificationType::Email,
         };
 
-        let result = send_temperature_alert(
+        let result = queue_temperature_alert(
             &context,
             None,
             example_alert.clone(),

@@ -69,9 +69,10 @@ pub trait NotificationQueryServiceTrait: Sync + Send {
 pub struct NotificationQueryService {}
 impl NotificationQueryServiceTrait for NotificationQueryService {}
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ModifyNotificationQueryError {
     NotificationQueryAlreadyExists,
+    ReferenceNameAlreadyExists,
     ModifiedRecordNotFound,
     DatabaseError(RepositoryError),
     NotificationQueryDoesNotExist,
@@ -79,38 +80,6 @@ pub enum ModifyNotificationQueryError {
     InternalError(String),
     BadUserInput(String),
 }
-
-// PartialEq is only needed for tests
-impl PartialEq for ModifyNotificationQueryError {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (
-                ModifyNotificationQueryError::NotificationQueryAlreadyExists,
-                ModifyNotificationQueryError::NotificationQueryAlreadyExists,
-            ) => true,
-
-            (
-                ModifyNotificationQueryError::ModifiedRecordNotFound,
-                ModifyNotificationQueryError::ModifiedRecordNotFound,
-            ) => true,
-            (
-                ModifyNotificationQueryError::DatabaseError(self_err),
-                ModifyNotificationQueryError::DatabaseError(other_err),
-            ) => self_err == other_err,
-
-            (
-                ModifyNotificationQueryError::NotificationQueryDoesNotExist,
-                ModifyNotificationQueryError::NotificationQueryDoesNotExist,
-            ) => true,
-            (
-                ModifyNotificationQueryError::InvalidNotificationQueryName,
-                ModifyNotificationQueryError::InvalidNotificationQueryName,
-            ) => true,
-            _ => false,
-        }
-    }
-}
-
 impl From<RepositoryError> for ModifyNotificationQueryError {
     fn from(err: RepositoryError) -> Self {
         ModifyNotificationQueryError::DatabaseError(err)

@@ -9,10 +9,7 @@ import {
   Table as MuiTable,
   Typography,
 } from '@mui/material';
-import {
-  BasicSpinner,
-  useRegisterActions,
-} from '@notify-frontend/common';
+import { BasicSpinner, useRegisterActions } from '@notify-frontend/common';
 
 import { TableProps } from './types';
 import { DataRow } from './components/DataRow/DataRow';
@@ -108,7 +105,6 @@ export const DataTableComponent = <T extends RecordWithId>({
         display: 'flex',
         flexDirection: 'column',
         flex: 1,
-        height: '100%',
       }}
     >
       <MuiTable>

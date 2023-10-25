@@ -13,6 +13,7 @@ use super::{map_error, ModifyNotificationQueryResponse};
 pub struct UpdateNotificationQueryInput {
     pub id: String,
     pub name: Option<String>,
+    pub reference_name: Option<String>,
     pub description: Option<String>,
     pub query: Option<String>,
     pub required_parameters: Option<Vec<String>>,
@@ -47,6 +48,7 @@ impl From<UpdateNotificationQueryInput> for UpdateNotificationQuery {
         UpdateNotificationQueryInput {
             id,
             name,
+            reference_name,
             description,
             query,
             required_parameters,
@@ -55,6 +57,7 @@ impl From<UpdateNotificationQueryInput> for UpdateNotificationQuery {
         UpdateNotificationQuery {
             id,
             name,
+            reference_name,
             description,
             query,
             required_parameters,

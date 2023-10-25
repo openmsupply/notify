@@ -33,7 +33,7 @@ const createCCNotification = (
   confirmOk: seed?.confirmOk ?? true,
   noData: seed?.noData ?? true,
   noDataInterval: seed?.noDataInterval ?? 4,
-  noDataUnits: seed?.noDataUnits ?? ReminderUnits.HOURS,
+  noDataIntervalUnits: seed?.noDataIntervalUnits ?? ReminderUnits.HOURS,
   remind: seed?.remind ?? true,
   reminderInterval: seed?.reminderInterval ?? 2,
   reminderUnits: seed?.reminderUnits ?? ReminderUnits.HOURS,
@@ -46,6 +46,7 @@ const createCCNotification = (
   sqlRecipientListIds: seed?.sqlRecipientListIds ?? [],
   parameters: seed?.parameters ?? '{}',
   parsedParameters: seed?.parsedParameters ?? {},
+  requiredParameters: seed?.requiredParameters ?? [],
 });
 
 export const CCNotificationEditPage = () => {

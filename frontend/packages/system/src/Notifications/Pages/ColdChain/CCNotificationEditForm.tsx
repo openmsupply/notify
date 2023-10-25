@@ -117,11 +117,11 @@ export const CCNotificationEditForm = ({
             sx={{ marginLeft: '10px', width: '60px' }}
           />
           <Select
-            value={draft.noDataUnits}
+            value={draft.noDataIntervalUnits}
             disabled={!draft.noData}
             onChange={e =>
               onUpdate({
-                noDataUnits: getReminderUnitsFromString(e.target.value),
+                noDataIntervalUnits: getReminderUnitsFromString(e.target.value),
               })
             }
             options={getReminderUnitsAsOptions(t, draft.noDataInterval)}
@@ -195,7 +195,6 @@ export const CCNotificationEditForm = ({
             records={sensors ?? []}
             selectedIds={draft.sensorIds}
             setSelection={props => {
-              console.log('props', props);
               onUpdate(props as Partial<CCNotification>);
             }}
             isLoading={sensorsLoading}

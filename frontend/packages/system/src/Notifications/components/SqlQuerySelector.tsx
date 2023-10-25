@@ -1,55 +1,99 @@
 import React, { FC } from 'react';
 import {
-  TableProvider,
-  DataTable,
   useColumns,
-  createTableStore,
   useTranslation,
   StringUtils,
+  useEditModal,
+  EditIcon,
+  DataTable,
+  TableProvider,
+  createTableStore,
+  LoadingButton,
+  Box,
 } from '@notify-frontend/common';
+import { NotificationQuerySelectionModal } from './NotificationQuerySelectionModal';
+import { NotificationQueryRowFragment } from '../../Queries/api';
 
-interface SqlQuery {
-  id: string;
-  name: string;
-  query: string;
-  parameters: string[];
-}
+type QueryListProps = {
+  allQueries: NotificationQueryRowFragment[];
+  selectedQueryIds: string[];
+  setSelection: (input: {
+    notificationQueryIds: string[];
+    requiredParameters: string[];
+  }) => void;
+  isLoading: boolean;
+};
 
-type QueryListProps = { records: SqlQuery[] };
+export const SqlQuerySelector: FC<QueryListProps> = ({
+  allQueries,
+  selectedQueryIds,
+  setSelection,
+  isLoading,
+}) => {
+  const t = useTranslation('system');
 
-export const SqlQuerySelector: FC<QueryListProps> = ({ records }) => {
-  const t = useTranslation();
+  const { isOpen, onClose, onOpen } = useEditModal();
 
-  const columns = useColumns<SqlQuery>([
+  const columns = useColumns<NotificationQueryRowFragment>([
+    {
+      key: 'referenceName',
+      label: 'label.reference-name',
+      width: 200,
+      sortable: false,
+    },
     {
       key: 'name',
       label: 'label.name',
       width: 150,
-      sortable: true,
+      sortable: false,
     },
     {
       key: 'query',
       label: 'label.query',
       width: 150,
       sortable: false,
-      accessor: ({ rowData }) => StringUtils.ellipsis(rowData?.query, 35),
+      accessor: ({ rowData }) => StringUtils.ellipsis(rowData?.query, 100),
     },
     {
-      key: 'parameters',
+      key: 'requiredParameters',
       label: 'label.parameters',
       sortable: false,
-      accessor: ({ rowData }) => rowData?.parameters.join(', '),
+      accessor: ({ rowData }) => rowData?.requiredParameters.join(', '),
     },
   ]);
 
+  const selectedQueries = (allQueries ?? []).filter(q =>
+    selectedQueryIds.includes(q.id)
+  );
+
   return (
-    <TableProvider createStore={createTableStore}>
-      <DataTable
-        columns={columns}
-        data={records}
-        noDataMessage={t('messages.nothing-selected')}
-        dense
+    <>
+      <NotificationQuerySelectionModal
+        sqlQueries={allQueries}
+        initialSelectedIds={selectedQueryIds}
+        isOpen={isOpen}
+        onClose={onClose}
+        setSelection={setSelection}
       />
-    </TableProvider>
+      <TableProvider createStore={createTableStore}>
+        <DataTable
+          isDisabled={false}
+          isLoading={isLoading}
+          columns={columns}
+          data={selectedQueries}
+          noDataMessage={t('message.no-queries-selected')}
+        />
+      </TableProvider>
+      <Box padding={2}>
+        <LoadingButton
+          disabled={false}
+          onClick={onOpen}
+          isLoading={false}
+          startIcon={<EditIcon />}
+        >
+          {t('label.select-queries')}
+        </LoadingButton>
+      </Box>
+    </>
   );
 };
