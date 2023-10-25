@@ -42,6 +42,7 @@ type BaseConfig = Pick<
 
 export interface BaseNotificationConfig extends BaseConfig {
   parsedParameters: KeyedParams;
+  requiredParameters: string[];
 }
 
 export interface CCNotification extends BaseNotificationConfig {
@@ -64,5 +65,5 @@ export interface ScheduledNotification extends BaseNotificationConfig {
   scheduleStartTime: Date;
   subjectTemplate: string;
   bodyTemplate: string;
-  sqlQueries: string[];
+  notificationQueryIds: string[];
 }

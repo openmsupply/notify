@@ -3,6 +3,7 @@ import {
   useTranslation,
   useNotification,
   useParams,
+  useBreadcrumbs,
 } from '@notify-frontend/common';
 import { ScheduledNotificationEditForm } from './ScheduledNotificationEditForm';
 import { BaseNotificationEditPage } from '../Base/BaseNotificationEditPage';
@@ -22,6 +23,7 @@ export const ScheduledNotificationEditPage = () => {
   const t = useTranslation('system');
   const { error } = useNotification();
   const parsingErrorSnack = error(t('error.parsing-notification-config'));
+  const { setSuffix } = useBreadcrumbs();
 
   const { id } = useParams<{ id: string }>();
   const [draft, setDraft] = useState<ScheduledNotification>(
@@ -32,6 +34,7 @@ export const ScheduledNotificationEditPage = () => {
   const { data, isLoading } = useNotificationConfigs({
     filterBy: { id: { equalTo: id } },
   });
+
   useEffect(() => {
     const entity = data?.nodes[0];
     // Once we get the notification config from the API, parse it and load into the draft
@@ -40,6 +43,7 @@ export const ScheduledNotificationEditPage = () => {
       parsingErrorSnack
     );
     setDraft(parsedDraft ?? defaultSchedulerNotification);
+    if (parsedDraft?.title) setSuffix(parsedDraft?.title);
   }, [data]);
 
   const { mutateAsync: update, isLoading: updateIsLoading } =
