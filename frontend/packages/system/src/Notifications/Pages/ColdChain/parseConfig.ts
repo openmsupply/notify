@@ -50,13 +50,16 @@ export const defaultCCNotification: CCNotification = {
   confirmOk: true,
   noData: true,
   noDataInterval: 4,
-  noDataUnits: ReminderUnits.HOURS,
+  noDataIntervalUnits: ReminderUnits.HOURS,
   remind: true,
   reminderInterval: 2,
   reminderUnits: ReminderUnits.HOURS,
   messageAlertResolved: true,
   locationIds: [],
   requiredParameters: [],
+  highTempThreshold: 8,
+  lowTempThreshold: 2,
+  sensorIds: [],
 };
 
 export function buildColdChainNotificationInputs(config: CCNotification): {
