@@ -83,7 +83,7 @@ pub trait SqlRecipientListServiceTrait: Sync + Send {
 pub struct SqlRecipientListService {}
 impl SqlRecipientListServiceTrait for SqlRecipientListService {}
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ModifySqlRecipientListError {
     SqlRecipientListAlreadyExists,
     ModifiedRecordNotFound,
@@ -92,37 +92,6 @@ pub enum ModifySqlRecipientListError {
     InvalidSqlRecipientListName,
     InternalError(String),
     BadUserInput(String),
-}
-
-// PartialEq is only needed for tests
-impl PartialEq for ModifySqlRecipientListError {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (
-                ModifySqlRecipientListError::SqlRecipientListAlreadyExists,
-                ModifySqlRecipientListError::SqlRecipientListAlreadyExists,
-            ) => true,
-
-            (
-                ModifySqlRecipientListError::ModifiedRecordNotFound,
-                ModifySqlRecipientListError::ModifiedRecordNotFound,
-            ) => true,
-            (
-                ModifySqlRecipientListError::DatabaseError(self_err),
-                ModifySqlRecipientListError::DatabaseError(other_err),
-            ) => self_err == other_err,
-
-            (
-                ModifySqlRecipientListError::SqlRecipientListDoesNotExist,
-                ModifySqlRecipientListError::SqlRecipientListDoesNotExist,
-            ) => true,
-            (
-                ModifySqlRecipientListError::InvalidSqlRecipientListName,
-                ModifySqlRecipientListError::InvalidSqlRecipientListName,
-            ) => true,
-            _ => false,
-        }
-    }
 }
 
 impl From<RepositoryError> for ModifySqlRecipientListError {

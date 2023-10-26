@@ -1,0 +1,9 @@
+<strong>Sensor is now ok!</strong>
+
+<strong>Facility</strong>: {{ store_name }}
+<strong>Location</strong>: {{ location_name }}
+<strong>Sensor</strong>: {{ sensor_name }}
+
+<strong>Date</strong>: {{ last_data_time | date(format="%d %b %Y") }}
+<strong>Time</strong>: {{ last_data_time | date(format="%H:%M")}}
+<strong>Last data received</strong>: {{ data_age }} ago

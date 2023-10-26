@@ -7,45 +7,30 @@ import {
   Select,
   Typography,
   useTranslation,
-  Tooltip,
-  InfoIcon,
+  NumberInput,
+  InfoTooltipIcon,
 } from '@notify-frontend/common';
 import {
   CCNotification,
   getReminderUnitsAsOptions,
   getReminderUnitsFromString,
 } from '../../types';
+import { useColdChainSensors } from '../../api';
+import { SensorSelector } from './SensorSelector';
 
 type CCNotificationEditFormProps = {
   onUpdate: (patch: Partial<CCNotification>) => void;
   draft: CCNotification;
 };
 
-const dummyLocations = [
-  { id: 'store-1-location-A', name: 'Central Medical Store, Cool room - East' },
-  { id: 'store-1-location-B', name: 'Central Medical Store,Cool room - West' },
-  {
-    id: 'store-1-location-C',
-    name: 'Central Medical Store, Ultra cold freezer 1',
-  },
-  { id: 'store-2-location-A', name: 'Central Medical Store, Location A' },
-  {
-    id: 'store-2-location-B',
-    name: 'Central Medical Store, Ultra cold freezer 2',
-  },
-  {
-    id: 'store-2-location-C',
-    name: 'Central Medical Store, Ultra cold freezer 3',
-  },
-  { id: 'store-2-location-D', name: 'District Hospital, Mini Fridge 1' },
-  { id: 'store-2-location-E', name: 'Rural Pharmacy, Mini Fridge 2' },
-];
-
 export const CCNotificationEditForm = ({
   onUpdate,
   draft,
 }: CCNotificationEditFormProps) => {
   const t = useTranslation('system');
+
+  const { data: sensors, isLoading: sensorsLoading } = useColdChainSensors();
+
   return (
     <>
       <Typography
@@ -65,15 +50,24 @@ export const CCNotificationEditForm = ({
             checked={draft.highTemp}
             onClick={() => onUpdate({ highTemp: !draft.highTemp })}
           />
+
           <label htmlFor="highTemp">
             {t('label.coldchain-high-temp-alerts')}
-            <Tooltip title={t('messages.cold-chain-temperature-information')}>
-              <span>
-                {' '}
-                <InfoIcon fontSize="small" color="inherit" />
-              </span>
-            </Tooltip>
+            {'  '}
           </label>
+          <NumberInput
+            id={'highTempThreshold'}
+            disabled={!draft.highTemp}
+            value={draft.highTempThreshold}
+            required
+            onChange={newValue => onUpdate({ highTempThreshold: newValue })}
+            sx={{ width: '60px' }}
+            error={draft.highTempThreshold < draft.lowTempThreshold}
+          />
+          {`  ${t('label.degrees-celsius')}`}
+          <InfoTooltipIcon
+            title={t('messages.cold-chain-temperature-information')}
+          />
         </li>
         <li>
           <Checkbox
@@ -82,14 +76,21 @@ export const CCNotificationEditForm = ({
             onClick={() => onUpdate({ lowTemp: !draft.lowTemp })}
           />
           <label htmlFor="lowTemp">
-            {t('label.coldchain-low-temp-alerts')}
-            <Tooltip title={t('messages.cold-chain-temperature-information')}>
-              <span>
-                {' '}
-                <InfoIcon fontSize="small" color="inherit" />
-              </span>
-            </Tooltip>
+            {`${t('label.coldchain-low-temp-alerts')}  `}
           </label>
+          <NumberInput
+            id={'lowTempThreshold'}
+            disabled={!draft.highTemp}
+            value={draft.lowTempThreshold}
+            required
+            onChange={newValue => onUpdate({ lowTempThreshold: newValue })}
+            sx={{ width: '60px' }}
+            error={draft.highTempThreshold < draft.lowTempThreshold}
+          />
+          {`  ${t('label.degrees-celsius')}`}
+          <InfoTooltipIcon
+            title={t('messages.cold-chain-temperature-information')}
+          />
         </li>
         <li>
           <Checkbox
@@ -107,50 +108,37 @@ export const CCNotificationEditForm = ({
             checked={draft.noData}
             onClick={() => onUpdate({ noData: !draft.noData })}
           />
-          <label htmlFor="noData">
-            {t('label.coldchain-no-data-alerts')}
-            <Tooltip title={t('messages.cold-chain-no-data-information')}>
-              <span>
-                {' '}
-                <InfoIcon fontSize="small" color="inherit" />
-              </span>
-            </Tooltip>
-          </label>
-        </li>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            marginLeft: '40px',
-          }}
-        >
+          <label htmlFor="noData">{t('label.coldchain-no-data-alerts')}</label>
           <PositiveNumberInput
             disabled={!draft.noData}
             value={draft.noDataInterval}
             required
             onChange={newValue => onUpdate({ noDataInterval: newValue })}
-            sx={{ width: '60px' }}
+            sx={{ marginLeft: '10px', width: '60px' }}
           />
           <Select
-            value={draft.noDataUnits}
+            value={draft.noDataIntervalUnits}
             disabled={!draft.noData}
             onChange={e =>
               onUpdate({
-                noDataUnits: getReminderUnitsFromString(e.target.value),
+                noDataIntervalUnits: getReminderUnitsFromString(e.target.value),
               })
             }
-            options={getReminderUnitsAsOptions(t)}
+            options={getReminderUnitsAsOptions(t, draft.noDataInterval)}
+            sx={{ marginLeft: '10px' }}
           />
-        </Box>
+          <InfoTooltipIcon
+            title={t('messages.cold-chain-no-data-information')}
+          />
+        </li>
       </ul>
       <Typography
-          sx={{
-            fontWeight: 700,
-            fontSize: '13px',
-            marginTop: '10px',
-            marginBottom: '10px',
-          }}
+        sx={{
+          fontWeight: 700,
+          fontSize: '13px',
+          marginTop: '10px',
+          marginBottom: '10px',
+        }}
       >
         {t('heading.preference')}
       </Typography>
@@ -162,21 +150,12 @@ export const CCNotificationEditForm = ({
             onClick={() => onUpdate({ remind: !draft.remind })}
           />
           <label htmlFor="remind">{t('label.coldchain-reminder-alerts')}</label>
-        </li>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            marginLeft: '40px',
-          }}
-        >
           <PositiveNumberInput
             disabled={!draft.remind}
             value={draft.reminderInterval}
             required
             onChange={newValue => onUpdate({ reminderInterval: newValue })}
-            sx={{ width: '60px' }}
+            sx={{ marginLeft: '10px', width: '60px' }}
           />
 
           <Select
@@ -187,14 +166,17 @@ export const CCNotificationEditForm = ({
                 reminderUnits: getReminderUnitsFromString(e.target.value),
               })
             }
-            options={getReminderUnitsAsOptions(t)}
+            options={getReminderUnitsAsOptions(t, draft.reminderInterval)}
+            sx={{ marginLeft: '10px' }}
           />
-        </Box>
+        </li>
         <li>
           <Checkbox
             id="messageAlertResolved"
             checked={draft.messageAlertResolved}
-            onClick={() => onUpdate({ messageAlertResolved: !draft.messageAlertResolved })}
+            onClick={() =>
+              onUpdate({ messageAlertResolved: !draft.messageAlertResolved })
+            }
           />
           <label htmlFor="messageAlertResolved">
             {t('label.coldchain-message-alerts-resolved')}
@@ -206,44 +188,17 @@ export const CCNotificationEditForm = ({
         <Typography
           sx={{ fontWeight: 700, fontSize: '13px', marginBottom: '10px' }}
         >
-          {t('heading.select-locations')}
+          {t('heading.selected-sensors')}
         </Typography>
         <Grid container>
-          {dummyLocations.map(location => {
-            const isSelected = draft.locationIds.includes(location.id);
-            return (
-              <Grid
-                item
-                md={4}
-                key={location.id}
-                sx={{ display: 'flex', alignItems: 'center' }}
-              >
-                <Checkbox
-                  id={location.id}
-                  checked={isSelected}
-                  onClick={() => {
-                    if (isSelected) {
-                      onUpdate({
-                        locationIds: draft.locationIds.filter(
-                          id => id !== location.id
-                        ),
-                      });
-                    } else {
-                      onUpdate({
-                        locationIds: [...draft.locationIds, location.id],
-                      });
-                    }
-                  }}
-                />
-                <label
-                  htmlFor={location.id}
-                  style={{ display: 'inline-block', lineHeight: 1.3 }}
-                >
-                  {location.name}
-                </label>
-              </Grid>
-            );
-          })}
+          <SensorSelector
+            records={sensors ?? []}
+            selectedIds={draft.sensorIds}
+            setSelection={props => {
+              onUpdate(props as Partial<CCNotification>);
+            }}
+            isLoading={sensorsLoading}
+          />
         </Grid>
       </Box>
     </>

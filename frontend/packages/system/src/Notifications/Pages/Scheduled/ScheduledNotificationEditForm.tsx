@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   BasicTextInput,
+  Box,
   BufferedTextArea,
   DateTimeInput,
   Select,
@@ -17,6 +18,21 @@ type ScheduledNotificationEditFormProps = {
   draft: ScheduledNotification;
 };
 
+const FormRow = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) => (
+  <Box padding={1}>
+    <Typography sx={{ fontWeight: 700, fontSize: '13px', marginBottom: '2px' }}>
+      {title}
+    </Typography>
+    <Box paddingLeft={1}>{children}</Box>
+  </Box>
+);
+
 export const ScheduledNotificationEditForm = ({
   onUpdate,
   draft,
@@ -29,70 +45,81 @@ export const ScheduledNotificationEditForm = ({
   const queries = data?.nodes ?? [];
 
   return (
-    <>
-      <BasicTextInput
-        autoFocus
-        value={draft.subjectTemplate}
-        required
-        onChange={e =>
-          onUpdate({
-            subjectTemplate: e.target
-              .value as ScheduledNotification['subjectTemplate'],
-          })
-        }
-        label={t('label.subject-template')}
-        InputLabelProps={{ shrink: true }}
-      />
-      <BufferedTextArea
-        value={draft.bodyTemplate}
-        onChange={e => onUpdate({ bodyTemplate: e.target.value })}
-        label={t('label.body-template')}
-        InputProps={{ sx: { backgroundColor: 'background.menu' } }}
-        InputLabelProps={{ shrink: true }}
-      />
-
-      <Typography sx={{ fontWeight: 700, fontSize: '13px' }}>
-        {t('label.queries')}
-      </Typography>
-      <SqlQuerySelector
-        allQueries={queries}
-        selectedQueryIds={draft.notificationQueryIds}
-        isLoading={isLoading}
-        setSelection={props => {
-          onUpdate(props as Partial<ScheduledNotification>);
-        }}
-      />
-
-      <Typography
-        sx={{ fontWeight: 700, fontSize: '13px', marginBottom: '2px' }}
-      >
-        {t('label.schedule')}
-      </Typography>
-      <Typography sx={{ fontSize: '10px' }}>Starting From</Typography>
-      <DateTimeInput
-        onChange={d =>
-          onUpdate({
-            scheduleStartTime: d as ScheduledNotification['scheduleStartTime'],
-          })
-        }
-        date={draft.scheduleStartTime}
-      />
-      <Typography sx={{ fontSize: '10px' }}>Repeat</Typography>
-      <Select
-        value={draft.scheduleFrequency}
-        disabled={false}
-        onChange={e =>
-          onUpdate({
-            scheduleFrequency: e.target
-              .value as ScheduledNotification['scheduleFrequency'],
-          })
-        }
-        options={[
-          { label: t('label.daily'), value: 'daily' },
-          { label: t('label.weekly'), value: 'weekly' },
-          { label: t('label.monthly'), value: 'monthly' },
-        ]}
-      />
-    </>
+    <Box paddingTop={1}>
+      <FormRow title={t('label.details')}>
+        <BasicTextInput
+          autoFocus
+          value={draft.subjectTemplate}
+          required
+          onChange={e =>
+            onUpdate({
+              subjectTemplate: e.target
+                .value as ScheduledNotification['subjectTemplate'],
+            })
+          }
+          label={t('label.subject-template')}
+          InputLabelProps={{ shrink: true }}
+        />
+      </FormRow>
+      <FormRow title="">
+        <BufferedTextArea
+          value={draft.bodyTemplate}
+          onChange={e => onUpdate({ bodyTemplate: e.target.value })}
+          label={t('label.body-template')}
+          InputProps={{ sx: { backgroundColor: 'background.menu' } }}
+          InputLabelProps={{ shrink: true }}
+        />
+      </FormRow>
+      <FormRow title="">
+        <BufferedTextArea
+          value={draft.parameters}
+          onChange={e => onUpdate({ parameters: e.target.value })}
+          label={t('label.parameters')}
+          InputProps={{ sx: { backgroundColor: 'background.menu' } }}
+          InputLabelProps={{ shrink: true }}
+        />
+      </FormRow>
+      <Box padding={1}>
+        <Typography sx={{ fontWeight: 700, fontSize: '13px' }}>
+          {t('label.queries')}
+        </Typography>
+        <SqlQuerySelector
+          allQueries={queries}
+          selectedQueryIds={draft.notificationQueryIds}
+          isLoading={isLoading}
+          setSelection={props => {
+            onUpdate(props as Partial<ScheduledNotification>);
+          }}
+        />
+      </Box>
+      <FormRow title={t('label.schedule')}>
+        <Typography sx={{ fontSize: '10px' }}>Starting From</Typography>
+        <DateTimeInput
+          onChange={d =>
+            onUpdate({
+              scheduleStartTime:
+                d as ScheduledNotification['scheduleStartTime'],
+            })
+          }
+          date={draft.scheduleStartTime}
+        />
+        <Typography sx={{ fontSize: '10px', paddingTop: 1 }}>Repeat</Typography>
+        <Select
+          value={draft.scheduleFrequency}
+          disabled={false}
+          onChange={e =>
+            onUpdate({
+              scheduleFrequency: e.target
+                .value as ScheduledNotification['scheduleFrequency'],
+            })
+          }
+          options={[
+            { label: t('label.daily'), value: 'daily' },
+            { label: t('label.weekly'), value: 'weekly' },
+            { label: t('label.monthly'), value: 'monthly' },
+          ]}
+        />
+      </FormRow>
+    </Box>
   );
 };

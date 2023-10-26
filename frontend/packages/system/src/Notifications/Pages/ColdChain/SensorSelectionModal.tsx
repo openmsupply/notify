@@ -9,55 +9,57 @@ import {
   AutocompleteOptionRenderer,
   Checkbox,
   DialogButton,
+  LoadingButton,
   Tooltip,
 } from '@common/components';
-import { NotificationQueryRowFragment } from '../../Queries/api';
+import { CheckIcon } from '@common/icons';
 import { Grid } from '@common/ui';
+import { SensorData, sensorDisplayName } from '../../api';
 
-interface NotificationQuerySelectionModalProps {
-  sqlQueries: NotificationQueryRowFragment[];
+interface SensorSelectionSelectionModalProps {
+  sensors: SensorData[];
   initialSelectedIds: string[];
   isOpen: boolean;
   onClose: () => void;
-  setSelection: (input: {
-    notificationQueryIds: string[];
-    requiredParameters: string[];
-  }) => void;
+  setSelection: (input: { sensorIds: string[] }) => void;
 }
 
-interface NotificationQueryOption {
+interface SensorSelectionOption {
   id: string;
   name: string;
-  detail: string;
 }
 
-export const NotificationQuerySelectionModal: FC<
-  NotificationQuerySelectionModalProps
-> = ({ sqlQueries, initialSelectedIds, isOpen, onClose, setSelection }) => {
+export const SensorSelectionModal: FC<SensorSelectionSelectionModalProps> = ({
+  sensors,
+  initialSelectedIds,
+  isOpen,
+  onClose,
+  setSelection,
+}) => {
   const t = useTranslation('system');
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const { Modal } = useDialog({ isOpen, onClose });
 
-  const options = useMemo<NotificationQueryOption[]>(() => {
-    return sqlQueries.map(sqlQuery => ({
-      id: sqlQuery.id,
-      name: sqlQuery.name,
-      detail: sqlQuery.query,
+  const options = useMemo<SensorSelectionOption[]>(() => {
+    return sensors.map(sensor => ({
+      id: sensor.id,
+      name: sensorDisplayName(sensor),
     }));
-  }, [sqlQueries]);
+  }, [sensors]);
 
   const onChangeSelectedQueries = (ids: string[]) => {
     setSelectedIds(ids);
   };
 
   const onSubmit = async () => {
-    const requiredParameters = sqlQueries
-      .filter(sqlQuery => selectedIds.includes(sqlQuery.id))
-      .map(sqlQuery => sqlQuery.requiredParameters)
-      .flat();
-    setSelection({ notificationQueryIds: selectedIds, requiredParameters });
+    if (selectedIds.length === 0) {
+      setErrorMessage(t('messages.nothing-selected'));
+      //   return;
+    }
+
+    setSelection({ sensorIds: selectedIds });
     onClose();
   };
 
@@ -69,10 +71,21 @@ export const NotificationQuerySelectionModal: FC<
       height={modalHeight}
       width={modalWidth}
       okButton={
-        <DialogButton variant="ok" disabled={false} onClick={onSubmit} />
+        <Tooltip title={t('heading.select-sensors')}>
+          <span>
+            <LoadingButton
+              disabled={false}
+              onClick={onSubmit}
+              isLoading={false}
+              startIcon={<CheckIcon />}
+            >
+              {t('heading.select-sensors')}
+            </LoadingButton>
+          </span>
+        </Tooltip>
       }
       cancelButton={<DialogButton variant="cancel" onClick={onClose} />}
-      title={t('label.select-queries')}
+      title={t('heading.select-sensors')}
       slideAnimation={false}
     >
       <Grid
@@ -96,11 +109,12 @@ export const NotificationQuerySelectionModal: FC<
         ) : null}
         <Grid item>
           <AutocompleteMultiList
+            selectAllAllowed
             options={options}
             onChange={onChangeSelectedQueries}
             renderOption={renderOption}
-            getOptionLabel={option => `${option.detail} ${option.name}`}
-            filterProperties={['name', 'detail']}
+            getOptionLabel={option => `${option.name}`}
+            filterProperties={['name']}
             filterPlaceholder={t('placeholder.search')}
             width={modalWidth - 50}
             height={modalHeight - 300}
@@ -114,7 +128,7 @@ export const NotificationQuerySelectionModal: FC<
   );
 };
 
-const renderOption: AutocompleteOptionRenderer<NotificationQueryOption> = (
+const renderOption: AutocompleteOptionRenderer<SensorSelectionOption> = (
   props,
   option,
   { selected }
@@ -129,15 +143,12 @@ const renderOption: AutocompleteOptionRenderer<NotificationQueryOption> = (
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           width: 250,
-          minWidth: 250,
+          minWidth: 550,
           marginRight: 10,
         }}
       >
         {option.name}
       </span>
-    </Tooltip>
-    <Tooltip title={option.detail}>
-      <span>{option.detail}</span>
     </Tooltip>
   </li>
 );

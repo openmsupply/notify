@@ -35,6 +35,14 @@ export type DeleteNotificationConfigMutationVariables = Types.Exact<{
 
 export type DeleteNotificationConfigMutation = { __typename: 'FullMutation', deleteNotificationConfig: { __typename: 'DeleteResponse', id: string } };
 
+export type RunSqlQueryWithParametersQueryVariables = Types.Exact<{
+  sqlQuery?: Types.InputMaybe<Types.Scalars['String']['input']>;
+  params?: Types.InputMaybe<Types.Scalars['String']['input']>;
+}>;
+
+
+export type RunSqlQueryWithParametersQuery = { __typename: 'FullQuery', runSqlQueryWithParameters: string };
+
 export const NotificationConfigRowFragmentDoc = gql`
     fragment NotificationConfigRow on NotificationConfigNode {
   id
@@ -87,6 +95,11 @@ export const DeleteNotificationConfigDocument = gql`
   }
 }
     `;
+export const RunSqlQueryWithParametersDocument = gql`
+    query runSqlQueryWithParameters($sqlQuery: String, $params: String) {
+  runSqlQueryWithParameters(sqlQuery: $sqlQuery, parameters: $params)
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string) => Promise<T>;
 
@@ -106,6 +119,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     deleteNotificationConfig(variables: DeleteNotificationConfigMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<DeleteNotificationConfigMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<DeleteNotificationConfigMutation>(DeleteNotificationConfigDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteNotificationConfig', 'mutation');
+    },
+    runSqlQueryWithParameters(variables?: RunSqlQueryWithParametersQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<RunSqlQueryWithParametersQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<RunSqlQueryWithParametersQuery>(RunSqlQueryWithParametersDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'runSqlQueryWithParameters', 'query');
     }
   };
 }

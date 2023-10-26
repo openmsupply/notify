@@ -110,6 +110,10 @@ impl DatasourceServiceTrait for MockDatasourceService {
     ) -> Result<Vec<BasicRecipientRow>, crate::datasource::DatasourceServiceError> {
         todo!()
     }
+
+    fn get_connection_pool(&self) -> datasource::DatasourcePool {
+        todo!()
+    }
 }
 
 // Create a service provider with a dummy email service

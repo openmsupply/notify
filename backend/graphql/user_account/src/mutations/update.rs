@@ -95,8 +95,7 @@ fn map_error(error: ServiceError) -> Result<UpdateUserAccountResponse> {
         }
         ServiceError::ModifiedRecordNotFound => InternalError(formatted_error),
         ServiceError::DatabaseError(_) => InternalError(formatted_error),
-        ServiceError::PasswordHashError(_) => InternalError(formatted_error),
-        ServiceError::UnableToSendEmail(_) => InternalError(formatted_error),
+        ServiceError::PasswordHashError => InternalError(formatted_error),
         ServiceError::InvalidToken => BadUserInput("Invalid token".to_string()),
         ServiceError::TokenExpired => {
             BadUserInput("Token has expired, please request a new invite".to_string())

@@ -26,19 +26,22 @@ const createCCNotification = (
   id: seed?.id ?? FnUtils.generateUUID(),
   title: seed?.title ?? '',
   kind: seed?.kind ?? ConfigKind.ColdChain,
-  highTemp: seed?.highTemp ?? false,
-  lowTemp: seed?.lowTemp ?? false,
-  confirmOk: seed?.confirmOk ?? false,
-  noData: seed?.noData ?? false,
-  noDataInterval: seed?.noDataInterval ?? 1,
-  noDataUnits: seed?.noDataUnits ?? ReminderUnits.HOURS,
-  remind: seed?.remind ?? false,
-  reminderInterval: seed?.reminderInterval ?? 15,
-  reminderUnits: seed?.reminderUnits ?? ReminderUnits.MINUTES,
+  highTemp: seed?.highTemp ?? true,
+  highTempThreshold: seed?.highTempThreshold ?? 8,
+  lowTemp: seed?.lowTemp ?? true,
+  lowTempThreshold: seed?.lowTempThreshold ?? 2,
+  confirmOk: seed?.confirmOk ?? true,
+  noData: seed?.noData ?? true,
+  noDataInterval: seed?.noDataInterval ?? 4,
+  noDataIntervalUnits: seed?.noDataIntervalUnits ?? ReminderUnits.HOURS,
+  remind: seed?.remind ?? true,
+  reminderInterval: seed?.reminderInterval ?? 2,
+  reminderUnits: seed?.reminderUnits ?? ReminderUnits.HOURS,
+  messageAlertResolved: seed?.messageAlertResolved ?? true,
   locationIds: seed?.locationIds ?? [],
+  sensorIds: seed?.sensorIds ?? [],
   recipientIds: seed?.recipientIds ?? [],
   recipientListIds: seed?.recipientListIds ?? [],
-  messageAlertResolved: seed?.messageAlertResolved ?? false,
   status: seed?.status ?? ConfigStatus.Disabled,
   sqlRecipientListIds: seed?.sqlRecipientListIds ?? [],
   parameters: seed?.parameters ?? '[{}]',
@@ -89,8 +92,8 @@ export const CCNotificationEditPage = () => {
       !draft.lowTemp &&
       draft.remind &&
       draft.noData) ||
-    // no locations selected
-    !draft.locationIds.length ||
+    // no sensor selected
+    !draft.sensorIds.length ||
     // no recipients selected
     (!draft.recipientListIds.length &&
       !draft.recipientIds.length &&

@@ -18,13 +18,19 @@ export function getReminderUnitsFromString(str: string): ReminderUnits {
   }
 }
 
-export function getReminderUnitsAsOptions(t: TypedTFunction<LocaleKey>): {
+export function getReminderUnitsAsOptions(
+  t: TypedTFunction<LocaleKey>,
+  count?: number
+): {
   label: string;
   value: string;
 }[] {
   return [
-    { label: t('label.minutes'), value: ReminderUnits.MINUTES },
-    { label: t('label.hours'), value: ReminderUnits.HOURS },
+    {
+      label: t('label.minutes', { count: count }),
+      value: ReminderUnits.MINUTES,
+    },
+    { label: t('label.hours', { count: count }), value: ReminderUnits.HOURS },
   ];
 }
 
@@ -47,16 +53,19 @@ export interface BaseNotificationConfig extends BaseConfig {
 
 export interface CCNotification extends BaseNotificationConfig {
   highTemp: boolean;
+  highTempThreshold: number;
   lowTemp: boolean;
+  lowTempThreshold: number;
   confirmOk: boolean;
   noData: boolean;
   noDataInterval: number;
-  noDataUnits: ReminderUnits;
+  noDataIntervalUnits: ReminderUnits;
   remind: boolean;
   reminderInterval: number;
   reminderUnits: ReminderUnits;
   messageAlertResolved: boolean;
   locationIds: string[];
+  sensorIds: string[];
 }
 
 export interface ScheduledNotification extends BaseNotificationConfig {

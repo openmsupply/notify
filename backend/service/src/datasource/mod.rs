@@ -17,6 +17,7 @@ pub trait DatasourceServiceTrait: Send + Sync {
         &self,
         sql_query: String,
     ) -> Result<Vec<BasicRecipientRow>, DatasourceServiceError>;
+    fn get_connection_pool(&self) -> DatasourcePool;
 }
 
 pub struct DatasourceService {
@@ -119,6 +120,10 @@ impl DatasourceServiceTrait for DatasourceService {
         })?;
 
         Ok(json)
+    }
+
+    fn get_connection_pool(&self) -> DatasourcePool {
+        self.connection_pool.clone()
     }
 }
 
