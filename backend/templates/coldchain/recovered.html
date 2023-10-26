@@ -4,6 +4,6 @@
 <strong>Location</strong>: {{ location_name }}
 <strong>Sensor</strong>: {{ sensor_name }}
 
-<strong>Date</strong>: {{ datetime | date(format="%d %b %Y") }}
-<strong>Time</strong>: {{ datetime | date(format="%H:%M")}}
+<strong>Date</strong>: {{ last_data_time | date(format="%d %b %Y") }}
+<strong>Time</strong>: {{ last_data_time | date(format="%H:%M")}}
 <strong>Last data received</strong>: {{ data_age }} ago

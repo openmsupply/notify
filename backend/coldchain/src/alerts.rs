@@ -41,7 +41,7 @@ pub struct ColdchainAlert {
     pub sensor_name: String,
     pub store_name: String,
     pub location_name: String,
-    pub datetime: NaiveDateTime,
+    pub last_data_time: NaiveDateTime,
     pub data_age: String,
     pub temperature: String,
     pub alert_type: AlertType,
@@ -61,7 +61,12 @@ pub fn queue_temperature_alert(
         AlertType::Low => Some(TemplateDefinition::TemplateName(
             "coldchain/temperature_title.html".to_string(),
         )),
-        _ => None,
+        AlertType::Ok => Some(TemplateDefinition::TemplateName(
+            "coldchain/recovered_title.html".to_string(),
+        )),
+        AlertType::NoData => Some(TemplateDefinition::TemplateName(
+            "coldchain/no_data_title.html".to_string(),
+        )),
     };
 
     let body_template = match alert.alert_type {
@@ -124,7 +129,7 @@ mod tests {
             location_name: "Fridge 1".to_string(),
             sensor_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b3".to_string(),
             sensor_name: "E5:4G:D4:6D:A4".to_string(),
-            datetime: NaiveDateTime::from_str("2023-07-17T17:04:00").unwrap(),
+            last_data_time: NaiveDateTime::from_str("2023-07-17T17:04:00").unwrap(),
             data_age: "1 minutes".to_string(),
             temperature: 10.12345.to_string(),
             alert_type: AlertType::High,
@@ -190,7 +195,7 @@ mod tests {
             location_name: "Fridge 1".to_string(),
             sensor_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b3".to_string(),
             sensor_name: "E5:4G:D4:6D:A4".to_string(),
-            datetime: NaiveDateTime::from_str("2023-07-17T17:04:00").unwrap(),
+            last_data_time: NaiveDateTime::from_str("2023-07-17T17:04:00").unwrap(),
             data_age: "2 minutes".to_string(),
             temperature: 1.01.to_string(),
             alert_type: AlertType::Low,
@@ -256,8 +261,8 @@ mod tests {
             location_name: "Fridge 1".to_string(),
             sensor_id: "6a3399dd-10a9-40b7-853e-3ac0634ce6b3".to_string(),
             sensor_name: "E5:4G:D4:6D:A4".to_string(),
-            datetime: NaiveDateTime::from_str("2023-07-17T00:04:00").unwrap(),
-            data_age: "60 minutes".to_string(),
+            last_data_time: NaiveDateTime::from_str("2023-07-17T00:04:00").unwrap(),
+            data_age: "2 minutes".to_string(),
             temperature: 1.01.to_string(),
             alert_type: AlertType::NoData,
         };

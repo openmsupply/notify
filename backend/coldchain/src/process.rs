@@ -1,4 +1,4 @@
-use chrono::{Local, NaiveDateTime};
+use chrono::{DateTime, Local, NaiveDateTime};
 use repository::{
     NotificationConfigKind, NotificationConfigRowRepository, NotificationConfigStatus,
 };
@@ -71,6 +71,17 @@ fn try_process_coldchain_notifications(
     // Load the notification config
     let config = ColdChainPluginConfig::from_string(&notification_config.configuration_data)?;
 
+    // We compare the returned data from the database to the local time as it's recorded in localtime
+    // BUG: This means that during daily daylight savings time changes, the notifications might be incorrect (from last year, or we might trigger phantom no-data issues)
+    // This needs to be fixed in the datasource before we can improve the logic here...
+    let local_tz = Local::now().offset().clone(); // clone is needed to avoid lifetime issues
+    let now_local: NaiveDateTime = DateTime::<Local>::from_utc(now, local_tz).naive_local();
+    log::info!(
+        "Processing cold chain config ({}) @ {} local time",
+        notification_config.title,
+        now_local
+    );
+
     // Update the last_checked time
     NotificationConfigRowRepository::new(&ctx.connection)
         .set_last_run_by_id(&notification_config.id, now, None)
@@ -103,7 +114,7 @@ fn try_process_coldchain_notifications(
             })?;
 
         let sensor_status = evaluate_sensor_status(
-            now,
+            now_local,
             latest_temperature_row.clone(),
             high_temp_threshold,
             low_temp_threshold,
@@ -118,10 +129,17 @@ fn try_process_coldchain_notifications(
             None => "Never Recorded".to_string(),
         };
 
+        let last_data_localtime: NaiveDateTime = latest_temperature_row
+            .clone()
+            .map(|row| row.log_datetime)
+            .unwrap_or_default();
+
         let data_age: String = match latest_temperature_row.clone() {
             Some(row) => format!(
                 "{} minutes",
-                (now - row.log_datetime).num_minutes().to_string() // TODO: Improve this to show the age in hours/days/weeks/months/years? Ideally it would be translatable?
+                (Local::now().naive_local() - row.log_datetime)
+                    .num_minutes()
+                    .to_string() // TODO: Improve this to show the age in hours/days/weeks/months/years? Ideally it would be translatable?
             ),
             None => "?? minutes".to_string(),
         };
@@ -209,7 +227,10 @@ fn try_process_coldchain_notifications(
         let sensor_state = SensorState {
             sensor_id: sensor_id.clone(),
             status: sensor_status.clone(),
-            timestamp: now,
+            timestamp: latest_temperature_row
+                .clone()
+                .map(|row| row.log_datetime)
+                .unwrap_or_default(),
             temperature: latest_temperature_row
                 .map(|row| row.temperature)
                 .unwrap_or(None),
@@ -260,8 +281,8 @@ fn try_process_coldchain_notifications(
                     location_name: sensor_row.location_name.clone(),
                     sensor_id: sensor_id.clone(),
                     sensor_name: sensor_row.sensor_name.clone(),
-                    datetime: Local::now().naive_local(), // TODO: Should this be last data time?
-                    data_age: data_age,
+                    last_data_time: sensor_state.timestamp,
+                    data_age,
                     temperature: current_temp,
                     alert_type: AlertType::High,
                 }),
@@ -277,8 +298,8 @@ fn try_process_coldchain_notifications(
                     location_name: sensor_row.location_name.clone(),
                     sensor_id: sensor_id.clone(),
                     sensor_name: sensor_row.sensor_name.clone(),
-                    datetime: Local::now().naive_local(), // TODO: Should this be last data time?
-                    data_age: data_age,
+                    last_data_time: last_data_localtime,
+                    data_age,
                     temperature: current_temp,
                     alert_type: AlertType::Low,
                 }),
@@ -293,8 +314,8 @@ fn try_process_coldchain_notifications(
                     location_name: sensor_row.location_name.clone(),
                     sensor_id: sensor_id.clone(),
                     sensor_name: sensor_row.sensor_name.clone(),
-                    datetime: now,
-                    data_age: data_age,
+                    last_data_time: last_data_localtime,
+                    data_age,
                     temperature: current_temp,
                     alert_type: AlertType::Ok,
                 }),
@@ -309,8 +330,8 @@ fn try_process_coldchain_notifications(
                     location_name: sensor_row.location_name.clone(),
                     sensor_id: sensor_id.clone(),
                     sensor_name: sensor_row.sensor_name.clone(),
-                    datetime: now,
-                    data_age: data_age,
+                    last_data_time: last_data_localtime,
+                    data_age,
                     temperature: current_temp,
                     alert_type: AlertType::NoData,
                 }),
