@@ -12,7 +12,7 @@ pub trait DatasourceServiceTrait: Send + Sync {
         &self,
         sql_query: String,
         parameters: String,
-    ) -> Result<String, DatasourceServiceError>;
+    ) -> Result<QueryResult, DatasourceServiceError>;
     fn run_recipient_query(
         &self,
         sql_query: String,
@@ -22,6 +22,13 @@ pub trait DatasourceServiceTrait: Send + Sync {
 
 pub struct DatasourceService {
     connection_pool: DatasourcePool,
+}
+
+#[derive(Clone, Default, Debug, PartialEq)]
+pub struct QueryResult {
+    pub results: String,
+    pub query: String,
+    pub query_error: Option<String>,
 }
 
 #[derive(Debug)]
@@ -83,7 +90,7 @@ impl DatasourceServiceTrait for DatasourceService {
         &self,
         sql_query: String,
         parameters: String,
-    ) -> Result<String, DatasourceServiceError> {
+    ) -> Result<QueryResult, DatasourceServiceError> {
         let connection = &mut self.connection_pool.pool.get().map_err(|error| {
             DatasourceServiceError::InternalError(format!(
                 "Could not get connection from pool: {}",
@@ -115,7 +122,7 @@ impl DatasourceServiceTrait for DatasourceService {
         })?;
 
         // Run query
-        let result = pg_sql_query_as_json_rows(connection, full_query).map_err(|error| {
+        let result = pg_sql_query_as_json_rows(connection, full_query.clone()).map_err(|error| {
             DatasourceServiceError::BadUserInput(format!("Could not run query: {}", error))
         })?;
 
@@ -127,7 +134,11 @@ impl DatasourceServiceTrait for DatasourceService {
             ))
         })?;
 
-        Ok(json)
+        Ok(QueryResult {
+            results: json,
+            query: full_query,
+            query_error: None,
+        })
     }
 
     fn get_connection_pool(&self) -> DatasourcePool {

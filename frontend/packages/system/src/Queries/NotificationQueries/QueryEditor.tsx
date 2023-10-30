@@ -49,16 +49,16 @@ type NotificationQueryEditFormProps = {
   entity: NotificationQueryRowFragment | undefined;
   runQuery: (query: string, params: string) => Promise<void>;
   queryLoading: boolean;
+  generatedQuery: string;
 };
 
 export const QueryEditor = ({
   entity,
   runQuery,
   queryLoading,
+  generatedQuery,
 }: NotificationQueryEditFormProps) => {
   const t = useTranslation('system');
-
-  const { error } = useNotification();
 
   const { open: openSidePanel, isOpen } = useDetailPanel();
 
@@ -153,6 +153,7 @@ export const QueryEditor = ({
         query={draft.query}
         queryParams={queryParams}
         onUpdateQueryParams={onUpdateQueryParams}
+        generatedQuery={generatedQuery}
       />
       <Grid flexDirection="column" display="flex" gap={1}>
         {isEditingName ? (
@@ -257,7 +258,6 @@ export const QueryEditor = ({
             onClick={() => {
               onSave(draft).catch(err => {
                 console.error(err);
-                error(err)();
               });
             }}
             disabled={isSaved || invalidName(draft.name)}

@@ -41,7 +41,7 @@ export type TestNotificationQueryQueryVariables = Types.Exact<{
 }>;
 
 
-export type TestNotificationQueryQuery = { __typename: 'FullQuery', runSqlQueryWithParameters: string };
+export type TestNotificationQueryQuery = { __typename: 'FullQuery', runSqlQueryWithParameters: { __typename: 'NodeError' } | { __typename: 'QueryResultNode', queryError?: string | null, query: string, results: string } };
 
 export const NotificationQueryRowFragmentDoc = gql`
     fragment NotificationQueryRow on NotificationQueryNode {
@@ -94,7 +94,13 @@ export const DeleteNotificationQueryDocument = gql`
     `;
 export const TestNotificationQueryDocument = gql`
     query testNotificationQuery($sqlQuery: String, $params: String) {
-  runSqlQueryWithParameters(sqlQuery: $sqlQuery, parameters: $params)
+  runSqlQueryWithParameters(sqlQuery: $sqlQuery, parameters: $params) {
+    ... on QueryResultNode {
+      queryError
+      query
+      results
+    }
+  }
 }
     `;
 
