@@ -15,6 +15,7 @@ import { useTranslation } from '@common/intl';
 export interface ParamsPanelProps {
   requiredParams: string[];
   params: KeyedParams[];
+  allowParameterSets?: boolean;
   onUpdateParams: (idx: number, key: string, value: string) => void;
   onDeleteParam: (idx: number, key: string | null) => void; // Warning: null deletes everything for that index
 }
@@ -22,6 +23,7 @@ export interface ParamsPanelProps {
 export const NotificationDetailPanel = ({
   requiredParams,
   params,
+  allowParameterSets = false,
   onUpdateParams,
   onDeleteParam,
 }: ParamsPanelProps) => {
@@ -30,6 +32,10 @@ export const NotificationDetailPanel = ({
   const [isJsonEdited, setIsJsonEdited] = React.useState(false);
   const [paramsString, setParamsString] = React.useState('');
   const [errorMessage, setErrorMessage] = React.useState('');
+
+  if (!Array.isArray(params)) {
+    params = [params];
+  }
 
   if (params.length === 0 || params[0] === undefined) {
     params = [{} as KeyedParams];
@@ -42,6 +48,7 @@ export const NotificationDetailPanel = ({
           <DetailPanelSection
             key={`param-editor-detail-${idx}`}
             title={`${t('label.parameters')}: ${idx + 1}`}
+            defaultExpanded={idx === params.length - 1}
             actionButtons={
               <>
                 <IconButton
@@ -49,11 +56,13 @@ export const NotificationDetailPanel = ({
                     params.push(params[idx] ?? {});
                     onDeleteParam(idx + 1, 'this-is-a-hack-to-force-an-update');
                   }}
+                  disabled={!allowParameterSets}
                   icon={<CopyIcon />}
                   label={t('button.duplicate')}
                 />
                 <IconButton
                   onClick={() => onDeleteParam(idx, null)}
+                  disabled={params.length === 1}
                   icon={<DeleteIcon />}
                   label={t('label.delete')}
                 />
@@ -77,6 +86,7 @@ export const NotificationDetailPanel = ({
     <DetailPanelSection
       key={`param-editor-detail-json`}
       title={t('label.parameters-as-json')}
+      defaultExpanded={true}
     >
       <BufferedTextArea
         value={JSON.stringify(params)}

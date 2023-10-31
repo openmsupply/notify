@@ -33,6 +33,7 @@ import {
 interface BaseNotificationEditPageProps<T extends BaseNotificationConfig> {
   isInvalid: boolean;
   isLoading: boolean;
+  allowParameterSets?: boolean;
   draft: T;
   setDraft: (draft: T) => void;
   onSave: (draft: T) => Promise<void>;
@@ -43,11 +44,12 @@ interface BaseNotificationEditPageProps<T extends BaseNotificationConfig> {
 }
 
 export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
-  isLoading,
   isInvalid,
+  isLoading,
+  allowParameterSets = false,
   draft,
-  onSave,
   setDraft,
+  onSave,
   CustomForm,
 }: BaseNotificationEditPageProps<T>) => {
   const t = useTranslation(['system']);
@@ -138,6 +140,7 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
           <NotificationDetailPanel
             requiredParams={requiredParams}
             params={draft.parsedParameters}
+            allowParameterSets={allowParameterSets}
             onUpdateParams={onUpdateParams}
             onDeleteParam={onDeleteParam}
           />

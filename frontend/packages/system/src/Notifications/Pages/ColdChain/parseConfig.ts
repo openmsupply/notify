@@ -67,6 +67,9 @@ export function buildColdChainNotificationInputs(config: CCNotification): {
   update: UpdateNotificationConfigInput;
 } {
   const params = [];
+  if (!Array.isArray(config.parsedParameters)) {
+    config.parsedParameters = [config.parsedParameters];
+  }
   for (const param of config.parsedParameters) {
     params.push(TeraUtils.keyedParamsAsTeraParams(param));
   }
