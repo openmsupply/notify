@@ -11,7 +11,7 @@ fn main() {
     panic!("This program is only intended to run on Windows.");
 }
 
-// #[cfg(windows)]
+#[cfg(windows)]
 mod notify_service {
     use eventlog;
     use log::error;
