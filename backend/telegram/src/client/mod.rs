@@ -123,9 +123,11 @@ impl TelegramClient {
         chat_id: &str,
         markdown: &str,
     ) -> Result<TelegramMessage, TelegramError> {
+        let escaped_markdown = escape_telegram_markdown(markdown);
+
         let params = [
             ("chat_id", chat_id),
-            ("text", markdown),
+            ("text", &escaped_markdown),
             ("parse_mode", "MarkdownV2"),
         ];
         let url = format!("{}/sendMessage", self.base_url);
@@ -205,8 +207,41 @@ impl TelegramClient {
     }
 }
 
+// In all other places characters '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!' must be escaped with the preceding character '\'.
+// https://core.telegram.org/bots/api#markdownv2-style
+// This is kind of a bug, as we are escaping the characters that need to be escaped, but don't know when they shouldnt be escaped (e.g part of a markdown entity)
+// Deliberately not escaping ` so we can write preformatted stuff like ```code```
+fn escape_telegram_markdown(text: &str) -> String {
+    let mut escaped_text = String::new();
+    for c in text.chars() {
+        match c {
+            '_' | '*' | '[' | ']' | '(' | ')' | '~' | '>' | '#' | '+' | '-' | '=' | '|' | '{'
+            | '}' | '.' | '!' => {
+                escaped_text.push('\\');
+                escaped_text.push(c);
+            }
+            _ => escaped_text.push(c),
+        }
+    }
+    escaped_text
+}
+
 #[cfg(test)]
 mod test {
+
+    use super::*;
+
+    #[test]
+    fn test_escape_telegram_markdown() {
+        let text = "This is a test of _markdown_ escaping";
+        let escaped_text = escape_telegram_markdown(text);
+        assert_eq!(escaped_text, "This is a test of \\_markdown\\_ escaping");
+    }
+}
+
+#[cfg(test)]
+#[cfg(feature = "telegram-tests")]
+mod telegram_test {
     use super::*;
 
     fn get_telegram_token_from_env() -> String {
@@ -221,6 +256,7 @@ mod test {
     }
 
     #[tokio::test]
+
     async fn test_get_name() {
         let client = TelegramClient::new(get_telegram_token_from_env());
         let name = client.get_name().await;
