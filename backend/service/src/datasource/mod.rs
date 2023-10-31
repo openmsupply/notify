@@ -7,7 +7,7 @@ use tera::{Context, Tera};
 
 // We use a trait for DatasourceService to allow mocking in tests
 pub trait DatasourceServiceTrait: Send + Sync {
-    fn run_sql_query(&self, sql_query: String) -> Result<String, DatasourceServiceError>;
+    fn run_sql_query(&self, sql_query: String) -> Result<QueryResult, DatasourceServiceError>;
     fn run_sql_query_with_parameters(
         &self,
         sql_query: String,
@@ -46,7 +46,7 @@ impl DatasourceService {
 }
 
 impl DatasourceServiceTrait for DatasourceService {
-    fn run_sql_query(&self, sql_query: String) -> Result<String, DatasourceServiceError> {
+    fn run_sql_query(&self, sql_query: String) -> Result<QueryResult, DatasourceServiceError> {
         let connection = &mut self.connection_pool.pool.get().map_err(|error| {
             DatasourceServiceError::InternalError(format!(
                 "Could not get connection from pool: {}",
@@ -54,7 +54,7 @@ impl DatasourceServiceTrait for DatasourceService {
             ))
         })?;
         // Run query
-        let result = pg_sql_query_as_json_rows(connection, sql_query);
+        let result = pg_sql_query_as_json_rows(connection, sql_query.clone());
         let mut query_error = None;
         let result = match result{
             Ok(rows) => rows,
@@ -72,7 +72,11 @@ impl DatasourceServiceTrait for DatasourceService {
             ))
         })?;
 
-        Ok(json)
+        Ok(QueryResult {
+            results: json,
+            query: sql_query,
+            query_error: query_error,
+        })
     }
     fn run_recipient_query(
         &self,

@@ -93,7 +93,7 @@ impl DatasourceServiceTrait for MockDatasourceService {
     fn run_sql_query(
         &self,
         _sql_query: String,
-    ) -> Result<String, crate::datasource::DatasourceServiceError> {
+    ) -> Result<QueryResult, crate::datasource::DatasourceServiceError> {
         todo!()
     }
 

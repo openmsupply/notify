@@ -16,7 +16,6 @@ import {
   ZapIcon,
   isValidVariableName,
   useDetailPanel,
-  useNotification,
   useToggle,
   useTranslation,
   validateVariableNameHelperText,

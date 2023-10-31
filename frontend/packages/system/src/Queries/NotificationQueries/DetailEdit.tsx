@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import {
   useBreadcrumbs,
   useDetailPanel,
-  useNotification,
   useQueryParamsState,
 } from '@common/hooks';
 import {
@@ -10,6 +9,7 @@ import {
   AppBarContentPortal,
   BasicSpinner,
   Box,
+  NothingHere,
   Paper,
   Table,
   TableBody,
@@ -47,7 +47,7 @@ export const DetailEdit = () => {
   const { mutateAsync: testNotificationQuery, isLoading: queryLoading } =
     useTestNotificationQuery();
   const [sqlResults, setSqlResults] = React.useState([] as never[]);
-  const [queryColumns, setQueryColumns] = React.useState(['id'] as string[]);
+  const [queryColumns, setQueryColumns] = React.useState([] as string[]);
   const [generatedQuery, setGeneratedQuery] = React.useState('' as string);
   const [queryError, setQueryErr] = React.useState('' as string);
 
@@ -120,9 +120,16 @@ export const DetailEdit = () => {
       <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
         {queryError && (<AlertPanel message ={queryError}/>)}
         {(generatedQuery && !queryError) && (<InfoPanel message ={'Result: ' + sqlResults.length.toString() + ' rows'}/>)}
-        <Box sx={{ flex: '1', overflow: 'auto' }}>
+        {(!generatedQuery || queryError || sqlResults.length == 0) && (<NothingHere body={t('error.no-query-result')} />)}
           <Table>
-            <TableHead>
+            <TableHead 
+              sx={{
+              backgroundColor: 'background.white',
+              position: 'sticky',
+              top: 0,
+              zIndex: 'tableHeader',
+            }}
+          >
               <TableRow>
                 {queryColumns.map(column => (
                   <TableCell
@@ -155,7 +162,6 @@ export const DetailEdit = () => {
             </TableBody>
           </Table>
         </Box>
-      </Box>
     </>
   );
 };
