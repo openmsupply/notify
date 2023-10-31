@@ -25,6 +25,8 @@ rand = "0.8"
 tera = "1"
 nanohtml2text = "0.1"
 async-trait = "0.1.30"
+flate2 = "1.0.26"
+simple-log = { version = "1.6" }
 
 [dev-dependencies]
 actix-rt = "2.6.0"

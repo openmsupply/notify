@@ -7,6 +7,7 @@ use crate::{
     auth::{AuthService, AuthServiceTrait},
     datasource::{DatasourceService, DatasourceServiceTrait},
     email::{EmailService, EmailServiceTrait},
+    log_service::{LogService, LogServiceTrait},
     notification::{NotificationService, NotificationServiceTrait},
     notification_config::{NotificationConfigService, NotificationConfigServiceTrait},
     notification_query::{NotificationQueryService, NotificationQueryServiceTrait},
@@ -33,6 +34,7 @@ pub struct ServiceProvider {
     pub plugin_service: Box<dyn PluginServiceTrait>,
     pub settings: Settings,
     pub telegram: Option<TelegramClient>,
+    pub log_service: Box<dyn LogServiceTrait>,
 }
 
 pub struct ServiceContext {
@@ -97,6 +99,7 @@ impl ServiceProvider {
             plugin_service: Box::new(PluginService {}),
             settings,
             telegram,
+            log_service: Box::new(LogService {}),
         }
     }
 

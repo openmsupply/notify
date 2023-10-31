@@ -83,4 +83,8 @@ Notify is designed to run behind a SSL proxy such as [Caddy](https://caddyserver
 
 > WARNING: DO NOT RUN THIS IN PRODUCTION WITHOUT SSL!
 
-## Deployment
+# Logging
+
+By default, the server logs to console with a logging level of `Info`
+You can configure this, to log to a file, for example, with a rollover of log files based on file size.
+See the `example.yaml` file for the available options.
