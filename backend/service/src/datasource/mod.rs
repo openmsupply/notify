@@ -54,9 +54,15 @@ impl DatasourceServiceTrait for DatasourceService {
             ))
         })?;
         // Run query
-        let result = pg_sql_query_as_json_rows(connection, sql_query).map_err(|error| {
-            DatasourceServiceError::BadUserInput(format!("Could not run query: {}", error))
-        })?;
+        let result = pg_sql_query_as_json_rows(connection, sql_query);
+        let mut query_error = None;
+        let result = match result{
+            Ok(rows) => rows,
+            Err(e) => {
+                query_error = Some(format!("{:?}", e));
+                vec![]// return empty array of results if there's an error
+            }
+        };
 
         // Serialize result as json
         let json = serde_json::to_string(&result).map_err(|error| {
@@ -122,9 +128,15 @@ impl DatasourceServiceTrait for DatasourceService {
         })?;
 
         // Run query
-        let result = pg_sql_query_as_json_rows(connection, full_query.clone()).map_err(|error| {
-            DatasourceServiceError::BadUserInput(format!("Could not run query: {}", error))
-        })?;
+        let result = pg_sql_query_as_json_rows(connection, full_query.clone());
+        let mut query_error = None;
+        let result = match result{
+            Ok(rows) => rows,
+            Err(e) => {
+                query_error = Some(format!("{:?}", e));
+                vec![]// return empty array of results if there's an error
+            }
+        };
 
         // Serialize result as json
         let json = serde_json::to_string(&result).map_err(|error| {
@@ -137,7 +149,7 @@ impl DatasourceServiceTrait for DatasourceService {
         Ok(QueryResult {
             results: json,
             query: full_query,
-            query_error: None,
+            query_error: query_error,
         })
     }
 

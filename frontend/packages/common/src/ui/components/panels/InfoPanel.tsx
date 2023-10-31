@@ -10,8 +10,6 @@ export const InfoPanel = ({ message }: { message: string }) => (
     alignItems="center"
     sx={{
       backgroundColor: 'gray.pale',
-      borderRadius: '10px',
-      marginRight: '8px',
     }}
   >
     <InfoIcon fontSize="small" />

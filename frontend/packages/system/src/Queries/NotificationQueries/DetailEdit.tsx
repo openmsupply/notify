@@ -17,7 +17,7 @@ import {
   TableHead,
   TableRow,
 } from '@common/ui';
-import { AlertPanel } from '@common/components';
+import { AlertPanel, InfoPanel } from '@common/components';
 import { useTranslation } from '@common/intl';
 import { useNotificationQueries, useTestNotificationQuery } from '../api';
 import { useParams } from 'packages/common/src';
@@ -28,7 +28,6 @@ export const DetailEdit = () => {
   const t = useTranslation('system');
   const urlParams = useParams();
   const { suffix, setSuffix } = useBreadcrumbs();
-  //const { error } = useNotification();
   const { OpenButton } = useDetailPanel(t('label.parameters'));
 
   const { queryParams } = useQueryParamsState({
@@ -51,19 +50,18 @@ export const DetailEdit = () => {
   const [queryColumns, setQueryColumns] = React.useState(['id'] as string[]);
   const [generatedQuery, setGeneratedQuery] = React.useState('' as string);
   const [queryError, setQueryErr] = React.useState('' as string);
-  const [isDisplayAlert, setDisplayAlert] = React.useState('none' as string);
 
   const runQuery = async (query: string, params: string) => {
     await testNotificationQuery({ sqlQuery: query, params: params })
       .then(result => {
-        setDisplayAlert('none');
         const responseType = result.runSqlQueryWithParameters.__typename;
         let results = [];
         if (responseType == "NodeError"){
           results = [];
+          setGeneratedQuery('Error');
         }else{
+          setQueryErr("");
           results = JSON.parse(result.runSqlQueryWithParameters.results);
-          //const results = JSON.parse(result.runSqlQueryWithParameters);
 
           const columns = Object.keys(results[0] ?? []);
           // If we have an id column, move it to the front
@@ -75,14 +73,17 @@ export const DetailEdit = () => {
           }
           setQueryColumns(columns);
           setSqlResults(results);
+          if(result.runSqlQueryWithParameters.queryError){
+            setQueryErr(result.runSqlQueryWithParameters.queryError);
+          }
           setGeneratedQuery(result.runSqlQueryWithParameters.query);
         }
       })
       .catch(err => {
-        //error(err.message)();
-        setDisplayAlert('flex');
+        setQueryColumns([]);
+        setSqlResults([]);
+        setGeneratedQuery('');
         setQueryErr(err.message);
-        
       });
   };
 
@@ -117,7 +118,8 @@ export const DetailEdit = () => {
       </AppBarContentPortal>
       {/* Sql Results table */}
       <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
-        <AlertPanel message ={queryError} isDisplay = {isDisplayAlert}></AlertPanel>
+        {queryError && (<AlertPanel message ={queryError}/>)}
+        {(generatedQuery && !queryError) && (<InfoPanel message ={'Result: ' + sqlResults.length.toString() + ' rows'}/>)}
         <Box sx={{ flex: '1', overflow: 'auto' }}>
           <Table>
             <TableHead>

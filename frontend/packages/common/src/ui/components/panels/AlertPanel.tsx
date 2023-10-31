@@ -5,20 +5,18 @@ import { AlertIcon } from '@common/icons';
 
 export interface AlertPanelProps {
   message: string;
-  isDisplay?: string;
 }
 export const AlertPanel: FC<AlertPanelProps> = ({
   message,
-  isDisplay,
 }) => {
   return (
     <Box
     gap={1}
     padding={1}
-    display={isDisplay}
     alignItems="center"
     sx={{
       backgroundColor: 'warning.main',
+      display: 'flex'
     }}
   >
     <AlertIcon fontSize="small" />
