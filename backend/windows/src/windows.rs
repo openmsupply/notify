@@ -11,11 +11,12 @@ fn main() {
     panic!("This program is only intended to run on Windows.");
 }
 
-#[cfg(windows)]
+// #[cfg(windows)]
 mod notify_service {
     use eventlog;
     use log::error;
-    use server::{configuration, logging_init, start_server};
+    use server::logging::logging_init;
+    use server::{configuration, start_server};
     use service::settings::Settings;
     use std::{
         env::{current_exe, set_current_dir},
