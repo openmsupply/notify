@@ -21,3 +21,9 @@ datasource:
   username: "postgres"
   password: "password"
   database_name: "dashboard"
+logging:
+  mode: "All"
+  level: "Info"
+  filename: "notify.log"
+  max_file_size: 1
+  max_file_count: 1

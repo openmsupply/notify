@@ -6,6 +6,7 @@ pub mod auth;
 pub mod auth_data;
 pub mod datasource;
 pub mod email;
+pub mod log_service;
 pub mod login;
 pub mod notification;
 pub mod notification_config;

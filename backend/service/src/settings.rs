@@ -1,3 +1,5 @@
+use std::fmt::{Display, Formatter, Result};
+
 use datasource::database_settings::PostgresSettings;
 use repository::database_settings::SqliteSettings;
 #[derive(serde::Deserialize, Clone)]
@@ -7,6 +9,7 @@ pub struct Settings {
     pub mail: MailSettings,
     pub telegram: TelegramSettings,
     pub datasource: PostgresSettings,
+    pub logging: Option<LoggingSettings>,
 }
 
 #[derive(serde::Deserialize, Clone)]
@@ -30,6 +33,67 @@ impl ServerSettings {
 pub fn is_develop() -> bool {
     // debug_assertions is the recommended way to check if we are in 'dev' mode
     cfg!(debug_assertions)
+}
+
+#[derive(serde::Deserialize, Clone)]
+pub enum LogMode {
+    All,
+    Console,
+    File,
+}
+
+#[derive(serde::Deserialize, Clone, Debug)]
+pub enum Level {
+    Error,
+    Warn,
+    Info,
+    Debug,
+    Trace,
+}
+
+impl Display for Level {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        let level = match self {
+            Level::Error => "error",
+            Level::Warn => "warn",
+            Level::Info => "info",
+            Level::Debug => "debug",
+            Level::Trace => "trace",
+        };
+        write!(f, "{}", level)
+    }
+}
+
+#[derive(serde::Deserialize, Clone)]
+pub struct LoggingSettings {
+    /// Console (default) | File
+    pub mode: LogMode,
+    ///  Off | Error | Warn | Info (default) | Debug | Trace
+    pub level: Level,
+    /// Max number of temp logfiles to retain
+    pub directory: Option<String>,
+    pub filename: Option<String>,
+    pub max_file_count: Option<i64>,
+    /// Max logfile size in MB
+    pub max_file_size: Option<usize>,
+}
+
+impl LoggingSettings {
+    pub fn new(mode: LogMode, level: Level) -> Self {
+        LoggingSettings {
+            mode,
+            level,
+            directory: None,
+            filename: None,
+            max_file_count: None,
+            max_file_size: None,
+        }
+    }
+
+    pub fn with_directory(mut self, directory: String) -> Self {
+        self.directory = Some(directory);
+        self
+    }
 }
 
 #[derive(serde::Deserialize, Clone)]

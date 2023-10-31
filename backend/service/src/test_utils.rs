@@ -62,6 +62,7 @@ pub fn get_test_settings(db_name: &str) -> Settings {
             host: "localhost".to_string(),
             database_name: String::from("dashboard"),
         },
+        logging: None,
     }
 }
 
