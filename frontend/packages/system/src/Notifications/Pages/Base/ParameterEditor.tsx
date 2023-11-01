@@ -23,37 +23,35 @@ export const ParameterEditor = ({
 
   return (
     <>
-      {allParams.map(param => {
-        return (
-          <Box key={`param-row-${param}`} paddingBottom={1}>
-            <PanelRow>
-              <PanelLabel key={`param-label-${param}`}>{param}</PanelLabel>
-            </PanelRow>
-            <PanelRow>
-              <BufferedTextInput
-                key={`param-value-${param}`}
-                InputProps={{
-                  sx: {
-                    backgroundColor: 'background.white',
-                  },
-                }}
-                value={params[param ?? ''] ?? ''}
-                onChange={e => onUpdateParams(param ?? '', e.target.value)}
-              />
-              {
-                // if param is not required allow it to be removed
-                !requiredParams.includes(param) && (
-                  <IconButton
-                    onClick={() => onDeleteParam(param ?? '')}
-                    icon={<DeleteIcon />}
-                    label={t('label.delete')}
-                  />
-                )
-              }
-            </PanelRow>
-          </Box>
-        );
-      })}
+      {allParams.map(param => (
+        <Box key={`param-row-${param}`} paddingBottom={1}>
+          <PanelRow>
+            <PanelLabel key={`param-label-${param}`}>{param}</PanelLabel>
+          </PanelRow>
+          <PanelRow>
+            <BufferedTextInput
+              key={`param-value-${param}`}
+              InputProps={{
+                sx: {
+                  backgroundColor: 'background.white',
+                },
+              }}
+              value={params[param ?? ''] ?? ''}
+              onChange={e => onUpdateParams(param ?? '', e.target.value)}
+            />
+            {
+              // if param is not required allow it to be removed
+              !requiredParams.includes(param) && (
+                <IconButton
+                  onClick={() => onDeleteParam(param ?? '')}
+                  icon={<DeleteIcon />}
+                  label={t('label.delete')}
+                />
+              )
+            }
+          </PanelRow>
+        </Box>
+      ))}
     </>
   );
 };
