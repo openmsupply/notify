@@ -1,4 +1,4 @@
-<strong>{{ alert_type }} temperature alert!</strong>
+<strong>Sensor connection lost</strong>
 
 <strong>Facility</strong>: {{ store_name }}
 <strong>Location</strong>: {{ location_name }}
@@ -8,3 +8,4 @@
 <strong>Time</strong>: {{ last_data_time | date(format="%H:%M")}}
 
 <strong>Temperature</strong>: {{ temperature }}°C
+<strong>Last data received</strong>: {{ data_age }} ago

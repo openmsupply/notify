@@ -18,13 +18,19 @@ export function getReminderUnitsFromString(str: string): ReminderUnits {
   }
 }
 
-export function getReminderUnitsAsOptions(t: TypedTFunction<LocaleKey>): {
+export function getReminderUnitsAsOptions(
+  t: TypedTFunction<LocaleKey>,
+  count?: number
+): {
   label: string;
   value: string;
 }[] {
   return [
-    { label: t('label.minutes'), value: ReminderUnits.MINUTES },
-    { label: t('label.hours'), value: ReminderUnits.HOURS },
+    {
+      label: t('label.minutes', { count: count }),
+      value: ReminderUnits.MINUTES,
+    },
+    { label: t('label.hours', { count: count }), value: ReminderUnits.HOURS },
   ];
 }
 
@@ -41,12 +47,15 @@ type BaseConfig = Pick<
 >;
 
 export interface BaseNotificationConfig extends BaseConfig {
-  parsedParameters: KeyedParams;
+  parsedParameters: KeyedParams[];
+  requiredParameters: string[];
 }
 
 export interface CCNotification extends BaseNotificationConfig {
   highTemp: boolean;
+  highTempThreshold: number;
   lowTemp: boolean;
+  lowTempThreshold: number;
   confirmOk: boolean;
   noData: boolean;
   noDataInterval: number;
@@ -64,5 +73,5 @@ export interface ScheduledNotification extends BaseNotificationConfig {
   scheduleStartTime: Date;
   subjectTemplate: string;
   bodyTemplate: string;
-  sqlQueries: string[];
+  notificationQueryIds: string[];
 }

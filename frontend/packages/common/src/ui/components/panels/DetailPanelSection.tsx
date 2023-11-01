@@ -4,6 +4,7 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
+  Stack,
   styled,
   Typography,
 } from '@mui/material';
@@ -23,16 +24,25 @@ const StyledAccordion = styled(Accordion)(({ theme }) => ({
 
 export interface DetailPanelSectionProps {
   title: string;
+  actionButtons?: React.ReactNode;
   defaultExpanded?: boolean;
 }
 
 export const DetailPanelSection: React.FC<
   PropsWithChildren<DetailPanelSectionProps>
-> = ({ children, title, defaultExpanded = true }) => (
+> = ({ children, title, actionButtons, defaultExpanded = true }) => (
   <Box>
     <StyledAccordion defaultExpanded={defaultExpanded}>
       <AccordionSummary expandIcon={<ChevronDownIcon />}>
         <Typography sx={{ fontWeight: 'bold' }}>{title}</Typography>
+        <Stack
+          sx={{
+            ml: 'auto',
+          }}
+          direction={'row'}
+        >
+          {actionButtons}
+        </Stack>
       </AccordionSummary>
       <AccordionDetails>{children}</AccordionDetails>
     </StyledAccordion>

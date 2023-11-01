@@ -15,6 +15,7 @@ use super::{query::NotificationConfig, ModifyNotificationConfigError};
 pub fn get_notification_targets(
     ctx: &ServiceContext,
     notification_config: &NotificationConfig,
+    parameters: serde_json::Value,
 ) -> Result<Vec<NotificationTarget>, ModifyNotificationConfigError> {
     let mut notification_targets: Vec<NotificationTarget> = Vec::new();
 
@@ -50,11 +51,7 @@ pub fn get_notification_targets(
     // loop through all the sql recipient lists
     for sql_recipient_list_id in &notification_config.sql_recipient_list_ids {
         // Run the query
-        let result = get_sql_recipients(
-            ctx,
-            sql_recipient_list_id.clone(),
-            notification_config.parameters.clone(),
-        );
+        let result = get_sql_recipients(ctx, sql_recipient_list_id.clone(), parameters.clone());
 
         match result {
             Ok(sql_recipients) => {
@@ -74,7 +71,6 @@ pub fn get_notification_targets(
                 notification_targets.extend(sql_recipients);
             }
             Err(err) => {
-                println!("err: {:?}", err);
                 log::error!(
                     "Error running SQL Recipient List query: {:?}, skipping this recipient list",
                     err
@@ -139,9 +135,11 @@ mod tests {
             ..Default::default()
         };
 
+        let parameters = serde_json::Value::Null;
+
         // Call the function being tested
         let notification_targets =
-            get_notification_targets(&context, &notification_config).unwrap();
+            get_notification_targets(&context, &notification_config, parameters.clone()).unwrap();
 
         // Check that the correct recipients were returned
         assert_eq!(notification_targets.len(), 2); // Recipient A & B
@@ -161,7 +159,7 @@ mod tests {
 
         // Call the function being tested
         let notification_targets =
-            get_notification_targets(&context, &notification_config).unwrap();
+            get_notification_targets(&context, &notification_config, parameters.clone()).unwrap();
 
         // Check that the correct recipients were returned
         assert_eq!(notification_targets.len(), 2); // Recipient A & B
@@ -181,7 +179,7 @@ mod tests {
 
         // Call the function being tested
         let notification_targets =
-            get_notification_targets(&context, &notification_config).unwrap();
+            get_notification_targets(&context, &notification_config, parameters).unwrap();
 
         // Check that the correct recipients were returned
         assert_eq!(notification_targets.len(), 2); // Recipient A & B
@@ -214,10 +212,14 @@ mod tests {
             recipient_ids: vec![],
             recipient_list_ids: vec![],
             sql_recipient_list_ids: vec![mock_sql_recipient_list_with_param().id],
-            parameters: "{\"email_address\": \"recipient1@example.com\"}".to_string(),
+            parameters: "[{\"email_address\": \"recipient1@example.com\"}]".to_string(),
             status: NotificationConfigStatus::Enabled,
             ..Default::default()
         };
+
+        let parameters: serde_json::Value =
+            serde_json::from_str(&notification_config.parameters).unwrap();
+        let parameters = parameters[0].clone(); // Get the first parameter set in the array (there is only 1)
 
         let expected_notification_target = NotificationTarget {
             name: String::from("recipient1@example.com"),
@@ -227,7 +229,7 @@ mod tests {
 
         // Call the function being tested
         let notification_targets =
-            get_notification_targets(&context, &notification_config).unwrap();
+            get_notification_targets(&context, &notification_config, parameters).unwrap();
 
         // Check that the correct recipients were returned
         assert_eq!(notification_targets.len(), 1);
@@ -240,10 +242,14 @@ mod tests {
             recipient_ids: vec![],
             recipient_list_ids: vec![],
             sql_recipient_list_ids: vec![mock_sql_recipient_list_with_no_param().id],
-            parameters: "{\"email_address\": \"recipient1@example.com\"}".to_string(),
+            parameters: "[{\"email_address\": \"recipient1@example.com\"}]".to_string(),
             status: NotificationConfigStatus::Enabled,
             ..Default::default()
         };
+
+        let parameters: serde_json::Value =
+            serde_json::from_str(&notification_config.parameters).unwrap();
+        let parameters = parameters[0].clone(); // Get the first parameter set in the array (there is only 1)
 
         // SELECT 'id_no_param' as id, 'name_no_param' as name, 'EMAIL' as notification_type, 'name_no_param@example.com' as to_address
         let expected_notification_target = NotificationTarget {
@@ -254,7 +260,7 @@ mod tests {
 
         // Call the function being tested
         let notification_targets =
-            get_notification_targets(&context, &notification_config).unwrap();
+            get_notification_targets(&context, &notification_config, parameters).unwrap();
 
         // Check that the correct recipients were returned
         assert_eq!(notification_targets.len(), 1);

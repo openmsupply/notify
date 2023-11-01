@@ -63,6 +63,7 @@ pub fn get_test_settings(db_name: &str) -> Settings {
             host: "localhost".to_string(),
             database_name: String::from("dashboard"),
         },
+        logging: None,
     }
 }
 
@@ -100,7 +101,7 @@ impl DatasourceServiceTrait for MockDatasourceService {
     fn run_sql_query_with_parameters(
         &self,
         _sql_query: String,
-        _parameters: String,
+        _parameters: serde_json::Value,
     ) -> Result<QueryResult, crate::datasource::DatasourceServiceError> {
         todo!()
     }

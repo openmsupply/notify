@@ -44,6 +44,8 @@ use crate::ColdChainError;
 #[serde(rename_all = "camelCase")]
 pub struct ColdChainPluginConfig {
     #[serde(default)]
+    pub confirm_ok: bool,
+    #[serde(default)]
     pub high_temp: bool,
     #[serde(default)]
     pub low_temp: bool,
@@ -70,7 +72,7 @@ fn default_high_temp_limit() -> f64 {
 }
 
 fn default_no_data_interval() -> u32 {
-    1
+    4
 }
 
 fn default_no_data_units() -> IntervalUnits {
@@ -83,6 +85,17 @@ impl ColdChainPluginConfig {
             .map_err(|e| ColdChainError::UnableToParseConfig(format!("{:?}", e)))?;
 
         Ok(config)
+    }
+
+    pub fn no_data_duration(&self) -> chrono::Duration {
+        match self.no_data_interval_units {
+            IntervalUnits::Minutes => chrono::Duration::minutes(self.no_data_interval as i64),
+            IntervalUnits::Hours => chrono::Duration::hours(self.no_data_interval as i64),
+            IntervalUnits::Days => chrono::Duration::days(self.no_data_interval as i64),
+            IntervalUnits::Weeks => chrono::Duration::weeks(self.no_data_interval as i64),
+            IntervalUnits::Months => chrono::Duration::days(self.no_data_interval as i64 * 30),
+            IntervalUnits::Years => chrono::Duration::days(self.no_data_interval as i64 * 365),
+        }
     }
 }
 

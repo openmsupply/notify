@@ -27,7 +27,9 @@ const createCCNotification = (
   title: seed?.title ?? '',
   kind: seed?.kind ?? ConfigKind.ColdChain,
   highTemp: seed?.highTemp ?? true,
+  highTempThreshold: seed?.highTempThreshold ?? 8,
   lowTemp: seed?.lowTemp ?? true,
+  lowTempThreshold: seed?.lowTempThreshold ?? 2,
   confirmOk: seed?.confirmOk ?? true,
   noData: seed?.noData ?? true,
   noDataInterval: seed?.noDataInterval ?? 4,
@@ -42,8 +44,9 @@ const createCCNotification = (
   recipientListIds: seed?.recipientListIds ?? [],
   status: seed?.status ?? ConfigStatus.Disabled,
   sqlRecipientListIds: seed?.sqlRecipientListIds ?? [],
-  parameters: seed?.parameters ?? '{}',
-  parsedParameters: seed?.parsedParameters ?? {},
+  parameters: seed?.parameters ?? '[{}]',
+  parsedParameters: seed?.parsedParameters ?? [],
+  requiredParameters: seed?.requiredParameters ?? [],
 });
 
 export const CCNotificationEditPage = () => {

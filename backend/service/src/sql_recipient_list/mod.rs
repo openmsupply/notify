@@ -71,6 +71,11 @@ pub trait SqlRecipientListServiceTrait: Sync + Send {
         query: String,
         params: String,
     ) -> Result<ListResult<BasicRecipientRow>, ListError> {
+        // Convert the params string to a serde_json::Value
+        let params: serde_json::Value = serde_json::from_str(&params).map_err(|err| {
+            ListError::InvalidRequest(format!("Invalid params string: {}. Error: {}", params, err))
+        })?;
+
         get_sql_recipients_by_sql_query(ctx, query, params)
     }
 }

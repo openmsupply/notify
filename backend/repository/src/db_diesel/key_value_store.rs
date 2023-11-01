@@ -20,6 +20,9 @@ table! {
 #[DbValueStyle = "SCREAMING_SNAKE_CASE"]
 pub enum KeyValueType {
     SettingsTokenSecret,
+    LogLevel,
+    LogDirectory,
+    LogFileName,
 }
 
 #[derive(Clone, Queryable, Insertable, AsChangeset, Debug, PartialEq)]

@@ -1,10 +1,12 @@
 import {
+  ConfigKind,
+  ConfigStatus,
   CreateNotificationConfigInput,
   UpdateNotificationConfigInput,
 } from '@common/types';
-import { CCNotification } from '../../types';
+import { CCNotification, ReminderUnits } from '../../types';
 import { NotificationConfigRowFragment } from '../../api';
-import { TeraUtils } from '@common/utils';
+import { FnUtils, TeraUtils } from '@common/utils';
 
 export function parseColdChainNotificationConfig(
   config: NotificationConfigRowFragment | null,
@@ -12,43 +14,10 @@ export function parseColdChainNotificationConfig(
 ): CCNotification | null {
   if (!config) return null;
   try {
-    const {
-      highTemp,
-      lowTemp,
-      confirmOk,
-      noData,
-      noDataInterval,
-      noDataIntervalUnits,
-      remind,
-      reminderInterval,
-      reminderUnits,
-      messageAlertResolved,
-      locationIds,
-      sensorIds,
-    } = JSON.parse(config.configurationData);
-
     return {
-      id: config.id,
-      title: config.title,
-      kind: config.kind,
-      highTemp,
-      lowTemp,
-      confirmOk,
-      noData,
-      noDataInterval,
-      noDataIntervalUnits,
-      remind,
-      reminderInterval,
-      reminderUnits,
-      messageAlertResolved,
-      locationIds,
-      sensorIds,
-      recipientIds: config.recipientIds,
-      recipientListIds: config.recipientListIds,
-      sqlRecipientListIds: config.sqlRecipientListIds,
-      status: config.status,
-      parameters: config.parameters,
-      parsedParameters: TeraUtils.keyedParamsFromTeraJson(config.parameters),
+      ...defaultCCNotification,
+      ...config,
+      ...JSON.parse(config.configurationData),
     };
   } catch (e) {
     showError();
@@ -57,6 +26,7 @@ export function parseColdChainNotificationConfig(
     // The missing fields will be populated by default values in the edit modal, but we'll return
     // the base NotificationConfig data that is still usable:
     return {
+      ...defaultCCNotification,
       id: config.id,
       title: config.title,
       kind: config.kind,
@@ -65,16 +35,51 @@ export function parseColdChainNotificationConfig(
   }
 }
 
+export const defaultCCNotification: CCNotification = {
+  id: FnUtils.generateUUID(),
+  title: '',
+  kind: ConfigKind.ColdChain,
+  status: ConfigStatus.Disabled,
+  recipientListIds: [],
+  recipientIds: [],
+  sqlRecipientListIds: [],
+  parameters: '[]',
+  parsedParameters: [],
+  highTemp: true,
+  lowTemp: true,
+  confirmOk: true,
+  noData: true,
+  noDataInterval: 4,
+  noDataIntervalUnits: ReminderUnits.HOURS,
+  remind: true,
+  reminderInterval: 2,
+  reminderUnits: ReminderUnits.HOURS,
+  messageAlertResolved: true,
+  locationIds: [],
+  requiredParameters: [],
+  highTempThreshold: 8,
+  lowTempThreshold: 2,
+  sensorIds: [],
+};
+
 export function buildColdChainNotificationInputs(config: CCNotification): {
   create: CreateNotificationConfigInput;
   update: UpdateNotificationConfigInput;
 } {
+  const params = [];
+  if (!Array.isArray(config.parsedParameters)) {
+    config.parsedParameters = [config.parsedParameters];
+  }
+  for (const param of config.parsedParameters) {
+    params.push(TeraUtils.keyedParamsAsTeraParams(param));
+  }
+
   const input = {
     id: config.id,
     title: config.title,
     configurationData: JSON.stringify(config),
     status: config.status,
-    parameters: config.parameters,
+    parameters: JSON.stringify(params),
     recipientIds: config.recipientIds,
     recipientListIds: config.recipientListIds,
     sqlRecipientListIds: config.sqlRecipientListIds,

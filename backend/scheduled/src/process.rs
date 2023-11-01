@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use chrono::{DateTime, NaiveDateTime, Utc};
 use repository::{NotificationConfigKind, NotificationConfigRowRepository};
 use service::{
@@ -6,7 +8,10 @@ use service::{
     service_provider::ServiceContext,
 };
 
-use crate::{parse::ScheduledNotificationPluginConfig, NotificationError};
+use crate::{
+    parse::ScheduledNotificationPluginConfig, query::get_notification_query_results,
+    NotificationError,
+};
 
 pub fn process_scheduled_notifications(
     ctx: &ServiceContext,
@@ -104,28 +109,62 @@ fn try_process_scheduled_notifications(
         )));
     }
 
-    // TODO: Run SQL Queries to get the data https://github.com/openmsupply/notify/issues/137
-    // Put sql queries and appropriate data into Json Value for template
-    let template_data = serde_json::from_str("{}").map_err(|e| {
-        NotificationError::InternalError(format!("Failed to parse template data: {:?}", e))
-    })?;
+    let params = match scheduled_notification.parameters.len() {
+        0 => "[{}]".to_string(),
+        _ => scheduled_notification.parameters.clone(),
+    };
 
-    // Get the recipients
-    let notification_targets =
-        get_notification_targets(ctx, &scheduled_notification).map_err(|e| {
+    let mut all_params: Vec<HashMap<String, serde_json::Value>> = serde_json::from_str(&params)
+        .map_err(|e| {
+            NotificationError::InternalError(format!(
+                "Failed to parse notification config parameters (expecting an array of params): {:?} - {}",
+                e, params
+            ))
+        })?;
+
+    if all_params.len() == 0 {
+        // If no parameters are provided, create a single empty parameter set
+        all_params = vec![HashMap::new()];
+    }
+
+    for mut template_params in all_params {
+        // Put sql queries and appropriate data into Json Value for template
+        let sql_params = serde_json::to_value(&template_params).map_err(|e| {
+            NotificationError::InternalError(format!("Failed to parse sql params data: {:?}", e))
+        })?;
+        let sql_query_parameters = get_notification_query_results(ctx, sql_params, &config)?;
+
+        // Template data should include the notification config parameters, plus the results of any queries
+
+        template_params.extend(sql_query_parameters);
+
+        let template_data = serde_json::to_value(template_params).map_err(|e| {
+            NotificationError::InternalError(format!("Failed to parse template data: {:?}", e))
+        })?;
+
+        // Get the recipients
+        let notification_targets = get_notification_targets(
+            ctx,
+            &scheduled_notification,
+            template_data.clone(),
+        )
+        .map_err(|e| {
             NotificationError::InternalError(format!("Failed to get notification targets: {:?}", e))
         })?;
 
-    // Send the notification
-    let notification = NotificationContext {
-        title_template: Some(TemplateDefinition::Template(config.subject_template)),
-        body_template: TemplateDefinition::Template(config.body_template),
-        template_data: template_data,
-        recipients: notification_targets,
-    };
+        // Send the notification
+        let notification = NotificationContext {
+            title_template: Some(TemplateDefinition::Template(
+                config.subject_template.clone(),
+            )),
+            body_template: TemplateDefinition::Template(config.body_template.clone()),
+            template_data: template_data,
+            recipients: notification_targets,
+        };
 
-    create_notification_events(ctx, Some(scheduled_notification.id), notification)
-        .map_err(|e| NotificationError::InternalError(format!("{:?}", e)))?;
+        create_notification_events(ctx, Some(scheduled_notification.id.clone()), notification)
+            .map_err(|e| NotificationError::InternalError(format!("{:?}", e)))?;
+    }
 
     Ok(ProcessingResult::Success)
 }
@@ -137,11 +176,13 @@ mod test {
 
     use chrono::Days;
     use repository::mock::{
-        mock_recipient_a, mock_recipient_list_with_recipient_members_a_and_b,
-        mock_sql_recipient_list_with_no_param, mock_sql_recipient_list_with_param,
+        mock_notification_query_with_params, mock_recipient_a,
+        mock_recipient_list_with_recipient_members_a_and_b, mock_sql_recipient_list_with_no_param,
+        mock_sql_recipient_list_with_param,
     };
     use repository::NotificationEventRowRepository;
     use repository::{mock::MockDataInserts, test_db::setup_all};
+    use service::test_utils::email_test::send_test_emails;
     use service::test_utils::get_test_settings;
 
     use service::service_provider::ServiceProvider;
@@ -200,6 +241,7 @@ mod test {
             subject_template: "TestSubject".to_string(),
             schedule_frequency: "daily".to_string(),
             schedule_start_time: Utc::now().checked_sub_days(Days::new(1)).unwrap(),
+            ..Default::default()
         };
 
         // Create a notification config with a recipient list
@@ -255,6 +297,7 @@ mod test {
             subject_template: "TestSubject".to_string(),
             schedule_frequency: "daily".to_string(),
             schedule_start_time: Utc::now().checked_sub_days(Days::new(1)).unwrap(),
+            ..Default::default()
         };
 
         // Create a notification config with a recipient list
@@ -308,6 +351,7 @@ mod test {
             subject_template: "TestSubject".to_string(),
             schedule_frequency: "daily".to_string(),
             schedule_start_time: Utc::now().checked_sub_days(Days::new(1)).unwrap(),
+            ..Default::default()
         };
 
         // Create a notification config with 2 sql recipient lists
@@ -320,7 +364,7 @@ mod test {
                 mock_sql_recipient_list_with_no_param().id,
                 mock_sql_recipient_list_with_param().id,
             ],
-            parameters: "{ \"email_address\": \"test-user@example.com\"}".to_string(),
+            parameters: "[{\"email_address\":\"test-user@example.com\"}]".to_string(),
             next_due_datetime: Some(chrono::Utc::now().naive_utc()),
             configuration_data: serde_json::to_string(&sch_config).unwrap(),
             ..Default::default()
@@ -336,10 +380,140 @@ mod test {
 
         assert_eq!(result, ProcessingResult::Success);
 
-        // Query the database to check that we have a notification events for the 1 configured recipient
+        // Query the database to check that we have a notification events
         let repo = NotificationEventRowRepository::new(&service_context.connection);
         let notification_events = repo.un_sent().unwrap();
 
         assert_eq!(notification_events.len(), 2);
+    }
+
+    // Test that we get a notification when we have a sql recipient list & notification query
+    #[tokio::test]
+    async fn test_try_process_scheduled_notifications_with_queries() {
+        let (_, _, connection_manager, _) = setup_all(
+            "test_try_process_scheduled_notifications_with_queries",
+            MockDataInserts::none()
+                .sql_recipient_lists()
+                .notification_queries(),
+        )
+        .await;
+
+        let service_provider = Arc::new(ServiceProvider::new(
+            connection_manager,
+            get_test_settings(""),
+        ));
+
+        let service_context = ServiceContext::new(service_provider).unwrap();
+
+        // Daily Scheduled Notification that started this time yesterday
+        let sch_config = ScheduledNotificationPluginConfig {
+            body_template: "Sensor Limit {{ sensor_limit }}, Latest Temperature: {{ latest_temperature }}, is over limit ? {{ query1.0.is_above_limit }}".to_string(),
+            subject_template: "Sensor Data".to_string(),
+            schedule_frequency: "daily".to_string(),
+            schedule_start_time: Utc::now().checked_sub_days(Days::new(1)).unwrap(),
+            notification_query_ids: vec![mock_notification_query_with_params().id],
+            ..Default::default()
+        };
+
+        // Create a notification config with 2 sql recipient lists
+        let notification_config = NotificationConfig {
+            id: "notification_config_1".to_string(),
+            kind: NotificationConfigKind::Scheduled,
+            recipient_ids: vec![],
+            recipient_list_ids: vec![],
+            sql_recipient_list_ids: vec![
+                mock_sql_recipient_list_with_no_param().id,
+                mock_sql_recipient_list_with_param().id,
+            ],
+            parameters: "[{\"email_address\":\"test-user@example.com\",\"sensor_limit\":\"8\",\"latest_temperature\":\"8.5\"}]".to_string(),
+            next_due_datetime: Some(chrono::Utc::now().naive_utc()),
+            configuration_data: serde_json::to_string(&sch_config).unwrap(),
+            ..Default::default()
+        };
+
+        // Try to process the notification (Should be due now)
+        let result = try_process_scheduled_notifications(
+            &service_context,
+            notification_config,
+            chrono::Utc::now().naive_utc(),
+        )
+        .unwrap();
+
+        assert_eq!(result, ProcessingResult::Success);
+
+        // Query the database to check that we have a notification events
+        let repo = NotificationEventRowRepository::new(&service_context.connection);
+        let notification_events = repo.un_sent().unwrap();
+
+        assert_eq!(notification_events.len(), 2);
+
+        assert_eq!(
+            notification_events[0].message,
+            "Sensor Limit 8, Latest Temperature: 8.5, is over limit ? true"
+        );
+
+        send_test_notifications(&service_context).await;
+        send_test_emails(&service_context);
+    }
+
+    // Test that we don't send notifications if template fails to render
+    #[tokio::test]
+    async fn test_try_process_scheduled_notifications_with_template_error() {
+        let (_, _, connection_manager, _) = setup_all(
+            "test_try_process_scheduled_notifications_with_template_error",
+            MockDataInserts::none()
+                .sql_recipient_lists()
+                .notification_queries(),
+        )
+        .await;
+
+        let service_provider = Arc::new(ServiceProvider::new(
+            connection_manager,
+            get_test_settings(""),
+        ));
+
+        let service_context = ServiceContext::new(service_provider).unwrap();
+
+        // Daily Scheduled Notification that started this time yesterday
+        let sch_config = ScheduledNotificationPluginConfig {
+            body_template: "Sensor Limit {{ sensor_limit }}, Latest Temperature: {{ latest_temperature }}, is over limit ? {{ query1.is_above_limit }}".to_string(), // This will cause a template render error, Need to get the first query row with .0
+            subject_template: "Sensor Data".to_string(),
+            schedule_frequency: "daily".to_string(),
+            schedule_start_time: Utc::now().checked_sub_days(Days::new(1)).unwrap(),
+            notification_query_ids: vec![mock_notification_query_with_params().id],
+            ..Default::default()
+        };
+
+        // Create a notification config with 2 sql recipient lists
+        let notification_config = NotificationConfig {
+            id: "notification_config_1".to_string(),
+            kind: NotificationConfigKind::Scheduled,
+            recipient_ids: vec![],
+            recipient_list_ids: vec![],
+            sql_recipient_list_ids: vec![
+                mock_sql_recipient_list_with_no_param().id,
+                mock_sql_recipient_list_with_param().id,
+            ],
+            parameters: "[{\"email_address\":\"test-user@example.com\",\"sensor_limit\":\"8\",\"latest_temperature\":\"8.5\"}]".to_string(),
+            next_due_datetime: Some(chrono::Utc::now().naive_utc()),
+            configuration_data: serde_json::to_string(&sch_config).unwrap(),
+            ..Default::default()
+        };
+
+        // Try to process the notification (Should be due now)
+        let result = try_process_scheduled_notifications(
+            &service_context,
+            notification_config,
+            chrono::Utc::now().naive_utc(),
+        )
+        .unwrap();
+
+        assert_eq!(result, ProcessingResult::Success); // TODO: This shouldn't be a success I think!
+
+        // Query the database to check that we have no unsent notification events (There is a template error so nothing should be sent!)
+        let repo = NotificationEventRowRepository::new(&service_context.connection);
+        let notification_events = repo.un_sent().unwrap();
+
+        assert_eq!(notification_events.len(), 0);
     }
 }
