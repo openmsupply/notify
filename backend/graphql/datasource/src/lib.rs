@@ -36,7 +36,7 @@ impl DatasourceQueries {
         // TODO some kind of query validation?
 
         // Query datasource service and return result
-        match datasource_service.run_sql_query_with_parameters(sql_query, "".to_string()) {
+        match datasource_service.run_sql_query(sql_query) {
             Ok(result) => Ok(QueryResultResponse::Response(QueryResultNode::from_domain(result))),
             Err(error) => map_error(error),
         }

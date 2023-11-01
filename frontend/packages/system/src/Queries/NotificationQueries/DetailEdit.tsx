@@ -48,21 +48,25 @@ export const DetailEdit = () => {
     useTestNotificationQuery();
   const [sqlResults, setSqlResults] = React.useState([] as never[]);
   const [queryColumns, setQueryColumns] = React.useState([] as string[]);
-  const [generatedQuery, setGeneratedQuery] = React.useState('' as string);
-  const [queryError, setQueryErr] = React.useState('' as string);
+  const [generatedQuery, setGeneratedQuery] = React.useState('');
+  const [queryError, setQueryErr] = React.useState('');
+
+  const initialiseQueryResults = () =>{
+    setQueryColumns([]);
+    setSqlResults([]);
+    setGeneratedQuery('');
+    setQueryErr('');
+  };
 
   const runQuery = async (query: string, params: string) => {
+    initialiseQueryResults();
     await testNotificationQuery({ sqlQuery: query, params: params })
       .then(result => {
         const responseType = result.runSqlQueryWithParameters.__typename;
-        let results = [];
         if (responseType == "NodeError"){
-          results = [];
           setGeneratedQuery('Error');
         }else{
-          setQueryErr("");
-          results = JSON.parse(result.runSqlQueryWithParameters.results);
-
+          const results = JSON.parse(result.runSqlQueryWithParameters.results);
           const columns = Object.keys(results[0] ?? []);
           // If we have an id column, move it to the front
           // Would be nice to return the columns in the same order as the query specifies, but seems out of scope for now...
@@ -80,9 +84,6 @@ export const DetailEdit = () => {
         }
       })
       .catch(err => {
-        setQueryColumns([]);
-        setSqlResults([]);
-        setGeneratedQuery('');
         setQueryErr(err.message);
       });
   };
@@ -119,7 +120,7 @@ export const DetailEdit = () => {
       {/* Sql Results table */}
       <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
         {queryError && (<AlertPanel message ={queryError}/>)}
-        {(generatedQuery && !queryError) && (<InfoPanel message ={'Result: ' + sqlResults.length.toString() + ' rows'}/>)}
+        {(generatedQuery && !queryError) && (<InfoPanel message = { t('messages.query-result-count', { number: sqlResults.length.toString() })}/>)}
         {(!generatedQuery || queryError || sqlResults.length == 0) && (<NothingHere body={t('error.no-query-result')} />)}
           <Table>
             <TableHead 

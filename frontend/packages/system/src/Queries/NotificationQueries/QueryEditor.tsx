@@ -19,6 +19,7 @@ import {
   useToggle,
   useTranslation,
   validateVariableNameHelperText,
+  useNotification,
 } from '@notify-frontend/common';
 import { DraftNotificationQuery } from './types';
 import { useUpdateNotificationQuery } from '../api';
@@ -58,6 +59,8 @@ export const QueryEditor = ({
   generatedQuery,
 }: NotificationQueryEditFormProps) => {
   const t = useTranslation('system');
+
+  const { error } = useNotification();
 
   const { open: openSidePanel, isOpen } = useDetailPanel();
 
@@ -257,6 +260,7 @@ export const QueryEditor = ({
             onClick={() => {
               onSave(draft).catch(err => {
                 console.error(err);
+                error(err)();
               });
             }}
             disabled={isSaved || invalidName(draft.name)}
