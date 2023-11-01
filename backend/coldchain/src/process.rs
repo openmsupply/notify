@@ -355,10 +355,14 @@ fn try_process_coldchain_notifications(
     // https://github.com/openmsupply/notify/issues/177
 
     // look up the recipients for the notification config
-    let notification_targets =
-        get_notification_targets(ctx, &notification_config).map_err(|e| {
-            ColdChainError::InternalError(format!("Failed to get notification targets: {:?}", e))
-        })?;
+    let notification_targets = get_notification_targets(
+        ctx,
+        &notification_config,
+        serde_json::Value::Null,
+    )
+    .map_err(|e| {
+        ColdChainError::InternalError(format!("Failed to get notification targets: {:?}", e))
+    })?;
 
     for alert in alerts {
         // Send the notifications

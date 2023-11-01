@@ -41,6 +41,8 @@ use crate::NotificationError;
 #[derive(Debug, Clone, Serialize, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ScheduledNotificationPluginConfig {
+    pub id: String,
+    pub title: String,
     pub body_template: String,
     pub subject_template: String,
     pub schedule_frequency: String,

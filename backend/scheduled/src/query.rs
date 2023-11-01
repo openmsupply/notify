@@ -2,13 +2,13 @@ use std::collections::HashMap;
 
 use repository::{EqualFilter, NotificationQueryFilter, NotificationQueryRepository};
 use serde_json::json;
-use service::{notification_config::query::NotificationConfig, service_provider::ServiceContext};
+use service::service_provider::ServiceContext;
 
 use crate::{parse::ScheduledNotificationPluginConfig, NotificationError};
 
 pub fn get_notification_query_results(
     ctx: &ServiceContext,
-    notification_config: &NotificationConfig,
+    parameters: serde_json::Value,
     config: &ScheduledNotificationPluginConfig,
 ) -> Result<HashMap<String, serde_json::Value>, NotificationError> {
     let mut query_results = HashMap::new();
@@ -30,21 +30,19 @@ pub fn get_notification_query_results(
         let result = ctx
             .service_provider
             .datasource_service
-            .run_sql_query_with_parameters(
-                query.query.clone(),
-                notification_config.parameters.clone(),
-            );
+            .run_sql_query_with_parameters(query.query.clone(), parameters.clone());
         let query_json = match result {
             Ok(result) => serde_json::from_str(&result)
                 .unwrap_or_else(|_| json!([{"error": "Unable to parse query result"}])),
             Err(e) => {
                 log::error!(
-                    "Error running query {} for notification {}: {:?}",
+                    "Error running query {} for {}({}) : {:?}",
                     query.reference_name,
-                    notification_config.title,
+                    config.title,
+                    config.id,
                     e
                 );
-                json!([{"error": "error running query", "query": query.query, "parameters": notification_config.parameters}])
+                json!([{"error": "error running query", "query": query.query, "parameters": parameters}])
             }
         };
         query_results.insert(query.reference_name, query_json);
@@ -67,7 +65,10 @@ mod tests {
     };
     use util::uuid::uuid;
 
-    use service::{service_provider::ServiceProvider, test_utils::get_test_settings};
+    use service::{
+        notification_config::query::NotificationConfig, service_provider::ServiceProvider,
+        test_utils::get_test_settings,
+    };
 
     use super::*;
 
@@ -89,13 +90,16 @@ mod tests {
 
         // 1. Check we get the result with 1 query and no parameters
 
-        // Create a notification config with no params to use
-        let notification_config = NotificationConfig {
-            id: uuid(),
-            parameters: "{}".to_string(),
-            status: NotificationConfigStatus::Enabled,
-            ..Default::default()
-        };
+        // Create an empty notification config with no params to use
+
+        let all_params: Vec<serde_json::Value> = serde_json::from_str("[{}]")
+            .map_err(|e| {
+                NotificationError::InternalError(format!(
+                    "Failed to parse notification parameters: {:?}",
+                    e
+                ))
+            })
+            .unwrap();
 
         let config = ScheduledNotificationPluginConfig {
             notification_query_ids: vec![mock_notification_query_with_no_param_2_rows().id],
@@ -104,7 +108,7 @@ mod tests {
 
         // Call the function being tested
         let query_results =
-            get_notification_query_results(&context, &notification_config, &config).unwrap();
+            get_notification_query_results(&context, all_params[0].clone(), &config).unwrap();
 
         let result_key = mock_notification_query_with_no_param_2_rows().reference_name;
 
@@ -147,10 +151,20 @@ mod tests {
         // Create a notification config with the correct params
         let notification_config = NotificationConfig {
             id: uuid(),
-            parameters: "{\"sensor_limit\": \"8\", \"latest_temperature\": \"8.5\"}".to_string(),
+            parameters: "[{\"sensor_limit\": \"8\", \"latest_temperature\": \"8.5\"}]".to_string(),
             status: NotificationConfigStatus::Enabled,
             ..Default::default()
         };
+
+        let all_params: Vec<serde_json::Value> =
+            serde_json::from_str(&notification_config.parameters)
+                .map_err(|e| {
+                    NotificationError::InternalError(format!(
+                        "Failed to parse notification parameters: {:?}",
+                        e
+                    ))
+                })
+                .unwrap();
 
         let config = ScheduledNotificationPluginConfig {
             notification_query_ids: vec![mock_notification_query_with_params().id],
@@ -159,7 +173,7 @@ mod tests {
 
         // Call the function being tested
         let query_results =
-            get_notification_query_results(&context, &notification_config, &config).unwrap();
+            get_notification_query_results(&context, all_params[0].clone(), &config).unwrap();
 
         let result_key = mock_notification_query_with_params().reference_name;
 
@@ -197,10 +211,20 @@ mod tests {
         // Create a notification config
         let notification_config = NotificationConfig {
             id: uuid(),
-            parameters: "{\"sensor_limit\": \"8\", \"latest_temperature\": \"8.5\"}".to_string(),
+            parameters: "[{\"sensor_limit\": \"8\", \"latest_temperature\": \"8.5\"}]".to_string(),
             status: NotificationConfigStatus::Enabled,
             ..Default::default()
         };
+
+        let all_params: Vec<serde_json::Value> =
+            serde_json::from_str(&notification_config.parameters)
+                .map_err(|e| {
+                    NotificationError::InternalError(format!(
+                        "Failed to parse notification parameters: {:?}",
+                        e
+                    ))
+                })
+                .unwrap();
 
         let config = ScheduledNotificationPluginConfig {
             notification_query_ids: vec![
@@ -212,7 +236,7 @@ mod tests {
 
         // Call the function being tested
         let query_results =
-            get_notification_query_results(&context, &notification_config, &config).unwrap();
+            get_notification_query_results(&context, all_params[0].clone(), &config).unwrap();
 
         // Check we got the 2 results we expected
         assert_eq!(query_results.len(), 2);
@@ -272,10 +296,20 @@ mod tests {
         // Create a notification config with no params to use
         let notification_config = NotificationConfig {
             id: uuid(),
-            parameters: "{}".to_string(),
+            parameters: "[{}]".to_string(),
             status: NotificationConfigStatus::Enabled,
             ..Default::default()
         };
+
+        let all_params: Vec<serde_json::Value> =
+            serde_json::from_str(&notification_config.parameters)
+                .map_err(|e| {
+                    NotificationError::InternalError(format!(
+                        "Failed to parse notification parameters: {:?}",
+                        e
+                    ))
+                })
+                .unwrap();
 
         let config = ScheduledNotificationPluginConfig {
             notification_query_ids: vec![mock_notification_query_with_params().id],
@@ -284,7 +318,7 @@ mod tests {
 
         // Call the function being tested
         let result =
-            get_notification_query_results(&context, &notification_config, &config).unwrap();
+            get_notification_query_results(&context, all_params[0].clone(), &config).unwrap();
 
         // Check we got the error we expected
         assert_eq!(

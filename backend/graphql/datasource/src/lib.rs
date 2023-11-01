@@ -54,7 +54,14 @@ impl DatasourceQueries {
 
         let service_ctx = ctx.service_context(Some(&user))?;
         let datasource_service = &service_ctx.service_provider.datasource_service;
-        // TODO some kind of query validation?
+
+        // convert parameters to json
+        let parameters: serde_json::Value = serde_json::from_str(&parameters).map_err(|err| {
+            BadUserInput(format!(
+                "Invalid parameters string: {}. Error: {}",
+                parameters, err
+            ))
+        })?;
 
         // Query datasource service and return result
         match datasource_service.run_sql_query_with_parameters(sql_query, parameters) {

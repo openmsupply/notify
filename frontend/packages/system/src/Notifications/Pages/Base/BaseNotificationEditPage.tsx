@@ -19,7 +19,6 @@ import {
   useDetailPanel,
   AppBarButtonsPortal,
   KeyedParams,
-  TeraUtils,
 } from '@notify-frontend/common';
 
 import { BaseNotificationConfig } from '../../types';
@@ -34,6 +33,7 @@ import {
 interface BaseNotificationEditPageProps<T extends BaseNotificationConfig> {
   isInvalid: boolean;
   isLoading: boolean;
+  allowParameterSets?: boolean;
   draft: T;
   setDraft: (draft: T) => void;
   onSave: (draft: T) => Promise<void>;
@@ -44,11 +44,12 @@ interface BaseNotificationEditPageProps<T extends BaseNotificationConfig> {
 }
 
 export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
-  isLoading,
   isInvalid,
+  isLoading,
+  allowParameterSets = false,
   draft,
-  onSave,
   setDraft,
+  onSave,
   CustomForm,
 }: BaseNotificationEditPageProps<T>) => {
   const t = useTranslation(['system']);
@@ -70,23 +71,41 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
     return status == ConfigStatus.Enabled;
   };
 
-  const onUpdateParams = (key: string, value: string) => {
+  const onUpdateParams = (idx: number = 0, key: string, value: string) => {
     const updatedParam = { [key]: value } as KeyedParams;
-    const parseParams = { ...draft.parsedParameters, ...updatedParam };
+
+    const parseParams = draft.parsedParameters;
+    if (idx >= draft.parsedParameters.length) {
+      parseParams.push(updatedParam);
+    } else {
+      parseParams[idx] = { ...draft.parsedParameters[idx], ...updatedParam };
+    }
     onUpdate({
       ...draft,
       parsedParameters: parseParams,
-      parameters: TeraUtils.keyedParamsAsTeraJson(parseParams),
     });
   };
 
-  const onDeleteParam = (key: string) => {
+  const onDeleteParam = (idx: number, key: string | null) => {
     const updatedParams = draft.parsedParameters;
-    delete updatedParams[key];
+    if (
+      updatedParams.length == 0 ||
+      idx > updatedParams.length ||
+      idx < 0 ||
+      updatedParams[idx] == undefined
+    ) {
+      return;
+    }
+
+    if (key == null) {
+      updatedParams.splice(idx, 1); // Delete everything for that index
+    } else {
+      delete updatedParams[idx]![key];
+    }
+
     onUpdate({
       ...draft,
       parsedParameters: updatedParams,
-      parameters: TeraUtils.keyedParamsAsTeraJson(updatedParams),
     });
   };
 
@@ -101,7 +120,12 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
 
   const allParamsSet = requiredParams.every(param => {
     if (param) {
-      return draft.parsedParameters[param] !== undefined; // This allows the user to set the param to an empty string if they edit the field then delete the value
+      if (!Array.isArray(draft.parsedParameters)) {
+        draft.parsedParameters = [draft.parsedParameters];
+        draft.parameters = JSON.stringify(draft.parsedParameters);
+      }
+
+      return draft.parsedParameters.every(obj => obj[param] !== undefined); // This allows the user to set the param to an empty string if they edit the field then delete the value
     } else {
       return false;
     }
@@ -116,6 +140,7 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
           <NotificationDetailPanel
             requiredParams={requiredParams}
             params={draft.parsedParameters}
+            allowParameterSets={allowParameterSets}
             onUpdateParams={onUpdateParams}
             onDeleteParam={onDeleteParam}
           />

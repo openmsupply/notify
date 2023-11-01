@@ -110,46 +110,61 @@ fn try_process_scheduled_notifications(
     }
 
     let params = match scheduled_notification.parameters.len() {
-        0 => "{}".to_string(),
+        0 => "[{}]".to_string(),
         _ => scheduled_notification.parameters.clone(),
     };
 
-    let mut template_params: HashMap<String, serde_json::Value> = serde_json::from_str(&params)
+    let mut all_params: Vec<HashMap<String, serde_json::Value>> = serde_json::from_str(&params)
         .map_err(|e| {
             NotificationError::InternalError(format!(
-                "Failed to parse notification parameters: {:?}",
-                e
+                "Failed to parse notification config parameters (expecting an array of params): {:?} - {}",
+                e, params
             ))
-        })?; // TODO: allow this to be an array rather than just one set of params... https://github.com/openmsupply/notify/issues/194
+        })?;
 
-    // Put sql queries and appropriate data into Json Value for template
-    let sql_query_parameters =
-        get_notification_query_results(ctx, &scheduled_notification, &config)?;
+    if all_params.len() == 0 {
+        // If no parameters are provided, create a single empty parameter set
+        all_params = vec![HashMap::new()];
+    }
 
-    // Template data should include the notification config parameters, plus the results of any queries
+    for mut template_params in all_params {
+        // Put sql queries and appropriate data into Json Value for template
+        let sql_params = serde_json::to_value(&template_params).map_err(|e| {
+            NotificationError::InternalError(format!("Failed to parse sql params data: {:?}", e))
+        })?;
+        let sql_query_parameters = get_notification_query_results(ctx, sql_params, &config)?;
 
-    template_params.extend(sql_query_parameters);
+        // Template data should include the notification config parameters, plus the results of any queries
 
-    let template_data = serde_json::to_value(template_params).map_err(|e| {
-        NotificationError::InternalError(format!("Failed to parse template data: {:?}", e))
-    })?;
+        template_params.extend(sql_query_parameters);
 
-    // Get the recipients
-    let notification_targets =
-        get_notification_targets(ctx, &scheduled_notification).map_err(|e| {
+        let template_data = serde_json::to_value(template_params).map_err(|e| {
+            NotificationError::InternalError(format!("Failed to parse template data: {:?}", e))
+        })?;
+
+        // Get the recipients
+        let notification_targets = get_notification_targets(
+            ctx,
+            &scheduled_notification,
+            template_data.clone(),
+        )
+        .map_err(|e| {
             NotificationError::InternalError(format!("Failed to get notification targets: {:?}", e))
         })?;
 
-    // Send the notification
-    let notification = NotificationContext {
-        title_template: Some(TemplateDefinition::Template(config.subject_template)),
-        body_template: TemplateDefinition::Template(config.body_template),
-        template_data: template_data,
-        recipients: notification_targets,
-    };
+        // Send the notification
+        let notification = NotificationContext {
+            title_template: Some(TemplateDefinition::Template(
+                config.subject_template.clone(),
+            )),
+            body_template: TemplateDefinition::Template(config.body_template.clone()),
+            template_data: template_data,
+            recipients: notification_targets,
+        };
 
-    create_notification_events(ctx, Some(scheduled_notification.id), notification)
-        .map_err(|e| NotificationError::InternalError(format!("{:?}", e)))?;
+        create_notification_events(ctx, Some(scheduled_notification.id.clone()), notification)
+            .map_err(|e| NotificationError::InternalError(format!("{:?}", e)))?;
+    }
 
     Ok(ProcessingResult::Success)
 }
@@ -349,7 +364,7 @@ mod test {
                 mock_sql_recipient_list_with_no_param().id,
                 mock_sql_recipient_list_with_param().id,
             ],
-            parameters: "{ \"email_address\": \"test-user@example.com\"}".to_string(),
+            parameters: "[{\"email_address\":\"test-user@example.com\"}]".to_string(),
             next_due_datetime: Some(chrono::Utc::now().naive_utc()),
             configuration_data: serde_json::to_string(&sch_config).unwrap(),
             ..Default::default()
@@ -410,7 +425,7 @@ mod test {
                 mock_sql_recipient_list_with_no_param().id,
                 mock_sql_recipient_list_with_param().id,
             ],
-            parameters: "{ \"email_address\": \"test-user@example.com\",\"sensor_limit\": \"8\", \"latest_temperature\": \"8.5\"}".to_string(),
+            parameters: "[{\"email_address\":\"test-user@example.com\",\"sensor_limit\":\"8\",\"latest_temperature\":\"8.5\"}]".to_string(),
             next_due_datetime: Some(chrono::Utc::now().naive_utc()),
             configuration_data: serde_json::to_string(&sch_config).unwrap(),
             ..Default::default()
@@ -479,7 +494,7 @@ mod test {
                 mock_sql_recipient_list_with_no_param().id,
                 mock_sql_recipient_list_with_param().id,
             ],
-            parameters: "{ \"email_address\": \"test-user@example.com\",\"sensor_limit\": \"8\", \"latest_temperature\": \"8.5\"}".to_string(),
+            parameters: "[{\"email_address\":\"test-user@example.com\",\"sensor_limit\":\"8\",\"latest_temperature\":\"8.5\"}]".to_string(),
             next_due_datetime: Some(chrono::Utc::now().naive_utc()),
             configuration_data: serde_json::to_string(&sch_config).unwrap(),
             ..Default::default()

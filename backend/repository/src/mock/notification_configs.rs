@@ -1,4 +1,4 @@
-use crate::{NotificationConfigKind, NotificationConfigRow, NotificationConfigStatus, };
+use crate::{NotificationConfigKind, NotificationConfigRow, NotificationConfigStatus};
 
 pub fn mock_notification_configs() -> Vec<NotificationConfigRow> {
     vec![
@@ -14,8 +14,8 @@ pub fn mock_coldchain_notification_config_a() -> NotificationConfigRow {
         title: String::from("Notification Config A"),
         kind: NotificationConfigKind::ColdChain,
         configuration_data: String::from("{\"highTemp\":true,\"lowTemp\":false}"),
-        status:NotificationConfigStatus::Disabled,
-        parameters: String::from("{}"),
+        status: NotificationConfigStatus::Disabled,
+        parameters: String::from("[{}]"),
         ..Default::default()
     }
 }
@@ -26,8 +26,8 @@ pub fn mock_coldchain_notification_config_aa() -> NotificationConfigRow {
         title: String::from("Notification Config AA"),
         kind: NotificationConfigKind::ColdChain,
         configuration_data: String::from("{\"highTemp\":true,\"lowTemp\":true}"),
-        status:NotificationConfigStatus::Disabled,
-        parameters: String::from("{}"),
+        status: NotificationConfigStatus::Disabled,
+        parameters: String::from("[{}]"),
         ..Default::default()
     }
 }
@@ -38,8 +38,8 @@ pub fn mock_coldchain_notification_config_b() -> NotificationConfigRow {
         title: String::from("Notification Config B"),
         kind: NotificationConfigKind::ColdChain,
         configuration_data: String::from("{\"highTemp\":false,\"lowTemp\":true}"),
-        status:NotificationConfigStatus::Disabled,
-        parameters: String::from("{}"),
+        status: NotificationConfigStatus::Disabled,
+        parameters: String::from("[{}]"),
         ..Default::default()
     }
 }

@@ -36,6 +36,7 @@
   "label.edit-recipient-list": "Edit Recipient List",
   "label.edit-user": "Edit User",
   "label.edit-parameters": "Edit Parameters",
+  "label.parameters-as-json": "JSON Parameters",
   "label.error": "Error",
   "label.invite-user": "Invite User",
   "label.new-recipient": "New Recipient",
