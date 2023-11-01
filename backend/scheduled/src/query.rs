@@ -32,7 +32,7 @@ pub fn get_notification_query_results(
             .datasource_service
             .run_sql_query_with_parameters(query.query.clone(), parameters.clone());
         let query_json = match result {
-            Ok(result) => serde_json::from_str(&result)
+            Ok(result) => serde_json::from_str(&result.results)
                 .unwrap_or_else(|_| json!([{"error": "Unable to parse query result"}])),
             Err(e) => {
                 log::error!(
