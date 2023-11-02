@@ -120,7 +120,7 @@ export const DetailEdit = () => {
       {/* Sql Results table */}
       <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
         {queryError && (<AlertPanel message ={queryError}/>)}
-        {(generatedQuery && !queryError) && (<InfoPanel message = { t('messages.query-result-count', { number: sqlResults.length.toString() })}/>)}
+        {(generatedQuery && !queryError) && (<InfoPanel message = { t('messages.query-result-count', { count: sqlResults.length })}/>)}
         {(!generatedQuery || queryError || sqlResults.length == 0) && (<NothingHere body={t('error.no-query-result')} />)}
           <Table>
             <TableHead 
