@@ -123,6 +123,8 @@ mod notification_event_query_test {
             )
             .unwrap();
 
+        // We should see all the records with the searched string in the fields we're searching
+        // We should not see any of the records that don't have that searched string
         assert_eq!(db_notification_events.count, 4);
         assert_eq!(db_notification_events.rows[0].id, id1);
         assert_eq!(db_notification_events.rows[1].id, id2);

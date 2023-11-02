@@ -1,9 +1,13 @@
 use async_graphql::{Object, SimpleObject, Union};
+use chrono::{DateTime, Utc};
 use graphql_core::simple_generic_errors::NodeError;
 
+use graphql_types::types::NotificationTypeNode;
 use repository::NotificationEvent;
 use service::ListResult;
 use util::usize_to_u32;
+
+use super::EventStatus;
 
 #[derive(Union)]
 pub enum NotificationEventsResponse {
@@ -26,8 +30,43 @@ impl NotificationEventNode {
     pub async fn id(&self) -> &str {
         &self.row().id
     }
+
+    pub async fn notification_config_id(&self) -> Option<String> {
+        self.row().notification_config_id.to_owned()
+    }
+
     pub async fn title(&self) -> String {
         self.row().title.to_owned().unwrap_or_default()
+    }
+    pub async fn message(&self) -> &str {
+        &self.row().message
+    }
+    pub async fn to_address(&self) -> &str {
+        &self.row().to_address
+    }
+    pub async fn notification_type(&self) -> NotificationTypeNode {
+        NotificationTypeNode::from_domain(&self.row().notification_type)
+    }
+
+    pub async fn error_message(&self) -> Option<String> {
+        self.row().error_message.to_owned()
+    }
+
+    pub async fn created_at(&self) -> DateTime<Utc> {
+        DateTime::<Utc>::from_utc(self.row().created_at, Utc)
+    }
+    pub async fn updated_at(&self) -> DateTime<Utc> {
+        DateTime::<Utc>::from_utc(self.row().updated_at, Utc)
+    }
+    pub async fn sent_at(&self) -> Option<DateTime<Utc>> {
+        match self.row().sent_at {
+            Some(sent_at) => Some(DateTime::<Utc>::from_utc(sent_at, Utc)),
+            None => None,
+        }
+    }
+
+    pub async fn status(&self) -> EventStatus {
+        EventStatus::from_domain(&self.row().status)
     }
 }
 
