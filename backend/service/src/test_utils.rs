@@ -8,6 +8,7 @@ use repository::{test_db::get_test_db_settings, StorageConnectionManager};
 
 use crate::{
     datasource::DatasourceServiceTrait,
+    datasource::QueryResult,
     email::{send::EmailSendError, EmailServiceError, EmailServiceTrait},
     service_provider::{ServiceContext, ServiceProvider},
     settings::{MailSettings, ServerSettings, Settings, TelegramSettings},
@@ -93,7 +94,7 @@ impl DatasourceServiceTrait for MockDatasourceService {
     fn run_sql_query(
         &self,
         _sql_query: String,
-    ) -> Result<String, crate::datasource::DatasourceServiceError> {
+    ) -> Result<QueryResult, crate::datasource::DatasourceServiceError> {
         todo!()
     }
 
@@ -101,7 +102,7 @@ impl DatasourceServiceTrait for MockDatasourceService {
         &self,
         _sql_query: String,
         _parameters: serde_json::Value,
-    ) -> Result<String, crate::datasource::DatasourceServiceError> {
+    ) -> Result<QueryResult, crate::datasource::DatasourceServiceError> {
         todo!()
     }
 

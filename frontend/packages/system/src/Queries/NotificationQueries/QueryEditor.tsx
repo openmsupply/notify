@@ -16,10 +16,10 @@ import {
   ZapIcon,
   isValidVariableName,
   useDetailPanel,
-  useNotification,
   useToggle,
   useTranslation,
   validateVariableNameHelperText,
+  useNotification,
 } from '@notify-frontend/common';
 import { DraftNotificationQuery } from './types';
 import { useUpdateNotificationQuery } from '../api';
@@ -49,12 +49,14 @@ type NotificationQueryEditFormProps = {
   entity: NotificationQueryRowFragment | undefined;
   runQuery: (query: string, params: string) => Promise<void>;
   queryLoading: boolean;
+  generatedQuery: string;
 };
 
 export const QueryEditor = ({
   entity,
   runQuery,
   queryLoading,
+  generatedQuery,
 }: NotificationQueryEditFormProps) => {
   const t = useTranslation('system');
 
@@ -153,6 +155,7 @@ export const QueryEditor = ({
         query={draft.query}
         queryParams={queryParams}
         onUpdateQueryParams={onUpdateQueryParams}
+        generatedQuery={generatedQuery}
       />
       <Grid flexDirection="column" display="flex" gap={1}>
         {isEditingName ? (

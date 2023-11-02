@@ -31,11 +31,15 @@ export const useColdChainSensors = () => {
 
     if (!response) {
       return [];
+    }else{
+      const responseType = response.runSqlQueryWithParameters.__typename;
+      
+      if (responseType == "NodeError"){
+        return [];
+      }else{
+        const sensors: SensorData[] = JSON.parse(response.runSqlQueryWithParameters.results);
+        return sensors;
+      }
     }
-
-    const sensors: SensorData[] = JSON.parse(
-      response?.runSqlQueryWithParameters
-    );
-    return sensors;
   });
 };

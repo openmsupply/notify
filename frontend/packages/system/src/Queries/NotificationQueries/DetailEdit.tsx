@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import {
   useBreadcrumbs,
   useDetailPanel,
-  useNotification,
   useQueryParamsState,
 } from '@common/hooks';
 import {
@@ -10,6 +9,7 @@ import {
   AppBarContentPortal,
   BasicSpinner,
   Box,
+  NothingHere,
   Paper,
   Table,
   TableBody,
@@ -17,6 +17,7 @@ import {
   TableHead,
   TableRow,
 } from '@common/ui';
+import { AlertPanel, InfoPanel } from '@common/components';
 import { useTranslation } from '@common/intl';
 import { useNotificationQueries, useTestNotificationQuery } from '../api';
 import { useParams } from 'packages/common/src';
@@ -27,7 +28,6 @@ export const DetailEdit = () => {
   const t = useTranslation('system');
   const urlParams = useParams();
   const { suffix, setSuffix } = useBreadcrumbs();
-  const { error } = useNotification();
   const { OpenButton } = useDetailPanel(t('label.parameters'));
 
   const { queryParams } = useQueryParamsState({
@@ -47,27 +47,44 @@ export const DetailEdit = () => {
   const { mutateAsync: testNotificationQuery, isLoading: queryLoading } =
     useTestNotificationQuery();
   const [sqlResults, setSqlResults] = React.useState([] as never[]);
-  const [queryColumns, setQueryColumns] = React.useState(['id'] as string[]);
+  const [queryColumns, setQueryColumns] = React.useState([] as string[]);
+  const [generatedQuery, setGeneratedQuery] = React.useState('');
+  const [queryError, setQueryErr] = React.useState('');
+
+  const initialiseQueryResults = () =>{
+    setQueryColumns([]);
+    setSqlResults([]);
+    setGeneratedQuery('');
+    setQueryErr('');
+  };
 
   const runQuery = async (query: string, params: string) => {
+    initialiseQueryResults();
     await testNotificationQuery({ sqlQuery: query, params: params })
       .then(result => {
-        const results = JSON.parse(result.runSqlQueryWithParameters);
-
-        const columns = Object.keys(results[0] ?? []);
-        // If we have an id column, move it to the front
-        // Would be nice to return the columns in the same order as the query specifies, but seems out of scope for now...
-        const idIndex = columns.indexOf('id');
-        if (idIndex > -1) {
-          columns.splice(idIndex, 1);
-          columns.unshift('id');
+        const responseType = result.runSqlQueryWithParameters.__typename;
+        if (responseType == "NodeError"){
+          setGeneratedQuery('Error');
+        }else{
+          const results = JSON.parse(result.runSqlQueryWithParameters.results);
+          const columns = Object.keys(results[0] ?? []);
+          // If we have an id column, move it to the front
+          // Would be nice to return the columns in the same order as the query specifies, but seems out of scope for now...
+          const idIndex = columns.indexOf('id');
+          if (idIndex > -1) {
+            columns.splice(idIndex, 1);
+            columns.unshift('id');
+          }
+          setQueryColumns(columns);
+          setSqlResults(results);
+          if(result.runSqlQueryWithParameters.queryError){
+            setQueryErr(result.runSqlQueryWithParameters.queryError);
+          }
+          setGeneratedQuery(result.runSqlQueryWithParameters.query);
         }
-        setQueryColumns(columns);
-
-        setSqlResults(results);
       })
       .catch(err => {
-        error(err.message)();
+        setQueryErr(err.message);
       });
   };
 
@@ -93,6 +110,7 @@ export const DetailEdit = () => {
               entity={entity}
               runQuery={runQuery}
               queryLoading={queryLoading}
+              generatedQuery={generatedQuery}
             />
           ) : (
             <BasicSpinner />
@@ -101,9 +119,18 @@ export const DetailEdit = () => {
       </AppBarContentPortal>
       {/* Sql Results table */}
       <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ flex: '1', overflow: 'auto' }}>
+        {queryError && (<AlertPanel message ={queryError}/>)}
+        {(generatedQuery && !queryError) && (<InfoPanel message = { t('messages.query-result-count', { count: sqlResults.length })}/>)}
+        {(!generatedQuery || queryError || sqlResults.length == 0) && (<NothingHere body={t('error.no-query-result')} />)}
           <Table>
-            <TableHead>
+            <TableHead 
+              sx={{
+              backgroundColor: 'background.white',
+              position: 'sticky',
+              top: 0,
+              zIndex: 'tableHeader',
+            }}
+          >
               <TableRow>
                 {queryColumns.map(column => (
                   <TableCell
@@ -136,7 +163,6 @@ export const DetailEdit = () => {
             </TableBody>
           </Table>
         </Box>
-      </Box>
     </>
   );
 };

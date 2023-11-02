@@ -5,8 +5,11 @@ use service::{
     auth::{Resource, ResourceAccessRequest},
     datasource::DatasourceServiceError,
 };
+mod types;
+use self::types::*;
 
-pub fn map_error(error: DatasourceServiceError) -> Result<String> {
+
+pub fn map_error(error: DatasourceServiceError) -> Result<QueryResultResponse> {
     let graphql_error = match error {
         DatasourceServiceError::InternalError(e) => InternalError(e),
         DatasourceServiceError::BadUserInput(e) => BadUserInput(e),
@@ -20,7 +23,7 @@ pub struct DatasourceQueries;
 
 #[Object]
 impl DatasourceQueries {
-    pub async fn run_sql_query(&self, ctx: &Context<'_>, sql_query: String) -> Result<String> {
+    pub async fn run_sql_query(&self, ctx: &Context<'_>, sql_query: String) -> Result<QueryResultResponse> {
         let user = validate_auth(
             ctx,
             &ResourceAccessRequest {
@@ -34,7 +37,7 @@ impl DatasourceQueries {
 
         // Query datasource service and return result
         match datasource_service.run_sql_query(sql_query) {
-            Ok(result) => Ok(result),
+            Ok(result) => Ok(QueryResultResponse::Response(QueryResultNode::from_domain(result))),
             Err(error) => map_error(error),
         }
     }
@@ -44,7 +47,7 @@ impl DatasourceQueries {
         ctx: &Context<'_>,
         sql_query: String,
         parameters: String,
-    ) -> Result<String> {
+    ) -> Result<QueryResultResponse> {
         let user = validate_auth(
             ctx,
             &ResourceAccessRequest {
@@ -65,7 +68,7 @@ impl DatasourceQueries {
 
         // Query datasource service and return result
         match datasource_service.run_sql_query_with_parameters(sql_query, parameters) {
-            Ok(result) => Ok(result),
+            Ok(result) => Ok(QueryResultResponse::Response(QueryResultNode::from_domain(result))),
             Err(error) => map_error(error),
         }
     }

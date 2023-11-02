@@ -41,7 +41,7 @@ export type RunSqlQueryWithParametersQueryVariables = Types.Exact<{
 }>;
 
 
-export type RunSqlQueryWithParametersQuery = { __typename: 'FullQuery', runSqlQueryWithParameters: string };
+export type RunSqlQueryWithParametersQuery = { __typename: 'FullQuery', runSqlQueryWithParameters: { __typename: 'NodeError' } | { __typename: 'QueryResultNode', queryError?: string | null, query: string, results: string } };
 
 export const NotificationConfigRowFragmentDoc = gql`
     fragment NotificationConfigRow on NotificationConfigNode {
@@ -97,7 +97,13 @@ export const DeleteNotificationConfigDocument = gql`
     `;
 export const RunSqlQueryWithParametersDocument = gql`
     query runSqlQueryWithParameters($sqlQuery: String, $params: String) {
-  runSqlQueryWithParameters(sqlQuery: $sqlQuery, parameters: $params)
+  runSqlQueryWithParameters(sqlQuery: $sqlQuery, parameters: $params) {
+    ... on QueryResultNode {
+      queryError
+      query
+      results
+    }
+  }
 }
     `;
 
