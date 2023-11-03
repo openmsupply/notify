@@ -5,6 +5,7 @@ license = "AFFERO GPL-3.0"
 version = "0.1.0"
 edition = "2018"
 default-run = "notify_server"
+build = "src/set_icon.rs"
 
 [lib]
 path = "src/lib.rs"
@@ -61,4 +62,5 @@ sanitize-filename = "0.4"
 
 [dev-dependencies]
 
-
+[target.'cfg(windows)'.build-dependencies]
+winres = "0.1"
