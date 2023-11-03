@@ -649,8 +649,10 @@ export type NotificationEventNode = {
   errorMessage?: Maybe<Scalars['String']['output']>;
   id: Scalars['String']['output'];
   message: Scalars['String']['output'];
+  notificationConfig?: Maybe<NotificationConfigNode>;
   notificationConfigId?: Maybe<Scalars['String']['output']>;
   notificationType: NotificationTypeNode;
+  sendAttempts: Scalars['Int']['output'];
   sentAt?: Maybe<Scalars['DateTime']['output']>;
   status: EventStatus;
   title: Scalars['String']['output'];

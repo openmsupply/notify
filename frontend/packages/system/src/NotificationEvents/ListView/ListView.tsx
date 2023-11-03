@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useTranslation } from '@common/intl';
 import {
   AppBarButtonsPortal,
@@ -15,7 +15,7 @@ import {
 import { useQueryParamsState } from '@common/hooks';
 import { NotificationEventRowFragment, useNotificationEvents } from '../api';
 
-import { ConfigKind, StringUtils } from '@notify-frontend/common';
+import { ConfigKind, StringUtils, useNavigate } from '@notify-frontend/common';
 
 type ListViewProps = {
   kind: ConfigKind | null;
@@ -23,7 +23,7 @@ type ListViewProps = {
 
 export const ListView = ({}: ListViewProps) => {
   const t = useTranslation('system');
-  // const navigate = useNavigate(); // TODO: Navigate to config from row?
+  const navigate = useNavigate();
 
   const { filter, queryParams, updatePaginationQuery, updateSortQuery } =
     useQueryParamsState({
@@ -36,6 +36,7 @@ export const ListView = ({}: ListViewProps) => {
   const columns = useColumns<NotificationEventRowFragment>(
     [
       { key: 'title', label: 'label.title' },
+      { key: 'toAddress', label: 'label.address' },
       {
         key: 'message',
         label: 'label.message',
@@ -43,7 +44,7 @@ export const ListView = ({}: ListViewProps) => {
         Cell: props => (
           <Tooltip title={props.rowData.message}>
             <Typography>
-              {StringUtils.ellipsis(props.rowData.message, 50)}
+              {StringUtils.ellipsis(props.rowData.message, 10)}
             </Typography>
           </Tooltip>
         ),
@@ -70,7 +71,7 @@ export const ListView = ({}: ListViewProps) => {
         Cell: props => (
           <Tooltip title={props.rowData.errorMessage ?? 'No Error Recorded'}>
             <Typography>
-              {StringUtils.ellipsis(props.rowData.errorMessage ?? '', 50)}
+              {StringUtils.ellipsis(props.rowData.errorMessage ?? '', 10)}
             </Typography>
           </Tooltip>
         ),
@@ -105,7 +106,7 @@ export const ListView = ({}: ListViewProps) => {
           data={notificationEvents}
           isError={isError}
           isLoading={isLoading}
-          // onRowClick={onClick}
+          onRowClick={evt => navigate(evt.id)}
           noDataElement={<NothingHere body={t('messages.no-notifications')} />}
           pagination={pagination}
           onChangePage={updatePaginationQuery}

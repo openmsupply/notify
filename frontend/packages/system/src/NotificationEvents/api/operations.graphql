@@ -10,6 +10,10 @@ fragment NotificationEventRow on NotificationEventNode {
   updatedAt
   notificationType
   notificationConfigId
+  notificationConfig {
+    title
+    kind
+  }
 }
 
 query NotificationEvents(

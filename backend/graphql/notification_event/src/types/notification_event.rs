@@ -1,8 +1,9 @@
-use async_graphql::{Object, SimpleObject, Union};
+use async_graphql::{dataloader::DataLoader, *};
 use chrono::{DateTime, Utc};
 use graphql_core::simple_generic_errors::NodeError;
+use graphql_core::{loader::NotificationConfigLoader, ContextExt};
 
-use graphql_types::types::NotificationTypeNode;
+use graphql_types::types::{NotificationConfigNode, NotificationTypeNode};
 use repository::NotificationEvent;
 use service::ListResult;
 use util::usize_to_u32;
@@ -67,6 +68,27 @@ impl NotificationEventNode {
 
     pub async fn status(&self) -> EventStatus {
         EventStatus::from_domain(&self.row().status)
+    }
+
+    pub async fn send_attempts(&self) -> i32 {
+        self.row().send_attempts
+    }
+
+    pub async fn notification_config(
+        &self,
+        ctx: &Context<'_>,
+    ) -> Result<Option<NotificationConfigNode>> {
+        let loader = ctx.get_loader::<DataLoader<NotificationConfigLoader>>();
+
+        let config_id = match &self.row().notification_config_id {
+            Some(config_id) => config_id,
+            None => return Ok(None),
+        };
+
+        match loader.load_one(config_id.clone()).await? {
+            Some(config) => Ok(Some(NotificationConfigNode::from_domain(config.into()))),
+            None => Ok(None),
+        }
     }
 }
 

@@ -5,7 +5,10 @@ use async_graphql::dataloader::DataLoader;
 use repository::StorageConnectionManager;
 use service::service_provider::ServiceProvider;
 
-use super::{user_permission::UserPermissionLoader, AuditLogLoader, RecipientsLoader};
+use super::{
+    user_permission::UserPermissionLoader, AuditLogLoader, NotificationConfigLoader,
+    RecipientsLoader,
+};
 
 pub type LoaderMap = Map<AnyLoader>;
 pub type AnyLoader = dyn Any + Send + Sync;
@@ -60,6 +63,14 @@ pub async fn get_loaders(
         async_std::task::spawn,
     );
     loaders.insert(audit_log_loader);
+
+    let notification_config_loader = DataLoader::new(
+        NotificationConfigLoader {
+            connection_manager: connection_manager.clone(),
+        },
+        async_std::task::spawn,
+    );
+    loaders.insert(notification_config_loader);
 
     loaders
 }

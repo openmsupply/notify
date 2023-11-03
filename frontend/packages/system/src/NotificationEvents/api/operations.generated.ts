@@ -3,7 +3,7 @@ import * as Types from '@notify-frontend/common';
 import { GraphQLClient } from 'graphql-request';
 import * as Dom from 'graphql-request/dist/types.dom';
 import gql from 'graphql-tag';
-export type NotificationEventRowFragment = { __typename: 'NotificationEventNode', id: string, title: string, sentAt?: string | null, message: string, errorMessage?: string | null, createdAt: string, status: Types.EventStatus, toAddress: string, updatedAt: string, notificationType: Types.NotificationTypeNode, notificationConfigId?: string | null };
+export type NotificationEventRowFragment = { __typename: 'NotificationEventNode', id: string, title: string, sentAt?: string | null, message: string, errorMessage?: string | null, createdAt: string, status: Types.EventStatus, toAddress: string, updatedAt: string, notificationType: Types.NotificationTypeNode, notificationConfigId?: string | null, notificationConfig?: { __typename: 'NotificationConfigNode', title: string, kind: Types.ConfigKind } | null };
 
 export type NotificationEventsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.NotificationEventFilterInput>;
@@ -12,7 +12,7 @@ export type NotificationEventsQueryVariables = Types.Exact<{
 }>;
 
 
-export type NotificationEventsQuery = { __typename: 'FullQuery', notificationEvents: { __typename: 'NotificationEventConnector', totalCount: number, nodes: Array<{ __typename: 'NotificationEventNode', id: string, title: string, sentAt?: string | null, message: string, errorMessage?: string | null, createdAt: string, status: Types.EventStatus, toAddress: string, updatedAt: string, notificationType: Types.NotificationTypeNode, notificationConfigId?: string | null }> } };
+export type NotificationEventsQuery = { __typename: 'FullQuery', notificationEvents: { __typename: 'NotificationEventConnector', totalCount: number, nodes: Array<{ __typename: 'NotificationEventNode', id: string, title: string, sentAt?: string | null, message: string, errorMessage?: string | null, createdAt: string, status: Types.EventStatus, toAddress: string, updatedAt: string, notificationType: Types.NotificationTypeNode, notificationConfigId?: string | null, notificationConfig?: { __typename: 'NotificationConfigNode', title: string, kind: Types.ConfigKind } | null }> } };
 
 export const NotificationEventRowFragmentDoc = gql`
     fragment NotificationEventRow on NotificationEventNode {
@@ -27,6 +27,10 @@ export const NotificationEventRowFragmentDoc = gql`
   updatedAt
   notificationType
   notificationConfigId
+  notificationConfig {
+    title
+    kind
+  }
 }
     `;
 export const NotificationEventsDocument = gql`
