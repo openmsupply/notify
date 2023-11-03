@@ -40,6 +40,7 @@ impl NotificationEventFilter {
 pub enum NotificationEventSortField {
     Title,
     Id,
+    CreatedAt,
 }
 
 pub type NotificationEventSort = Sort<NotificationEventSortField>;
@@ -88,6 +89,9 @@ impl<'a> NotificationEventRepository<'a> {
                 }
                 NotificationEventSortField::Id => {
                     apply_sort_no_case!(query, sort, notification_event_dsl::id);
+                }
+                NotificationEventSortField::CreatedAt => {
+                    apply_sort_no_case!(query, sort, notification_event_dsl::created_at);
                 }
             }
         } else {

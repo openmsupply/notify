@@ -10,6 +10,7 @@ use super::EventStatus;
 #[graphql(rename_items = "camelCase")]
 pub enum NotificationEventSortFieldInput {
     Title,
+    CreatedAt,
 }
 
 #[derive(InputObject, Clone)]
@@ -33,6 +34,7 @@ impl NotificationEventSortInput {
         use NotificationEventSortFieldInput as from;
         let key = match self.key {
             from::Title => to::Title,
+            from::CreatedAt => to::CreatedAt,
         };
 
         NotificationEventSort {
