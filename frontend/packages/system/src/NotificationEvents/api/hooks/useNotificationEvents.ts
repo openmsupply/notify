@@ -6,7 +6,7 @@ import {
   useQuery,
 } from '@notify-frontend/common';
 import { NotificationEventRowFragment, getSdk } from '../operations.generated';
-import { NOTIFICATION_CONFIGS } from '../../../cacheKeys';
+import { NOTIFICATION_EVENTS } from '../../../cacheKeys';
 
 export const useNotificationEvents = ({
   filterBy,
@@ -22,7 +22,7 @@ export const useNotificationEvents = ({
   const { client } = useGql();
   const sdk = getSdk(client);
 
-  const cacheKeys = [NOTIFICATION_CONFIGS, first, offset, filterBy, sortBy];
+  const cacheKeys = [NOTIFICATION_EVENTS, first, offset, filterBy, sortBy];
 
   return useQuery(cacheKeys, async () => {
     const response = await sdk.NotificationEvents({
