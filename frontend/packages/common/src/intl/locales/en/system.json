@@ -96,5 +96,6 @@
   "label.select-queries": "Select Queries",
   "message.no-queries-selected": "No queries selected",
   "label.schedule": "Schedule",
-  "button.edit-config": "Edit Config"
+  "button.edit-config": "Edit Config",
+  "messages.no-events-matching-status": "No events found"
 }

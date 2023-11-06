@@ -5,7 +5,7 @@ import {
   AppBarContentPortal,
   DataTable,
   NothingHere,
-  SearchToolbar,
+  RelativeTimeDate,
   TableProvider,
   Tooltip,
   Typography,
@@ -16,6 +16,7 @@ import { useQueryParamsState } from '@common/hooks';
 import { NotificationEventRowFragment, useNotificationEvents } from '../api';
 
 import { ConfigKind, StringUtils, useNavigate } from '@notify-frontend/common';
+import { FilterBar } from './FilterBar';
 
 type ListViewProps = {
   kind: ConfigKind | null;
@@ -49,7 +50,15 @@ export const ListView = ({}: ListViewProps) => {
           </Tooltip>
         ),
       },
-      { key: 'createdAt', label: 'label.date' },
+      {
+        key: 'createdAt',
+        label: 'label.date',
+        Cell: props => (
+          <Tooltip title={props.rowData.createdAt}>
+            <RelativeTimeDate d={props.rowData.createdAt}></RelativeTimeDate>
+          </Tooltip>
+        ),
+      },
       {
         key: 'kind',
         label: 'label.kind',
@@ -61,13 +70,13 @@ export const ListView = ({}: ListViewProps) => {
       {
         key: 'status',
         label: 'label.status',
-        sortable: false,
+        sortable: true,
         Cell: props => <Typography>{props.rowData.status}</Typography>,
       },
       {
         key: 'errorMessage',
         label: 'error',
-        sortable: false,
+        sortable: true,
         Cell: props => (
           <Tooltip title={props.rowData.errorMessage ?? 'No Error Recorded'}>
             <Typography>
@@ -84,10 +93,6 @@ export const ListView = ({}: ListViewProps) => {
   const { data, isError, isLoading } = useNotificationEvents(queryParams);
   const notificationEvents = data?.nodes ?? [];
 
-  // const onClick = (entity: NotificationConfigRowFragment) => {
-  //   navigate(configRoute(entity.kind, entity.id));
-  // };
-
   const pagination = {
     page: queryParams.page,
     offset: queryParams.offset,
@@ -99,7 +104,7 @@ export const ListView = ({}: ListViewProps) => {
       <AppBarButtonsPortal></AppBarButtonsPortal>
       <TableProvider createStore={createTableStore}>
         <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
-          <SearchToolbar filter={filter} />
+          <FilterBar filter={filter} />
         </AppBarContentPortal>
         <DataTable
           columns={columns}
@@ -107,7 +112,9 @@ export const ListView = ({}: ListViewProps) => {
           isError={isError}
           isLoading={isLoading}
           onRowClick={evt => navigate(evt.id)}
-          noDataElement={<NothingHere body={t('messages.no-notifications')} />}
+          noDataElement={
+            <NothingHere body={t('messages.no-events-matching-status')} />
+          }
           pagination={pagination}
           onChangePage={updatePaginationQuery}
         />

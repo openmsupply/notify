@@ -1,5 +1,8 @@
 use async_graphql::{Enum, InputObject};
-use graphql_core::generic_filters::{EqualFilterStringInput, StringFilterInput};
+use graphql_core::{
+    generic_filters::{EqualFilterStringInput, StringFilterInput},
+    map_filter,
+};
 use repository::{
     EqualFilter, NotificationEventFilter, NotificationEventSort, NotificationEventSortField,
 };
@@ -11,6 +14,11 @@ use super::EventStatus;
 pub enum NotificationEventSortFieldInput {
     Title,
     CreatedAt,
+    ToAddress,
+    Message,
+    NotificationType,
+    Status,
+    ErrorMessage,
 }
 
 #[derive(InputObject, Clone)]
@@ -35,6 +43,11 @@ impl NotificationEventSortInput {
         let key = match self.key {
             from::Title => to::Title,
             from::CreatedAt => to::CreatedAt,
+            from::ToAddress => to::ToAddress,
+            from::Message => to::Message,
+            from::NotificationType => to::NotificationType,
+            from::Status => to::Status,
+            from::ErrorMessage => to::ErrorMessage,
         };
 
         NotificationEventSort {
@@ -56,11 +69,8 @@ impl From<NotificationEventFilterInput> for NotificationEventFilter {
     fn from(f: NotificationEventFilterInput) -> Self {
         NotificationEventFilter {
             id: f.id.map(EqualFilter::from),
-            // title: f.title.map(StringFilter::from),
             search: f.search,
-            // status: f
-            //     .status
-            //     .map(|t| map_filter!(t, NotificationEventStatus::to_domain)),
+            status: f.status.map(|t| map_filter!(t, EventStatus::to_domain)),
         }
     }
 }

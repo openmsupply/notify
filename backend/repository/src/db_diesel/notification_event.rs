@@ -7,7 +7,7 @@ use super::{
 use crate::{
     diesel_macros::{apply_equal_filter, apply_sort_no_case},
     repository_error::RepositoryError,
-    EqualFilter, Pagination, Sort,
+    EqualFilter, NotificationEventStatus, Pagination, Sort,
 };
 
 use diesel::{dsl::IntoBoxed, prelude::*};
@@ -18,6 +18,7 @@ pub type NotificationEvent = NotificationEventRow;
 pub struct NotificationEventFilter {
     pub id: Option<EqualFilter<String>>,
     pub search: Option<String>,
+    pub status: Option<EqualFilter<NotificationEventStatus>>,
 }
 
 impl NotificationEventFilter {
@@ -41,6 +42,11 @@ pub enum NotificationEventSortField {
     Title,
     Id,
     CreatedAt,
+    ToAddress,
+    Message,
+    NotificationType,
+    Status,
+    ErrorMessage,
 }
 
 pub type NotificationEventSort = Sort<NotificationEventSortField>;
@@ -93,6 +99,21 @@ impl<'a> NotificationEventRepository<'a> {
                 NotificationEventSortField::CreatedAt => {
                     apply_sort_no_case!(query, sort, notification_event_dsl::created_at);
                 }
+                NotificationEventSortField::ToAddress => {
+                    apply_sort_no_case!(query, sort, notification_event_dsl::to_address);
+                }
+                NotificationEventSortField::Message => {
+                    apply_sort_no_case!(query, sort, notification_event_dsl::message);
+                }
+                NotificationEventSortField::NotificationType => {
+                    apply_sort_no_case!(query, sort, notification_event_dsl::notification_type);
+                }
+                NotificationEventSortField::Status => {
+                    apply_sort_no_case!(query, sort, notification_event_dsl::status);
+                }
+                NotificationEventSortField::ErrorMessage => {
+                    apply_sort_no_case!(query, sort, notification_event_dsl::error_message);
+                }
             }
         } else {
             query = query.order(notification_event_dsl::id.asc())
@@ -119,9 +140,10 @@ fn create_filtered_query(filter: Option<NotificationEventFilter>) -> BoxedQuery 
     let mut query = notification_event_dsl::notification_event.into_boxed();
 
     if let Some(f) = filter {
-        let NotificationEventFilter { id, search } = f;
+        let NotificationEventFilter { id, search, status } = f;
 
         apply_equal_filter!(query, id, notification_event_dsl::id);
+        apply_equal_filter!(query, status, notification_event_dsl::status);
 
         if let Some(search) = search {
             let search_term = format!("%{}%", search);
