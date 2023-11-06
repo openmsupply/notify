@@ -54,7 +54,6 @@ export const defaultCCNotification: CCNotification = {
   remind: true,
   reminderInterval: 2,
   reminderUnits: ReminderUnits.HOURS,
-  messageAlertResolved: true,
   locationIds: [],
   requiredParameters: [],
   highTempThreshold: 8,
