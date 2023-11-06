@@ -90,6 +90,7 @@ fn try_process_coldchain_notifications(
     let high_temp_threshold: f64 = config.high_temp_threshold;
     let low_temp_threshold: f64 = config.low_temp_threshold;
     let max_age = config.no_data_duration();
+    let reminder_interval = config.reminder_duration();
 
     // Put all the alerts into a vector, to simply the logic for sending alerts
     let mut alerts: Vec<ColdchainAlert> = Vec::new();
@@ -206,12 +207,36 @@ fn try_process_coldchain_notifications(
         if sensor_status == prev_sensor_status.status {
             // Status has not changed
             log::debug!(
-                "Status for sensor {} has not changed since last check",
-                sensor_id
+                "Status for sensor {} has not changed since last check ({:?})",
+                sensor_id,
+                sensor_status
             );
 
             // TODO Check if we need to send a reminder notification
 
+            if sensor_status == SensorStatus::Ok {
+                // If the sensor is ok, we don't need to send a reminder
+                continue;
+            }
+
+            if prev_sensor_status.timestamp + reminder_interval < now {
+                // It's time to send a reminder
+                // Well it might just be that we are sending too many, we should record that we sent a reminder...
+                log::info!(
+                    "Sending reminder for sensor {} which has been in state {:?} since {}",
+                    sensor_id,
+                    sensor_status,
+                    prev_sensor_status.timestamp
+                );
+            } else {
+                // It's not time to send a reminder yet
+                log::debug!(
+                    "Not sending reminder for sensor {} which has been in state {:?} since {}",
+                    sensor_id,
+                    sensor_status,
+                    prev_sensor_status.timestamp
+                );
+            }
             continue;
         }
 

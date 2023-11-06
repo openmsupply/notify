@@ -61,6 +61,12 @@ pub struct ColdChainPluginConfig {
     pub no_data_interval: u32,
     #[serde(default = "default_no_data_units")]
     pub no_data_interval_units: IntervalUnits,
+    #[serde(default)]
+    pub remind: bool,
+    #[serde(default = "default_reminder_interval")]
+    pub reminder_interval: u32,
+    #[serde(default = "default_reminder_units")]
+    pub reminder_units: IntervalUnits,
 }
 
 fn default_low_temp_limit() -> f64 {
@@ -76,6 +82,14 @@ fn default_no_data_interval() -> u32 {
 }
 
 fn default_no_data_units() -> IntervalUnits {
+    IntervalUnits::Hours
+}
+
+fn default_reminder_interval() -> u32 {
+    2
+}
+
+fn default_reminder_units() -> IntervalUnits {
     IntervalUnits::Hours
 }
 
@@ -95,6 +109,17 @@ impl ColdChainPluginConfig {
             IntervalUnits::Weeks => chrono::Duration::weeks(self.no_data_interval as i64),
             IntervalUnits::Months => chrono::Duration::days(self.no_data_interval as i64 * 30),
             IntervalUnits::Years => chrono::Duration::days(self.no_data_interval as i64 * 365),
+        }
+    }
+
+    pub fn reminder_duration(&self) -> chrono::Duration {
+        match self.reminder_units {
+            IntervalUnits::Minutes => chrono::Duration::minutes(self.reminder_interval as i64),
+            IntervalUnits::Hours => chrono::Duration::hours(self.reminder_interval as i64),
+            IntervalUnits::Days => chrono::Duration::days(self.reminder_interval as i64),
+            IntervalUnits::Weeks => chrono::Duration::weeks(self.reminder_interval as i64),
+            IntervalUnits::Months => chrono::Duration::days(self.reminder_interval as i64 * 30),
+            IntervalUnits::Years => chrono::Duration::days(self.reminder_interval as i64 * 365),
         }
     }
 }
