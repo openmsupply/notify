@@ -1,10 +1,11 @@
 use async_graphql::{Enum, InputObject};
 use graphql_core::{
-    generic_filters::{EqualFilterStringInput, StringFilterInput},
+    generic_filters::{DatetimeFilterInput, EqualFilterStringInput},
     map_filter,
 };
 use repository::{
-    EqualFilter, NotificationEventFilter, NotificationEventSort, NotificationEventSortField,
+    DatetimeFilter, EqualFilter, NotificationEventFilter, NotificationEventSort,
+    NotificationEventSortField,
 };
 
 use super::EventStatus;
@@ -60,9 +61,9 @@ impl NotificationEventSortInput {
 #[derive(Clone, InputObject)]
 pub struct NotificationEventFilterInput {
     pub id: Option<EqualFilterStringInput>,
-    pub title: Option<StringFilterInput>,
     pub search: Option<String>,
     pub status: Option<EqualFilterEventStatusInput>,
+    pub created_at: Option<DatetimeFilterInput>,
 }
 
 impl From<NotificationEventFilterInput> for NotificationEventFilter {
@@ -71,6 +72,7 @@ impl From<NotificationEventFilterInput> for NotificationEventFilter {
             id: f.id.map(EqualFilter::from),
             search: f.search,
             status: f.status.map(|t| map_filter!(t, EventStatus::to_domain)),
+            created_at: f.created_at.map(DatetimeFilter::from),
         }
     }
 }

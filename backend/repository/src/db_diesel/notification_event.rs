@@ -5,9 +5,9 @@ use super::{
     DBType, NotificationEventRow, StorageConnection,
 };
 use crate::{
-    diesel_macros::{apply_equal_filter, apply_sort_no_case},
+    diesel_macros::{apply_date_time_filter, apply_equal_filter, apply_sort_no_case},
     repository_error::RepositoryError,
-    EqualFilter, NotificationEventStatus, Pagination, Sort,
+    DatetimeFilter, EqualFilter, NotificationEventStatus, Pagination, Sort,
 };
 
 use diesel::{dsl::IntoBoxed, prelude::*};
@@ -19,6 +19,7 @@ pub struct NotificationEventFilter {
     pub id: Option<EqualFilter<String>>,
     pub search: Option<String>,
     pub status: Option<EqualFilter<NotificationEventStatus>>,
+    pub created_at: Option<DatetimeFilter>,
 }
 
 impl NotificationEventFilter {
@@ -140,10 +141,16 @@ fn create_filtered_query(filter: Option<NotificationEventFilter>) -> BoxedQuery 
     let mut query = notification_event_dsl::notification_event.into_boxed();
 
     if let Some(f) = filter {
-        let NotificationEventFilter { id, search, status } = f;
+        let NotificationEventFilter {
+            id,
+            search,
+            status,
+            created_at,
+        } = f;
 
         apply_equal_filter!(query, id, notification_event_dsl::id);
         apply_equal_filter!(query, status, notification_event_dsl::status);
+        apply_date_time_filter!(query, created_at, notification_event_dsl::created_at);
 
         if let Some(search) = search {
             let search_term = format!("%{}%", search);
