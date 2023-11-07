@@ -35,6 +35,7 @@ use telegram::{service::TelegramService, TelegramClient};
 pub mod configuration;
 pub mod cors;
 pub mod environment;
+pub mod logging;
 pub mod middleware;
 mod scheduled_tasks;
 mod serve_frontend;
@@ -126,6 +127,41 @@ async fn run_server(
         let _telegram_update_handler = actix_web::rt::spawn(async move {
             update_telegram_recipients(telegram_update_context, &telegram_update_channel).await
         });
+    }
+
+    let log_context = ServiceContext::new(service_provider_data.clone().into_inner());
+    let log_context = match log_context {
+        Ok(log_context) => log_context,
+        Err(error) => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                format!("Error unable to create log context: {:?}", error),
+            ));
+        }
+    };
+    let log_service = &log_context.service_provider.log_service;
+    let log_level = log_service.get_log_level(&log_context).unwrap();
+
+    if config_settings.logging.is_some() {
+        log_service
+            .set_log_directory(
+                &log_context,
+                config_settings.logging.clone().unwrap().directory,
+            )
+            .unwrap();
+
+        log_service
+            .set_log_file_name(
+                &log_context,
+                config_settings.logging.clone().unwrap().filename,
+            )
+            .unwrap();
+    }
+
+    if log_level.is_none() && config_settings.logging.is_some() {
+        log_service
+            .update_log_level(&log_context, config_settings.logging.clone().unwrap().level)
+            .unwrap();
     }
 
     let http_server_config_settings = config_settings.clone();

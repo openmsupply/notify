@@ -105,7 +105,7 @@ export type CreateUserAccountInput = {
 
 export type CreateUserAccountResponse = UserAccountNode;
 
-export type DatabaseError = RefreshTokenErrorInterface & {
+export type DatabaseError = NodeErrorInterface & RefreshTokenErrorInterface & {
   __typename: 'DatabaseError';
   description: Scalars['String']['output'];
   fullError: Scalars['String']['output'];
@@ -350,8 +350,8 @@ export type FullQuery = {
    * The refresh token is returned as a cookie
    */
   refreshToken: RefreshTokenResponse;
-  runSqlQuery: Scalars['String']['output'];
-  runSqlQueryWithParameters: Scalars['String']['output'];
+  runSqlQuery: QueryResultResponse;
+  runSqlQueryWithParameters: QueryResultResponse;
   /** Query "sql_recipient_list" entries */
   sqlRecipientLists: SqlRecipientListsResponse;
   telegramBotName: Scalars['String']['output'];
@@ -560,6 +560,16 @@ export type NoRefreshTokenProvided = RefreshTokenErrorInterface & {
   description: Scalars['String']['output'];
 };
 
+/** Generic Error Wrapper */
+export type NodeError = {
+  __typename: 'NodeError';
+  error: NodeErrorInterface;
+};
+
+export type NodeErrorInterface = {
+  description: Scalars['String']['output'];
+};
+
 export type NotARefreshToken = RefreshTokenErrorInterface & {
   __typename: 'NotARefreshToken';
   description: Scalars['String']['output'];
@@ -677,6 +687,15 @@ export enum PermissionNode {
   ServerAdmin = 'SERVER_ADMIN'
 }
 
+export type QueryResultNode = {
+  __typename: 'QueryResultNode';
+  query: Scalars['String']['output'];
+  queryError?: Maybe<Scalars['String']['output']>;
+  results: Scalars['String']['output'];
+};
+
+export type QueryResultResponse = NodeError | QueryResultNode;
+
 export type RecipientConnector = {
   __typename: 'RecipientConnector';
   nodes: Array<RecipientNode>;
@@ -752,6 +771,11 @@ export type RecipientSortInput = {
 };
 
 export type RecipientsResponse = RecipientConnector;
+
+export type RecordNotFound = NodeErrorInterface & {
+  __typename: 'RecordNotFound';
+  description: Scalars['String']['output'];
+};
 
 export type RefreshToken = {
   __typename: 'RefreshToken';

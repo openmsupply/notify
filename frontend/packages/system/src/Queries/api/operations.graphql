@@ -47,5 +47,11 @@ mutation deleteNotificationQuery($id: String!) {
 }
 
 query testNotificationQuery($sqlQuery: String, $params: String) {
-  runSqlQueryWithParameters(sqlQuery: $sqlQuery, parameters: $params)
+  runSqlQueryWithParameters(sqlQuery: $sqlQuery, parameters: $params) {
+    ... on QueryResultNode {
+      queryError
+      query
+      results
+    }
+  }
 }

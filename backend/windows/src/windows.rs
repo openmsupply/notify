@@ -15,6 +15,7 @@ fn main() {
 mod notify_service {
     use eventlog;
     use log::error;
+    use server::logging::logging_init;
     use server::{configuration, start_server};
     use service::settings::Settings;
     use std::{
@@ -65,6 +66,7 @@ mod notify_service {
                 return;
             }
         };
+        logging_init(settings.logging.clone(), None);
 
         panic::set_hook(Box::new(|panic_info| {
             error!("panic occurred {:?}", panic_info);

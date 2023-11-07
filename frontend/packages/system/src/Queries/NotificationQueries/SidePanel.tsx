@@ -1,4 +1,5 @@
 import React from 'react';
+import { BufferedTextArea } from '@notify-frontend/common';
 import { Box, DetailPanelPortal, PanelLabel, PanelRow } from '@common/ui';
 import { BufferedTextInput, DetailPanelSection } from '@common/components';
 import { KeyedParams, TeraUtils } from '@common/utils';
@@ -8,12 +9,14 @@ export interface ParamsPanelProps {
   query: string;
   queryParams: KeyedParams;
   onUpdateQueryParams: (key: string, value: string) => void;
+  generatedQuery: string;
 }
 
 export const SidePanel = ({
   query,
   queryParams,
   onUpdateQueryParams,
+  generatedQuery,
 }: ParamsPanelProps) => {
   const t = useTranslation('system');
 
@@ -53,5 +56,17 @@ export const SidePanel = ({
     </DetailPanelSection>
   );
 
-  return <DetailPanelPortal>{paramEditor}</DetailPanelPortal>;
+  const generatedSQLViewer = (
+    <DetailPanelSection title={t('label.generated-sql')}> 
+      <BufferedTextArea
+          value={generatedQuery}
+          InputProps={{ sx: { backgroundColor: 'white' } }}
+          InputLabelProps={{ shrink: true }}
+          minRows={10}
+          disabled
+        />
+    </DetailPanelSection>
+  );
+
+  return <DetailPanelPortal>{paramEditor}{generatedSQLViewer}</DetailPanelPortal>;
 };

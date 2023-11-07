@@ -87,6 +87,7 @@
   "label.expand-all": "Expand all",
   "label.expiry": "Expiry",
   "label.event": "Event",
+  "label.generated-sql": "Generated SQL query",
   "label.hours": "Hours",
   "label.hours_one": "Hour",
   "label.hours_other": "Hours",

@@ -27,10 +27,10 @@ export const TeraUtils = {
     return JSON.stringify(mappedObject);
   },
   keyedParamsAsTeraParams: function (keyedParams: KeyedParams) {
-    // Converts a Keyed{Params object to a TeraParams Object
+    // Converts a KeyedParams object to a TeraParams Object
     // Simple Example: keyedParamsAsJson({name: 'John'}) => '{"name": "John"}'
     // However if we have keys with `.` in them, we need to nest the keys.
-    // Example: keyedParamsAsTeraParams({'user.name': 'John', 'user.email': "john@example.com"}) => '{"user": {"name": "John", "john@example.com"}}'
+    // Example: keyedParamsAsTeraParams({'user.name': 'John', 'user.email': "john@example.com"}) => '{"user": {"name": "John", "email": "john@example.com"}}'
 
     let mappedObject = {} as TeraParams;
     for (const key of Object.keys(keyedParams)) {
