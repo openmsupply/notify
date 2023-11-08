@@ -10,7 +10,7 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 class DummyWebpackPlugin {
   apply(compiler) {
-    compiler.hooks.run.tap('DummyWebpackPlugin', () => { });
+    compiler.hooks.run.tap('DummyWebpackPlugin', () => {});
   }
 }
 
@@ -18,14 +18,14 @@ module.exports = env => {
   const isProduction = !!env.production;
   const bundleAnalyzerPlugin = !!env.stats
     ? new BundleAnalyzerPlugin({
-      /**
-       * In "server" mode analyzer will start HTTP server to show bundle report.
-       * In "static" mode single HTML file with bundle report will be generated.
-       * In "json" mode single JSON file with bundle report will be generated
-       */
-      analyzerMode: 'disabled',
-      generateStatsFile: true,
-    })
+        /**
+         * In "server" mode analyzer will start HTTP server to show bundle report.
+         * In "static" mode single HTML file with bundle report will be generated.
+         * In "json" mode single JSON file with bundle report will be generated
+         */
+        analyzerMode: 'disabled',
+        generateStatsFile: true,
+      })
     : new DummyWebpackPlugin();
 
   return {
@@ -54,7 +54,7 @@ module.exports = env => {
       plugins: [new TsconfigPathsPlugin()],
     },
     output: {
-      publicPath: '/',
+      publicPath: 'auto',
       path: path.resolve(__dirname, 'dist'),
       filename: '[name].[contenthash].js',
       chunkFilename: '[contenthash].js',
@@ -76,19 +76,19 @@ module.exports = env => {
           exclude: /node_modules/,
           options: isProduction
             ? {
-              /* ts-loader options */
-            }
+                /* ts-loader options */
+              }
             : {
-              /* swc-loader options */
-              jsc: {
-                parser: {
-                  dynamicImport: true,
-                  syntax: 'typescript',
-                  tsx: true,
+                /* swc-loader options */
+                jsc: {
+                  parser: {
+                    dynamicImport: true,
+                    syntax: 'typescript',
+                    tsx: true,
+                  },
+                  target: 'es2015',
                 },
-                target: 'es2015',
               },
-            },
         },
         {
           test: /\.css$/,
