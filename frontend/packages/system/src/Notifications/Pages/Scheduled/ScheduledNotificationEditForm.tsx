@@ -40,6 +40,7 @@ export const ScheduledNotificationEditForm = ({
   const t = useTranslation('system');
 
   const { queryParams } = useQueryParamsState();
+  queryParams.first = 1000; // Set a high limit to ensure all queries are fetched, if we end up with over 1000 queries we'll need a new solution, or if this is too slow...
 
   const { data, isLoading } = useNotificationQueries(queryParams);
   const queries = data?.nodes ?? [];
