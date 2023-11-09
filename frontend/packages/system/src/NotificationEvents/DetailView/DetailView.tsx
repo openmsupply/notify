@@ -11,6 +11,7 @@ import {
   Stack,
   TextArea,
   Typography,
+  Tooltip,
 } from '@common/ui';
 import { useTranslation } from '@common/intl';
 import { useNotificationEvents } from '../api';
@@ -48,25 +49,27 @@ export const DetailView = () => {
       <AppBarButtonsPortal>
         {/* if we have a config_id, create a link to edit the config */}
         {entity?.notificationConfigId && (
-          <BaseButton
-            onClick={() => {
-              navigate(
-                configRoute(
-                  entity.notificationConfig?.kind ?? ConfigKind.Scheduled,
-                  entity.notificationConfigId ?? ''
-                )
-              );
-            }}
-            variant="outlined"
-            endIcon={<EditIcon />}
-          >
-            {t('button.edit-config')} ({entity.notificationConfig?.title})
-          </BaseButton>
+          <Tooltip title={entity.notificationConfig?.title ?? ''}>
+            <BaseButton
+              onClick={() => {
+                navigate(
+                  configRoute(
+                    entity.notificationConfig?.kind ?? ConfigKind.Scheduled,
+                    entity.notificationConfigId ?? ''
+                  )
+                );
+              }}
+              variant="outlined"
+              endIcon={<EditIcon />}
+            >
+              {t('button.edit-notification-config')}
+            </BaseButton>
+          </Tooltip>
         )}
       </AppBarButtonsPortal>
       <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
         <Box flex={1} display="flex" gap={2}>
-          <Box flex={0.2}>
+          <Box flex={0.3}>
             <Stack gap={1}>
               <NotificationStatusChip
                 status={entity?.status ?? EventStatus.Errored}
@@ -106,11 +109,32 @@ export const DetailView = () => {
           <BasicSpinner />
         ) : (
           <>
-            <Typography variant="h4">{entity?.title}</Typography>
-            <Typography variant="h6">
-              {entity?.toAddress} ({entity?.notificationType})
-            </Typography>
+            <Typography variant="h6">Generated Notification</Typography>
             <TextArea
+              label="To"
+              minRows={1}
+              maxRows={1}
+              sx={{
+                border: '1px solid',
+                borderColor: 'grey.100',
+                width: '100%',
+              }}
+              value={`${entity?.toAddress} (${entity?.notificationType})`}
+            />
+            <TextArea
+              label="Title"
+              minRows={1}
+              maxRows={1}
+              sx={{
+                border: '1px solid',
+                borderColor: 'grey.100',
+                width: '100%',
+              }}
+              value={entity?.title}
+            />
+
+            <TextArea
+              label="Message"
               minRows={2}
               maxRows={25}
               sx={{
