@@ -12,9 +12,10 @@ xcopy "build\windows\*.*" "notify" /c
 copy "version.txt" "notify\version.txt"
 
 @ECHO ##### Building notify frontend #####
-call build\windows\prepare-frontend.bat
+start /b /wait build\windows\prepare-frontend.bat
 @if %errorlevel% neq 0 exit /b %errorlevel%
 
+waitfor /t 60 frontend-build
 @ECHO ##### Building notify backend #####
 cd backend && cargo build --release --bin notify_service && copy "target\release\notify_service.exe" "..\notify\notify_service.exe"
 if %errorlevel% neq 0 exit /b %errorlevel%
