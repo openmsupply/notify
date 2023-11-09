@@ -11,12 +11,14 @@ import {
   AppFooterPortal,
   ButtonWithIcon,
   CloseIcon,
+  CopyIcon,
   useBreadcrumbs,
   SaveIcon,
   ConfigStatus,
   FormLabel,
   Switch,
   useDetailPanel,
+  useNotification,
   AppBarButtonsPortal,
   KeyedParams,
 } from '@notify-frontend/common';
@@ -37,6 +39,7 @@ interface BaseNotificationEditPageProps<T extends BaseNotificationConfig> {
   draft: T;
   setDraft: (draft: T) => void;
   onSave: (draft: T) => Promise<void>;
+  onDuplicate: (draft: T) => Promise<void>;
   CustomForm: React.FC<{
     onUpdate: (patch: Partial<T>) => void;
     draft: T;
@@ -50,10 +53,12 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
   draft,
   setDraft,
   onSave,
+  onDuplicate,
   CustomForm,
 }: BaseNotificationEditPageProps<T>) => {
   const t = useTranslation(['system']);
   const { OpenButton } = useDetailPanel(t('label.parameters'));
+  const { info } = useNotification();
   const { navigateUpOne } = useBreadcrumbs();
   const [errorMessage, setErrorMessage] = useState('');
   const [isSaved, setIsSaved] = useState(false);
@@ -219,6 +224,17 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
                     color="secondary"
                     sx={{ fontSize: '12px' }}
                     onClick={navigateUpOne}
+                  />
+
+                  <ButtonWithIcon
+                    shrinkThreshold="lg"
+                    Icon={<CopyIcon />}
+                    label={t('button.duplicate')}
+                    color="secondary"
+                    sx={{ fontSize: '12px' }}
+                    onClick={()=> {
+                      onDuplicate(draft);
+                    }}
                   />
 
                   <LoadingButton

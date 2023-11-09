@@ -10,9 +10,10 @@ use self::{
     create::{create_notification_config, CreateNotificationConfig},
     delete::{delete_notification_config, DeleteNotificationConfigError},
     query::{
-        find_all_due_by_kind, get_notification_config, get_notification_configs, NotificationConfig,
+        find_all_due_by_kind, get_notification_config, get_notification_configs, NotificationConfig, get_notification_title,
     },
     update::{update_notification_config, UpdateNotificationConfig},
+    duplicate::{duplicate_notification_config, DuplicateNotificationConfig},
 };
 
 mod tests;
@@ -24,6 +25,7 @@ pub mod query;
 pub mod recipients;
 pub mod update;
 pub mod validate;
+pub mod duplicate;
 
 pub trait NotificationConfigServiceTrait: Sync + Send {
     fn find_all_due_by_kind(
@@ -75,6 +77,22 @@ pub trait NotificationConfigServiceTrait: Sync + Send {
         id: &str,
     ) -> Result<String, DeleteNotificationConfigError> {
         delete_notification_config(ctx, id)
+    }
+
+    fn duplicate_notification_config(
+        &self,
+        ctx: &ServiceContext,
+        input: DuplicateNotificationConfig,
+    ) -> Result<NotificationConfig, ModifyNotificationConfigError> {
+        duplicate_notification_config(ctx, input)
+    }
+
+    fn get_notification_titles(
+        &self,
+        ctx: &ServiceContext,
+        title: String,
+        ) -> Result<ListResult<NotificationConfig>, ListError> {
+            get_notification_title(ctx, title)
     }
 }
 

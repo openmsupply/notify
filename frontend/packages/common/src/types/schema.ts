@@ -128,6 +128,18 @@ export type DeleteSqlRecipientListResponse = DeleteResponse;
 
 export type DeleteUserAccountResponse = DeleteResponse;
 
+export type DuplicateNotificationConfigInput = {
+  configurationData?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
+  kind: ConfigKind;
+  parameters?: InputMaybe<Scalars['String']['input']>;
+  recipientIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  recipientListIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  sqlRecipientListIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  status: ConfigStatus;
+  title: Scalars['String']['input'];
+};
+
 export type EqualFilterConfigKindInput = {
   equalAny?: InputMaybe<Array<ConfigKind>>;
   equalTo?: InputMaybe<ConfigKind>;
@@ -175,6 +187,7 @@ export type FullMutation = {
   deleteRecipientList: DeleteRecipientListResponse;
   deleteSqlRecipientList: DeleteSqlRecipientListResponse;
   deleteUserAccount: DeleteUserAccountResponse;
+  duplicateNotificationConfig: ModifyNotificationConfigResponse;
   /**
    * Initiates the password reset flow for a user based on email address
    * The user will receive an email with a link to reset their password
@@ -265,6 +278,11 @@ export type FullMutationDeleteSqlRecipientListArgs = {
 
 export type FullMutationDeleteUserAccountArgs = {
   userAccountId: Scalars['String']['input'];
+};
+
+
+export type FullMutationDuplicateNotificationConfigArgs = {
+  input: DuplicateNotificationConfigInput;
 };
 
 

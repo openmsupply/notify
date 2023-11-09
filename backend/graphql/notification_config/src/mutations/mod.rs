@@ -6,10 +6,12 @@ use service::notification_config::ModifyNotificationConfigError;
 mod create;
 mod delete;
 mod update;
+mod duplicate;
 
 pub use create::*;
 pub use delete::*;
 pub use update::*;
+pub use duplicate::*;
 
 #[derive(Union)]
 pub enum ModifyNotificationConfigResponse {

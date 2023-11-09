@@ -15,6 +15,7 @@ import {
   parseColdChainNotificationConfig,
 } from './parseConfig';
 import { useUpdateNotificationConfig } from '../../api/hooks/useUpdateNotificationConfig';
+import { useDuplicateNotificationConfig } from '../../api/hooks/useDuplicateNotificationConfig';
 import {
   NotificationConfigRowFragment,
   useNotificationConfigs,
@@ -79,9 +80,17 @@ export const CCNotificationEditPage = () => {
   const { mutateAsync: update, isLoading: updateIsLoading } =
     useUpdateNotificationConfig();
 
-  const onSave = async (draft: CCNotification) => {
+    const { mutateAsync: duplicate, isLoading: duplicateIsLoading } =
+    useDuplicateNotificationConfig();
+  
+    const onSave = async (draft: CCNotification) => {
     const inputs = buildColdChainNotificationInputs(draft);
     await update({ input: inputs.update });
+  };
+
+  const onDuplicate = async (draft: CCNotification) => {
+    const inputs = buildColdChainNotificationInputs(draft);
+    await duplicate({ input: inputs.duplicate });
   };
 
   const isInvalid =
@@ -104,6 +113,7 @@ export const CCNotificationEditPage = () => {
       isLoading={isLoading || updateIsLoading}
       isInvalid={isInvalid}
       onSave={onSave}
+      onDuplicate={onDuplicate}
       draft={draft}
       setDraft={setDraft}
       CustomForm={CCNotificationEditForm}
