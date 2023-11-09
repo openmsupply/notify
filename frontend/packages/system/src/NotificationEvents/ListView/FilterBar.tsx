@@ -8,6 +8,10 @@ import {
   EventStatus,
 } from '@notify-frontend/common';
 
+function relativeStartTime(hoursAgo: string) {
+  return new Date(Date.now() - parseInt(hoursAgo) * 60 * 60 * 1000);
+}
+
 export const FilterBar = ({
   filter,
   searchFilterKey = 'search',
@@ -17,7 +21,7 @@ export const FilterBar = ({
   searchFilterKey?: string;
   ActionButtons?: () => JSX.Element;
 }) => {
-  const t = useTranslation(['system']);
+  const t = useTranslation('system');
   const [timeRange, setTimeRange] = React.useState('all');
 
   const filterString = (filter.filterBy?.[searchFilterKey] as string) || '';
@@ -112,7 +116,7 @@ export const FilterBar = ({
             filter.onChangeDateFilterRule(
               'createdAt',
               'afterOrEqualTo',
-              new Date(Date.now() - parseInt(e.target.value) * 60 * 60 * 1000)
+              relativeStartTime(e.target.value)
             );
           }
         }}
