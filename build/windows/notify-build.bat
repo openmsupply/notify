@@ -11,12 +11,8 @@ xcopy "build\*.*" "notify" /c
 xcopy "build\windows\*.*" "notify" /c
 copy "version.txt" "notify\version.txt"
 
-IF NOT EXIST version.txt (
-    ECHO ##### No version.txt found, defaulting to package version #####
-    node -p "require('./frontend/package.json').version" > version.txt
-)
-
-start /wait /b build\windows\prepare_frontend.bat
+@ECHO ##### Building notify frontend #####
+START /wait /b build\windows\prepare_frontend.bat
 @if %errorlevel% neq 0 exit /b %errorlevel%
 
 @ECHO ##### Building notify backend #####
