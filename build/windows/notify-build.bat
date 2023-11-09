@@ -12,7 +12,7 @@ xcopy "build\windows\*.*" "notify" /c
 copy "version.txt" "notify\version.txt"
 
 @ECHO ##### Building notify frontend #####
-START /wait /b build\windows\prepare_frontend.bat
+START /wait /b build\windows\prepare-frontend.bat
 @if %errorlevel% neq 0 exit /b %errorlevel%
 
 @ECHO ##### Building notify backend #####
