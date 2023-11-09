@@ -98,5 +98,7 @@
   "label.degrees-celsius": "°C",
   "label.select-queries": "Select Queries",
   "message.no-queries-selected": "No queries selected",
-  "label.schedule": "Schedule"
+  "label.schedule": "Schedule",
+  "button.edit-notification-config": "Edit Notification Config",
+  "messages.no-events-matching-status": "No events found"
 }

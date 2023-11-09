@@ -140,6 +140,12 @@ export type EqualFilterConfigStatusInput = {
   notEqualTo?: InputMaybe<ConfigStatus>;
 };
 
+export type EqualFilterEventStatusInput = {
+  equalAny?: InputMaybe<Array<EventStatus>>;
+  equalTo?: InputMaybe<EventStatus>;
+  notEqualTo?: InputMaybe<EventStatus>;
+};
+
 export type EqualFilterLogTypeInput = {
   equalAny?: InputMaybe<Array<LogNodeType>>;
   equalTo?: InputMaybe<LogNodeType>;
@@ -157,6 +163,13 @@ export type EqualFilterStringInput = {
   equalTo?: InputMaybe<Scalars['String']['input']>;
   notEqualTo?: InputMaybe<Scalars['String']['input']>;
 };
+
+export enum EventStatus {
+  Errored = 'ERRORED',
+  Failed = 'FAILED',
+  Queued = 'QUEUED',
+  Sent = 'SENT'
+}
 
 export type FullMutation = {
   __typename: 'FullMutation';
@@ -340,6 +353,7 @@ export type FullQuery = {
   logs: LogResponse;
   me: UserResponse;
   notificationConfigs: NotificationConfigsResponse;
+  notificationEvents: NotificationEventsResponse;
   notificationQueries: NotificationQueriesResponse;
   /** Query "recipient_list" entries */
   recipientLists: RecipientListsResponse;
@@ -378,6 +392,13 @@ export type FullQueryNotificationConfigsArgs = {
   filter?: InputMaybe<NotificationConfigFilterInput>;
   page?: InputMaybe<PaginationInput>;
   sort?: InputMaybe<Array<NotificationConfigSortInput>>;
+};
+
+
+export type FullQueryNotificationEventsArgs = {
+  filter?: InputMaybe<NotificationEventFilterInput>;
+  page?: InputMaybe<PaginationInput>;
+  sort?: InputMaybe<Array<NotificationEventSortInput>>;
 };
 
 
@@ -618,6 +639,53 @@ export type NotificationConfigSortInput = {
 };
 
 export type NotificationConfigsResponse = NotificationConfigConnector;
+
+export type NotificationEventConnector = {
+  __typename: 'NotificationEventConnector';
+  nodes: Array<NotificationEventNode>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type NotificationEventFilterInput = {
+  id?: InputMaybe<EqualFilterStringInput>;
+  search?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<EqualFilterEventStatusInput>;
+  title?: InputMaybe<StringFilterInput>;
+};
+
+export type NotificationEventNode = {
+  __typename: 'NotificationEventNode';
+  createdAt: Scalars['DateTime']['output'];
+  errorMessage?: Maybe<Scalars['String']['output']>;
+  id: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  notificationConfig?: Maybe<NotificationConfigNode>;
+  notificationConfigId?: Maybe<Scalars['String']['output']>;
+  notificationType: NotificationTypeNode;
+  sendAttempts: Scalars['Int']['output'];
+  sentAt?: Maybe<Scalars['DateTime']['output']>;
+  status: EventStatus;
+  title: Scalars['String']['output'];
+  toAddress: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export enum NotificationEventSortFieldInput {
+  CreatedAt = 'createdAt',
+  Title = 'title'
+}
+
+export type NotificationEventSortInput = {
+  /**
+   * Sort query result is sorted descending or ascending (if not provided the default is
+   * ascending)
+   */
+  desc?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Sort query result by `key` */
+  key: NotificationEventSortFieldInput;
+};
+
+export type NotificationEventsResponse = NotificationEventConnector;
 
 export type NotificationQueriesResponse = NotificationQueryConnector;
 

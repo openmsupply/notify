@@ -3,7 +3,6 @@ use crate::settings::Settings;
 use async_trait::async_trait;
 use chrono::Utc;
 use lettre::address::AddressError;
-use nanohtml2text::html2text;
 use repository::{
     NotificationEventRowRepository, NotificationEventStatus, NotificationType, RepositoryError,
 };
@@ -132,7 +131,10 @@ impl NotificationServiceTrait for NotificationService {
                 }
                 NotificationType::Email => {
                     // Try to send via email
-                    let text_body = html2text(&notification.message);
+                    let text_body = notification.message.clone();
+                    let parser = pulldown_cmark::Parser::new(&notification.message);
+                    let mut email_body = String::new();
+                    pulldown_cmark::html::push_html(&mut email_body, parser);
 
                     let result = ctx.service_provider.email_service.send_email(
                         notification.to_address.clone(),
@@ -140,7 +142,7 @@ impl NotificationServiceTrait for NotificationService {
                             .title
                             .clone()
                             .unwrap_or("Notification".to_string()),
-                        notification.message.clone(),
+                        email_body,
                         text_body,
                     );
 
@@ -200,7 +202,7 @@ impl NotificationServiceTrait for NotificationService {
                     // Try to send via telegram
                     if let Some(telegram) = &ctx.service_provider.telegram {
                         let result = telegram
-                            .send_html_message(&notification.to_address, &notification.message)
+                            .send_markdown_message(&notification.to_address, &notification.message)
                             .await;
 
                         match result {
