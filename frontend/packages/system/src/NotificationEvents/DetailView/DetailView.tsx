@@ -6,7 +6,7 @@ import {
   BasicSpinner,
   Box,
   EditIcon,
-  LoadingButton,
+  BaseButton,
   RelativeTimeDate,
   Stack,
   TextArea,
@@ -96,7 +96,7 @@ export const DetailView = () => {
         </Box>
       </AppBarContentPortal>
       {/* Description/Details section */}
-<Box
+      <Box
         sx={{ width: '100%' }}
         padding={2}
         display="flex"

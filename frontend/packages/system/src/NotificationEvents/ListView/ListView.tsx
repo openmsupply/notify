@@ -15,8 +15,9 @@ import {
 import { useQueryParamsState } from '@common/hooks';
 import { NotificationEventRowFragment, useNotificationEvents } from '../api';
 
-import { ConfigKind, StringUtils, useNavigate } from '@notify-frontend/common';
+import { ConfigKind, useNavigate } from '@notify-frontend/common';
 import { FilterBar } from './FilterBar';
+import TruncatedTextField from './TruncatedTextField';
 
 type ListViewProps = {
   kind: ConfigKind | null;
@@ -36,20 +37,6 @@ export const ListView = ({}: ListViewProps) => {
 
   const columns = useColumns<NotificationEventRowFragment>(
     [
-      { key: 'title', label: 'label.title' },
-      { key: 'toAddress', label: 'label.address' },
-      {
-        key: 'message',
-        label: 'label.message',
-        sortable: false,
-        Cell: props => (
-          <Tooltip title={props.rowData.message}>
-            <Typography>
-              {StringUtils.ellipsis(props.rowData.message, 10)}
-            </Typography>
-          </Tooltip>
-        ),
-      },
       {
         key: 'createdAt',
         label: 'label.date',
@@ -59,30 +46,39 @@ export const ListView = ({}: ListViewProps) => {
           </Tooltip>
         ),
       },
-      {
-        key: 'kind',
-        label: 'label.kind',
-        sortable: false,
-        Cell: props => (
-          <Typography>{props.rowData.notificationType}</Typography>
-        ),
-      },
+      { key: 'title', label: 'label.title' },
       {
         key: 'status',
         label: 'label.status',
         sortable: true,
         Cell: props => <Typography>{props.rowData.status}</Typography>,
       },
+      { key: 'toAddress', label: 'label.address' },
+      {
+        key: 'message',
+        label: 'label.message',
+        sortable: false,
+        Cell: props => (
+          <TruncatedTextField
+            text={props.rowData.message ?? 'No Message Recorded'}
+            maxLength={30}
+          />
+        ),
+      },
+      {
+        key: 'notificationType',
+        label: 'label.notification-type',
+        sortable: false,
+      },
       {
         key: 'errorMessage',
         label: 'error',
         sortable: true,
         Cell: props => (
-          <Tooltip title={props.rowData.errorMessage ?? 'No Error Recorded'}>
-            <Typography>
-              {StringUtils.ellipsis(props.rowData.errorMessage ?? '', 10)}
-            </Typography>
-          </Tooltip>
+          <TruncatedTextField
+            text={props.rowData.errorMessage ?? ''}
+            maxLength={10}
+          />
         ),
       },
     ],
