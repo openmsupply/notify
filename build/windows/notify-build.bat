@@ -3,7 +3,8 @@
 
 @ECHO ##### Starting notify builds #####
 mkdir "notify"
-xcopy "notify\configuration" "notify\configuration" /e /h /c /i
+xcopy "backend\configuration" "notify\configuration" /e /h /c /i
+xcopy "backend\templates" "notify\templates" /e /h /c /i
 
 copy "backend\server\notify.ico" "build\notify.ico"
 xcopy "build\*.*" "notify" /c
