@@ -7,6 +7,7 @@ export enum AppRoute {
   UserAccounts = 'users',
 
   Notifications = 'notifications',
+  NotificationEvents = 'notification-events',
   ColdChain = 'cold-chain',
   Scheduled = 'scheduled',
 
