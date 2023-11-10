@@ -129,15 +129,8 @@ export type DeleteSqlRecipientListResponse = DeleteResponse;
 export type DeleteUserAccountResponse = DeleteResponse;
 
 export type DuplicateNotificationConfigInput = {
-  configurationData?: InputMaybe<Scalars['String']['input']>;
-  id: Scalars['String']['input'];
-  kind: ConfigKind;
-  parameters?: InputMaybe<Scalars['String']['input']>;
-  recipientIds?: InputMaybe<Array<Scalars['String']['input']>>;
-  recipientListIds?: InputMaybe<Array<Scalars['String']['input']>>;
-  sqlRecipientListIds?: InputMaybe<Array<Scalars['String']['input']>>;
-  status: ConfigStatus;
-  title: Scalars['String']['input'];
+  newId: Scalars['String']['input'];
+  oldId: Scalars['String']['input'];
 };
 
 export type EqualFilterConfigKindInput = {

@@ -4,10 +4,7 @@ import {
   useNotification,
   useParams,
   useBreadcrumbs,
-  FnUtils,
 } from '@notify-frontend/common';
-
-import { ConfigStatus } from '@common/types';
 
 import { ScheduledNotificationEditForm } from './ScheduledNotificationEditForm';
 import { BaseNotificationEditPage } from '../Base/BaseNotificationEditPage';
@@ -18,7 +15,6 @@ import {
   parseScheduledNotificationConfig,
 } from './parseConfig';
 import { useUpdateNotificationConfig } from '../../api/hooks/useUpdateNotificationConfig';
-import { useDuplicateNotificationConfig } from '../../api/hooks/useDuplicateNotificationConfig';
 import {
   NotificationConfigRowFragment,
   useNotificationConfigs,
@@ -54,22 +50,9 @@ export const ScheduledNotificationEditPage = () => {
   const { mutateAsync: update, isLoading: updateIsLoading } =
     useUpdateNotificationConfig();
 
-  const { mutateAsync: duplicate } =
-    useDuplicateNotificationConfig();
-
   const onSave = async (draft: ScheduledNotification) => {
     const inputs = buildScheduledNotificationInputs(draft);
     await update({ input: inputs.update });
-  };
-
-  const onDuplicate = async (draft: ScheduledNotification) => {
-    draft.id=FnUtils.generateUUID();
-    draft.title=draft.title + " Copy";
-    // want to check if there is the same title 
-
-    draft.status= ConfigStatus.Disabled;
-    const inputs = buildScheduledNotificationInputs(draft);
-    await duplicate({ input: inputs.duplicate });
   };
 
   const isInvalid =
@@ -86,7 +69,6 @@ export const ScheduledNotificationEditPage = () => {
       isInvalid={isInvalid}
       allowParameterSets={true}
       onSave={onSave}
-      onDuplicate={onDuplicate}
       draft={draft}
       setDraft={setDraft}
       CustomForm={ScheduledNotificationEditForm}
