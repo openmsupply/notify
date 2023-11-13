@@ -57,25 +57,25 @@ pub fn queue_temperature_alert(
 ) -> Result<(), notification::NotificationServiceError> {
     let title_template = match alert.alert_type {
         AlertType::High => Some(TemplateDefinition::TemplateName(
-            "coldchain/temperature_title.html".to_string(),
+            "coldchain/temperature_title.md".to_string(),
         )),
         AlertType::Low => Some(TemplateDefinition::TemplateName(
-            "coldchain/temperature_title.html".to_string(),
+            "coldchain/temperature_title.md".to_string(),
         )),
         AlertType::Ok => Some(TemplateDefinition::TemplateName(
-            "coldchain/recovered_title.html".to_string(),
+            "coldchain/recovered_title.md".to_string(),
         )),
         AlertType::NoData => Some(TemplateDefinition::TemplateName(
-            "coldchain/no_data_title.html".to_string(),
+            "coldchain/no_data_title.md".to_string(),
         )),
     };
 
     let body_template = match alert.alert_type {
         AlertType::High | AlertType::Low => {
-            TemplateDefinition::TemplateName("coldchain/temperature.html".to_string())
+            TemplateDefinition::TemplateName("coldchain/temperature.md".to_string())
         }
-        AlertType::Ok => TemplateDefinition::TemplateName("coldchain/recovered.html".to_string()),
-        AlertType::NoData => TemplateDefinition::TemplateName("coldchain/no_data.html".to_string()),
+        AlertType::Ok => TemplateDefinition::TemplateName("coldchain/recovered.md".to_string()),
+        AlertType::NoData => TemplateDefinition::TemplateName("coldchain/no_data.md".to_string()),
     };
 
     let notification = NotificationContext {
