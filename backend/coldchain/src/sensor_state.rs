@@ -11,6 +11,10 @@ pub struct SensorState {
     pub status: SensorStatus,
     pub timestamp: NaiveDateTime,
     pub temperature: Option<f64>,
+    #[serde(default)]
+    pub reminder_timestamp: Option<NaiveDateTime>,
+    #[serde(default)]
+    pub reminder_number: usize,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq, Clone)]
@@ -116,6 +120,32 @@ mod test {
             state.timestamp,
             NaiveDateTime::parse_from_str("2020-01-01T00:00:00", "%Y-%m-%dT%H:%M:%S").unwrap()
         );
+
+        // Now save as json
+        let json_string = state.to_json_string().unwrap();
+        let result = SensorState::from_string(&json_string).unwrap();
+        assert_eq!(state, result);
+    }
+
+    #[test]
+    fn test_parse_status_no_data_reminder() {
+        let example1 = r#"{ "sensor_id": "1234", "status": "NoData", "timestamp": "2020-01-01T00:00:00", "reminder_timestamp": "2020-01-01T01:00:00", "reminder_number":1  }"#;
+        let result = SensorState::from_string(example1);
+        assert!(result.is_ok());
+        let state = result.unwrap();
+        assert_eq!(state.sensor_id, "1234");
+        assert_eq!(state.status, SensorStatus::NoData);
+        assert_eq!(
+            state.timestamp,
+            NaiveDateTime::parse_from_str("2020-01-01T00:00:00", "%Y-%m-%dT%H:%M:%S").unwrap()
+        );
+        assert_eq!(
+            state.reminder_timestamp,
+            Some(
+                NaiveDateTime::parse_from_str("2020-01-01T01:00:00", "%Y-%m-%dT%H:%M:%S").unwrap()
+            )
+        );
+        assert_eq!(state.reminder_number, 1);
 
         // Now save as json
         let json_string = state.to_json_string().unwrap();

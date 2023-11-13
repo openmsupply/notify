@@ -45,6 +45,7 @@ pub struct ColdchainAlert {
     pub data_age: String,
     pub temperature: String,
     pub alert_type: AlertType,
+    pub reminder_number: Option<usize>,
 }
 
 // Later this function probably won't exist, but serves as a reminder/POC...
@@ -133,6 +134,7 @@ mod tests {
             data_age: "1 minutes".to_string(),
             temperature: 10.12345.to_string(),
             alert_type: AlertType::High,
+            reminder_number: None,
         };
 
         let recipient1 = NotificationTarget {
@@ -199,6 +201,7 @@ mod tests {
             data_age: "2 minutes".to_string(),
             temperature: 1.01.to_string(),
             alert_type: AlertType::Low,
+            reminder_number: None,
         };
 
         let recipient1 = NotificationTarget {
@@ -265,6 +268,7 @@ mod tests {
             data_age: "2 minutes".to_string(),
             temperature: 1.01.to_string(),
             alert_type: AlertType::NoData,
+            reminder_number: None,
         };
 
         let recipient1 = NotificationTarget {

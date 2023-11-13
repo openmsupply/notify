@@ -1,4 +1,5 @@
 use chrono::{DateTime, Local, NaiveDateTime};
+use diesel::PgConnection;
 use repository::{
     NotificationConfigKind, NotificationConfigRowRepository, NotificationConfigStatus,
 };
@@ -96,7 +97,7 @@ fn try_process_coldchain_notifications(
     let mut alerts: Vec<ColdchainAlert> = Vec::new();
 
     // Loop through checking the current status for each sensor
-    for sensor_id in config.sensor_ids {
+    for sensor_id in config.sensor_ids.clone() {
         // Get the latest temperature for the sensor
         let mut connection = ctx
             .service_provider
@@ -122,35 +123,7 @@ fn try_process_coldchain_notifications(
             max_age,
         );
 
-        let current_temp: String = match latest_temperature_row.clone() {
-            Some(row) => match row.temperature {
-                Some(t) => format!("{:.2}", t), // round to 2 decimal places
-                None => "Null".to_string(),
-            },
-            None => "Never Recorded".to_string(),
-        };
-
-        let last_data_localtime: NaiveDateTime = latest_temperature_row
-            .clone()
-            .map(|row| row.log_datetime)
-            .unwrap_or_default();
-
-        let data_age: String = match latest_temperature_row.clone() {
-            Some(row) => format!(
-                "{} minutes",
-                (Local::now().naive_local() - row.log_datetime)
-                    .num_minutes()
-                    .to_string() // TODO: Improve this to show the age in hours/days/weeks/months/years? Ideally it would be translatable?
-            ),
-            None => "?? minutes".to_string(),
-        };
-
-        log::info!(
-            "Sensor {} is currently {:?} with a temperature of {}",
-            sensor_id,
-            sensor_status,
-            current_temp
-        );
+        log::info!("Sensor {} is currently {:?}", sensor_id, sensor_status);
 
         // We need this sensor status to be unique per notification config, so we include the notification config id in the key
         // This means that the same sensor can alarm in two different configs
@@ -185,6 +158,8 @@ fn try_process_coldchain_notifications(
                     status: SensorStatus::Ok,
                     timestamp: now,
                     temperature: None,
+                    reminder_timestamp: None,
+                    reminder_number: 0,
                 };
                 Ok(sensor_state)
             }
@@ -199,173 +174,54 @@ fn try_process_coldchain_notifications(
                     e
                 );
                 // Unable to parse the previous state, so we can't continue
-                // TODO: Should we continue or just assume ok in this case???
                 continue;
             }
         };
 
-        if sensor_status == prev_sensor_status.status {
-            // Status has not changed
-            log::debug!(
-                "Status for sensor {} has not changed since last check ({:?})",
-                sensor_id,
-                sensor_status
-            );
-
-            if sensor_status == SensorStatus::Ok {
-                // If the sensor is ok, we don't need to send a reminder
-                continue;
-            }
-
-            // TODO Check if we need to send a reminder notification
-
-            if prev_sensor_status.timestamp + reminder_interval < now {
-                // It's time to send a reminder
-                // Well it might just be that we are sending too many, we should record that we sent a reminder...
-                log::info!(
-                    "Sending reminder for sensor {} which has been in state {:?} since {}",
-                    sensor_id,
-                    sensor_status,
-                    prev_sensor_status.timestamp
-                );
-            } else {
-                // It's not time to send a reminder yet
-                log::debug!(
-                    "Not sending reminder for sensor {} which has been in state {:?} since {}",
-                    sensor_id,
-                    sensor_status,
-                    prev_sensor_status.timestamp
-                );
-            }
-            continue;
-        }
-
-        log::info!(
-            "Status for sensor {} has changed from {:?} to {:?}",
-            sensor_id,
-            prev_sensor_status,
-            sensor_status
+        let result = try_process_sensor_notification(
+            &mut connection,
+            &config,
+            prev_sensor_status.clone(),
+            sensor_status,
+            sensor_id.clone(),
+            reminder_interval,
+            now_local,
+            latest_temperature_row,
         );
-
-        // Persist the new status
-        // Note: Since we only persist `new` statuses, if a sensor has always been in the ok state, it won't have a record in the plugin store
-        let sensor_state = SensorState {
-            sensor_id: sensor_id.clone(),
-            status: sensor_status.clone(),
-            timestamp: latest_temperature_row
-                .clone()
-                .map(|row| row.log_datetime)
-                .unwrap_or_default(),
-            temperature: latest_temperature_row
-                .map(|row| row.temperature)
-                .unwrap_or(None),
-        };
-
-        let result = ctx.service_provider.plugin_service.set_value(
-            ctx,
-            PLUGIN_NAME.to_string(),
-            sensor_status_key,
-            sensor_state.to_json_string()?,
-        );
-        match result {
-            Ok(_) => {
-                log::debug!("Saved new state for sensor {}", sensor_id);
-            }
+        let (sensor_state, alert) = match result {
+            Ok((state, alert)) => (state, alert),
             Err(e) => {
                 log::error!(
-                    "Failed to persist new state for sensor {}: {:?}",
+                    "Failed to process sensor notification for sensor {}: {:?}",
                     sensor_id,
                     e
                 );
+                // Unable to process the sensor notification, so we can't continue
                 continue;
             }
+        };
+
+        // if we have an updated state, persist it...
+        if sensor_state.status != prev_sensor_status.status {
+            let result = ctx.service_provider.plugin_service.set_value(
+                ctx,
+                PLUGIN_NAME.to_string(),
+                sensor_status_key,
+                sensor_state.to_json_string()?,
+            );
+            match result {
+                Ok(_) => {
+                    log::debug!("Saved new state for sensor {}", sensor_id);
+                }
+                Err(e) => {
+                    log::error!(
+                        "Failed to persist new state for sensor {}: {:?}",
+                        sensor_id,
+                        e
+                    );
+                }
+            };
         }
-
-        // Create the a notification if correct type of notification is enabled
-
-        // Get Sensor information from the database to use in alerts
-        let sensor_row = sensor_info(&mut connection, sensor_id.clone()).map_err(|e| {
-            ColdChainError::InternalError(format!(
-                "Failed to get sensor info from the database {}: {:?}",
-                sensor_id, e
-            ))
-        })?;
-
-        let sensor_row = match sensor_row {
-            Some(row) => row,
-            None => {
-                log::error!("No sensor info found for sensor {}", sensor_id);
-                continue;
-            }
-        };
-
-        let alert = match sensor_status {
-            SensorStatus::HighTemp => match config.high_temp {
-                true => Some(ColdchainAlert {
-                    store_name: sensor_row.store_name.clone(),
-                    location_name: sensor_row.location_name.clone(),
-                    sensor_id: sensor_id.clone(),
-                    sensor_name: sensor_row.sensor_name.clone(),
-                    last_data_time: sensor_state.timestamp,
-                    data_age,
-                    temperature: current_temp,
-                    alert_type: AlertType::High,
-                }),
-                false => {
-                    log::info!("High temp alert disabled for sensor {}", sensor_id);
-                    None
-                }
-            },
-
-            SensorStatus::LowTemp => match config.low_temp {
-                true => Some(ColdchainAlert {
-                    store_name: sensor_row.store_name.clone(),
-                    location_name: sensor_row.location_name.clone(),
-                    sensor_id: sensor_id.clone(),
-                    sensor_name: sensor_row.sensor_name.clone(),
-                    last_data_time: last_data_localtime,
-                    data_age,
-                    temperature: current_temp,
-                    alert_type: AlertType::Low,
-                }),
-                false => {
-                    log::info!("Low temp alert disabled for sensor {}", sensor_id);
-                    None
-                }
-            },
-            SensorStatus::Ok => match config.confirm_ok {
-                true => Some(ColdchainAlert {
-                    store_name: sensor_row.store_name.clone(),
-                    location_name: sensor_row.location_name.clone(),
-                    sensor_id: sensor_id.clone(),
-                    sensor_name: sensor_row.sensor_name.clone(),
-                    last_data_time: last_data_localtime,
-                    data_age,
-                    temperature: current_temp,
-                    alert_type: AlertType::Ok,
-                }),
-                false => {
-                    log::info!("Confirm Ok alert disabled for sensor {}", sensor_id);
-                    None
-                }
-            },
-            SensorStatus::NoData => match config.no_data {
-                true => Some(ColdchainAlert {
-                    store_name: sensor_row.store_name.clone(),
-                    location_name: sensor_row.location_name.clone(),
-                    sensor_id: sensor_id.clone(),
-                    sensor_name: sensor_row.sensor_name.clone(),
-                    last_data_time: last_data_localtime,
-                    data_age,
-                    temperature: current_temp,
-                    alert_type: AlertType::NoData,
-                }),
-                false => {
-                    log::info!("No data alert disabled for sensor {}", sensor_id);
-                    None
-                }
-            },
-        };
 
         if let Some(alert) = alert {
             alerts.push(alert);
@@ -408,6 +264,192 @@ fn try_process_coldchain_notifications(
     }
 
     Ok(ProcessingResult::Success)
+}
+
+fn try_process_sensor_notification(
+    connection: &mut PgConnection,
+    config: &ColdChainPluginConfig,
+    prev_sensor_state: SensorState,
+    curr_sensor_status: SensorStatus,
+    sensor_id: String,
+    reminder_interval: chrono::Duration,
+    now_local: NaiveDateTime,
+    latest_temperature_row: Option<latest_temperature::LatestTemperatureRow>,
+) -> Result<(SensorState, Option<ColdchainAlert>), ColdChainError> {
+    if curr_sensor_status == prev_sensor_state.status {
+        // Status has not changed
+        log::debug!(
+            "Status for sensor {} has not changed since last check ({:?})",
+            sensor_id,
+            curr_sensor_status
+        );
+
+        if curr_sensor_status == SensorStatus::Ok {
+            // If the sensor is ok, we don't need to send a reminder
+            return Ok((prev_sensor_state, None));
+        }
+
+        // Check if if a reminder is due
+
+        if prev_sensor_state.timestamp + reminder_interval < now_local {
+            // It's time to send a reminder
+            // Well it might just be that we are sending too many, we should record that we sent a reminder...
+            log::info!(
+                "Sending reminder for sensor {} which has been in state {:?} since {}",
+                sensor_id,
+                curr_sensor_status,
+                prev_sensor_state.timestamp
+            );
+
+            // Increment the reminder number in the state
+        } else {
+            // It's not time to send a reminder yet
+            log::debug!(
+                "Not sending reminder for sensor {} which has been in state {:?} since {}",
+                sensor_id,
+                curr_sensor_status,
+                prev_sensor_state.timestamp
+            );
+        }
+        return Ok((prev_sensor_state, None));
+    }
+
+    log::info!(
+        "Status for sensor {} has changed from {:?} to {:?}",
+        sensor_id,
+        prev_sensor_state.status,
+        curr_sensor_status
+    );
+
+    let last_data_localtime: NaiveDateTime = latest_temperature_row
+        .clone()
+        .map(|row| row.log_datetime)
+        .unwrap_or_default();
+
+    let data_age: String = match latest_temperature_row.clone() {
+        Some(row) => format!(
+            "{} minutes",
+            (Local::now().naive_local() - row.log_datetime)
+                .num_minutes()
+                .to_string() // TODO: Improve this to show the age in hours/days/weeks/months/years? Ideally it would be translatable?
+        ),
+        None => "?? minutes".to_string(),
+    };
+
+    let current_temp: String = match latest_temperature_row.clone() {
+        Some(row) => match row.temperature {
+            Some(t) => format!("{:.2}", t), // round to 2 decimal places
+            None => "Null".to_string(),
+        },
+        None => "Never Recorded".to_string(),
+    };
+
+    // Calculate the new sensor state
+    let sensor_state = SensorState {
+        sensor_id: sensor_id.clone(),
+        status: curr_sensor_status.clone(),
+        timestamp: latest_temperature_row
+            .clone()
+            .map(|row| row.log_datetime)
+            .unwrap_or_default(),
+        temperature: latest_temperature_row
+            .map(|row| row.temperature)
+            .unwrap_or(None),
+        reminder_timestamp: None,
+        reminder_number: 0,
+    };
+
+    // Create the a notification if correct type of notification is enabled
+
+    // Get Sensor information from the database to use in alerts
+    let sensor_row = sensor_info(connection, sensor_id.clone()).map_err(|e| {
+        ColdChainError::InternalError(format!(
+            "Failed to get sensor info from the database {}: {:?}",
+            sensor_id, e
+        ))
+    })?;
+
+    let sensor_row = match sensor_row {
+        Some(row) => row,
+        None => {
+            log::error!("No sensor info found for sensor {}", sensor_id);
+            return Ok((sensor_state, None));
+        }
+    };
+
+    let alert = match curr_sensor_status {
+        SensorStatus::HighTemp => match config.high_temp {
+            true => Some(ColdchainAlert {
+                store_name: sensor_row.store_name.clone(),
+                location_name: sensor_row.location_name.clone(),
+                sensor_id: sensor_id.clone(),
+                sensor_name: sensor_row.sensor_name.clone(),
+                last_data_time: sensor_state.timestamp,
+                data_age,
+                temperature: current_temp,
+                alert_type: AlertType::High,
+                reminder_number: None,
+            }),
+            false => {
+                log::info!("High temp alert disabled for sensor {}", sensor_id);
+                None
+            }
+        },
+
+        SensorStatus::LowTemp => match config.low_temp {
+            true => Some(ColdchainAlert {
+                store_name: sensor_row.store_name.clone(),
+                location_name: sensor_row.location_name.clone(),
+                sensor_id: sensor_id.clone(),
+                sensor_name: sensor_row.sensor_name.clone(),
+                last_data_time: last_data_localtime,
+                data_age,
+                temperature: current_temp,
+                alert_type: AlertType::Low,
+                reminder_number: None,
+            }),
+            false => {
+                log::info!("Low temp alert disabled for sensor {}", sensor_id);
+                None
+            }
+        },
+        SensorStatus::Ok => match config.confirm_ok {
+            true => Some(ColdchainAlert {
+                store_name: sensor_row.store_name.clone(),
+                location_name: sensor_row.location_name.clone(),
+                sensor_id: sensor_id.clone(),
+                sensor_name: sensor_row.sensor_name.clone(),
+                last_data_time: last_data_localtime,
+                data_age,
+                temperature: current_temp,
+                alert_type: AlertType::Ok,
+                reminder_number: None,
+            }),
+            false => {
+                log::info!("Confirm Ok alert disabled for sensor {}", sensor_id);
+                None
+            }
+        },
+        SensorStatus::NoData => match config.no_data {
+            true => Some(ColdchainAlert {
+                store_name: sensor_row.store_name.clone(),
+                location_name: sensor_row.location_name.clone(),
+                sensor_id: sensor_id.clone(),
+                sensor_name: sensor_row.sensor_name.clone(),
+                last_data_time: last_data_localtime,
+                data_age,
+                temperature: current_temp,
+                alert_type: AlertType::NoData,
+                reminder_number: None,
+            }),
+            false => {
+                log::info!("No data alert disabled for sensor {}", sensor_id);
+                None
+            }
+        },
+    };
+
+    Ok((sensor_state, alert))
 }
 
 fn evaluate_sensor_status(
