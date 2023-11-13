@@ -140,7 +140,7 @@ fn try_process_coldchain_notifications(
                 let sensor_state = SensorState {
                     sensor_id: sensor_id.clone(),
                     status: SensorStatus::Ok,
-                    last_data_localtime: now_local,
+                    timestamp_localtime: now_local,
                     status_start_utc: now,
                     temperature: None,
                     last_notification_utc: None,
@@ -302,6 +302,11 @@ pub fn try_process_sensor_notification(
             return Ok((prev_sensor_state, None));
         }
 
+        if !config.remind {
+            // If reminders are disabled, we don't need to send a reminder
+            return Ok((prev_sensor_state, None));
+        }
+
         // Check if if a reminder is due
         let last_alert_timestamp = match prev_sensor_state.last_notification_utc {
             Some(t) => t,
@@ -365,7 +370,7 @@ pub fn try_process_sensor_notification(
     let sensor_state = SensorState {
         sensor_id: sensor_row.id.clone(),
         status: curr_sensor_status.clone(),
-        last_data_localtime: latest_temperature_row
+        timestamp_localtime: latest_temperature_row
             .clone()
             .map(|row| row.log_datetime)
             .unwrap_or_default(),
@@ -384,7 +389,7 @@ pub fn try_process_sensor_notification(
                 location_name: sensor_row.location_name.clone(),
                 sensor_id: sensor_row.id.clone(),
                 sensor_name: sensor_row.sensor_name.clone(),
-                last_data_time: sensor_state.last_data_localtime,
+                last_data_time: sensor_state.timestamp_localtime,
                 data_age,
                 temperature: current_temp,
                 alert_type: AlertType::High,

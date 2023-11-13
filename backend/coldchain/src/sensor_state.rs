@@ -10,7 +10,7 @@ pub struct SensorState {
     pub sensor_id: String,
     pub status: SensorStatus,
     #[serde(alias = "timestamp")]
-    pub last_data_localtime: NaiveDateTime,
+    pub timestamp_localtime: NaiveDateTime,
     pub temperature: Option<f64>,
     #[serde(default)]
     pub status_start_utc: NaiveDateTime,
@@ -52,7 +52,7 @@ mod test {
 
     #[test]
     fn test_parse_status_ok_with_status_start_utc() {
-        let example1 = r#"{ "sensor_id": "1234", "status": "Ok", "last_data_localtime": "2020-01-01T00:00:00", "status_start_utc": "2019-09-01T00:00:00" }"#;
+        let example1 = r#"{ "sensor_id": "1234", "status": "Ok", "timestamp_localtime": "2020-01-01T00:00:00", "status_start_utc": "2019-09-01T00:00:00" }"#;
         let result = SensorState::from_string(example1);
         println!("{:?}", result);
         assert!(result.is_ok());
@@ -60,7 +60,7 @@ mod test {
         assert_eq!(state.sensor_id, "1234");
         assert_eq!(state.status, SensorStatus::Ok);
         assert_eq!(
-            state.last_data_localtime,
+            state.timestamp_localtime,
             NaiveDateTime::parse_from_str("2020-01-01T00:00:00", "%Y-%m-%dT%H:%M:%S").unwrap()
         );
         assert_eq!(
@@ -85,7 +85,7 @@ mod test {
         assert_eq!(state.sensor_id, "1234");
         assert_eq!(state.status, SensorStatus::Ok);
         assert_eq!(
-            state.last_data_localtime,
+            state.timestamp_localtime,
             NaiveDateTime::parse_from_str("2020-01-01T00:00:00", "%Y-%m-%dT%H:%M:%S").unwrap()
         );
 
@@ -105,7 +105,7 @@ mod test {
         assert_eq!(state.sensor_id, "1234");
         assert_eq!(state.status, SensorStatus::LowTemp);
         assert_eq!(
-            state.last_data_localtime,
+            state.timestamp_localtime,
             NaiveDateTime::parse_from_str("2020-01-01T00:00:00", "%Y-%m-%dT%H:%M:%S").unwrap()
         );
 
@@ -125,7 +125,7 @@ mod test {
         assert_eq!(state.sensor_id, "1234");
         assert_eq!(state.status, SensorStatus::HighTemp);
         assert_eq!(
-            state.last_data_localtime,
+            state.timestamp_localtime,
             NaiveDateTime::parse_from_str("2020-01-01T00:00:00", "%Y-%m-%dT%H:%M:%S").unwrap()
         );
 
@@ -145,7 +145,7 @@ mod test {
         assert_eq!(state.sensor_id, "1234");
         assert_eq!(state.status, SensorStatus::NoData);
         assert_eq!(
-            state.last_data_localtime,
+            state.timestamp_localtime,
             NaiveDateTime::parse_from_str("2020-01-01T00:00:00", "%Y-%m-%dT%H:%M:%S").unwrap()
         );
 
@@ -157,14 +157,14 @@ mod test {
 
     #[test]
     fn test_parse_status_no_data_reminder() {
-        let example1 = r#"{ "sensor_id": "1234", "status": "NoData", "last_data_localtime": "2020-01-01T00:00:00", "last_notification_utc": "2020-01-01T01:00:00", "status_start_utc": "2020-01-01T01:00:00", "reminder_number":1  }"#;
+        let example1 = r#"{ "sensor_id": "1234", "status": "NoData", "timestamp_localtime": "2020-01-01T00:00:00", "last_notification_utc": "2020-01-01T01:00:00", "status_start_utc": "2020-01-01T01:00:00", "reminder_number":1  }"#;
         let result = SensorState::from_string(example1);
         assert!(result.is_ok());
         let state = result.unwrap();
         assert_eq!(state.sensor_id, "1234");
         assert_eq!(state.status, SensorStatus::NoData);
         assert_eq!(
-            state.last_data_localtime,
+            state.timestamp_localtime,
             NaiveDateTime::parse_from_str("2020-01-01T00:00:00", "%Y-%m-%dT%H:%M:%S").unwrap()
         );
         assert_eq!(

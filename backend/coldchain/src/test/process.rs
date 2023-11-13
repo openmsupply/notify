@@ -168,7 +168,7 @@ fn test_try_process_sensor_notification_prev_ok() {
     let prev_sensor_state_ok_1min = SensorState {
         sensor_id: "1".to_string(),
         status: SensorStatus::Ok,
-        last_data_localtime: now_local - chrono::Duration::minutes(1),
+        timestamp_localtime: now_local - chrono::Duration::minutes(1),
         temperature: Some(5.5),
         status_start_utc: Utc::now().naive_utc() - chrono::Duration::minutes(1),
         last_notification_utc: None,
@@ -179,7 +179,7 @@ fn test_try_process_sensor_notification_prev_ok() {
     let prev_sensor_state_ok_now_no_data = SensorState {
         sensor_id: "1".to_string(),
         status: SensorStatus::Ok,
-        last_data_localtime: now_local - config.no_data_duration() - chrono::Duration::minutes(1),
+        timestamp_localtime: now_local - config.no_data_duration() - chrono::Duration::minutes(1),
         temperature: Some(5.5),
         status_start_utc: Utc::now().naive_utc()
             - config.no_data_duration()
@@ -327,7 +327,7 @@ fn test_try_process_sensor_notification_prev_high() {
     let prev_sensor_state_high_1min = SensorState {
         sensor_id: "1".to_string(),
         status: SensorStatus::HighTemp,
-        last_data_localtime: now_local - chrono::Duration::minutes(1),
+        timestamp_localtime: now_local - chrono::Duration::minutes(1),
         temperature: Some(config.high_temp_threshold + 1.0),
         status_start_utc: Utc::now().naive_utc() - chrono::Duration::minutes(1),
         last_notification_utc: None,
@@ -338,7 +338,7 @@ fn test_try_process_sensor_notification_prev_high() {
     let prev_sensor_state_high_now_no_data = SensorState {
         sensor_id: "1".to_string(),
         status: SensorStatus::HighTemp,
-        last_data_localtime: now_local - config.no_data_duration() - chrono::Duration::minutes(1),
+        timestamp_localtime: now_local - config.no_data_duration() - chrono::Duration::minutes(1),
         temperature: Some(config.high_temp_threshold + 1.0),
         status_start_utc: Utc::now().naive_utc()
             - config.no_data_duration()
@@ -486,7 +486,7 @@ fn test_try_process_sensor_notification_prev_low() {
     let prev_sensor_state_low_1min = SensorState {
         sensor_id: "1".to_string(),
         status: SensorStatus::LowTemp,
-        last_data_localtime: now_local - chrono::Duration::minutes(1),
+        timestamp_localtime: now_local - chrono::Duration::minutes(1),
         temperature: Some(config.low_temp_threshold - 1.0),
         status_start_utc: Utc::now().naive_utc() - chrono::Duration::minutes(1),
         last_notification_utc: None,
@@ -497,7 +497,7 @@ fn test_try_process_sensor_notification_prev_low() {
     let prev_sensor_state_low_now_no_data = SensorState {
         sensor_id: "1".to_string(),
         status: SensorStatus::LowTemp,
-        last_data_localtime: now_local - config.no_data_duration() - chrono::Duration::minutes(1),
+        timestamp_localtime: now_local - config.no_data_duration() - chrono::Duration::minutes(1),
         temperature: Some(config.low_temp_threshold - 1.0),
         status_start_utc: Utc::now().naive_utc()
             - config.no_data_duration()
@@ -647,7 +647,7 @@ fn test_try_process_sensor_notification_prev_no_data() {
     let prev_sensor_state_no_data = SensorState {
         sensor_id: "1".to_string(),
         status: SensorStatus::NoData,
-        last_data_localtime: last_data_timestamp.clone(),
+        timestamp_localtime: last_data_timestamp.clone(),
         temperature: Some(5.5),
         status_start_utc: Utc::now().naive_utc() - chrono::Duration::minutes(1),
         last_notification_utc: None,
@@ -750,5 +750,295 @@ fn test_try_process_sensor_notification_prev_no_data() {
 
     assert_eq!(sensor_state.status, SensorStatus::NoData);
     println!("Alert: {:?}, Sensor State: {:?}", alert, sensor_state);
+    assert_eq!(alert.is_none(), true);
+}
+
+#[test]
+fn test_try_process_sensor_notification_no_data_reminder() {
+    /*
+       Config with all alerts enabled
+       1 Hour Reminders
+       1 Hour Timeout for No Data
+    */
+
+    let config = ColdChainPluginConfig {
+        sensor_ids: vec!["1".to_string()],
+        high_temp: true,
+        high_temp_threshold: 8.0,
+        low_temp: true,
+        low_temp_threshold: 2.0,
+        no_data: true,
+        confirm_ok: true,
+        no_data_interval: 1,
+        no_data_interval_units: service::notification_config::intervals::IntervalUnits::Hours,
+        remind: true,
+        reminder_interval: 1,
+        reminder_units: service::notification_config::intervals::IntervalUnits::Hours,
+    };
+
+    // Sensor Data
+    let sensor_row = SensorInfoRow {
+        id: "1".to_string(),
+        sensor_name: "Sensor 1".to_string(),
+        location_name: "Location 1".to_string(),
+        store_name: "Store 1".to_string(),
+        store_id: String::new(),
+        batterylevel: Some(90.0),
+    };
+
+    // Time Now (Local Time)
+    let now_local =
+        NaiveDateTime::parse_from_str("2020-01-01T00:01:00", "%Y-%m-%dT%H:%M:%S").unwrap();
+
+    // Assume we've gone no data for 1 hour (no data duration + reminder duration)
+    let last_data_timestamp = now_local
+        - config.no_data_duration()
+        - config.reminder_duration()
+        - chrono::Duration::minutes(1);
+
+    // Previous Sensor State No Data 1 minute ago
+    let prev_sensor_state_no_data = SensorState {
+        sensor_id: "1".to_string(),
+        status: SensorStatus::NoData,
+        timestamp_localtime: last_data_timestamp.clone(),
+        temperature: Some(5.5),
+        status_start_utc: Utc::now().naive_utc()
+            - config.reminder_duration()
+            - chrono::Duration::minutes(1),
+        last_notification_utc: Some(Utc::now().naive_utc() - config.no_data_duration()),
+        reminder_number: 0,
+    };
+
+    /*
+        Test 1: Has been No Data for 1 hour (Reminder Duration) but still no data -> Send a reminder
+    */
+
+    let latest_temperature_row = Some(LatestTemperatureRow {
+        id: "1".to_string(),
+        sensor_id: "1".to_string(),
+        log_datetime: last_data_timestamp,
+        temperature: Some(5.5), // Within limits
+    });
+
+    let (sensor_state, alert) = try_process_sensor_notification(
+        &config,
+        prev_sensor_state_no_data.clone(),
+        sensor_row.clone(),
+        now_local,
+        latest_temperature_row,
+    )
+    .unwrap();
+    assert_eq!(sensor_state.status, SensorStatus::NoData);
+    assert_eq!(alert.is_some(), true);
+    let alert = alert.unwrap();
+    assert_eq!(alert.alert_type, AlertType::NoData);
+    assert_eq!(sensor_state.reminder_number, 1);
+
+    // If reminders are turned off, we shouldn't get a reminder...
+    /*
+       Config with all alerts enabled
+       NO REMINDERS
+       1 Hour Timeout for No Data
+    */
+
+    let config = ColdChainPluginConfig {
+        sensor_ids: vec!["1".to_string()],
+        high_temp: true,
+        high_temp_threshold: 8.0,
+        low_temp: true,
+        low_temp_threshold: 2.0,
+        no_data: true,
+        confirm_ok: true,
+        no_data_interval: 1,
+        no_data_interval_units: service::notification_config::intervals::IntervalUnits::Hours,
+        remind: false, // Reminders disabled!
+        reminder_interval: 1,
+        reminder_units: service::notification_config::intervals::IntervalUnits::Hours,
+    };
+
+    /*
+        Test 2: Has been No Data for 1 hour (e.g. Reminder Duration) and still no data BUT reminders are turned off -> Don't send a reminder
+    */
+
+    let latest_temperature_row = Some(LatestTemperatureRow {
+        id: "1".to_string(),
+        sensor_id: "1".to_string(),
+        log_datetime: last_data_timestamp,
+        temperature: Some(5.5), // Within limits
+    });
+
+    let (sensor_state, alert) = try_process_sensor_notification(
+        &config,
+        prev_sensor_state_no_data.clone(),
+        sensor_row.clone(),
+        now_local,
+        latest_temperature_row,
+    )
+    .unwrap();
+    assert_eq!(sensor_state.status, SensorStatus::NoData);
+    assert_eq!(alert.is_none(), true);
+}
+
+#[test]
+fn test_try_process_sensor_notification_high_temp_reminder() {
+    /*
+       Config with all alerts enabled
+       1 Hour Reminders
+       1 Hour Timeout for No Data
+    */
+
+    let config = ColdChainPluginConfig {
+        sensor_ids: vec!["1".to_string()],
+        high_temp: true,
+        high_temp_threshold: 8.0,
+        low_temp: true,
+        low_temp_threshold: 2.0,
+        no_data: true,
+        confirm_ok: true,
+        no_data_interval: 1,
+        no_data_interval_units: service::notification_config::intervals::IntervalUnits::Hours,
+        remind: true,
+        reminder_interval: 1,
+        reminder_units: service::notification_config::intervals::IntervalUnits::Hours,
+    };
+
+    // Sensor Data
+    let sensor_row = SensorInfoRow {
+        id: "1".to_string(),
+        sensor_name: "Sensor 1".to_string(),
+        location_name: "Location 1".to_string(),
+        store_name: "Store 1".to_string(),
+        store_id: String::new(),
+        batterylevel: Some(90.0),
+    };
+
+    // Time Now (Local Time)
+    let now_local =
+        NaiveDateTime::parse_from_str("2020-01-01T00:01:00", "%Y-%m-%dT%H:%M:%S").unwrap();
+
+    // Assume we've been High Temperature for 1 hour (reminder duration)
+    let prev_sensor_state_no_data = SensorState {
+        sensor_id: "1".to_string(),
+        status: SensorStatus::HighTemp,
+        timestamp_localtime: now_local - config.reminder_duration() - chrono::Duration::minutes(1),
+        temperature: Some(5.5),
+        status_start_utc: Utc::now().naive_utc()
+            - config.reminder_duration()
+            - chrono::Duration::minutes(1),
+        last_notification_utc: Some(
+            Utc::now().naive_utc() - config.reminder_duration() - chrono::Duration::minutes(1),
+        ),
+        reminder_number: 0,
+    };
+
+    /*
+        Test 1: Has been High for 1 hour (Reminder Duration) and we're still High Temp -> Send a reminder
+    */
+
+    let latest_temperature_row = Some(LatestTemperatureRow {
+        id: "1".to_string(),
+        sensor_id: "1".to_string(),
+        log_datetime: now_local,
+        temperature: Some(config.high_temp_threshold + 1.0), // High Temp
+    });
+
+    let (sensor_state, alert) = try_process_sensor_notification(
+        &config,
+        prev_sensor_state_no_data.clone(),
+        sensor_row.clone(),
+        now_local,
+        latest_temperature_row,
+    )
+    .unwrap();
+    assert_eq!(sensor_state.status, SensorStatus::HighTemp);
+    assert_eq!(alert.is_some(), true);
+    let alert = alert.unwrap();
+    assert_eq!(alert.alert_type, AlertType::High);
+    assert_eq!(sensor_state.reminder_number, 1);
+
+    // Assume we've been High Temperature for more than 2 hours (reminder duration *2)
+    let prev_sensor_state_no_data = SensorState {
+        sensor_id: "1".to_string(),
+        status: SensorStatus::HighTemp,
+        timestamp_localtime: now_local
+            - config.reminder_duration() * 2
+            - chrono::Duration::minutes(1),
+        temperature: Some(5.5),
+        status_start_utc: Utc::now().naive_utc()
+            - config.reminder_duration() * 2
+            - chrono::Duration::minutes(1),
+        last_notification_utc: Some(
+            Utc::now().naive_utc() - config.reminder_duration() - chrono::Duration::minutes(1),
+        ),
+        reminder_number: 1,
+    };
+
+    /*
+        Test 1: Has been High for more than 2 hours (Reminder Duration 2) and we're still High Temp -> Send a second reminder
+    */
+
+    let latest_temperature_row = Some(LatestTemperatureRow {
+        id: "1".to_string(),
+        sensor_id: "1".to_string(),
+        log_datetime: now_local,
+        temperature: Some(config.high_temp_threshold + 1.0), // High Temp
+    });
+
+    let (sensor_state, alert) = try_process_sensor_notification(
+        &config,
+        prev_sensor_state_no_data.clone(),
+        sensor_row.clone(),
+        now_local,
+        latest_temperature_row,
+    )
+    .unwrap();
+    assert_eq!(sensor_state.status, SensorStatus::HighTemp);
+    assert_eq!(alert.is_some(), true);
+    let alert = alert.unwrap();
+    assert_eq!(alert.alert_type, AlertType::High);
+    assert_eq!(sensor_state.reminder_number, 2);
+
+    // If reminders are turned off, we shouldn't get a reminder...
+    /*
+       Config with all alerts enabled
+       NO REMINDERS
+       1 Hour Timeout for No Data
+    */
+
+    let config = ColdChainPluginConfig {
+        sensor_ids: vec!["1".to_string()],
+        high_temp: true,
+        high_temp_threshold: 8.0,
+        low_temp: true,
+        low_temp_threshold: 2.0,
+        no_data: true,
+        confirm_ok: true,
+        no_data_interval: 1,
+        no_data_interval_units: service::notification_config::intervals::IntervalUnits::Hours,
+        remind: false, // Reminders disabled!
+        reminder_interval: 1,
+        reminder_units: service::notification_config::intervals::IntervalUnits::Hours,
+    };
+
+    /*
+        Test 3: Has been No Data for 1 hour (e.g. Reminder Duration) and still no data BUT reminders are turned off -> Don't send a reminder
+    */
+
+    let latest_temperature_row = Some(LatestTemperatureRow {
+        id: "1".to_string(),
+        sensor_id: "1".to_string(),
+        log_datetime: now_local,
+        temperature: Some(config.high_temp_threshold + 1.0), // High Temp
+    });
+
+    let (sensor_state, alert) = try_process_sensor_notification(
+        &config,
+        prev_sensor_state_no_data.clone(),
+        sensor_row.clone(),
+        now_local,
+        latest_temperature_row,
+    )
+    .unwrap();
+    assert_eq!(sensor_state.status, SensorStatus::HighTemp);
     assert_eq!(alert.is_none(), true);
 }
