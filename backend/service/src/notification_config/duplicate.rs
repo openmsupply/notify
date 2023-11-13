@@ -1,7 +1,7 @@
-use chrono::Utc;
+use chrono::{Local, Utc};
 use repository::{
-    LogType, NotificationConfigKind, NotificationConfigRow, NotificationConfigRowRepository,
-    NotificationConfigStatus, StorageConnection,
+    LogType, NotificationConfigRow, NotificationConfigRowRepository, NotificationConfigStatus,
+    StorageConnection,
 };
 
 use crate::{audit_log::audit_log_entry, service_provider::ServiceContext};
@@ -14,26 +14,23 @@ use super::{
 
 #[derive(Clone)]
 pub struct DuplicateNotificationConfig {
-    pub id: String,
-    pub title: String,
-    pub kind: NotificationConfigKind,
-    pub status: NotificationConfigStatus,
-    pub configuration_data: Option<String>,
-    pub parameters: Option<String>,
-    pub recipient_ids: Option<Vec<String>>,
-    pub recipient_list_ids: Option<Vec<String>>,
-    pub sql_recipient_list_ids: Option<Vec<String>>,
+    pub old_id: String,
+    pub new_id: String,
 }
 
 pub fn duplicate_notification_config(
     ctx: &ServiceContext,
-    new_config: DuplicateNotificationConfig,
+    duplicate_config: DuplicateNotificationConfig,
 ) -> Result<NotificationConfig, ModifyNotificationConfigError> {
     let notification_config = ctx
         .connection
         .transaction_sync(|connection| {
-            validate(&new_config, connection)?;
-            let new_config_row = generate(new_config.clone())?;
+            let repo = NotificationConfigRowRepository::new(connection);
+            let old_config = repo
+                .find_one_by_id(&duplicate_config.old_id)?
+                .ok_or(ModifyNotificationConfigError::NotificationConfigDoesNotExist)?;
+
+            let new_config_row = generate(&duplicate_config, old_config)?;
 
             NotificationConfigRowRepository::new(connection).insert_one(&new_config_row)?;
 
@@ -45,7 +42,7 @@ pub fn duplicate_notification_config(
     audit_log_entry(
         &ctx,
         LogType::NotificationConfigCreated,
-        Some(new_config.id),
+        Some(duplicate_config.new_id),
         Utc::now().naive_utc(),
     )?;
 
@@ -56,76 +53,28 @@ pub fn validate(
     new_config: &DuplicateNotificationConfig,
     connection: &StorageConnection,
 ) -> Result<(), ModifyNotificationConfigError> {
-    if !check_notification_config_does_not_exist(&new_config.id, connection)? {
+    if !check_notification_config_does_not_exist(&new_config.new_id, connection)? {
         return Err(ModifyNotificationConfigError::NotificationConfigAlreadyExists);
     }
     Ok(())
 }
 
 pub fn generate(
-    DuplicateNotificationConfig { 
-        id, //ID is already used for look up so we can assume it's the same
-        title,
-        kind,
-        status,
-        configuration_data,
-        parameters,
-        recipient_ids,
-        recipient_list_ids,
-        sql_recipient_list_ids,
-    }: DuplicateNotificationConfig,
+    DuplicateNotificationConfig { old_id: _, new_id }: &DuplicateNotificationConfig,
+    old_row: NotificationConfigRow,
 ) -> Result<NotificationConfigRow, ModifyNotificationConfigError> {
-    let mut new_configuration_data = "{}".to_string();
-    if let Some(configuration_data) = configuration_data {
-        new_configuration_data = configuration_data;
-    }
-
-    let mut new_parameters = "{}".to_string();
-    if let Some(parameters) = parameters {
-        new_parameters = parameters;
-    }
-
-    let mut new_recipient_ids = "[]".to_string(); 
-    if let Some(recipient_ids) = recipient_ids {
-        let recipient_json = serde_json::to_string(&recipient_ids).map_err(|_| {
-            ModifyNotificationConfigError::BadUserInput(
-                "Could not convert recipients to JSON".to_string(),
-            )
-        })?;
-        new_recipient_ids = recipient_json;
-    }
-
-    let mut new_recipient_list_ids = "[]".to_string();
-    if let Some(recipient_list_ids) = recipient_list_ids {
-        let recipient_json = serde_json::to_string(&recipient_list_ids).map_err(|_| {
-            ModifyNotificationConfigError::BadUserInput(
-                "Could not convert recipients to JSON".to_string(),
-            )
-        })?;
-        new_recipient_list_ids = recipient_json;
-    }
-
-    let mut new_sql_recipient_list_ids = "[]".to_string();
-    if let Some(sql_recipient_list_ids) = sql_recipient_list_ids {
-        let recipient_json = serde_json::to_string(&sql_recipient_list_ids).map_err(|_| {
-            ModifyNotificationConfigError::BadUserInput(
-                "Could not convert recipients to JSON".to_string(),
-            )
-        })?;
-        new_sql_recipient_list_ids = recipient_json;
-    }
-
-    Ok(NotificationConfigRow {
-        id,
-        title: title.trim().to_string(),
-        kind,
-        configuration_data: new_configuration_data,
-        status,
-        parameters: new_parameters,
-        recipient_ids: new_recipient_ids,
-        recipient_list_ids: new_recipient_list_ids,
-        sql_recipient_list_ids: new_sql_recipient_list_ids,
+    let new_row = NotificationConfigRow {
+        id: new_id.clone(),
+        title: format!(
+            "{} - {}",
+            old_row.title,
+            Local::now().format("%Y-%m-%d %H:%M:%S") // There is risk of collision if the user tries to duplicate the same config twice in the same second
+        ),
+        status: NotificationConfigStatus::Disabled,
         last_run_datetime: None,
         next_due_datetime: None,
-    })
+        ..old_row
+    };
+
+    Ok(new_row)
 }

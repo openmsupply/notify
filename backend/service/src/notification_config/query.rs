@@ -2,9 +2,9 @@ use chrono::NaiveDateTime;
 use repository::{
     EqualFilter, NotificationConfigFilter, NotificationConfigKind, NotificationConfigRepository,
     NotificationConfigRow, NotificationConfigRowRepository, NotificationConfigSort,
-    NotificationConfigStatus, PaginationOption, StringFilter,
+    NotificationConfigStatus, PaginationOption,
 };
-use util::{i64_to_u32, usize_to_u32};
+use util::i64_to_u32;
 
 use crate::{
     get_default_pagination, service_provider::ServiceContext, ListError, ListResult,
@@ -105,22 +105,3 @@ pub fn find_all_due_by_kind(
 
     Ok(result.into_iter().map(|row| row.into()).collect())
 }
-
-pub fn get_notification_title(
-    ctx: &ServiceContext,
-    title: String,
-) -> Result<ListResult<NotificationConfig>, ListError> {
-    let repository = NotificationConfigRepository::new(&ctx.connection);
-
-    let rows = repository
-    .query_by_filter(NotificationConfigFilter::new().title(StringFilter::equal_to(&title)))?;
-
-    let count = rows.len();
-
-    Ok(ListResult {
-        rows: rows.into_iter().map(|row| row.into()).collect(),
-        count: usize_to_u32(count),
-    })
-}
-
-

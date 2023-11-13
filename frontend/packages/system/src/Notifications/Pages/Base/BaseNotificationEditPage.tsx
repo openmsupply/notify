@@ -18,9 +18,11 @@ import {
   FormLabel,
   Switch,
   useDetailPanel,
-  useNotification,
   AppBarButtonsPortal,
   KeyedParams,
+  FnUtils,
+  useNavigate,
+  useConfirmationModal,
 } from '@notify-frontend/common';
 
 import { BaseNotificationConfig } from '../../types';
@@ -31,6 +33,8 @@ import {
   useRecipients,
   useSqlRecipientLists,
 } from 'packages/system/src/Recipients/api';
+import { useDuplicateNotificationConfig } from '../../api/hooks/useDuplicateNotificationConfig';
+import { configRoute } from '../../navigate';
 
 interface BaseNotificationEditPageProps<T extends BaseNotificationConfig> {
   isInvalid: boolean;
@@ -39,7 +43,6 @@ interface BaseNotificationEditPageProps<T extends BaseNotificationConfig> {
   draft: T;
   setDraft: (draft: T) => void;
   onSave: (draft: T) => Promise<void>;
-  onDuplicate: (draft: T) => Promise<void>;
   CustomForm: React.FC<{
     onUpdate: (patch: Partial<T>) => void;
     draft: T;
@@ -53,24 +56,37 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
   draft,
   setDraft,
   onSave,
-  onDuplicate,
   CustomForm,
 }: BaseNotificationEditPageProps<T>) => {
   const t = useTranslation(['system']);
   const { OpenButton } = useDetailPanel(t('label.parameters'));
-  const { info } = useNotification();
   const { navigateUpOne } = useBreadcrumbs();
   const [errorMessage, setErrorMessage] = useState('');
   const [isSaved, setIsSaved] = useState(false);
+  const navigate = useNavigate();
 
   const { data: recipients } = useRecipients();
   const { data: recipientLists } = useRecipientLists();
   const { data: sqlRecipientLists } = useSqlRecipientLists();
 
+  const { mutateAsync: duplicate } = useDuplicateNotificationConfig();
+
   const onUpdate = (patch: Partial<T>) => {
     setDraft({ ...draft, ...patch });
     setIsSaved(false);
   };
+
+  const onDuplicate = async () => {
+    const newId = FnUtils.generateUUID();
+    await duplicate({ input: { oldId: draft.id, newId } });
+    navigate(configRoute(draft.kind, newId));
+  };
+
+  const showDuplicateConfirmation = useConfirmationModal({
+    onConfirm: onDuplicate,
+    message: t('messages.confirm-duplicate'),
+    title: t('heading.are-you-sure'),
+  });
 
   const isEnabled = (status: ConfigStatus) => {
     return status == ConfigStatus.Enabled;
@@ -232,8 +248,8 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
                     label={t('button.duplicate')}
                     color="secondary"
                     sx={{ fontSize: '12px' }}
-                    onClick={()=> {
-                      onDuplicate(draft);
+                    onClick={() => {
+                      showDuplicateConfirmation();
                     }}
                   />
 

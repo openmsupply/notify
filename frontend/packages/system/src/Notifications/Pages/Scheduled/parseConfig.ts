@@ -3,7 +3,6 @@ import {
   ConfigStatus,
   CreateNotificationConfigInput,
   UpdateNotificationConfigInput,
-  DuplicateNotificationConfigInput,
 } from '@common/types';
 import { NotificationConfigRowFragment } from '../../api';
 import { ScheduledNotification } from '../../types';
@@ -17,8 +16,8 @@ export function parseScheduledNotificationConfig(
   try {
     return {
       ...defaultSchedulerNotification,
-      ...config,
       ...JSON.parse(config.configurationData),
+      ...config,
     };
   } catch (e) {
     showError();
@@ -58,9 +57,7 @@ export function buildScheduledNotificationInputs(
 ): {
   create: CreateNotificationConfigInput;
   update: UpdateNotificationConfigInput;
-  duplicate: DuplicateNotificationConfigInput;
 } {
-
   const params = [];
   if (!Array.isArray(config.parsedParameters)) {
     config.parsedParameters = [config.parsedParameters];
@@ -82,6 +79,5 @@ export function buildScheduledNotificationInputs(
   return {
     create: { ...input, kind: config.kind },
     update: input,
-    duplicate: { ...input, kind: config.kind},
   };
 }

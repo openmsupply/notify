@@ -3,7 +3,6 @@ import {
   ConfigStatus,
   CreateNotificationConfigInput,
   UpdateNotificationConfigInput,
-  DuplicateNotificationConfigInput,
 } from '@common/types';
 import { CCNotification, ReminderUnits } from '../../types';
 import { NotificationConfigRowFragment } from '../../api';
@@ -17,8 +16,8 @@ export function parseColdChainNotificationConfig(
   try {
     return {
       ...defaultCCNotification,
-      ...config,
       ...JSON.parse(config.configurationData),
+      ...config,
     };
   } catch (e) {
     showError();
@@ -66,7 +65,6 @@ export const defaultCCNotification: CCNotification = {
 export function buildColdChainNotificationInputs(config: CCNotification): {
   create: CreateNotificationConfigInput;
   update: UpdateNotificationConfigInput;
-  duplicate: DuplicateNotificationConfigInput;
 } {
   const params = [];
   if (!Array.isArray(config.parsedParameters)) {
@@ -90,6 +88,5 @@ export function buildColdChainNotificationInputs(config: CCNotification): {
   return {
     create: { ...input, kind: config.kind },
     update: input,
-    duplicate: { ...input, kind: config.kind },
   };
 }

@@ -9,23 +9,23 @@ use crate::{service_provider::ServiceContext, ListError, ListResult, SingleRecor
 use self::{
     create::{create_notification_config, CreateNotificationConfig},
     delete::{delete_notification_config, DeleteNotificationConfigError},
+    duplicate::{duplicate_notification_config, DuplicateNotificationConfig},
     query::{
-        find_all_due_by_kind, get_notification_config, get_notification_configs, NotificationConfig, get_notification_title,
+        find_all_due_by_kind, get_notification_config, get_notification_configs, NotificationConfig,
     },
     update::{update_notification_config, UpdateNotificationConfig},
-    duplicate::{duplicate_notification_config, DuplicateNotificationConfig},
 };
 
 mod tests;
 
 pub mod create;
 pub mod delete;
+pub mod duplicate;
 pub mod intervals;
 pub mod query;
 pub mod recipients;
 pub mod update;
 pub mod validate;
-pub mod duplicate;
 
 pub trait NotificationConfigServiceTrait: Sync + Send {
     fn find_all_due_by_kind(
@@ -85,14 +85,6 @@ pub trait NotificationConfigServiceTrait: Sync + Send {
         input: DuplicateNotificationConfig,
     ) -> Result<NotificationConfig, ModifyNotificationConfigError> {
         duplicate_notification_config(ctx, input)
-    }
-
-    fn get_notification_titles(
-        &self,
-        ctx: &ServiceContext,
-        title: String,
-        ) -> Result<ListResult<NotificationConfig>, ListError> {
-            get_notification_title(ctx, title)
     }
 }
 

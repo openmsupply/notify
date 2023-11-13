@@ -98,5 +98,6 @@
   "label.degrees-celsius": "°C",
   "label.select-queries": "Select Queries",
   "message.no-queries-selected": "No queries selected",
-  "label.schedule": "Schedule"
+  "label.schedule": "Schedule",
+  "messages.confirm-duplicate": "Do you want to make a copy of this configuration?"
 }
