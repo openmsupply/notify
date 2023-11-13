@@ -140,9 +140,10 @@ fn try_process_coldchain_notifications(
                 let sensor_state = SensorState {
                     sensor_id: sensor_id.clone(),
                     status: SensorStatus::Ok,
-                    timestamp: now,
+                    last_data_localtime: now_local,
+                    status_start_utc: now,
                     temperature: None,
-                    reminder_timestamp: None,
+                    last_notification_utc: None,
                     reminder_number: 0,
                 };
                 Ok(sensor_state)
@@ -263,7 +264,7 @@ fn try_process_coldchain_notifications(
     Ok(ProcessingResult::Success)
 }
 
-fn try_process_sensor_notification(
+pub fn try_process_sensor_notification(
     config: &ColdChainPluginConfig,
     prev_sensor_state: SensorState,
     sensor_row: SensorInfoRow,
@@ -286,6 +287,7 @@ fn try_process_sensor_notification(
 
     let mut reminder_number = 0;
     let mut reminder_timestamp = None;
+    let mut status_start_utc = prev_sensor_state.status_start_utc;
 
     if curr_sensor_status == prev_sensor_state.status {
         // Status has not changed
@@ -301,18 +303,18 @@ fn try_process_sensor_notification(
         }
 
         // Check if if a reminder is due
-        let last_alert_timestamp = match prev_sensor_state.reminder_timestamp {
+        let last_alert_timestamp = match prev_sensor_state.last_notification_utc {
             Some(t) => t,
-            None => prev_sensor_state.timestamp,
+            None => prev_sensor_state.status_start_utc,
         };
 
-        if last_alert_timestamp + config.reminder_duration() > now_local {
+        if last_alert_timestamp + config.reminder_duration() > Utc::now().naive_utc() {
             // It's not time to send a reminder yet
             log::debug!(
-                "Not sending reminder for sensor {} which has been in state {:?} since {}",
+                "Not sending reminder for sensor {} which has been in state {:?} since {} (utc)",
                 sensor_row.id,
                 curr_sensor_status,
-                prev_sensor_state.timestamp
+                prev_sensor_state.status_start_utc
             );
             // return the previous state, and no alert
             return Ok((prev_sensor_state, None));
@@ -325,7 +327,7 @@ fn try_process_sensor_notification(
             curr_sensor_status
         );
         reminder_number = prev_sensor_state.reminder_number + 1;
-        reminder_timestamp = Some(Utc::now().naive_utc().into());
+        reminder_timestamp = Some(Utc::now().naive_utc());
     } else {
         log::info!(
             "Status for sensor {} has changed from {:?} to {:?}",
@@ -333,6 +335,7 @@ fn try_process_sensor_notification(
             prev_sensor_state.status,
             curr_sensor_status
         );
+        status_start_utc = Utc::now().naive_utc();
     }
 
     let last_data_localtime: NaiveDateTime = latest_temperature_row
@@ -362,14 +365,15 @@ fn try_process_sensor_notification(
     let sensor_state = SensorState {
         sensor_id: sensor_row.id.clone(),
         status: curr_sensor_status.clone(),
-        timestamp: latest_temperature_row
+        last_data_localtime: latest_temperature_row
             .clone()
             .map(|row| row.log_datetime)
             .unwrap_or_default(),
         temperature: latest_temperature_row
             .map(|row| row.temperature)
             .unwrap_or(None),
-        reminder_timestamp,
+        status_start_utc,
+        last_notification_utc: reminder_timestamp,
         reminder_number,
     };
 
@@ -380,7 +384,7 @@ fn try_process_sensor_notification(
                 location_name: sensor_row.location_name.clone(),
                 sensor_id: sensor_row.id.clone(),
                 sensor_name: sensor_row.sensor_name.clone(),
-                last_data_time: sensor_state.timestamp,
+                last_data_time: sensor_state.last_data_localtime,
                 data_age,
                 temperature: current_temp,
                 alert_type: AlertType::High,
@@ -448,7 +452,7 @@ fn try_process_sensor_notification(
     Ok((sensor_state, alert))
 }
 
-fn evaluate_sensor_status(
+pub fn evaluate_sensor_status(
     now: NaiveDateTime,
     latest_temperature_row: Option<latest_temperature::LatestTemperatureRow>,
     high_temp_threshold: f64,
@@ -473,742 +477,4 @@ fn evaluate_sensor_status(
         },
     };
     return sensor_status;
-}
-
-#[cfg(test)]
-mod test {
-
-    use super::*;
-
-    #[test]
-    fn test_evaluate_sensor_status() {
-        let now =
-            NaiveDateTime::parse_from_str("2020-01-01T00:00:00", "%Y-%m-%dT%H:%M:%S").unwrap();
-        let high_temp_threshold = 8.0;
-        let low_temp_threshold = 2.0;
-        let max_age = chrono::Duration::hours(1);
-
-        // Ok (High and low thresholds are within limits)
-        let row = latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now,
-            temperature: Some(low_temp_threshold),
-        };
-
-        let status = evaluate_sensor_status(
-            now,
-            Some(row),
-            high_temp_threshold,
-            low_temp_threshold,
-            max_age,
-        );
-        assert_eq!(status, SensorStatus::Ok);
-
-        let row = latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now,
-            temperature: Some(high_temp_threshold),
-        };
-
-        let status = evaluate_sensor_status(
-            now,
-            Some(row),
-            high_temp_threshold,
-            low_temp_threshold,
-            max_age,
-        );
-        assert_eq!(status, SensorStatus::Ok);
-
-        // High Temp
-        let row = latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now,
-            temperature: Some(high_temp_threshold + 1.0),
-        };
-
-        let status = evaluate_sensor_status(
-            now,
-            Some(row),
-            high_temp_threshold,
-            low_temp_threshold,
-            max_age,
-        );
-        assert_eq!(status, SensorStatus::HighTemp);
-
-        // Low Temp
-
-        let row = latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now,
-            temperature: Some(low_temp_threshold - 1.0),
-        };
-
-        let status = evaluate_sensor_status(
-            now,
-            Some(row),
-            high_temp_threshold,
-            low_temp_threshold,
-            max_age,
-        );
-        assert_eq!(status, SensorStatus::LowTemp);
-
-        // No Data (no Row)
-
-        let status =
-            evaluate_sensor_status(now, None, high_temp_threshold, low_temp_threshold, max_age);
-        assert_eq!(status, SensorStatus::NoData);
-
-        // No Data (row with null temp)
-        let row = latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now,
-            temperature: None,
-        };
-
-        let status = evaluate_sensor_status(
-            now,
-            Some(row),
-            high_temp_threshold,
-            low_temp_threshold,
-            max_age,
-        );
-        assert_eq!(status, SensorStatus::NoData);
-
-        // No Data (row too old)
-
-        let row = latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now - chrono::Duration::hours(2),
-            temperature: Some(low_temp_threshold),
-        };
-
-        let status = evaluate_sensor_status(
-            now,
-            Some(row),
-            high_temp_threshold,
-            low_temp_threshold,
-            max_age,
-        );
-        // TODO: Old Data Logic https://github.com/openmsupply/notify/issues/179
-        assert_eq!(status, SensorStatus::NoData);
-    }
-
-    #[test]
-    fn test_try_process_sensor_notification_prev_ok() {
-        /*
-           Config with all alerts enabled
-           1 Hour Reminders
-           1 Hour Timeout for No Data
-        */
-
-        let config = ColdChainPluginConfig {
-            sensor_ids: vec!["1".to_string()],
-            high_temp: true,
-            high_temp_threshold: 8.0,
-            low_temp: true,
-            low_temp_threshold: 2.0,
-            no_data: true,
-            confirm_ok: true,
-            no_data_interval: 1,
-            no_data_interval_units: service::notification_config::intervals::IntervalUnits::Hours,
-            remind: false,
-            reminder_interval: 1,
-            reminder_units: service::notification_config::intervals::IntervalUnits::Hours,
-        };
-
-        // Sensor Data
-        let sensor_row = SensorInfoRow {
-            id: "1".to_string(),
-            sensor_name: "Sensor 1".to_string(),
-            location_name: "Location 1".to_string(),
-            store_name: "Store 1".to_string(),
-            store_id: String::new(),
-            batterylevel: Some(90.0),
-        };
-
-        // Time Now (Local Time)
-        let now_local =
-            NaiveDateTime::parse_from_str("2020-01-01T00:01:00", "%Y-%m-%dT%H:%M:%S").unwrap();
-
-        // Previous Sensor State Ok, 1 Minute Ago
-        let prev_sensor_state_ok_1min = SensorState {
-            sensor_id: "1".to_string(),
-            status: SensorStatus::Ok,
-            timestamp: now_local - chrono::Duration::minutes(1),
-            temperature: Some(5.5),
-            reminder_timestamp: None,
-            reminder_number: 0,
-        };
-
-        // Previous Sensor State Ok > no_data duration ago
-        let prev_sensor_state_ok_now_no_data = SensorState {
-            sensor_id: "1".to_string(),
-            status: SensorStatus::Ok,
-            timestamp: now_local - config.no_data_duration() - chrono::Duration::minutes(1),
-            temperature: Some(5.5),
-            reminder_timestamp: None,
-            reminder_number: 0,
-        };
-
-        /*
-            Test 1: Was Ok 1 Minute ago, Still Ok Now: No Alert
-        */
-
-        let latest_temperature_row = Some(latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now_local,
-            temperature: Some(5.5), // Within limits
-        });
-
-        let (sensor_state, alert) = try_process_sensor_notification(
-            &config,
-            prev_sensor_state_ok_1min.clone(),
-            sensor_row.clone(),
-            now_local,
-            latest_temperature_row,
-        )
-        .unwrap();
-        assert_eq!(sensor_state.status, SensorStatus::Ok);
-        assert_eq!(alert.is_none(), true);
-
-        /*
-            Test 2: Was Ok 1 Minute ago, Now High Temp -> Alert!
-        */
-
-        let latest_temperature_row = Some(latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now_local,
-            temperature: Some(config.high_temp_threshold + 1.0),
-        });
-
-        let (sensor_state, alert) = try_process_sensor_notification(
-            &config,
-            prev_sensor_state_ok_1min.clone(),
-            sensor_row.clone(),
-            now_local,
-            latest_temperature_row,
-        )
-        .unwrap();
-
-        assert_eq!(sensor_state.status, SensorStatus::HighTemp);
-        assert_eq!(alert.is_some(), true);
-        let alert = alert.unwrap();
-        assert_eq!(alert.alert_type, AlertType::High);
-
-        /*
-            Test 3: Was Ok 1 Minute ago, Now Low Temp -> Alert!
-        */
-
-        let latest_temperature_row = Some(latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now_local,
-            temperature: Some(config.low_temp_threshold - 1.0),
-        });
-
-        let (sensor_state, alert) = try_process_sensor_notification(
-            &config,
-            prev_sensor_state_ok_1min.clone(),
-            sensor_row.clone(),
-            now_local,
-            latest_temperature_row,
-        )
-        .unwrap();
-
-        assert_eq!(sensor_state.status, SensorStatus::LowTemp);
-        assert_eq!(alert.is_some(), true);
-        let alert = alert.unwrap();
-        assert_eq!(alert.alert_type, AlertType::Low);
-
-        /*
-            Test 4: Was Ok 1 Minute ago, Now No Data -> Alert!
-        */
-
-        let latest_temperature_row = Some(latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now_local - config.no_data_duration() - chrono::Duration::minutes(1),
-            temperature: Some(5.5),
-        });
-
-        let (sensor_state, alert) = try_process_sensor_notification(
-            &config,
-            prev_sensor_state_ok_now_no_data.clone(),
-            sensor_row.clone(),
-            now_local,
-            latest_temperature_row,
-        )
-        .unwrap();
-
-        assert_eq!(sensor_state.status, SensorStatus::NoData);
-        assert_eq!(alert.is_some(), true);
-        let alert = alert.unwrap();
-        assert_eq!(alert.alert_type, AlertType::NoData);
-    }
-
-    #[test]
-    fn test_try_process_sensor_notification_prev_high() {
-        /*
-           Config with all alerts enabled
-           1 Hour Reminders
-           1 Hour Timeout for No Data
-        */
-
-        let config = ColdChainPluginConfig {
-            sensor_ids: vec!["1".to_string()],
-            high_temp: true,
-            high_temp_threshold: 8.0,
-            low_temp: true,
-            low_temp_threshold: 2.0,
-            no_data: true,
-            confirm_ok: true,
-            no_data_interval: 1,
-            no_data_interval_units: service::notification_config::intervals::IntervalUnits::Hours,
-            remind: false,
-            reminder_interval: 1,
-            reminder_units: service::notification_config::intervals::IntervalUnits::Hours,
-        };
-
-        // Sensor Data
-        let sensor_row = SensorInfoRow {
-            id: "1".to_string(),
-            sensor_name: "Sensor 1".to_string(),
-            location_name: "Location 1".to_string(),
-            store_name: "Store 1".to_string(),
-            store_id: String::new(),
-            batterylevel: Some(90.0),
-        };
-
-        // Time Now (Local Time)
-        let now_local =
-            NaiveDateTime::parse_from_str("2020-01-01T00:01:00", "%Y-%m-%dT%H:%M:%S").unwrap();
-
-        // Previous Sensor State High, 1 Minute Ago
-        let prev_sensor_state_high_1min = SensorState {
-            sensor_id: "1".to_string(),
-            status: SensorStatus::HighTemp,
-            timestamp: now_local - chrono::Duration::minutes(1),
-            temperature: Some(config.high_temp_threshold + 1.0),
-            reminder_timestamp: None,
-            reminder_number: 0,
-        };
-
-        // Previous Sensor State High > no_data duration ago
-        let prev_sensor_state_high_now_no_data = SensorState {
-            sensor_id: "1".to_string(),
-            status: SensorStatus::HighTemp,
-            timestamp: now_local - config.no_data_duration() - chrono::Duration::minutes(1),
-            temperature: Some(config.high_temp_threshold + 1.0),
-            reminder_timestamp: None,
-            reminder_number: 0,
-        };
-
-        /*
-            Test 1: Was High 1 Minute ago, Ok Now: Ok Alert
-        */
-
-        let latest_temperature_row = Some(latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now_local,
-            temperature: Some(5.5), // Within limits
-        });
-
-        let (sensor_state, alert) = try_process_sensor_notification(
-            &config,
-            prev_sensor_state_high_1min.clone(),
-            sensor_row.clone(),
-            now_local,
-            latest_temperature_row,
-        )
-        .unwrap();
-        assert_eq!(sensor_state.status, SensorStatus::Ok);
-        assert_eq!(alert.is_some(), true);
-        let alert = alert.unwrap();
-        assert_eq!(alert.alert_type, AlertType::Ok);
-
-        /*
-            Test 2: Was High 1 Minute ago, Now High Temp -> No Alert!
-        */
-
-        let latest_temperature_row = Some(latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now_local,
-            temperature: Some(config.high_temp_threshold + 1.0),
-        });
-
-        let (sensor_state, alert) = try_process_sensor_notification(
-            &config,
-            prev_sensor_state_high_1min.clone(),
-            sensor_row.clone(),
-            now_local,
-            latest_temperature_row,
-        )
-        .unwrap();
-
-        assert_eq!(sensor_state.status, SensorStatus::HighTemp);
-        assert_eq!(alert.is_none(), true);
-
-        /*
-            Test 3: Was High 1 Minute ago, Now Low Temp -> Alert!
-        */
-
-        let latest_temperature_row = Some(latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now_local,
-            temperature: Some(config.low_temp_threshold - 1.0),
-        });
-
-        let (sensor_state, alert) = try_process_sensor_notification(
-            &config,
-            prev_sensor_state_high_1min.clone(),
-            sensor_row.clone(),
-            now_local,
-            latest_temperature_row,
-        )
-        .unwrap();
-
-        assert_eq!(sensor_state.status, SensorStatus::LowTemp);
-        assert_eq!(alert.is_some(), true);
-        let alert = alert.unwrap();
-        assert_eq!(alert.alert_type, AlertType::Low);
-
-        /*
-            Test 4: Was High 1 Minute ago, Now No Data -> Alert!
-        */
-
-        let latest_temperature_row = Some(latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now_local - config.no_data_duration() - chrono::Duration::minutes(1),
-            temperature: Some(5.5),
-        });
-
-        let (sensor_state, alert) = try_process_sensor_notification(
-            &config,
-            prev_sensor_state_high_now_no_data.clone(),
-            sensor_row.clone(),
-            now_local,
-            latest_temperature_row,
-        )
-        .unwrap();
-
-        assert_eq!(sensor_state.status, SensorStatus::NoData);
-        assert_eq!(alert.is_some(), true);
-        let alert = alert.unwrap();
-        assert_eq!(alert.alert_type, AlertType::NoData);
-    }
-
-    #[test]
-    fn test_try_process_sensor_notification_prev_low() {
-        /*
-           Config with all alerts enabled
-           1 Hour Reminders
-           1 Hour Timeout for No Data
-        */
-
-        let config = ColdChainPluginConfig {
-            sensor_ids: vec!["1".to_string()],
-            high_temp: true,
-            high_temp_threshold: 8.0,
-            low_temp: true,
-            low_temp_threshold: 2.0,
-            no_data: true,
-            confirm_ok: true,
-            no_data_interval: 1,
-            no_data_interval_units: service::notification_config::intervals::IntervalUnits::Hours,
-            remind: false,
-            reminder_interval: 1,
-            reminder_units: service::notification_config::intervals::IntervalUnits::Hours,
-        };
-
-        // Sensor Data
-        let sensor_row = SensorInfoRow {
-            id: "1".to_string(),
-            sensor_name: "Sensor 1".to_string(),
-            location_name: "Location 1".to_string(),
-            store_name: "Store 1".to_string(),
-            store_id: String::new(),
-            batterylevel: Some(90.0),
-        };
-
-        // Time Now (Local Time)
-        let now_local =
-            NaiveDateTime::parse_from_str("2020-01-01T00:01:00", "%Y-%m-%dT%H:%M:%S").unwrap();
-
-        // Previous Sensor State Low, 1 Minute Ago
-        let prev_sensor_state_low_1min = SensorState {
-            sensor_id: "1".to_string(),
-            status: SensorStatus::LowTemp,
-            timestamp: now_local - chrono::Duration::minutes(1),
-            temperature: Some(config.low_temp_threshold - 1.0),
-            reminder_timestamp: None,
-            reminder_number: 0,
-        };
-
-        // Previous Sensor State Low > no_data duration ago
-        let prev_sensor_state_low_now_no_data = SensorState {
-            sensor_id: "1".to_string(),
-            status: SensorStatus::LowTemp,
-            timestamp: now_local - config.no_data_duration() - chrono::Duration::minutes(1),
-            temperature: Some(config.low_temp_threshold - 1.0),
-            reminder_timestamp: None,
-            reminder_number: 0,
-        };
-
-        /*
-            Test 1: Was Low 1 Minute ago, Ok Now: Ok Alert
-        */
-
-        let latest_temperature_row = Some(latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now_local,
-            temperature: Some(5.5), // Within limits
-        });
-
-        let (sensor_state, alert) = try_process_sensor_notification(
-            &config,
-            prev_sensor_state_low_1min.clone(),
-            sensor_row.clone(),
-            now_local,
-            latest_temperature_row,
-        )
-        .unwrap();
-        assert_eq!(sensor_state.status, SensorStatus::Ok);
-        assert_eq!(alert.is_some(), true);
-        let alert = alert.unwrap();
-        assert_eq!(alert.alert_type, AlertType::Ok);
-
-        /*
-            Test 2: Was Low 1 Minute ago, Now High Temp -> Alert!
-        */
-
-        let latest_temperature_row = Some(latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now_local,
-            temperature: Some(config.high_temp_threshold + 1.0),
-        });
-
-        let (sensor_state, alert) = try_process_sensor_notification(
-            &config,
-            prev_sensor_state_low_1min.clone(),
-            sensor_row.clone(),
-            now_local,
-            latest_temperature_row,
-        )
-        .unwrap();
-
-        assert_eq!(sensor_state.status, SensorStatus::LowTemp);
-        assert_eq!(alert.is_some(), true);
-        let alert = alert.unwrap();
-        assert_eq!(alert.alert_type, AlertType::High);
-
-        /*
-            Test 3: Was Low 1 Minute ago, Now Low Temp -> No Alert
-        */
-
-        let latest_temperature_row = Some(latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now_local,
-            temperature: Some(config.low_temp_threshold - 1.0),
-        });
-
-        let (sensor_state, alert) = try_process_sensor_notification(
-            &config,
-            prev_sensor_state_low_1min.clone(),
-            sensor_row.clone(),
-            now_local,
-            latest_temperature_row,
-        )
-        .unwrap();
-
-        assert_eq!(sensor_state.status, SensorStatus::LowTemp);
-        assert_eq!(alert.is_none(), true);
-
-        /*
-            Test 4: Was Low 1 Minute ago, Now No Data -> Alert!
-        */
-
-        let latest_temperature_row = Some(latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now_local - config.no_data_duration() - chrono::Duration::minutes(1),
-            temperature: Some(5.5),
-        });
-
-        let (sensor_state, alert) = try_process_sensor_notification(
-            &config,
-            prev_sensor_state_low_now_no_data.clone(),
-            sensor_row.clone(),
-            now_local,
-            latest_temperature_row,
-        )
-        .unwrap();
-
-        assert_eq!(sensor_state.status, SensorStatus::NoData);
-        assert_eq!(alert.is_some(), true);
-        let alert = alert.unwrap();
-        assert_eq!(alert.alert_type, AlertType::NoData);
-    }
-
-    #[test]
-    fn test_try_process_sensor_notification_prev_no_data() {
-        /*
-           Config with all alerts enabled
-           1 Hour Reminders
-           1 Hour Timeout for No Data
-        */
-
-        let config = ColdChainPluginConfig {
-            sensor_ids: vec!["1".to_string()],
-            high_temp: true,
-            high_temp_threshold: 8.0,
-            low_temp: true,
-            low_temp_threshold: 2.0,
-            no_data: true,
-            confirm_ok: true,
-            no_data_interval: 1,
-            no_data_interval_units: service::notification_config::intervals::IntervalUnits::Hours,
-            remind: false,
-            reminder_interval: 1,
-            reminder_units: service::notification_config::intervals::IntervalUnits::Hours,
-        };
-
-        // Sensor Data
-        let sensor_row = SensorInfoRow {
-            id: "1".to_string(),
-            sensor_name: "Sensor 1".to_string(),
-            location_name: "Location 1".to_string(),
-            store_name: "Store 1".to_string(),
-            store_id: String::new(),
-            batterylevel: Some(90.0),
-        };
-
-        // Time Now (Local Time)
-        let now_local =
-            NaiveDateTime::parse_from_str("2020-01-01T00:01:00", "%Y-%m-%dT%H:%M:%S").unwrap();
-
-        let last_data_timestamp =
-            now_local - config.no_data_duration() - chrono::Duration::minutes(2);
-
-        // Previous Sensor State Ok > no_data duration ago
-        let prev_sensor_state_ok_now_no_data = SensorState {
-            sensor_id: "1".to_string(),
-            status: SensorStatus::LowTemp,
-            timestamp: last_data_timestamp.clone(),
-            temperature: Some(config.low_temp_threshold - 1.0),
-            reminder_timestamp: None,
-            reminder_number: 0,
-        };
-
-        /*
-            Test 1: Was No Data 1 Minute ago, Ok Now: Ok Alert
-        */
-
-        let latest_temperature_row = Some(latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now_local,
-            temperature: Some(5.5), // Within limits
-        });
-
-        let (sensor_state, alert) = try_process_sensor_notification(
-            &config,
-            prev_sensor_state_ok_now_no_data.clone(),
-            sensor_row.clone(),
-            now_local,
-            latest_temperature_row,
-        )
-        .unwrap();
-        assert_eq!(sensor_state.status, SensorStatus::Ok);
-        assert_eq!(alert.is_some(), true);
-        let alert = alert.unwrap();
-        assert_eq!(alert.alert_type, AlertType::Ok);
-
-        /*
-            Test 2: Was No Data 1 Minute ago, Now High Temp -> Alert!
-        */
-
-        let latest_temperature_row = Some(latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now_local,
-            temperature: Some(config.high_temp_threshold + 1.0),
-        });
-
-        let (sensor_state, alert) = try_process_sensor_notification(
-            &config,
-            prev_sensor_state_ok_now_no_data.clone(),
-            sensor_row.clone(),
-            now_local,
-            latest_temperature_row,
-        )
-        .unwrap();
-
-        assert_eq!(sensor_state.status, SensorStatus::LowTemp);
-        assert_eq!(alert.is_some(), true);
-        let alert = alert.unwrap();
-        assert_eq!(alert.alert_type, AlertType::High);
-
-        /*
-            Test 3: Was No Data 1 Minute ago, Now Low Temp -> Alert!
-        */
-
-        let latest_temperature_row = Some(latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: now_local,
-            temperature: Some(config.low_temp_threshold - 1.0),
-        });
-
-        let (sensor_state, alert) = try_process_sensor_notification(
-            &config,
-            prev_sensor_state_ok_now_no_data.clone(),
-            sensor_row.clone(),
-            now_local,
-            latest_temperature_row,
-        )
-        .unwrap();
-
-        assert_eq!(sensor_state.status, SensorStatus::LowTemp);
-        assert_eq!(alert.is_some(), true);
-        let alert = alert.unwrap();
-        assert_eq!(alert.alert_type, AlertType::Low);
-
-        /*
-            Test 4: Was No Data 1 Minute ago, Now No Data -> No Alert
-        */
-
-        let latest_temperature_row = Some(latest_temperature::LatestTemperatureRow {
-            id: "1".to_string(),
-            sensor_id: "1".to_string(),
-            log_datetime: last_data_timestamp,
-            temperature: Some(5.5),
-        });
-
-        let (sensor_state, alert) = try_process_sensor_notification(
-            &config,
-            prev_sensor_state_ok_now_no_data.clone(),
-            sensor_row.clone(),
-            now_local,
-            latest_temperature_row,
-        )
-        .unwrap();
-
-        assert_eq!(sensor_state.status, SensorStatus::NoData);
-        assert_eq!(alert.is_none(), true);
-    }
 }
