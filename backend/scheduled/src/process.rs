@@ -237,8 +237,8 @@ mod test {
 
         // Daily Scheduled Notification that started this time yesterday
         let sch_config = ScheduledNotificationPluginConfig {
-            body_template: "TestTemplate".to_string(),
-            subject_template: "TestSubject".to_string(),
+            body_template: "TestTemplate - Markdown \n- item 1\n- item 2".to_string(),
+            subject_template: "TestSubject - Recipient List - Markdown".to_string(),
             schedule_frequency: "daily".to_string(),
             schedule_start_time: Utc::now().checked_sub_days(Days::new(1)).unwrap(),
             ..Default::default()

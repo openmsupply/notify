@@ -35,6 +35,13 @@ export type DeleteNotificationConfigMutationVariables = Types.Exact<{
 
 export type DeleteNotificationConfigMutation = { __typename: 'FullMutation', deleteNotificationConfig: { __typename: 'DeleteResponse', id: string } };
 
+export type DuplicateNotificationConfigMutationVariables = Types.Exact<{
+  input: Types.DuplicateNotificationConfigInput;
+}>;
+
+
+export type DuplicateNotificationConfigMutation = { __typename: 'FullMutation', duplicateNotificationConfig: { __typename: 'NotificationConfigNode', id: string, title: string, kind: Types.ConfigKind, configurationData: string, status: Types.ConfigStatus, parameters: string, recipientIds: Array<string>, recipientListIds: Array<string>, sqlRecipientListIds: Array<string> } };
+
 export type RunSqlQueryWithParametersQueryVariables = Types.Exact<{
   sqlQuery?: Types.InputMaybe<Types.Scalars['String']['input']>;
   params?: Types.InputMaybe<Types.Scalars['String']['input']>;
@@ -95,6 +102,15 @@ export const DeleteNotificationConfigDocument = gql`
   }
 }
     `;
+export const DuplicateNotificationConfigDocument = gql`
+    mutation duplicateNotificationConfig($input: DuplicateNotificationConfigInput!) {
+  duplicateNotificationConfig(input: $input) {
+    ... on NotificationConfigNode {
+      ...NotificationConfigRow
+    }
+  }
+}
+    ${NotificationConfigRowFragmentDoc}`;
 export const RunSqlQueryWithParametersDocument = gql`
     query runSqlQueryWithParameters($sqlQuery: String, $params: String) {
   runSqlQueryWithParameters(sqlQuery: $sqlQuery, parameters: $params) {
@@ -125,6 +141,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     deleteNotificationConfig(variables: DeleteNotificationConfigMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<DeleteNotificationConfigMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<DeleteNotificationConfigMutation>(DeleteNotificationConfigDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'deleteNotificationConfig', 'mutation');
+    },
+    duplicateNotificationConfig(variables: DuplicateNotificationConfigMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<DuplicateNotificationConfigMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DuplicateNotificationConfigMutation>(DuplicateNotificationConfigDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'duplicateNotificationConfig', 'mutation');
     },
     runSqlQueryWithParameters(variables?: RunSqlQueryWithParametersQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<RunSqlQueryWithParametersQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<RunSqlQueryWithParametersQuery>(RunSqlQueryWithParametersDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'runSqlQueryWithParameters', 'query');

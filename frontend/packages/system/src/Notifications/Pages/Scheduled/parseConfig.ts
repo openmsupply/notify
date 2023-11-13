@@ -16,8 +16,8 @@ export function parseScheduledNotificationConfig(
   try {
     return {
       ...defaultSchedulerNotification,
-      ...config,
       ...JSON.parse(config.configurationData),
+      ...config,
     };
   } catch (e) {
     showError();

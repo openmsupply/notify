@@ -9,3 +9,6 @@ mod update;
 
 #[cfg(test)]
 mod delete;
+
+#[cfg(test)]
+mod duplicate;

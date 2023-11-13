@@ -1,0 +1,32 @@
+fragment NotificationEventRow on NotificationEventNode {
+  id
+  title
+  sentAt
+  message
+  errorMessage
+  createdAt
+  status
+  toAddress
+  updatedAt
+  notificationType
+  notificationConfigId
+  notificationConfig {
+    title
+    kind
+  }
+}
+
+query NotificationEvents(
+  $filter: NotificationEventFilterInput
+  $page: PaginationInput
+  $sort: [NotificationEventSortInput!]
+) {
+  notificationEvents(filter: $filter, page: $page, sort: $sort) {
+    ... on NotificationEventConnector {
+      totalCount
+      nodes {
+        ...NotificationEventRow
+      }
+    }
+  }
+}

@@ -76,6 +76,14 @@ impl NotificationConfigMutations {
         update_notification_config(ctx, input)
     }
 
+    async fn duplicate_notification_config(
+        &self,
+        ctx: &Context<'_>,
+        input: DuplicateNotificationConfigInput,
+    ) -> Result<ModifyNotificationConfigResponse> {
+        duplicate_notification_config(ctx, input)
+    }
+
     async fn delete_notification_config(
         &self,
         ctx: &Context<'_>,

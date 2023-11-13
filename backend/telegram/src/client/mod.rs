@@ -118,6 +118,36 @@ impl TelegramClient {
         Ok(chat)
     }
 
+    pub async fn send_markdown_message(
+        &self,
+        chat_id: &str,
+        markdown: &str,
+    ) -> Result<TelegramMessage, TelegramError> {
+        let escaped_markdown = escape_telegram_markdown(markdown);
+
+        let params = [
+            ("chat_id", chat_id),
+            ("text", &escaped_markdown),
+            ("parse_mode", "MarkdownV2"),
+        ];
+        let url = format!("{}/sendMessage", self.base_url);
+
+        let response = self.http_client.post(&url).form(&params).send().await?;
+        let response_text = response.text().await?;
+
+        let telegram_response: TelegramApiResponse = serde_json::from_str(&response_text)
+            .map_err(|e| TelegramError::Fatal(format!("{}-{}", e.to_string(), response_text)))?;
+
+        if !telegram_response.ok {
+            return Err(TelegramError::Fatal(response_text));
+        }
+
+        let message: TelegramMessage = serde_json::from_value(telegram_response.result)
+            .map_err(|e| TelegramError::Fatal(format!("Unable to interpret message - {:?}", e)))?;
+
+        Ok(message)
+    }
+
     pub async fn send_html_message(
         &self,
         chat_id: &str,
@@ -177,9 +207,41 @@ impl TelegramClient {
     }
 }
 
+// In all other places characters '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!' must be escaped with the preceding character '\'.
+// https://core.telegram.org/bots/api#markdownv2-style
+// This is kind of a bug, as we are escaping the characters that need to be escaped, but don't know when they shouldnt be escaped (e.g part of a markdown entity)
+// Deliberately not escaping ` so we can write preformatted stuff like ```code```
+fn escape_telegram_markdown(text: &str) -> String {
+    let mut escaped_text = String::new();
+    for c in text.chars() {
+        match c {
+            '_' | '*' | '[' | ']' | '(' | ')' | '~' | '>' | '#' | '+' | '-' | '=' | '|' | '{'
+            | '}' | '.' | '!' => {
+                escaped_text.push('\\');
+                escaped_text.push(c);
+            }
+            _ => escaped_text.push(c),
+        }
+    }
+    escaped_text
+}
+
+#[cfg(test)]
+mod test {
+
+    use super::*;
+
+    #[test]
+    fn test_escape_telegram_markdown() {
+        let text = "This is a test of _markdown_ escaping";
+        let escaped_text = escape_telegram_markdown(text);
+        assert_eq!(escaped_text, "This is a test of \\_markdown\\_ escaping");
+    }
+}
+
 #[cfg(test)]
 #[cfg(feature = "telegram-tests")]
-mod test {
+mod telegram_test {
     use super::*;
 
     fn get_telegram_token_from_env() -> String {
@@ -194,6 +256,7 @@ mod test {
     }
 
     #[tokio::test]
+
     async fn test_get_name() {
         let client = TelegramClient::new(get_telegram_token_from_env());
         let name = client.get_name().await;
@@ -229,7 +292,19 @@ mod test {
         client
             .send_html_message(
                 &get_telegram_chat_id_from_env(),
-                "This is a test message from Notify. Find out more by about notify by <a href=\"https://www.msupply.foundation\">Visiting the mSupply Foundation Website</a>",
+                "This is a test message from Notify using HTML. Find out more by about notify by <a href=\"https://www.msupply.foundation\">Visiting the mSupply Foundation Website</a>",
+            )
+            .await
+            .unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_send_markdown_message() {
+        let client = TelegramClient::new(get_telegram_token_from_env());
+        client
+            .send_html_message(
+                &get_telegram_chat_id_from_env(),
+                "This is a test message from Notify using Markdown.\n * test\n * test 2\n Find out more by about notify by [Visiting the mSupply Foundation Website](https://www.msupply.foundation)",
             )
             .await
             .unwrap();

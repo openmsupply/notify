@@ -10,6 +10,7 @@ pub mod log_service;
 pub mod login;
 pub mod notification;
 pub mod notification_config;
+pub mod notification_event;
 pub mod notification_query;
 pub mod plugin;
 pub mod plugin_store;
