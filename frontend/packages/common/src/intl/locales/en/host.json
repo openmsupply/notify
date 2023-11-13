@@ -48,5 +48,6 @@
   "set-up-account": "Set up your account",
   "username-reset.explanation": "Enter your new log in username",
   "users": "Users",
-  "queries": "Queries"
+  "queries": "Queries",
+  "notification-events": "Events"
 }

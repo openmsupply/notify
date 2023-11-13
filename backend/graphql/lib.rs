@@ -13,6 +13,7 @@ use graphql_datasource::DatasourceQueries;
 use graphql_general::GeneralQueries;
 
 use graphql_notification_config::{NotificationConfigMutations, NotificationConfigQueries};
+use graphql_notification_event::NotificationEventQueries;
 use graphql_notification_query::{NotificationQueryMutations, NotificationQueryQueries};
 use graphql_recipient::{RecipientMutations, RecipientQueries};
 use graphql_recipient_list::{RecipientListMutations, RecipientListQueries};
@@ -36,6 +37,7 @@ pub struct FullQuery(
     pub TelegramQueries,
     pub NotificationConfigQueries,
     pub NotificationQueryQueries,
+    pub NotificationEventQueries,
     pub DatasourceQueries,
 );
 
@@ -61,6 +63,7 @@ pub fn full_query() -> FullQuery {
         TelegramQueries,
         NotificationConfigQueries,
         NotificationQueryQueries,
+        NotificationEventQueries,
         DatasourceQueries,
     )
 }

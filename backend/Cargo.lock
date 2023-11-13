@@ -1638,6 +1638,7 @@ dependencies = [
  "graphql_datasource",
  "graphql_general",
  "graphql_notification_config",
+ "graphql_notification_event",
  "graphql_notification_query",
  "graphql_recipient",
  "graphql_recipient_list",
@@ -1721,6 +1722,26 @@ dependencies = [
  "graphql_core",
  "graphql_types",
  "repository",
+ "serde_json",
+ "service",
+ "util",
+]
+
+[[package]]
+name = "graphql_notification_event"
+version = "0.1.0"
+dependencies = [
+ "actix-rt",
+ "actix-web",
+ "assert-json-diff",
+ "async-graphql",
+ "async-graphql-actix-web",
+ "async-trait",
+ "chrono",
+ "graphql_core",
+ "graphql_types",
+ "repository",
+ "serde",
  "serde_json",
  "service",
  "util",

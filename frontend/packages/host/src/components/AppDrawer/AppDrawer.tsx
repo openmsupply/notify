@@ -25,6 +25,7 @@ import {
   MessagesIcon,
   PersonSearchIcon,
   SearchIcon,
+  ListIcon,
 } from '@notify-frontend/common';
 import { AppRoute, ExternalURL } from '@notify-frontend/config';
 import { AppDrawerIcon } from './AppDrawerIcon';
@@ -191,6 +192,11 @@ export const AppDrawer: React.FC = () => {
               to={AppRoute.Notifications}
               icon={<MessagesIcon fontSize="small" color="primary" />}
               text={t('notifications')}
+            />
+            <AppNavLink
+              to={AppRoute.NotificationEvents}
+              icon={<ListIcon fontSize="small" color="primary" />}
+              text={t('notification-events')}
             />
             <AppNavLink
               to={AppRoute.Recipients}
