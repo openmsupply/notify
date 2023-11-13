@@ -11,6 +11,7 @@ import {
   AppFooterPortal,
   ButtonWithIcon,
   CloseIcon,
+  CopyIcon,
   useBreadcrumbs,
   SaveIcon,
   ConfigStatus,
@@ -19,6 +20,9 @@ import {
   useDetailPanel,
   AppBarButtonsPortal,
   KeyedParams,
+  FnUtils,
+  useNavigate,
+  useConfirmationModal,
 } from '@notify-frontend/common';
 
 import { BaseNotificationConfig } from '../../types';
@@ -29,6 +33,8 @@ import {
   useRecipients,
   useSqlRecipientLists,
 } from 'packages/system/src/Recipients/api';
+import { useDuplicateNotificationConfig } from '../../api/hooks/useDuplicateNotificationConfig';
+import { configRoute } from '../../navigate';
 
 interface BaseNotificationEditPageProps<T extends BaseNotificationConfig> {
   isInvalid: boolean;
@@ -57,15 +63,30 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
   const { navigateUpOne } = useBreadcrumbs();
   const [errorMessage, setErrorMessage] = useState('');
   const [isSaved, setIsSaved] = useState(false);
+  const navigate = useNavigate();
 
   const { data: recipients } = useRecipients();
   const { data: recipientLists } = useRecipientLists();
   const { data: sqlRecipientLists } = useSqlRecipientLists();
 
+  const { mutateAsync: duplicate } = useDuplicateNotificationConfig();
+
   const onUpdate = (patch: Partial<T>) => {
     setDraft({ ...draft, ...patch });
     setIsSaved(false);
   };
+
+  const onDuplicate = async () => {
+    const newId = FnUtils.generateUUID();
+    await duplicate({ input: { oldId: draft.id, newId } });
+    navigate(configRoute(draft.kind, newId));
+  };
+
+  const showDuplicateConfirmation = useConfirmationModal({
+    onConfirm: onDuplicate,
+    message: t('messages.confirm-duplicate'),
+    title: t('heading.are-you-sure'),
+  });
 
   const isEnabled = (status: ConfigStatus) => {
     return status == ConfigStatus.Enabled;
@@ -219,6 +240,17 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
                     color="secondary"
                     sx={{ fontSize: '12px' }}
                     onClick={navigateUpOne}
+                  />
+
+                  <ButtonWithIcon
+                    shrinkThreshold="lg"
+                    Icon={<CopyIcon />}
+                    label={t('button.duplicate')}
+                    color="secondary"
+                    sx={{ fontSize: '12px' }}
+                    onClick={() => {
+                      showDuplicateConfirmation();
+                    }}
                   />
 
                   <LoadingButton

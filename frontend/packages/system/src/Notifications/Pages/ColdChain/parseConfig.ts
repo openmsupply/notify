@@ -16,8 +16,8 @@ export function parseColdChainNotificationConfig(
   try {
     return {
       ...defaultCCNotification,
-      ...config,
       ...JSON.parse(config.configurationData),
+      ...config,
     };
   } catch (e) {
     showError();
