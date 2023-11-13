@@ -27,7 +27,7 @@ Temperature: 10° C
 -----------------------
 */
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, PartialEq)]
 pub enum AlertType {
     High,
     Low,
