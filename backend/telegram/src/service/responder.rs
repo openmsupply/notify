@@ -32,7 +32,7 @@ pub async fn handle_telegram_updates(
                 let chat_id = message.chat.id.to_string();
                 let text = message.text.unwrap_or_default();
 
-                if text.contains("/hello") || text.contains("/chat") {
+                if text.contains("/hello") || text.contains("/chat") || text.contains("/start") {
                     //TODO: Render template?
                     let response = format!("Hello! This chat_id is {}", chat_id);
                     match client.send_html_message(&chat_id, &response).await {
