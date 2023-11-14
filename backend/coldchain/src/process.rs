@@ -384,7 +384,7 @@ pub fn try_process_sensor_notification(
                 data_age,
                 temperature: current_temp,
                 alert_type: AlertType::High,
-                reminder_number: None,
+                reminder_number,
             }),
             false => {
                 log::info!("High temp alert disabled for sensor {}", sensor_row.id);
@@ -402,7 +402,7 @@ pub fn try_process_sensor_notification(
                 data_age,
                 temperature: current_temp,
                 alert_type: AlertType::Low,
-                reminder_number: None,
+                reminder_number,
             }),
             false => {
                 log::info!("Low temp alert disabled for sensor {}", sensor_row.id);
@@ -419,7 +419,7 @@ pub fn try_process_sensor_notification(
                 data_age,
                 temperature: current_temp,
                 alert_type: AlertType::Ok,
-                reminder_number: None,
+                reminder_number,
             }),
             false => {
                 log::info!("Confirm Ok alert disabled for sensor {}", sensor_row.id);
@@ -436,7 +436,7 @@ pub fn try_process_sensor_notification(
                 data_age,
                 temperature: current_temp,
                 alert_type: AlertType::NoData,
-                reminder_number: None,
+                reminder_number,
             }),
             false => {
                 log::info!("No data alert disabled for sensor {}", sensor_row.id);

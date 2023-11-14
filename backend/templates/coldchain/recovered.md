@@ -1,7 +1,9 @@
 **Sensor is now ok!**
 
 **Facility**: {{ store_name }}
+{% if location_name %}
 **Location**: {{ location_name }}
+{% endif %}
 **Sensor**: {{ sensor_name }}
 
 **Date**: {{ last_data_time | date(format="%d %b %Y") }}

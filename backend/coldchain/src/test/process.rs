@@ -951,14 +951,15 @@ fn test_try_process_sensor_notification_high_temp_reminder() {
     )
     .unwrap();
     assert_eq!(sensor_state.status, SensorStatus::HighTemp);
-    assert!(match (sensor_state.last_notification_utc) {
+    assert!(match sensor_state.last_notification_utc {
         Some(t) => t > Utc::now().naive_utc() - chrono::Duration::minutes(1), // The reminder notification created within the last minute
         None => false,
     });
+    assert_eq!(sensor_state.reminder_number, 1);
     assert_eq!(alert.is_some(), true);
     let alert = alert.unwrap();
     assert_eq!(alert.alert_type, AlertType::High);
-    assert_eq!(sensor_state.reminder_number, 1);
+    assert_eq!(alert.reminder_number, 1);
 
     /*
         Test 2: Has been High for more than 1 hour (Reminder Duration) but less than 2 -> Since we already sent a reminder don't send another, yet.
@@ -1037,6 +1038,7 @@ fn test_try_process_sensor_notification_high_temp_reminder() {
     let alert = alert.unwrap();
     assert_eq!(alert.alert_type, AlertType::High);
     assert_eq!(sensor_state.reminder_number, 2);
+    assert_eq!(alert.reminder_number, 2);
 
     // If reminders are turned off, we shouldn't get a reminder...
     /*
