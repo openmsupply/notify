@@ -6,11 +6,9 @@ import {
 } from '@common/hooks';
 import {
   AppBarButtonsPortal,
-  AppBarContentPortal,
   BasicSpinner,
   Box,
   NothingHere,
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -51,7 +49,7 @@ export const DetailEdit = () => {
   const [generatedQuery, setGeneratedQuery] = React.useState('');
   const [queryError, setQueryErr] = React.useState('');
 
-  const initialiseQueryResults = () =>{
+  const initialiseQueryResults = () => {
     setQueryColumns([]);
     setSqlResults([]);
     setGeneratedQuery('');
@@ -63,9 +61,9 @@ export const DetailEdit = () => {
     await testNotificationQuery({ sqlQuery: query, params: params })
       .then(result => {
         const responseType = result.runSqlQueryWithParameters.__typename;
-        if (responseType == "NodeError"){
+        if (responseType == 'NodeError') {
           setGeneratedQuery('Error');
-        }else{
+        } else {
           const results = JSON.parse(result.runSqlQueryWithParameters.results);
           const columns = Object.keys(results[0] ?? []);
           // If we have an id column, move it to the front
@@ -77,7 +75,7 @@ export const DetailEdit = () => {
           }
           setQueryColumns(columns);
           setSqlResults(results);
-          if(result.runSqlQueryWithParameters.queryError){
+          if (result.runSqlQueryWithParameters.queryError) {
             setQueryErr(result.runSqlQueryWithParameters.queryError);
           }
           setGeneratedQuery(result.runSqlQueryWithParameters.query);
@@ -91,78 +89,71 @@ export const DetailEdit = () => {
   return (
     <>
       <AppBarButtonsPortal>{OpenButton}</AppBarButtonsPortal>
-      {/* Description/Details section */}
-      <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
-        <Paper
-          sx={{
-            borderRadius: '16px',
-            boxShadow: theme => theme.shadows[1],
-            padding: '21px',
-            height: 'fit-content',
-            backgroundColor: 'background',
-            display: 'flex',
-            justifyContent: 'space-between',
-            gap: '16px',
-          }}
-        >
-          {entity && !isLoading ? (
-            <QueryEditor
-              entity={entity}
-              runQuery={runQuery}
-              queryLoading={queryLoading}
-              generatedQuery={generatedQuery}
-            />
-          ) : (
-            <BasicSpinner />
-          )}
-        </Paper>
-      </AppBarContentPortal>
+      {/* Query Editor */}
+      {entity && !isLoading ? (
+        <QueryEditor
+          entity={entity}
+          runQuery={runQuery}
+          queryLoading={queryLoading}
+          generatedQuery={generatedQuery}
+        />
+      ) : (
+        <BasicSpinner />
+      )}
       {/* Sql Results table */}
       <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
-        {queryError && (<AlertPanel message ={queryError}/>)}
-        {(generatedQuery && !queryError) && (<InfoPanel message = { t('messages.query-result-count', { count: sqlResults.length })}/>)}
-        {(!generatedQuery || queryError || sqlResults.length == 0) && (<NothingHere body={t('error.no-query-result')} />)}
-          <Table>
-            <TableHead 
-              sx={{
+        {queryError && <AlertPanel message={queryError} />}
+        {generatedQuery && !queryError && (
+          <InfoPanel
+            message={t('messages.query-result-count', {
+              count: sqlResults.length,
+            })}
+          />
+        )}
+        {(!generatedQuery || queryError || sqlResults.length == 0) && (
+          <NothingHere body={t('error.no-query-result')} />
+        )}
+        <Table>
+          <TableHead
+            sx={{
               backgroundColor: 'background.white',
               position: 'sticky',
               top: 0,
               zIndex: 'tableHeader',
             }}
           >
-              <TableRow>
+            <TableRow>
+              {queryColumns.map(column => (
+                <TableCell
+                  key={column}
+                  role="columnheader"
+                  sx={{
+                    backgroundColor: 'transparent',
+                    borderBottom: '0px',
+                    paddingLeft: '16px',
+                    paddingRight: '16px',
+                    fontWeight: 'bold',
+                    fontSize: '14px',
+                  }}
+                >
+                  {column}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {sqlResults.map((row, idx) => (
+              <TableRow key={`row-${idx}`}>
                 {queryColumns.map(column => (
-                  <TableCell
-                    key={column}
-                    role="columnheader"
-                    sx={{
-                      backgroundColor: 'transparent',
-                      borderBottom: '0px',
-                      paddingLeft: '16px',
-                      paddingRight: '16px',
-                      fontWeight: 'bold',
-                      fontSize: '14px',
-                    }}
-                  >
-                    {column}
+                  <TableCell key={`row-${idx}-${column}`}>
+                    {stringifyObjectKey(row[column])}
                   </TableCell>
                 ))}
               </TableRow>
-            </TableHead>
-            <TableBody>
-              {sqlResults.map((row, idx) => (
-                <TableRow key={`row-${idx}`}>
-                  {queryColumns.map(column => (
-                    <TableCell key={`row-${idx}-${column}`}>
-                      {stringifyObjectKey(row[column])}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Box>
+            ))}
+          </TableBody>
+        </Table>
+      </Box>
     </>
   );
 };
