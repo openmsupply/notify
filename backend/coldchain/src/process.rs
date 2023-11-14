@@ -116,7 +116,7 @@ fn try_process_coldchain_notifications(
         let sensor_status_key = format!("sensor_status_{}_{}", sensor_id, notification_config.id);
 
         // Check if the status has changed since the last time we checked
-        let prev_sensor_status = ctx
+        let prev_sensor_state = ctx
             .service_provider
             .plugin_service
             .get_value(ctx, PLUGIN_NAME.to_string(), sensor_status_key.clone())
@@ -127,7 +127,7 @@ fn try_process_coldchain_notifications(
                 ))
             })?;
 
-        let prev_sensor_status = match prev_sensor_status {
+        let prev_sensor_state = match prev_sensor_state {
             Some(s) => SensorState::from_string(&s),
             None => {
                 // No previous status found, so assume we were previously in the `Ok` State
@@ -137,20 +137,11 @@ fn try_process_coldchain_notifications(
                     sensor_id
                 );
 
-                let sensor_state = SensorState {
-                    sensor_id: sensor_id.clone(),
-                    status: SensorStatus::Ok,
-                    timestamp_localtime: now_local,
-                    status_start_utc: now,
-                    temperature: None,
-                    last_notification_utc: None,
-                    reminder_number: 0,
-                };
-                Ok(sensor_state)
+                Ok(SensorState::default())
             }
         };
 
-        let prev_sensor_status = match prev_sensor_status {
+        let prev_sensor_state = match prev_sensor_state {
             Ok(s) => s,
             Err(e) => {
                 log::error!(
@@ -158,8 +149,8 @@ fn try_process_coldchain_notifications(
                     sensor_id,
                     e
                 );
-                // Unable to parse the previous state, so we can't continue
-                continue;
+                // Unable to parse the previous state, so we'll continue with the default state
+                SensorState::default()
             }
         };
 
@@ -181,7 +172,7 @@ fn try_process_coldchain_notifications(
 
         let result = try_process_sensor_notification(
             &config,
-            prev_sensor_status.clone(),
+            prev_sensor_state.clone(),
             sensor_row,
             now_local,
             latest_temperature_row,
@@ -200,7 +191,7 @@ fn try_process_coldchain_notifications(
         };
 
         // if we have an updated state, persist it...
-        if sensor_state.status != prev_sensor_status.status {
+        if sensor_state != prev_sensor_state {
             let result = ctx.service_provider.plugin_service.set_value(
                 ctx,
                 PLUGIN_NAME.to_string(),

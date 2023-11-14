@@ -951,10 +951,54 @@ fn test_try_process_sensor_notification_high_temp_reminder() {
     )
     .unwrap();
     assert_eq!(sensor_state.status, SensorStatus::HighTemp);
+    assert!(match (sensor_state.last_notification_utc) {
+        Some(t) => t > Utc::now().naive_utc() - chrono::Duration::minutes(1), // The reminder notification created within the last minute
+        None => false,
+    });
     assert_eq!(alert.is_some(), true);
     let alert = alert.unwrap();
     assert_eq!(alert.alert_type, AlertType::High);
     assert_eq!(sensor_state.reminder_number, 1);
+
+    /*
+        Test 2: Has been High for more than 1 hour (Reminder Duration) but less than 2 -> Since we already sent a reminder don't send another, yet.
+    */
+
+    let prev_sensor_state_no_data = SensorState {
+        sensor_id: "1".to_string(),
+        status: SensorStatus::HighTemp,
+        timestamp_localtime: now_local - config.reminder_duration() - chrono::Duration::minutes(30),
+        temperature: Some(5.5),
+        status_start_utc: Utc::now().naive_utc()
+            - config.reminder_duration()
+            - chrono::Duration::minutes(30),
+        last_notification_utc: Some(
+            Utc::now().naive_utc() - config.reminder_duration() + chrono::Duration::minutes(1),
+        ),
+        reminder_number: 1,
+    };
+
+    let latest_temperature_row = Some(LatestTemperatureRow {
+        id: "1".to_string(),
+        sensor_id: "1".to_string(),
+        log_datetime: now_local,
+        temperature: Some(config.high_temp_threshold + 1.0), // High Temp
+    });
+
+    let (sensor_state, alert) = try_process_sensor_notification(
+        &config,
+        prev_sensor_state_no_data.clone(),
+        sensor_row.clone(),
+        now_local,
+        latest_temperature_row,
+    )
+    .unwrap();
+    assert_eq!(sensor_state.status, SensorStatus::HighTemp);
+    assert_eq!(alert.is_none(), true);
+
+    /*
+        Test 3: Has been High for more than 2 hours (Reminder Duration 2) and we're still High Temp -> Send a second reminder
+    */
 
     // Assume we've been High Temperature for more than 2 hours (reminder duration *2)
     let prev_sensor_state_no_data = SensorState {
@@ -972,10 +1016,6 @@ fn test_try_process_sensor_notification_high_temp_reminder() {
         ),
         reminder_number: 1,
     };
-
-    /*
-        Test 1: Has been High for more than 2 hours (Reminder Duration 2) and we're still High Temp -> Send a second reminder
-    */
 
     let latest_temperature_row = Some(LatestTemperatureRow {
         id: "1".to_string(),

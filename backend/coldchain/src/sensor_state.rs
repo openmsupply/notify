@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::ColdChainError;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Default)]
 pub struct SensorState {
     pub sensor_id: String,
     pub status: SensorStatus,
