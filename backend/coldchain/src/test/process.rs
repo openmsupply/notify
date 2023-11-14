@@ -749,7 +749,6 @@ fn test_try_process_sensor_notification_prev_no_data() {
     .unwrap();
 
     assert_eq!(sensor_state.status, SensorStatus::NoData);
-    println!("Alert: {:?}, Sensor State: {:?}", alert, sensor_state);
     assert_eq!(alert.is_none(), true);
 }
 

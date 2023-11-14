@@ -54,7 +54,6 @@ mod test {
     fn test_parse_status_ok_with_status_start_utc() {
         let example1 = r#"{ "sensor_id": "1234", "status": "Ok", "timestamp_localtime": "2020-01-01T00:00:00", "status_start_utc": "2019-09-01T00:00:00" }"#;
         let result = SensorState::from_string(example1);
-        println!("{:?}", result);
         assert!(result.is_ok());
         let state = result.unwrap();
         assert_eq!(state.sensor_id, "1234");
