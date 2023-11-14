@@ -65,9 +65,10 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
   const [isSaved, setIsSaved] = useState(false);
   const navigate = useNavigate();
 
-  const { data: recipients } = useRecipients();
-  const { data: recipientLists } = useRecipientLists();
-  const { data: sqlRecipientLists } = useSqlRecipientLists();
+  // TODO: https://github.com/msupply-foundation/notify/issues/238 handle pagination
+  const { data: recipients } = useRecipients({ first: 1000 });
+  const { data: recipientLists } = useRecipientLists({ first: 1000 });
+  const { data: sqlRecipientLists } = useSqlRecipientLists({ first: 1000 });
 
   const { mutateAsync: duplicate } = useDuplicateNotificationConfig();
 
