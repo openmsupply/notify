@@ -66,8 +66,18 @@ export const ScheduledNotificationEditForm = ({
           value={draft.bodyTemplate}
           onChange={e => onUpdate({ bodyTemplate: e.target.value })}
           label={t('label.body-template')}
-          InputProps={{ sx: { backgroundColor: 'background.menu' } }}
+          InputProps={{
+            sx: {
+              backgroundColor: 'background.menu',
+              textarea: {
+                resize: 'vertical',
+                overflow: 'scroll',
+              },
+            },
+          }}
           InputLabelProps={{ shrink: true }}
+          minRows={3}
+          maxRows={10}
         />
       </FormRow>
       <Box padding={1}>
