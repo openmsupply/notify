@@ -68,6 +68,7 @@ export const ScheduledNotificationEditPage = () => {
       isLoading={isLoading || updateIsLoading}
       isInvalid={isInvalid}
       allowParameterSets={true}
+      showRunButton={true}
       onSave={onSave}
       draft={draft}
       setDraft={setDraft}

@@ -1,5 +1,6 @@
 use async_graphql::*;
 
+use chrono::{DateTime, Utc};
 use graphql_core::{standard_graphql_error::validate_auth, ContextExt};
 use graphql_types::types::{ConfigStatus, NotificationConfigNode};
 use service::{
@@ -18,6 +19,7 @@ pub struct UpdateNotificationConfigInput {
     pub recipient_ids: Option<Vec<String>>,
     pub recipient_list_ids: Option<Vec<String>>,
     pub sql_recipient_list_ids: Option<Vec<String>>,
+    pub next_due_datetime: Option<DateTime<Utc>>,
 }
 
 pub fn update_notification_config(
@@ -55,6 +57,7 @@ impl From<UpdateNotificationConfigInput> for UpdateNotificationConfig {
             recipient_ids,
             recipient_list_ids,
             sql_recipient_list_ids,
+            next_due_datetime,
         }: UpdateNotificationConfigInput,
     ) -> Self {
         UpdateNotificationConfig {
@@ -66,6 +69,7 @@ impl From<UpdateNotificationConfigInput> for UpdateNotificationConfig {
             recipient_ids,
             recipient_list_ids,
             sql_recipient_list_ids,
+            next_due_datetime: next_due_datetime.map(|d| d.naive_utc()),
         }
     }
 }
