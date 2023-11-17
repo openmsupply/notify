@@ -94,7 +94,7 @@ impl EmailService {
                 .mail
                 .from
                 .parse()
-                .expect("The configured mail:from address is not valid"),
+                .expect("The configured mail:from address is not valid"), // This could panic on startup, but only if an invalid from address is configured
             url: settings.server.app_url,
         }
     }
