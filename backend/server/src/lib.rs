@@ -202,10 +202,13 @@ async fn run_server(
         _ = ctrl_c => false,
         Some(_) = off_switch.recv() => false,
         _ = restart_switch_receiver.recv() => true,
+        scheduled_error = scheduled_task_handle => {
+            error!("Scheduled task stopped unexpectedly: {:?}", scheduled_error);
+            false
+        }
     };
 
     server_handle.stop(true).await;
-    scheduled_task_handle.abort();
     Ok(restart)
 }
 
