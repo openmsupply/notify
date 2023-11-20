@@ -204,8 +204,7 @@ fn test_try_process_sensor_notification_prev_ok() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
     assert_eq!(sensor_state.status, SensorStatus::Ok);
     assert_eq!(alert.is_none(), true);
 
@@ -226,8 +225,7 @@ fn test_try_process_sensor_notification_prev_ok() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
 
     assert_eq!(sensor_state.status, SensorStatus::HighTemp);
     assert_eq!(alert.is_some(), true);
@@ -251,8 +249,7 @@ fn test_try_process_sensor_notification_prev_ok() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
 
     assert_eq!(sensor_state.status, SensorStatus::LowTemp);
     assert_eq!(alert.is_some(), true);
@@ -276,8 +273,7 @@ fn test_try_process_sensor_notification_prev_ok() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
 
     assert_eq!(sensor_state.status, SensorStatus::NoData);
     assert_eq!(alert.is_some(), true);
@@ -363,8 +359,7 @@ fn test_try_process_sensor_notification_prev_high() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
     assert_eq!(sensor_state.status, SensorStatus::Ok);
     assert_eq!(alert.is_some(), true);
     let alert = alert.unwrap();
@@ -387,8 +382,7 @@ fn test_try_process_sensor_notification_prev_high() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
 
     assert_eq!(sensor_state.status, SensorStatus::HighTemp);
     assert_eq!(alert.is_none(), true);
@@ -410,8 +404,7 @@ fn test_try_process_sensor_notification_prev_high() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
 
     assert_eq!(sensor_state.status, SensorStatus::LowTemp);
     assert_eq!(alert.is_some(), true);
@@ -435,8 +428,7 @@ fn test_try_process_sensor_notification_prev_high() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
 
     assert_eq!(sensor_state.status, SensorStatus::NoData);
     assert_eq!(alert.is_some(), true);
@@ -522,8 +514,7 @@ fn test_try_process_sensor_notification_prev_low() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
     assert_eq!(sensor_state.status, SensorStatus::Ok);
     assert_eq!(alert.is_some(), true);
     let alert = alert.unwrap();
@@ -546,8 +537,7 @@ fn test_try_process_sensor_notification_prev_low() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
 
     assert_eq!(sensor_state.status, SensorStatus::HighTemp);
     assert_eq!(alert.is_some(), true);
@@ -571,8 +561,7 @@ fn test_try_process_sensor_notification_prev_low() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
 
     assert_eq!(sensor_state.status, SensorStatus::LowTemp);
     assert_eq!(alert.is_none(), true);
@@ -594,8 +583,7 @@ fn test_try_process_sensor_notification_prev_low() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
 
     assert_eq!(sensor_state.status, SensorStatus::NoData);
     assert_eq!(alert.is_some(), true);
@@ -670,8 +658,7 @@ fn test_try_process_sensor_notification_prev_no_data() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
     assert_eq!(sensor_state.status, SensorStatus::Ok);
     assert_eq!(alert.is_some(), true);
     let alert = alert.unwrap();
@@ -694,8 +681,7 @@ fn test_try_process_sensor_notification_prev_no_data() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
 
     assert_eq!(sensor_state.status, SensorStatus::HighTemp);
     assert_eq!(alert.is_some(), true);
@@ -719,8 +705,7 @@ fn test_try_process_sensor_notification_prev_no_data() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
 
     assert_eq!(sensor_state.status, SensorStatus::LowTemp);
     assert_eq!(alert.is_some(), true);
@@ -744,8 +729,7 @@ fn test_try_process_sensor_notification_prev_no_data() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
 
     assert_eq!(sensor_state.status, SensorStatus::NoData);
     assert_eq!(alert.is_none(), true);
@@ -824,8 +808,8 @@ fn test_try_process_sensor_notification_no_data_reminder() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
+
     assert_eq!(sensor_state.status, SensorStatus::NoData);
     assert_eq!(alert.is_some(), true);
     let alert = alert.unwrap();
@@ -871,8 +855,8 @@ fn test_try_process_sensor_notification_no_data_reminder() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
+
     assert_eq!(sensor_state.status, SensorStatus::NoData);
     assert_eq!(alert.is_none(), true);
 }
@@ -946,8 +930,8 @@ fn test_try_process_sensor_notification_high_temp_reminder() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
+
     assert_eq!(sensor_state.status, SensorStatus::HighTemp);
     assert!(match sensor_state.last_notification_utc {
         Some(t) => t > Utc::now().naive_utc() - chrono::Duration::minutes(1), // The reminder notification created within the last minute
@@ -990,8 +974,8 @@ fn test_try_process_sensor_notification_high_temp_reminder() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
+
     assert_eq!(sensor_state.status, SensorStatus::HighTemp);
     assert_eq!(alert.is_none(), true);
 
@@ -1029,8 +1013,8 @@ fn test_try_process_sensor_notification_high_temp_reminder() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
+
     assert_eq!(sensor_state.status, SensorStatus::HighTemp);
     assert_eq!(alert.is_some(), true);
     let alert = alert.unwrap();
@@ -1077,8 +1061,8 @@ fn test_try_process_sensor_notification_high_temp_reminder() {
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
-    )
-    .unwrap();
+    );
+
     assert_eq!(sensor_state.status, SensorStatus::HighTemp);
     assert_eq!(alert.is_none(), true);
 }

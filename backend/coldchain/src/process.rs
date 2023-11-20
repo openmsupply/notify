@@ -170,25 +170,13 @@ fn try_process_coldchain_notifications(
             }
         };
 
-        let result = try_process_sensor_notification(
+        let (sensor_state, alert) = try_process_sensor_notification(
             &config,
             prev_sensor_state.clone(),
             sensor_row,
             now_local,
             latest_temperature_row,
         );
-        let (sensor_state, alert) = match result {
-            Ok((state, alert)) => (state, alert),
-            Err(e) => {
-                log::error!(
-                    "Failed to process sensor notification for sensor {}: {:?}",
-                    sensor_id,
-                    e
-                );
-                // Unable to process the sensor notification, so we can't continue
-                continue;
-            }
-        };
 
         // if we have an updated state, persist it...
         if sensor_state != prev_sensor_state {
@@ -261,7 +249,7 @@ pub fn try_process_sensor_notification(
     sensor_row: SensorInfoRow,
     now_local: NaiveDateTime,
     latest_temperature_row: Option<latest_temperature::LatestTemperatureRow>,
-) -> Result<(SensorState, Option<ColdchainAlert>), ColdChainError> {
+) -> (SensorState, Option<ColdchainAlert>) {
     let curr_sensor_status = evaluate_sensor_status(
         now_local,
         latest_temperature_row.clone(),
@@ -290,12 +278,12 @@ pub fn try_process_sensor_notification(
 
         if curr_sensor_status == SensorStatus::Ok {
             // If the sensor is ok, we don't need to send a reminder
-            return Ok((prev_sensor_state, None));
+            return (prev_sensor_state, None);
         }
 
         if !config.remind {
             // If reminders are disabled, we don't need to send a reminder
-            return Ok((prev_sensor_state, None));
+            return (prev_sensor_state, None);
         }
 
         // Check if if a reminder is due
@@ -313,7 +301,7 @@ pub fn try_process_sensor_notification(
                 prev_sensor_state.status_start_utc
             );
             // return the previous state, and no alert
-            return Ok((prev_sensor_state, None));
+            return (prev_sensor_state, None);
         }
 
         // It's time to send a reminder!
@@ -373,18 +361,23 @@ pub fn try_process_sensor_notification(
         reminder_number,
     };
 
+    let base_alert = ColdchainAlert {
+        store_name: sensor_row.store_name.clone(),
+        location_name: sensor_row.location_name.clone(),
+        sensor_id: sensor_row.id.clone(),
+        sensor_name: sensor_row.sensor_name.clone(),
+        last_data_time: last_data_localtime,
+        data_age,
+        temperature: current_temp,
+        alert_type: AlertType::Ok,
+        reminder_number,
+    };
+
     let alert = match curr_sensor_status {
         SensorStatus::HighTemp => match config.high_temp {
             true => Some(ColdchainAlert {
-                store_name: sensor_row.store_name.clone(),
-                location_name: sensor_row.location_name.clone(),
-                sensor_id: sensor_row.id.clone(),
-                sensor_name: sensor_row.sensor_name.clone(),
-                last_data_time: sensor_state.timestamp_localtime,
-                data_age,
-                temperature: current_temp,
                 alert_type: AlertType::High,
-                reminder_number,
+                ..base_alert
             }),
             false => {
                 log::info!("High temp alert disabled for sensor {}", sensor_row.id);
@@ -394,15 +387,8 @@ pub fn try_process_sensor_notification(
 
         SensorStatus::LowTemp => match config.low_temp {
             true => Some(ColdchainAlert {
-                store_name: sensor_row.store_name.clone(),
-                location_name: sensor_row.location_name.clone(),
-                sensor_id: sensor_row.id.clone(),
-                sensor_name: sensor_row.sensor_name.clone(),
-                last_data_time: last_data_localtime,
-                data_age,
-                temperature: current_temp,
                 alert_type: AlertType::Low,
-                reminder_number,
+                ..base_alert
             }),
             false => {
                 log::info!("Low temp alert disabled for sensor {}", sensor_row.id);
@@ -411,15 +397,8 @@ pub fn try_process_sensor_notification(
         },
         SensorStatus::Ok => match config.confirm_ok {
             true => Some(ColdchainAlert {
-                store_name: sensor_row.store_name.clone(),
-                location_name: sensor_row.location_name.clone(),
-                sensor_id: sensor_row.id.clone(),
-                sensor_name: sensor_row.sensor_name.clone(),
-                last_data_time: last_data_localtime,
-                data_age,
-                temperature: current_temp,
                 alert_type: AlertType::Ok,
-                reminder_number,
+                ..base_alert
             }),
             false => {
                 log::info!("Confirm Ok alert disabled for sensor {}", sensor_row.id);
@@ -428,15 +407,8 @@ pub fn try_process_sensor_notification(
         },
         SensorStatus::NoData => match config.no_data {
             true => Some(ColdchainAlert {
-                store_name: sensor_row.store_name.clone(),
-                location_name: sensor_row.location_name.clone(),
-                sensor_id: sensor_row.id.clone(),
-                sensor_name: sensor_row.sensor_name.clone(),
-                last_data_time: last_data_localtime,
-                data_age,
-                temperature: current_temp,
                 alert_type: AlertType::NoData,
-                reminder_number,
+                ..base_alert
             }),
             false => {
                 log::info!("No data alert disabled for sensor {}", sensor_row.id);
@@ -445,7 +417,7 @@ pub fn try_process_sensor_notification(
         },
     };
 
-    Ok((sensor_state, alert))
+    (sensor_state, alert)
 }
 
 pub fn evaluate_sensor_status(
