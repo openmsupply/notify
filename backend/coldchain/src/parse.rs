@@ -102,25 +102,12 @@ impl ColdChainPluginConfig {
     }
 
     pub fn no_data_duration(&self) -> chrono::Duration {
-        match self.no_data_interval_units {
-            IntervalUnits::Minutes => chrono::Duration::minutes(self.no_data_interval as i64),
-            IntervalUnits::Hours => chrono::Duration::hours(self.no_data_interval as i64),
-            IntervalUnits::Days => chrono::Duration::days(self.no_data_interval as i64),
-            IntervalUnits::Weeks => chrono::Duration::weeks(self.no_data_interval as i64),
-            IntervalUnits::Months => chrono::Duration::days(self.no_data_interval as i64 * 30),
-            IntervalUnits::Years => chrono::Duration::days(self.no_data_interval as i64 * 365),
-        }
+        self.no_data_interval_units
+            .to_duration(self.no_data_interval)
     }
 
     pub fn reminder_duration(&self) -> chrono::Duration {
-        match self.reminder_units {
-            IntervalUnits::Minutes => chrono::Duration::minutes(self.reminder_interval as i64),
-            IntervalUnits::Hours => chrono::Duration::hours(self.reminder_interval as i64),
-            IntervalUnits::Days => chrono::Duration::days(self.reminder_interval as i64),
-            IntervalUnits::Weeks => chrono::Duration::weeks(self.reminder_interval as i64),
-            IntervalUnits::Months => chrono::Duration::days(self.reminder_interval as i64 * 30),
-            IntervalUnits::Years => chrono::Duration::days(self.reminder_interval as i64 * 365),
-        }
+        self.reminder_units.to_duration(self.reminder_interval)
     }
 }
 

@@ -123,7 +123,6 @@ fn test_evaluate_sensor_status() {
         low_temp_threshold,
         max_age,
     );
-    // TODO: Old Data Logic https://github.com/openmsupply/notify/issues/179
     assert_eq!(status, SensorStatus::NoData);
 }
 
