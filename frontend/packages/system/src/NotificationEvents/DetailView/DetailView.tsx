@@ -101,18 +101,16 @@ export const DetailView = () => {
             {entity?.errorMessage ? (
               <TextArea value={entity?.errorMessage} />
             ) : (
-              <Typography variant="body1">No Error</Typography>
+              <Typography variant="body1">{t('messages.no-error')}</Typography>
             )}
           </Box>
           <Box flex={1} justifyContent="right" display="flex" gap={1}>
             <Stack gap={1}>
               <Typography variant="body1">
-                Created:
-                <RelativeTimeDate d={entity?.createdAt} />
+                {t('label.created')}: <RelativeTimeDate d={entity?.createdAt} />
               </Typography>
               <Typography variant="body1">
-                Updated:
-                <RelativeTimeDate d={entity?.updatedAt} />
+                {t('label.updated')}: <RelativeTimeDate d={entity?.updatedAt} />
               </Typography>
             </Stack>
           </Box>
@@ -129,9 +127,11 @@ export const DetailView = () => {
           <BasicSpinner />
         ) : (
           <>
-            <Typography variant="h6">Generated Notification</Typography>
+            <Typography variant="h6">
+              {t('label.generated-notification')}
+            </Typography>
             <TextArea
-              label="To"
+              label={t('label.to')}
               InputLabelProps={{ shrink: true }} // so label is always visisble
               minRows={1}
               maxRows={1}
@@ -146,7 +146,7 @@ export const DetailView = () => {
             />
 
             <TextArea
-              label="Title"
+              label={t('label.title')}
               InputLabelProps={{ shrink: true }}
               minRows={1}
               maxRows={1}
@@ -159,7 +159,7 @@ export const DetailView = () => {
             />
 
             <TextArea
-              label="Message"
+              label={t('label.message')}
               InputLabelProps={{ shrink: true }}
               minRows={2}
               maxRows={25}
@@ -172,7 +172,7 @@ export const DetailView = () => {
             />
 
             <TextArea
-              label="Input data (parameters and query results)"
+              label={t('label.parameters-query-results')}
               InputLabelProps={{ shrink: true }}
               minRows={2}
               maxRows={15}
