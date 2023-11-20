@@ -26,6 +26,7 @@ const createCCNotification = (
   id: seed?.id ?? FnUtils.generateUUID(),
   title: seed?.title ?? '',
   kind: seed?.kind ?? ConfigKind.ColdChain,
+  nextDueDatetime: null, // We always want this to be null, cold chain doesn't use this field anyway
   highTemp: seed?.highTemp ?? true,
   highTempThreshold: seed?.highTempThreshold ?? 8,
   lowTemp: seed?.lowTemp ?? true,

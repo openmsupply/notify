@@ -111,6 +111,12 @@ export type DatabaseError = NodeErrorInterface & RefreshTokenErrorInterface & {
   fullError: Scalars['String']['output'];
 };
 
+export type DatetimeFilterInput = {
+  afterOrEqualTo?: InputMaybe<Scalars['DateTime']['input']>;
+  beforeOrEqualTo?: InputMaybe<Scalars['DateTime']['input']>;
+  equalTo?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
 export type DeleteNotificationConfigResponse = DeleteResponse;
 
 export type DeleteNotificationQueryResponse = DeleteResponse;
@@ -658,10 +664,10 @@ export type NotificationEventConnector = {
 };
 
 export type NotificationEventFilterInput = {
+  createdAt?: InputMaybe<DatetimeFilterInput>;
   id?: InputMaybe<EqualFilterStringInput>;
   search?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<EqualFilterEventStatusInput>;
-  title?: InputMaybe<StringFilterInput>;
 };
 
 export type NotificationEventNode = {
@@ -683,7 +689,12 @@ export type NotificationEventNode = {
 
 export enum NotificationEventSortFieldInput {
   CreatedAt = 'createdAt',
-  Title = 'title'
+  ErrorMessage = 'errorMessage',
+  Message = 'message',
+  NotificationType = 'notificationType',
+  Status = 'status',
+  Title = 'title',
+  ToAddress = 'toAddress'
 }
 
 export type NotificationEventSortInput = {
@@ -934,6 +945,7 @@ export type TokenExpired = RefreshTokenErrorInterface & {
 export type UpdateNotificationConfigInput = {
   configurationData?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
+  nextDueDatetime?: InputMaybe<Scalars['DateTime']['input']>;
   parameters?: InputMaybe<Scalars['String']['input']>;
   recipientIds?: InputMaybe<Array<Scalars['String']['input']>>;
   recipientListIds?: InputMaybe<Array<Scalars['String']['input']>>;
