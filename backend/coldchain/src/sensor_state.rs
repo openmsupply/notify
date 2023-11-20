@@ -9,8 +9,10 @@ use crate::ColdChainError;
 pub struct SensorState {
     pub sensor_id: String,
     pub status: SensorStatus,
+    #[serde(default)]
     #[serde(alias = "timestamp")]
     pub timestamp_localtime: NaiveDateTime,
+    #[serde(default)]
     pub temperature: Option<f64>,
     #[serde(default)]
     pub status_start_utc: NaiveDateTime,
