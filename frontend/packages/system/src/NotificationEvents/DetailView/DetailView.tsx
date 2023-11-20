@@ -18,11 +18,30 @@ import { useNotificationEvents } from '../api';
 import {
   ConfigKind,
   EventStatus,
+  NotificationTypeNode,
   useNavigate,
   useParams,
 } from 'packages/common/src';
 import { configRoute } from '../../Notifications/navigate';
 import { NotificationStatusChip } from '../components/NotificationStatusChip';
+
+type EventContext = {
+  recipient?: {
+    name: string;
+    notification_type: NotificationTypeNode;
+    to_address: string;
+  };
+  [key: string]: unknown;
+};
+
+const parseContext = (context: string | null | undefined): EventContext => {
+  if (!context) return {};
+  try {
+    return JSON.parse(context);
+  } catch (e) {
+    return {};
+  }
+};
 
 export const DetailView = () => {
   const t = useTranslation('system');
@@ -36,6 +55,7 @@ export const DetailView = () => {
 
   const { data, isLoading } = useNotificationEvents(queryParams);
   const entity = data?.nodes[0];
+  const { recipient, ...params } = parseContext(entity?.context);
 
   useEffect(() => {
     const listName = entity?.title;
@@ -119,8 +139,11 @@ export const DetailView = () => {
                 borderColor: 'grey.100',
                 width: '100%',
               }}
-              value={`${entity?.toAddress} (${entity?.notificationType})`}
+              value={`${recipient?.name ? `${recipient.name}: ` : ''}${
+                entity?.toAddress
+              } (${entity?.notificationType})`}
             />
+
             <TextArea
               label="Title"
               minRows={1}
@@ -143,6 +166,18 @@ export const DetailView = () => {
                 width: '100%',
               }}
               value={entity?.message}
+            />
+
+            <TextArea
+              label="Input data (parameters and query results)"
+              minRows={2}
+              maxRows={15}
+              sx={{
+                border: '1px solid',
+                borderColor: 'grey.100',
+                width: '100%',
+              }}
+              value={JSON.stringify(params, null, 2)}
             />
           </>
         )}
