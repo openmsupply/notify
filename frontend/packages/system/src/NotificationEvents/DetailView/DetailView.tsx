@@ -132,6 +132,7 @@ export const DetailView = () => {
             <Typography variant="h6">Generated Notification</Typography>
             <TextArea
               label="To"
+              InputLabelProps={{ shrink: true }} // so label is always visisble
               minRows={1}
               maxRows={1}
               sx={{
@@ -146,6 +147,7 @@ export const DetailView = () => {
 
             <TextArea
               label="Title"
+              InputLabelProps={{ shrink: true }}
               minRows={1}
               maxRows={1}
               sx={{
@@ -158,6 +160,7 @@ export const DetailView = () => {
 
             <TextArea
               label="Message"
+              InputLabelProps={{ shrink: true }}
               minRows={2}
               maxRows={25}
               sx={{
@@ -170,6 +173,7 @@ export const DetailView = () => {
 
             <TextArea
               label="Input data (parameters and query results)"
+              InputLabelProps={{ shrink: true }}
               minRows={2}
               maxRows={15}
               sx={{
