@@ -96,38 +96,42 @@ async fn run_server(
         Box::new(ColdChainPlugin::new()),
     ];
 
-    let scheduled_task_handle = actix_web::rt::spawn(async move {
+    let mut scheduled_task_handle = actix_web::rt::spawn(async move {
         scheduled_task_runner(scheduled_task_context, plugins).await;
     });
 
     // Setup a channel to receive telegram messages, which we want to handle in recipient service
     let telegram_token = config_settings.clone().telegram.token;
-    if let Some(telegram_token) = telegram_token {
-        let telegram_service = TelegramService::new(
-            TelegramClient::new(telegram_token),
-            config_settings.server.app_url.clone(),
-        );
-        let telegram_update_channel = telegram_service.init().await;
+    let telegram_update_handler_option = match telegram_token {
+        None => None,
+        Some(telegram_token) => {
+            let telegram_service = TelegramService::new(
+                TelegramClient::new(telegram_token),
+                config_settings.server.app_url.clone(),
+            );
+            let telegram_update_channel = telegram_service.init().await;
 
-        // Handle telegram updates in recipient service
-        let telegram_update_context =
-            ServiceContext::new(service_provider_data.clone().into_inner());
-        let telegram_update_context = match telegram_update_context {
-            Ok(telegram_update_context) => telegram_update_context,
-            Err(error) => {
-                return Err(std::io::Error::new(
-                    std::io::ErrorKind::Other,
-                    format!(
-                        "Error unable to create telegram update task context: {:?}",
-                        error
-                    ),
-                ));
-            }
-        };
-        let _telegram_update_handler = actix_web::rt::spawn(async move {
-            update_telegram_recipients(telegram_update_context, &telegram_update_channel).await
-        });
-    }
+            // Handle telegram updates in recipient service
+            let telegram_update_context =
+                ServiceContext::new(service_provider_data.clone().into_inner());
+            let telegram_update_context = match telegram_update_context {
+                Ok(telegram_update_context) => telegram_update_context,
+                Err(error) => {
+                    return Err(std::io::Error::new(
+                        std::io::ErrorKind::Other,
+                        format!(
+                            "Error unable to create telegram update task context: {:?}",
+                            error
+                        ),
+                    ));
+                }
+            };
+            let telegram_update_handler = actix_web::rt::spawn(async move {
+                update_telegram_recipients(telegram_update_context, &telegram_update_channel).await
+            });
+            Some(telegram_update_handler)
+        }
+    };
 
     let log_context = ServiceContext::new(service_provider_data.clone().into_inner());
     let log_context = match log_context {
@@ -202,13 +206,17 @@ async fn run_server(
         _ = ctrl_c => false,
         Some(_) = off_switch.recv() => false,
         _ = restart_switch_receiver.recv() => true,
-        scheduled_error = scheduled_task_handle => {
+        scheduled_error = &mut scheduled_task_handle => {
             error!("Scheduled task stopped unexpectedly: {:?}", scheduled_error);
             false
         }
     };
 
     server_handle.stop(true).await;
+    scheduled_task_handle.abort();
+    if let Some(telegram_update_handler) = telegram_update_handler_option {
+        telegram_update_handler.abort();
+    }
     Ok(restart)
 }
 
