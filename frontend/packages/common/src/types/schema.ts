@@ -666,6 +666,7 @@ export type NotificationEventFilterInput = {
 
 export type NotificationEventNode = {
   __typename: 'NotificationEventNode';
+  context?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   errorMessage?: Maybe<Scalars['String']['output']>;
   id: Scalars['String']['output'];
