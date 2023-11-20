@@ -18,30 +18,12 @@ import { useNotificationEvents } from '../api';
 import {
   ConfigKind,
   EventStatus,
-  NotificationTypeNode,
   useNavigate,
   useParams,
 } from 'packages/common/src';
 import { configRoute } from '../../Notifications/navigate';
 import { NotificationStatusChip } from '../components/NotificationStatusChip';
-
-type EventContext = {
-  recipient?: {
-    name: string;
-    notification_type: NotificationTypeNode;
-    to_address: string;
-  };
-  [key: string]: unknown;
-};
-
-const parseContext = (context: string | null | undefined): EventContext => {
-  if (!context) return {};
-  try {
-    return JSON.parse(context);
-  } catch (e) {
-    return {};
-  }
-};
+import { useParsedEventContext } from './eventContext';
 
 export const DetailView = () => {
   const t = useTranslation('system');
@@ -55,7 +37,9 @@ export const DetailView = () => {
 
   const { data, isLoading } = useNotificationEvents(queryParams);
   const entity = data?.nodes[0];
-  const { recipient, ...params } = parseContext(entity?.context);
+  const { recipient, ...paramsAndResults } = useParsedEventContext(
+    entity?.context
+  );
 
   useEffect(() => {
     const listName = entity?.title;
@@ -132,7 +116,7 @@ export const DetailView = () => {
             </Typography>
             <TextArea
               label={t('label.to')}
-              InputLabelProps={{ shrink: true }} // so label is always visisble
+              InputLabelProps={{ shrink: true }} // label always visisble
               minRows={1}
               maxRows={1}
               sx={{
@@ -181,7 +165,7 @@ export const DetailView = () => {
                 borderColor: 'grey.100',
                 width: '100%',
               }}
-              value={JSON.stringify(params, null, 2)}
+              value={JSON.stringify(paramsAndResults, null, 2)}
             />
           </>
         )}
