@@ -125,32 +125,29 @@ fn try_process_coldchain_notifications(
                     "Failed to get previous state for sensor {}: {:?}",
                     sensor_id, e
                 ))
-            })?;
+            })?; // Exit the function if we get a database error...
 
         let prev_sensor_state = match prev_sensor_state {
-            Some(s) => SensorState::from_string(&s),
+            Some(s) => match SensorState::from_string(&s) {
+                Ok(s) => Some(s),
+                Err(e) => {
+                    log::error!(
+                        "Failed to parse previous state for sensor {}: {:?}",
+                        sensor_id,
+                        e
+                    );
+                    // Unable to parse the previous state, so we'll continue with the default state
+                    None
+                }
+            },
             None => {
-                // No previous status found, so assume we were previously in the `Ok` State
+                // No previous status found, so we'll assume we were previously in the `Ok` State
                 // This means we should send a notification if the sensor is not in the `Ok` state, even the first time we see it...
                 log::info!(
                     "No previous status for sensor {}, assuming it used to be Ok",
                     sensor_id
                 );
-
-                Ok(SensorState::default())
-            }
-        };
-
-        let prev_sensor_state = match prev_sensor_state {
-            Ok(s) => s,
-            Err(e) => {
-                log::error!(
-                    "Failed to parse previous state for sensor {}: {:?}",
-                    sensor_id,
-                    e
-                );
-                // Unable to parse the previous state, so we'll continue with the default state
-                SensorState::default()
+                None
             }
         };
 
@@ -179,7 +176,7 @@ fn try_process_coldchain_notifications(
         );
 
         // if we have an updated state, persist it...
-        if sensor_state != prev_sensor_state {
+        if prev_sensor_state.is_none() || sensor_state != prev_sensor_state.unwrap_or_default() {
             let result = ctx.service_provider.plugin_service.set_value(
                 ctx,
                 PLUGIN_NAME.to_string(),
@@ -245,11 +242,25 @@ fn try_process_coldchain_notifications(
 
 pub fn try_process_sensor_notification(
     config: &ColdChainPluginConfig,
-    prev_sensor_state: SensorState,
+    prev_sensor_state: Option<SensorState>,
     sensor_row: SensorInfoRow,
     now_local: NaiveDateTime,
     latest_temperature_row: Option<latest_temperature::LatestTemperatureRow>,
 ) -> (SensorState, Option<ColdchainAlert>) {
+    // If we don't have a previous state, we'll assume the sensor was previously in the `Ok` state
+    let prev_sensor_state = match prev_sensor_state {
+        Some(s) => s,
+        None => SensorState {
+            sensor_id: sensor_row.id.clone(),
+            status: SensorStatus::Ok,
+            timestamp_localtime: now_local,
+            temperature: None,
+            status_start_utc: now_local,
+            last_notification_utc: None,
+            reminder_number: 0,
+        },
+    };
+
     let curr_sensor_status = evaluate_sensor_status(
         now_local,
         latest_temperature_row.clone(),

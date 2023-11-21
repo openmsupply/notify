@@ -200,7 +200,7 @@ fn test_try_process_sensor_notification_prev_ok() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_ok_1min.clone(),
+        Some(prev_sensor_state_ok_1min.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -221,7 +221,7 @@ fn test_try_process_sensor_notification_prev_ok() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_ok_1min.clone(),
+        Some(prev_sensor_state_ok_1min.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -245,7 +245,7 @@ fn test_try_process_sensor_notification_prev_ok() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_ok_1min.clone(),
+        Some(prev_sensor_state_ok_1min.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -269,7 +269,7 @@ fn test_try_process_sensor_notification_prev_ok() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_ok_now_no_data.clone(),
+        Some(prev_sensor_state_ok_now_no_data.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -355,7 +355,7 @@ fn test_try_process_sensor_notification_prev_high() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_high_1min.clone(),
+        Some(prev_sensor_state_high_1min.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -378,7 +378,7 @@ fn test_try_process_sensor_notification_prev_high() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_high_1min.clone(),
+        Some(prev_sensor_state_high_1min.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -400,7 +400,7 @@ fn test_try_process_sensor_notification_prev_high() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_high_1min.clone(),
+        Some(prev_sensor_state_high_1min.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -424,7 +424,7 @@ fn test_try_process_sensor_notification_prev_high() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_high_now_no_data.clone(),
+        Some(prev_sensor_state_high_now_no_data.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -510,7 +510,7 @@ fn test_try_process_sensor_notification_prev_low() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_low_1min.clone(),
+        Some(prev_sensor_state_low_1min.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -533,7 +533,7 @@ fn test_try_process_sensor_notification_prev_low() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_low_1min.clone(),
+        Some(prev_sensor_state_low_1min.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -557,7 +557,7 @@ fn test_try_process_sensor_notification_prev_low() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_low_1min.clone(),
+        Some(prev_sensor_state_low_1min.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -579,7 +579,7 @@ fn test_try_process_sensor_notification_prev_low() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_low_now_no_data.clone(),
+        Some(prev_sensor_state_low_now_no_data.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -654,7 +654,7 @@ fn test_try_process_sensor_notification_prev_no_data() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_no_data.clone(),
+        Some(prev_sensor_state_no_data.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -677,7 +677,7 @@ fn test_try_process_sensor_notification_prev_no_data() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_no_data.clone(),
+        Some(prev_sensor_state_no_data.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -701,7 +701,7 @@ fn test_try_process_sensor_notification_prev_no_data() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_no_data.clone(),
+        Some(prev_sensor_state_no_data.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -725,7 +725,7 @@ fn test_try_process_sensor_notification_prev_no_data() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_no_data.clone(),
+        Some(prev_sensor_state_no_data.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -804,7 +804,7 @@ fn test_try_process_sensor_notification_no_data_reminder() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_no_data.clone(),
+        Some(prev_sensor_state_no_data.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -851,7 +851,7 @@ fn test_try_process_sensor_notification_no_data_reminder() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_no_data.clone(),
+        Some(prev_sensor_state_no_data.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -926,7 +926,7 @@ fn test_try_process_sensor_notification_high_temp_reminder() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_no_data.clone(),
+        Some(prev_sensor_state_no_data.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -970,7 +970,7 @@ fn test_try_process_sensor_notification_high_temp_reminder() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_no_data.clone(),
+        Some(prev_sensor_state_no_data.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -1009,7 +1009,7 @@ fn test_try_process_sensor_notification_high_temp_reminder() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_no_data.clone(),
+        Some(prev_sensor_state_no_data.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
@@ -1057,7 +1057,7 @@ fn test_try_process_sensor_notification_high_temp_reminder() {
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
-        prev_sensor_state_no_data.clone(),
+        Some(prev_sensor_state_no_data.clone()),
         sensor_row.clone(),
         now_local,
         latest_temperature_row,
