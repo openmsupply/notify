@@ -113,7 +113,7 @@ export const FilterBar = ({
           isOpen={isOpen}
           onClose={onClose}
           setSelectedConfigId={setFilterConfig}
-          filterSelected={!!selectedConfig}
+          selectedConfigId={notificationConfigId}
         />
       )}
       <Box

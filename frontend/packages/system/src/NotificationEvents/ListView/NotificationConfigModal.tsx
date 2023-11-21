@@ -18,7 +18,7 @@ interface NotificationConfigsModalProps {
   isOpen: boolean;
   onClose: () => void;
   setSelectedConfigId: (id: string) => void;
-  filterSelected: boolean;
+  selectedConfigId: string;
 }
 
 interface NotificationConfigOption {
@@ -30,7 +30,7 @@ interface NotificationConfigOption {
 
 export const NotificationConfigModal: FC<NotificationConfigsModalProps> = ({
   isOpen,
-  filterSelected,
+  selectedConfigId,
   onClose,
   setSelectedConfigId,
 }) => {
@@ -72,7 +72,7 @@ export const NotificationConfigModal: FC<NotificationConfigsModalProps> = ({
       slideAnimation={false}
       cancelButton={
         <ButtonWithIcon
-          disabled={!filterSelected}
+          disabled={!selectedConfigId}
           Icon={<CloseIcon />}
           label={t('label.clear-filter')}
           onClick={() => {
@@ -106,6 +106,7 @@ export const NotificationConfigModal: FC<NotificationConfigsModalProps> = ({
             options={options}
             onChange={onChangeSelectedConfig}
             getOptionLabel={option => option.id}
+            getOptionDisabled={o => o.id === selectedConfigId}
             renderOption={renderOption}
             filterProperties={['title']}
             filterPlaceholder={t('placeholder.search')}
