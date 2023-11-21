@@ -7,7 +7,7 @@ import { useTranslation } from '@common/intl';
 import {
   AutocompleteMultiList,
   AutocompleteOptionRenderer,
-  LoadingButton,
+  ButtonWithIcon,
   Tooltip,
 } from '@common/components';
 import { useNotificationConfigs } from '../../Notifications/api';
@@ -71,18 +71,15 @@ export const NotificationConfigModal: FC<NotificationConfigsModalProps> = ({
       title={t('label.filter-by-notification-config')}
       slideAnimation={false}
       cancelButton={
-        <LoadingButton
+        <ButtonWithIcon
           disabled={!filterSelected}
+          Icon={<CloseIcon />}
+          label={t('label.clear-filter')}
           onClick={() => {
             setSelectedConfigId('');
             onClose();
           }}
-          isLoading={false}
-          startIcon={<CloseIcon />}
-          variant="outlined"
-        >
-          {t('label.clear-filter')}
-        </LoadingButton>
+        ></ButtonWithIcon>
       }
     >
       <Grid
