@@ -8,7 +8,6 @@ import {
   EventStatus,
   useEditModal,
   LoadingButton,
-  useUrlQueryParams,
   FilterIcon,
   useUrlQuery,
 } from '@notify-frontend/common';
@@ -83,33 +82,33 @@ export const FilterBar = ({
     return options;
   }, []);
 
-  // // maybe 50 or so is fine if searching.... ugh kind of no...
-  // // TODO: what if more than 1000... there's a Pagination::all() on the back end but not sure how to use from frontend...
-  const { queryParams } = useUrlQueryParams({ rowsPerPage: 1000 });
-
   // TODO: isError, isLoading
-  // should this go here or the modal?? ... just gotta pass the name and id out...
-  // but if we pass the name out, we need a way of getting the name if its already in the url so...
-  const { data } = useNotificationConfigs(queryParams);
+  // TODO: https://github.com/msupply-foundation/notify/issues/238 handle pagination
+  const { data } = useNotificationConfigs({ first: 1000 });
   const notificationConfigs = data?.nodes ?? [];
 
   const { urlQuery, updateQuery } = useUrlQuery();
 
+  const notificationConfigId = urlQuery.notificationConfigId;
+
+  const selectedConfig = notificationConfigs.find(
+    c => c.id === notificationConfigId
+  );
+
   useEffect(() => {
-    if (!urlQuery.notificationConfigId) {
+    if (!notificationConfigId) {
       filter.onClearFilterRule('notificationConfigId');
     } else {
       filter.onChangeStringFilterRule(
         'notificationConfigId',
         'equalTo',
-        urlQuery.notificationConfigId
+        notificationConfigId
       );
     }
-  }, [urlQuery.notificationConfig]);
+  }, [notificationConfigId]);
 
   const setFilterConfig = (id: string) => {
     updateQuery({ ...urlQuery, notificationConfigId: id });
-    filter.onChangeStringFilterRule('notificationConfigId', 'equalTo', id);
   };
 
   return (
@@ -118,8 +117,9 @@ export const FilterBar = ({
         <NotificationConfigModal
           isOpen={isOpen}
           onClose={onClose}
-          setSelectedConfig={setFilterConfig}
+          setSelectedConfigId={setFilterConfig}
           notificationConfigs={notificationConfigs ?? []}
+          selectedConfigId={notificationConfigId}
         />
       )}
       <Box
@@ -182,7 +182,9 @@ export const FilterBar = ({
             onClick={() => onOpen()}
             variant="outlined"
           >
-            {t('label.filter-by-notification-config')}
+            {selectedConfig
+              ? `Events for: ${selectedConfig.title}`
+              : t('label.filter-by-notification-config')}
           </LoadingButton>
 
           <Box sx={{ gap: '10px', display: 'flex' }}>
