@@ -7,17 +7,19 @@ import { useTranslation } from '@common/intl';
 import {
   AutocompleteMultiList,
   AutocompleteOptionRenderer,
+  LoadingButton,
   Tooltip,
 } from '@common/components';
 import { NotificationConfigRowFragment } from '../../Notifications/api';
 import { ConfigKind, ConfigStatus } from '@common/types';
-import { Grid } from '@common/ui';
+import { CloseIcon, Grid } from '@common/ui';
 
 interface NotificationConfigsModalProps {
   isOpen: boolean;
   notificationConfigs: NotificationConfigRowFragment[];
   onClose: () => void;
-  setSelectedConfig: (id: string) => void;
+  setSelectedConfigId: (id: string) => void;
+  selectedConfigId: string;
 }
 
 interface NotificationConfigOption {
@@ -30,8 +32,9 @@ interface NotificationConfigOption {
 export const NotificationConfigModal: FC<NotificationConfigsModalProps> = ({
   isOpen,
   notificationConfigs,
+  selectedConfigId: selectedConfig,
   onClose,
-  setSelectedConfig,
+  setSelectedConfigId: setSelectedConfig,
 }) => {
   const t = useTranslation(['system']);
   const [errorMessage, setErrorMessage] = useState('');
@@ -63,8 +66,22 @@ export const NotificationConfigModal: FC<NotificationConfigsModalProps> = ({
     <Modal
       height={modalHeight}
       width={modalWidth}
-      title={t('label.select-notification-config')}
+      title={t('label.filter-by-notification-config')}
       slideAnimation={false}
+      cancelButton={
+        <LoadingButton
+          disabled={!selectedConfig}
+          onClick={() => {
+            setSelectedConfig('');
+            onClose();
+          }}
+          isLoading={false}
+          startIcon={<CloseIcon />}
+          variant="outlined"
+        >
+          {t('label.clear-filter')}
+        </LoadingButton>
+      }
     >
       <Grid
         flexDirection="column"
@@ -95,7 +112,7 @@ export const NotificationConfigModal: FC<NotificationConfigsModalProps> = ({
             filterPlaceholder={t('placeholder.search')}
             showSelectedCount={false}
             width={modalWidth - 50}
-            height={modalHeight - 140}
+            height={modalHeight - 200}
           />
         </Grid>
       </Grid>
