@@ -14,10 +14,12 @@ export function parseColdChainNotificationConfig(
 ): CCNotification | null {
   if (!config) return null;
   try {
+    const { configurationData, ...rest } = config;
+
     return {
       ...defaultCCNotification,
-      ...JSON.parse(config.configurationData),
-      ...config,
+      ...JSON.parse(configurationData),
+      ...rest,
     };
   } catch (e) {
     showError();
