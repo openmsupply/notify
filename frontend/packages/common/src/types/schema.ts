@@ -666,6 +666,7 @@ export type NotificationEventConnector = {
 export type NotificationEventFilterInput = {
   createdAt?: InputMaybe<DatetimeFilterInput>;
   id?: InputMaybe<EqualFilterStringInput>;
+  notificationConfigId?: InputMaybe<EqualFilterStringInput>;
   search?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<EqualFilterEventStatusInput>;
 };
