@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   useTranslation,
   FilterController,
@@ -95,8 +95,21 @@ export const FilterBar = ({
 
   const { urlQuery, updateQuery } = useUrlQuery();
 
+  useEffect(() => {
+    if (!urlQuery.notificationConfigId) {
+      filter.onClearFilterRule('notificationConfigId');
+    } else {
+      filter.onChangeStringFilterRule(
+        'notificationConfigId',
+        'equalTo',
+        urlQuery.notificationConfigId
+      );
+    }
+  }, [urlQuery.notificationConfig]);
+
   const setFilterConfig = (id: string) => {
-    updateQuery({ ...urlQuery, notificationConfig: id });
+    updateQuery({ ...urlQuery, notificationConfigId: id });
+    filter.onChangeStringFilterRule('notificationConfigId', 'equalTo', id);
   };
 
   return (
