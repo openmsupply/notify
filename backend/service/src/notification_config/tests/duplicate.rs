@@ -11,9 +11,9 @@ mod notification_config_duplicate_tests {
     use std::sync::Arc;
 
     #[actix_rt::test]
-    async fn notification_config_duplicate_test() {
+    async fn notification_config_service_duplicate() {
         let (_, _, connection_manager, _) = setup_all(
-            "notification_config_duplicate_test",
+            "notification_config_service_duplicate",
             MockDataInserts::none().notification_configs(),
         )
         .await;

@@ -23,6 +23,7 @@ import {
   FnUtils,
   useNavigate,
   useConfirmationModal,
+  RunIcon,
 } from '@notify-frontend/common';
 
 import { BaseNotificationConfig } from '../../types';
@@ -40,6 +41,7 @@ interface BaseNotificationEditPageProps<T extends BaseNotificationConfig> {
   isInvalid: boolean;
   isLoading: boolean;
   allowParameterSets?: boolean;
+  showRunButton?: boolean;
   draft: T;
   setDraft: (draft: T) => void;
   onSave: (draft: T) => Promise<void>;
@@ -53,6 +55,7 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
   isInvalid,
   isLoading,
   allowParameterSets = false,
+  showRunButton = false,
   draft,
   setDraft,
   onSave,
@@ -65,9 +68,14 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
   const [isSaved, setIsSaved] = useState(false);
   const navigate = useNavigate();
 
-  const { data: recipients } = useRecipients();
-  const { data: recipientLists } = useRecipientLists();
-  const { data: sqlRecipientLists } = useSqlRecipientLists();
+  const isEnabled = (status: ConfigStatus) => {
+    return status == ConfigStatus.Enabled;
+  };
+
+  // TODO: https://github.com/msupply-foundation/notify/issues/238 handle pagination
+  const { data: recipients } = useRecipients({ first: 1000 });
+  const { data: recipientLists } = useRecipientLists({ first: 1000 });
+  const { data: sqlRecipientLists } = useSqlRecipientLists({ first: 1000 });
 
   const { mutateAsync: duplicate } = useDuplicateNotificationConfig();
 
@@ -87,10 +95,6 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
     message: t('messages.confirm-duplicate'),
     title: t('heading.are-you-sure'),
   });
-
-  const isEnabled = (status: ConfigStatus) => {
-    return status == ConfigStatus.Enabled;
-  };
 
   const onUpdateParams = (idx: number = 0, key: string, value: string) => {
     const updatedParam = { [key]: value } as KeyedParams;
@@ -252,6 +256,26 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
                       showDuplicateConfirmation();
                     }}
                   />
+                  {showRunButton && (
+                    <LoadingButton
+                      disabled={
+                        isInvalid ||
+                        !allParamsSet ||
+                        draft.status == ConfigStatus.Disabled
+                      }
+                      isLoading={isLoading}
+                      onClick={() => {
+                        // Note, this doesn't update state, but that's good we don't want to save the nextDueDatetime again if the save button is used next.
+                        draft.nextDueDatetime = new Date().toISOString();
+                        onSave(draft);
+                        setIsSaved(true);
+                      }}
+                      startIcon={<RunIcon />}
+                      sx={{ fontSize: '12px' }}
+                    >
+                      {isSaved ? t('button.run') : t('button.save-and-run')}
+                    </LoadingButton>
+                  )}
 
                   <LoadingButton
                     disabled={isSaved || isInvalid || !allParamsSet}

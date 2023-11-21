@@ -20,6 +20,7 @@ pub struct UpdateNotificationConfig {
     pub recipient_ids: Option<Vec<String>>,
     pub recipient_list_ids: Option<Vec<String>>,
     pub sql_recipient_list_ids: Option<Vec<String>>,
+    pub next_due_datetime: Option<chrono::NaiveDateTime>,
 }
 
 pub fn update_notification_config(
@@ -73,6 +74,7 @@ pub fn generate(
         recipient_ids,
         recipient_list_ids,
         sql_recipient_list_ids,
+        next_due_datetime,
     }: UpdateNotificationConfig,
     current_notification_config_row: NotificationConfigRow,
 ) -> Result<NotificationConfigRow, ModifyNotificationConfigError> {
@@ -119,8 +121,8 @@ pub fn generate(
         new_notification_config_row.sql_recipient_list_ids = recipient_json;
     }
 
-    // Reset the next check datetime in case the schedule has changed, or something needs to be recalculated
-    new_notification_config_row.next_due_datetime = None;
+    // Note: We usually reset the next check datetime in case the schedule has changed, or something needs to be recalculated
+    new_notification_config_row.next_due_datetime = next_due_datetime;
 
     Ok(new_notification_config_row)
 }

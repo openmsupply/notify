@@ -8,6 +8,7 @@ use lettre::{
     },
     SmtpTransport,
 };
+use std::time::Duration;
 
 use repository::{EmailQueueRowRepository, EmailQueueStatus, RepositoryError};
 
@@ -21,6 +22,7 @@ pub mod enqueue;
 pub mod send;
 
 pub static MAX_RETRIES: i32 = 3;
+pub static TIMEOUT_MS: u64 = 30_000; // 30 seconds
 
 // We use a trait for EmailService to allow mocking in tests
 pub trait EmailServiceTrait: Send + Sync {
@@ -82,7 +84,9 @@ impl EmailService {
             transport_builder = transport_builder.credentials(credentials);
         }
 
-        let mailer = transport_builder.build();
+        let mailer = transport_builder
+            .timeout(Some(Duration::from_millis(TIMEOUT_MS)))
+            .build();
 
         EmailService {
             mailer,

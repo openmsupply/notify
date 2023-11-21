@@ -16,10 +16,14 @@ import {
   ZapIcon,
   isValidVariableName,
   useDetailPanel,
-  useToggle,
   useTranslation,
   validateVariableNameHelperText,
   useNotification,
+  AppFooterPortal,
+  AppBarContentPortal,
+  Paper,
+  useToggle,
+  Stack,
 } from '@notify-frontend/common';
 import { DraftNotificationQuery } from './types';
 import { useUpdateNotificationQuery } from '../api';
@@ -65,7 +69,6 @@ export const QueryEditor = ({
   const { open: openSidePanel, isOpen } = useDetailPanel();
 
   const [isSaved, setIsSaved] = useState(true);
-
   const {
     isOn: isEditingName,
     toggleOn: editNameToggleOn,
@@ -150,128 +153,160 @@ export const QueryEditor = ({
     );
   }
   return (
-    <Box sx={{ width: '100%' }}>
+    <>
       <SidePanel
         query={draft.query}
         queryParams={queryParams}
         onUpdateQueryParams={onUpdateQueryParams}
         generatedQuery={generatedQuery}
       />
-      <Grid flexDirection="column" display="flex" gap={1}>
-        {isEditingName ? (
-          <>
-            <BasicTextInput
-              autoFocus
-              required
-              value={draft.name}
-              error={invalidName(draft.name)}
-              helperText={
-                invalidName(draft.name)
-                  ? t('helper-text.recipient-list-name')
-                  : null
-              }
-              onChange={e => onUpdate({ name: e.target.value })}
-              label={t('label.name')}
-              InputLabelProps={{ shrink: true }}
-            />
-            <BasicTextInput
-              autoFocus
-              required
-              value={draft.referenceName}
-              error={!isValidVariableName(draft.referenceName)}
-              helperText={
-                <Tooltip title={t('helper-text.reference_name')}>
-                  <span>
-                    {validateVariableNameHelperText(draft.referenceName, t) ??
-                      t('helper-text.reference_name')}
-                  </span>
-                </Tooltip>
-              }
-              onChange={e => onUpdate({ referenceName: e.target.value })}
-              label={t('label.reference-name')}
-              InputLabelProps={{ shrink: true }}
-            />
-          </>
-        ) : (
-          <Typography
-            sx={{
-              fontSize: '18px',
-              fontWeight: 'bold',
-              color: 'gray.dark',
-            }}
-            onClick={editNameToggleOn}
-          >
-            {draft?.name} ({draft?.referenceName})
-            <IconButton
-              onClick={editNameToggleOn}
-              icon={<EditIcon />}
-              label={t('label.edit')}
-            />
-          </Typography>
-        )}
+      {/* Description/Details section */}
+      <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
+        <Paper
+          sx={{
+            borderRadius: '16px',
+            boxShadow: theme => theme.shadows[1],
+            padding: '21px',
+            height: 'fit-content',
+            backgroundColor: 'background',
+          }}
+        >
+          {isEditingName ? (
+            <Stack>
+              <BasicTextInput
+                required
+                value={draft.name}
+                error={invalidName(draft.name)}
+                helperText={
+                  invalidName(draft.name)
+                    ? t('helper-text.recipient-list-name')
+                    : null
+                }
+                onChange={e => onUpdate({ name: e.target.value })}
+                label={t('label.name')}
+                InputLabelProps={{ shrink: true }}
+              />
+              <BasicTextInput
+                required
+                value={draft.referenceName}
+                error={!isValidVariableName(draft.referenceName)}
+                helperText={
+                  <Tooltip title={t('helper-text.reference_name')}>
+                    <span>
+                      {validateVariableNameHelperText(draft.referenceName, t) ??
+                        t('helper-text.reference_name')}
+                    </span>
+                  </Tooltip>
+                }
+                onChange={e => onUpdate({ referenceName: e.target.value })}
+                label={t('label.reference-name')}
+                InputLabelProps={{ shrink: true }}
+              />
 
-        <BufferedTextArea
-          value={draft.description}
-          onChange={e => onUpdate({ description: e.target.value })}
-          label={t('label.description')}
-          InputProps={{ sx: { backgroundColor: 'background.menu' } }}
-          InputLabelProps={{ shrink: true }}
-          rows={2}
-        />
-        <BufferedTextArea
-          value={draft.query}
-          onChange={e => onUpdate({ query: e.target.value })}
-          label={t('label.query')}
-          InputProps={{ sx: { backgroundColor: 'background.menu' } }}
-          InputLabelProps={{ shrink: true }}
-          helperText={t('helper-text.sql-query')}
-          minRows={4}
-        />
-        <Box sx={{ display: 'flex', gap: '8px' }}>
-          <Typography
-            component={'span'}
-            sx={{ fontWeight: 'bold', color: 'gray.dark' }}
-          >
-            {t('label.parameters')}:
-          </Typography>
-
-          {!hasParams ? (
-            <Typography component={'span'} sx={{ color: 'gray.light' }}>
-              {t('message.no-parameters')}
-            </Typography>
+              <BufferedTextArea
+                value={draft.description}
+                onChange={e => onUpdate({ description: e.target.value })}
+                label={t('label.description')}
+                InputProps={{ sx: { backgroundColor: 'background.menu' } }}
+                InputLabelProps={{ shrink: true }}
+                rows={4}
+              />
+            </Stack>
           ) : (
-            <>
-              <Typography component={'span'} sx={{ color: 'gray.dark' }}>
-                {TeraUtils.extractParams(draft.query).join(', ')}
-              </Typography>
+            <Typography
+              sx={{
+                fontSize: '18px',
+                fontWeight: 'bold',
+                color: 'gray.dark',
+              }}
+              onClick={editNameToggleOn}
+            >
+              {draft?.name} ({draft?.referenceName})
               <IconButton
-                height="24px"
-                width="24px"
-                onClick={openSidePanel}
+                onClick={editNameToggleOn}
                 icon={<EditIcon />}
                 label={t('label.edit')}
               />
-            </>
+            </Typography>
           )}
-        </Box>
-        <Box>
-          <LoadingButton
-            startIcon={<SaveIcon />}
-            onClick={() => {
-              onSave(draft).catch(err => {
-                console.error(err);
-                error(err)();
-              });
-            }}
-            disabled={isSaved || invalidName(draft.name)}
-            isLoading={updateIsLoading}
-            sx={{ marginRight: 1 }}
+
+          <Grid item xs={12}>
+            <BufferedTextArea
+              value={draft.query}
+              onChange={e => onUpdate({ query: e.target.value })}
+              label={t('label.query')}
+              InputProps={{
+                sx: {
+                  backgroundColor: 'background.menu',
+                  textarea: {
+                    resize: 'vertical',
+                  },
+                },
+              }}
+              InputLabelProps={{ shrink: true }}
+              helperText={t('helper-text.sql-query')}
+              minRows={4}
+              maxRows={10}
+            />
+          </Grid>
+        </Paper>
+      </AppBarContentPortal>
+
+      <AppFooterPortal
+        Content={
+          <Box
+            gap={2}
+            display="flex"
+            flexDirection="row"
+            alignItems="center"
+            height={64}
           >
-            {t('button.save')}
-          </LoadingButton>
-          {testQueryButton}
-        </Box>
-      </Grid>
-    </Box>
+            <Box flex={1} display="flex" justifyContent="flex-start" gap={1}>
+              <Typography
+                component={'span'}
+                sx={{ fontWeight: 'bold', color: 'gray.dark' }}
+              >
+                {t('label.parameters')}:
+              </Typography>
+              {!hasParams ? (
+                <Typography component={'span'} sx={{ color: 'gray.light' }}>
+                  {t('message.no-parameters')}
+                </Typography>
+              ) : (
+                <>
+                  <Typography component={'span'} sx={{ color: 'gray.dark' }}>
+                    {TeraUtils.extractParams(draft.query).join(', ')}
+                  </Typography>
+                  <IconButton
+                    height="24px"
+                    width="24px"
+                    onClick={openSidePanel}
+                    icon={<EditIcon />}
+                    label={t('label.edit')}
+                  />
+                </>
+              )}
+            </Box>
+            <Box flex={1} display="flex" justifyContent="flex-end" gap={2}>
+              {testQueryButton}
+              <LoadingButton
+                startIcon={<SaveIcon />}
+                onClick={() => {
+                  onSave(draft).catch(err => {
+                    console.error(err);
+                    error(err)();
+                  });
+                }}
+                disabled={isSaved || invalidName(draft.name)}
+                isLoading={updateIsLoading}
+                sx={{ marginRight: 1 }}
+              >
+                {t('button.save')}
+              </LoadingButton>
+            </Box>
+          </Box>
+        }
+      />
+    </>
   );
 };

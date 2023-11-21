@@ -40,6 +40,7 @@ export const defaultCCNotification: CCNotification = {
   title: '',
   kind: ConfigKind.ColdChain,
   status: ConfigStatus.Disabled,
+  nextDueDatetime: null, // We always want this to be null, unless triggering a 'run now' action
   recipientListIds: [],
   recipientIds: [],
   sqlRecipientListIds: [],
