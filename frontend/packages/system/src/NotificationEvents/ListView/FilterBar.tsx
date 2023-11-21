@@ -82,18 +82,12 @@ export const FilterBar = ({
     return options;
   }, []);
 
-  // TODO: https://github.com/msupply-foundation/notify/issues/238 handle pagination
-  const { data, isLoading } = useNotificationConfigs({ first: 1000 });
-  const notificationConfigs = data?.nodes ?? [];
-
   const { urlQuery, updateQuery } = useUrlQuery();
-
   const notificationConfigId = urlQuery.notificationConfigId;
 
-  // TODO: if there are lots of configs, we may not have them all to search through...
-  const selectedConfig = notificationConfigs.find(
-    c => c.id === notificationConfigId
-  );
+  const setFilterConfig = (id: string) => {
+    updateQuery({ ...urlQuery, notificationConfigId: id });
+  };
 
   useEffect(() => {
     if (!notificationConfigId) {
@@ -107,9 +101,10 @@ export const FilterBar = ({
     }
   }, [notificationConfigId]);
 
-  const setFilterConfig = (id: string) => {
-    updateQuery({ ...urlQuery, notificationConfigId: id });
-  };
+  const { data } = useNotificationConfigs({
+    filterBy: { id: { equalTo: notificationConfigId } },
+  });
+  const selectedConfig = notificationConfigId && data?.nodes[0];
 
   return (
     <>
@@ -118,8 +113,7 @@ export const FilterBar = ({
           isOpen={isOpen}
           onClose={onClose}
           setSelectedConfigId={setFilterConfig}
-          notificationConfigs={notificationConfigs ?? []}
-          selectedConfigId={notificationConfigId}
+          filterSelected={!!selectedConfig}
         />
       )}
       <Box
@@ -177,7 +171,7 @@ export const FilterBar = ({
           />
 
           <LoadingButton
-            isLoading={isLoading}
+            isLoading={false}
             startIcon={<FilterIcon />}
             onClick={() => onOpen()}
             variant="outlined"

@@ -10,16 +10,15 @@ import {
   LoadingButton,
   Tooltip,
 } from '@common/components';
-import { NotificationConfigRowFragment } from '../../Notifications/api';
+import { useNotificationConfigs } from '../../Notifications/api';
 import { ConfigKind, ConfigStatus } from '@common/types';
 import { CloseIcon, Grid } from '@common/ui';
 
 interface NotificationConfigsModalProps {
   isOpen: boolean;
-  notificationConfigs: NotificationConfigRowFragment[];
   onClose: () => void;
   setSelectedConfigId: (id: string) => void;
-  selectedConfigId: string;
+  filterSelected: boolean;
 }
 
 interface NotificationConfigOption {
@@ -31,15 +30,18 @@ interface NotificationConfigOption {
 
 export const NotificationConfigModal: FC<NotificationConfigsModalProps> = ({
   isOpen,
-  notificationConfigs,
-  selectedConfigId: selectedConfig,
+  filterSelected,
   onClose,
-  setSelectedConfigId: setSelectedConfig,
+  setSelectedConfigId,
 }) => {
   const t = useTranslation(['system']);
   const [errorMessage, setErrorMessage] = useState('');
 
   const { Modal } = useDialog({ isOpen, onClose });
+
+  // TODO: https://github.com/msupply-foundation/notify/issues/238 handle pagination
+  const { data } = useNotificationConfigs({ first: 1000 });
+  const notificationConfigs = data?.nodes ?? [];
 
   const options: NotificationConfigOption[] = useMemo(
     () =>
@@ -54,7 +56,7 @@ export const NotificationConfigModal: FC<NotificationConfigsModalProps> = ({
 
   const onChangeSelectedConfig = (ids: string[]) => {
     if (ids[0]) {
-      setSelectedConfig(ids[0]);
+      setSelectedConfigId(ids[0]);
       onClose();
     }
   };
@@ -70,9 +72,9 @@ export const NotificationConfigModal: FC<NotificationConfigsModalProps> = ({
       slideAnimation={false}
       cancelButton={
         <LoadingButton
-          disabled={!selectedConfig}
+          disabled={!filterSelected}
           onClick={() => {
-            setSelectedConfig('');
+            setSelectedConfigId('');
             onClose();
           }}
           isLoading={false}
