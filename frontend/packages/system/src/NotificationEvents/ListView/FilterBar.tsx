@@ -82,15 +82,15 @@ export const FilterBar = ({
     return options;
   }, []);
 
-  // TODO: isError, isLoading
   // TODO: https://github.com/msupply-foundation/notify/issues/238 handle pagination
-  const { data } = useNotificationConfigs({ first: 1000 });
+  const { data, isLoading } = useNotificationConfigs({ first: 1000 });
   const notificationConfigs = data?.nodes ?? [];
 
   const { urlQuery, updateQuery } = useUrlQuery();
 
   const notificationConfigId = urlQuery.notificationConfigId;
 
+  // TODO: if there are lots of configs, we may not have them all to search through...
   const selectedConfig = notificationConfigs.find(
     c => c.id === notificationConfigId
   );
@@ -177,7 +177,7 @@ export const FilterBar = ({
           />
 
           <LoadingButton
-            isLoading={false}
+            isLoading={isLoading}
             startIcon={<FilterIcon />}
             onClick={() => onOpen()}
             variant="outlined"
