@@ -642,6 +642,8 @@ export type NotificationConfigNode = {
 };
 
 export enum NotificationConfigSortFieldInput {
+  Kind = 'kind',
+  Status = 'status',
   Title = 'title'
 }
 

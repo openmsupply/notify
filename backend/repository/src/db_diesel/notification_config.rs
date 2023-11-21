@@ -25,6 +25,8 @@ pub struct NotificationConfigFilter {
 #[derive(PartialEq, Debug)]
 pub enum NotificationConfigSortField {
     Title,
+    Kind,
+    Status,
 }
 
 pub type NotificationConfigSort = Sort<NotificationConfigSortField>;
@@ -70,6 +72,12 @@ impl<'a> NotificationConfigRepository<'a> {
             match sort.key {
                 NotificationConfigSortField::Title => {
                     apply_sort_no_case!(query, sort, notification_config::title);
+                }
+                NotificationConfigSortField::Kind => {
+                    apply_sort_no_case!(query, sort, notification_config::kind);
+                }
+                NotificationConfigSortField::Status => {
+                    apply_sort_no_case!(query, sort, notification_config::status);
                 }
             }
         } else {
