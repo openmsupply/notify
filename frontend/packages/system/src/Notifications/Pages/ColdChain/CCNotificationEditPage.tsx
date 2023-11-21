@@ -38,7 +38,6 @@ const createCCNotification = (
   remind: seed?.remind ?? true,
   reminderInterval: seed?.reminderInterval ?? 2,
   reminderUnits: seed?.reminderUnits ?? ReminderUnits.HOURS,
-  messageAlertResolved: seed?.messageAlertResolved ?? true,
   locationIds: seed?.locationIds ?? [],
   sensorIds: seed?.sensorIds ?? [],
   recipientIds: seed?.recipientIds ?? [],

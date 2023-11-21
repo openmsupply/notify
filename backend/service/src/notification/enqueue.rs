@@ -80,7 +80,7 @@ pub fn create_notification_events(
                 })?;
             "title_template".to_string()
         }
-        None => "default/title.html".to_string(),
+        None => "default/title.md".to_string(),
     };
 
     let body_template_name = match notification.body_template {
@@ -196,10 +196,10 @@ mod test {
             None,
             NotificationContext {
                 title_template: Some(TemplateDefinition::TemplateName(
-                    "test_message/email_subject.html".to_string(),
+                    "test_message/email_subject.md".to_string(),
                 )),
                 body_template: TemplateDefinition::TemplateName(
-                    "test_message/email.html".to_string(),
+                    "test_message/email.md".to_string(),
                 ),
                 recipients: vec![
                     NotificationTarget {
