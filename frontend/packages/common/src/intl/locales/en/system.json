@@ -2,6 +2,7 @@
   "button.return-to-home": "Home",
   "button.return-to-login": "Login",
   "button.send-password-reset": "Send Password Reset",
+  "button.view-recent-events": "View Recent Events",
   "config-kind.COLD_CHAIN": "Cold Chain",
   "config-kind.SCHEDULED": "Scheduled",
   "config-status.DISABLED": "Disabled",
