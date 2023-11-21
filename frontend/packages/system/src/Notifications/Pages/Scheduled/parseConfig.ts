@@ -14,10 +14,12 @@ export function parseScheduledNotificationConfig(
 ): ScheduledNotification | null {
   if (!config) return null;
   try {
+    const { configurationData, ...rest } = config;
+
     return {
       ...defaultSchedulerNotification,
-      ...JSON.parse(config.configurationData),
-      ...config,
+      ...JSON.parse(configurationData),
+      ...rest,
     };
   } catch (e) {
     showError();
