@@ -175,6 +175,7 @@ export const FilterBar = ({
             startIcon={<FilterIcon />}
             onClick={() => onOpen()}
             variant="outlined"
+            disableRipple
           >
             {selectedConfig
               ? `Events for: ${selectedConfig.title}`
