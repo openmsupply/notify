@@ -24,6 +24,9 @@ import {
   useNavigate,
   useConfirmationModal,
   RunIcon,
+  RouteBuilder,
+  BaseButton,
+  ListIcon,
 } from '@notify-frontend/common';
 
 import { BaseNotificationConfig } from '../../types';
@@ -36,6 +39,7 @@ import {
 } from 'packages/system/src/Recipients/api';
 import { useDuplicateNotificationConfig } from '../../api/hooks/useDuplicateNotificationConfig';
 import { configRoute } from '../../navigate';
+import { AppRoute } from 'packages/config/src';
 
 interface BaseNotificationEditPageProps<T extends BaseNotificationConfig> {
   isInvalid: boolean;
@@ -169,7 +173,22 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
             onUpdateParams={onUpdateParams}
             onDeleteParam={onDeleteParam}
           />
-          <AppBarButtonsPortal>{OpenButton}</AppBarButtonsPortal>
+          <AppBarButtonsPortal sx={{ display: 'flex', gap: '14px' }}>
+            <BaseButton
+              onClick={() => {
+                navigate(
+                  `${RouteBuilder.create(
+                    AppRoute.NotificationEvents
+                  ).build()}?notificationConfigId=${draft.id}`
+                );
+              }}
+              variant="outlined"
+              startIcon={<ListIcon />}
+            >
+              {t('button.view-recent-events')}
+            </BaseButton>
+            {OpenButton}
+          </AppBarButtonsPortal>
           <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
             <BaseNotificationAppBar
               draft={draft}
