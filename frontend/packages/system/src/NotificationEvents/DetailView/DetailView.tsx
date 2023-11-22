@@ -38,9 +38,7 @@ export const DetailView = () => {
   const { data, isLoading } = useNotificationEvents(queryParams);
   const entity = data?.nodes[0];
 
-  const { recipient, ...paramsAndResults } = useParsedEventContext(
-    entity?.context
-  );
+  const eventContext = useParsedEventContext(entity?.context);
 
   useEffect(() => {
     const listName = entity?.title;
@@ -125,10 +123,7 @@ export const DetailView = () => {
                 borderColor: 'grey.100',
                 width: '100%',
               }}
-              // recipient name or blank
-              value={`${recipient?.name ? `${recipient.name}: ` : ''}${
-                entity?.toAddress
-              } (${entity?.notificationType})`}
+              value={`${entity?.toAddress} (${entity?.notificationType})`}
             />
 
             <TextArea
@@ -167,7 +162,7 @@ export const DetailView = () => {
                 borderColor: 'grey.100',
                 width: '100%',
               }}
-              value={JSON.stringify(paramsAndResults, null, 2)}
+              value={JSON.stringify(eventContext, null, 2)}
             />
           </>
         )}

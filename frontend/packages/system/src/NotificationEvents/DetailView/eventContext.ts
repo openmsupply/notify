@@ -1,11 +1,4 @@
-import { NotificationTypeNode } from '@common/types';
-
 export type EventContext = {
-  recipient?: {
-    name: string;
-    notification_type: NotificationTypeNode;
-    to_address: string;
-  };
   [key: string]: unknown;
 };
 
