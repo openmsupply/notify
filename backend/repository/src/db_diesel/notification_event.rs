@@ -18,6 +18,7 @@ pub type NotificationEvent = NotificationEventRow;
 pub struct NotificationEventFilter {
     pub id: Option<EqualFilter<String>>,
     pub search: Option<String>,
+    pub notification_config_id: Option<EqualFilter<String>>,
     pub status: Option<EqualFilter<NotificationEventStatus>>,
     pub created_at: Option<DatetimeFilter>,
 }
@@ -28,6 +29,11 @@ impl NotificationEventFilter {
     }
 
     pub fn id(mut self, filter: EqualFilter<String>) -> Self {
+        self.id = Some(filter);
+        self
+    }
+
+    pub fn notification_config_id(mut self, filter: EqualFilter<String>) -> Self {
         self.id = Some(filter);
         self
     }
@@ -146,10 +152,16 @@ fn create_filtered_query(filter: Option<NotificationEventFilter>) -> BoxedQuery 
             search,
             status,
             created_at,
+            notification_config_id,
         } = f;
 
         apply_equal_filter!(query, id, notification_event_dsl::id);
         apply_equal_filter!(query, status, notification_event_dsl::status);
+        apply_equal_filter!(
+            query,
+            notification_config_id,
+            notification_event_dsl::notification_config_id
+        );
         apply_date_time_filter!(query, created_at, notification_event_dsl::created_at);
 
         if let Some(search) = search {

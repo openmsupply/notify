@@ -94,16 +94,6 @@ export const CCNotificationEditForm = ({
         </li>
         <li>
           <Checkbox
-            id="confirmOk"
-            checked={draft.confirmOk}
-            onClick={() => onUpdate({ confirmOk: !draft.confirmOk })}
-          />
-          <label htmlFor="confirmOk">
-            {t('label.coldchain-confirm-ok-alerts')}
-          </label>
-        </li>
-        <li>
-          <Checkbox
             id="noData"
             checked={draft.noData}
             onClick={() => onUpdate({ noData: !draft.noData })}
@@ -172,13 +162,11 @@ export const CCNotificationEditForm = ({
         </li>
         <li>
           <Checkbox
-            id="messageAlertResolved"
-            checked={draft.messageAlertResolved}
-            onClick={() =>
-              onUpdate({ messageAlertResolved: !draft.messageAlertResolved })
-            }
+            id="confirmOk"
+            checked={draft.confirmOk}
+            onClick={() => onUpdate({ confirmOk: !draft.confirmOk })}
           />
-          <label htmlFor="messageAlertResolved">
+          <label htmlFor="confirmOk">
             {t('label.coldchain-message-alerts-resolved')}
           </label>
         </li>

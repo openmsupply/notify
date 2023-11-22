@@ -96,7 +96,7 @@ fn try_process_scheduled_notifications(
         Some(dt) => dt,
         None => {
             return Ok(ProcessingResult::Skipped(format!(
-                "No next check time for scheduled notification {}, setting to {}",
+                "No next due time for scheduled notification {}, setting to {}",
                 scheduled_notification.id, next_due_datetime
             )));
         }

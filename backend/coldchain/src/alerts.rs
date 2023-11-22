@@ -27,7 +27,7 @@ Temperature: 10° C
 -----------------------
 */
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, PartialEq)]
 pub enum AlertType {
     High,
     Low,
@@ -45,6 +45,7 @@ pub struct ColdchainAlert {
     pub data_age: String,
     pub temperature: String,
     pub alert_type: AlertType,
+    pub reminder_number: usize,
 }
 
 // Later this function probably won't exist, but serves as a reminder/POC...
@@ -56,25 +57,25 @@ pub fn queue_temperature_alert(
 ) -> Result<(), notification::NotificationServiceError> {
     let title_template = match alert.alert_type {
         AlertType::High => Some(TemplateDefinition::TemplateName(
-            "coldchain/temperature_title.html".to_string(),
+            "coldchain/temperature_title.md".to_string(),
         )),
         AlertType::Low => Some(TemplateDefinition::TemplateName(
-            "coldchain/temperature_title.html".to_string(),
+            "coldchain/temperature_title.md".to_string(),
         )),
         AlertType::Ok => Some(TemplateDefinition::TemplateName(
-            "coldchain/recovered_title.html".to_string(),
+            "coldchain/recovered_title.md".to_string(),
         )),
         AlertType::NoData => Some(TemplateDefinition::TemplateName(
-            "coldchain/no_data_title.html".to_string(),
+            "coldchain/no_data_title.md".to_string(),
         )),
     };
 
     let body_template = match alert.alert_type {
         AlertType::High | AlertType::Low => {
-            TemplateDefinition::TemplateName("coldchain/temperature.html".to_string())
+            TemplateDefinition::TemplateName("coldchain/temperature.md".to_string())
         }
-        AlertType::Ok => TemplateDefinition::TemplateName("coldchain/recovered.html".to_string()),
-        AlertType::NoData => TemplateDefinition::TemplateName("coldchain/no_data.html".to_string()),
+        AlertType::Ok => TemplateDefinition::TemplateName("coldchain/recovered.md".to_string()),
+        AlertType::NoData => TemplateDefinition::TemplateName("coldchain/no_data.md".to_string()),
     };
 
     let notification = NotificationContext {
@@ -133,6 +134,7 @@ mod tests {
             data_age: "1 minutes".to_string(),
             temperature: 10.12345.to_string(),
             alert_type: AlertType::High,
+            reminder_number: 0,
         };
 
         let recipient1 = NotificationTarget {
@@ -199,6 +201,7 @@ mod tests {
             data_age: "2 minutes".to_string(),
             temperature: 1.01.to_string(),
             alert_type: AlertType::Low,
+            reminder_number: 0,
         };
 
         let recipient1 = NotificationTarget {
@@ -265,6 +268,7 @@ mod tests {
             data_age: "2 minutes".to_string(),
             temperature: 1.01.to_string(),
             alert_type: AlertType::NoData,
+            reminder_number: 0,
         };
 
         let recipient1 = NotificationTarget {

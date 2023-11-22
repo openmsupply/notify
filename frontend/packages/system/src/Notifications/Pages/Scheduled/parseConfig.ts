@@ -14,10 +14,12 @@ export function parseScheduledNotificationConfig(
 ): ScheduledNotification | null {
   if (!config) return null;
   try {
+    const { configurationData, ...rest } = config;
+
     return {
       ...defaultSchedulerNotification,
-      ...JSON.parse(config.configurationData),
-      ...config,
+      ...JSON.parse(configurationData),
+      ...rest,
     };
   } catch (e) {
     showError();
@@ -38,6 +40,7 @@ export const defaultSchedulerNotification: ScheduledNotification = {
   id: FnUtils.generateUUID(),
   title: '',
   kind: ConfigKind.Scheduled,
+  nextDueDatetime: null, // We always want this to be null, unless triggering a 'run now' action
   recipientListIds: [],
   recipientIds: [],
   sqlRecipientListIds: [],
@@ -75,6 +78,7 @@ export function buildScheduledNotificationInputs(
     recipientIds: config.recipientIds,
     recipientListIds: config.recipientListIds,
     sqlRecipientListIds: config.sqlRecipientListIds,
+    nextDueDatetime: config.nextDueDatetime,
   };
   return {
     create: { ...input, kind: config.kind },

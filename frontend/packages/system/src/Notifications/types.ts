@@ -49,6 +49,7 @@ type BaseConfig = Pick<
 export interface BaseNotificationConfig extends BaseConfig {
   parsedParameters: KeyedParams[];
   requiredParameters: string[];
+  nextDueDatetime: string | null; // Date string in ISO format
 }
 
 export interface CCNotification extends BaseNotificationConfig {
@@ -63,7 +64,6 @@ export interface CCNotification extends BaseNotificationConfig {
   remind: boolean;
   reminderInterval: number;
   reminderUnits: ReminderUnits;
-  messageAlertResolved: boolean;
   locationIds: string[];
   sensorIds: string[];
 }

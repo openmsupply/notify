@@ -19,6 +19,8 @@
   "button.ok-and-next": "OK & Next",
   "button.print": "Print",
   "button.save": "Save",
+  "button.save-and-run": "Save & Run",
+  "button.run": "Run",
   "button.duplicate": "Duplicate",
   "button.try-again": "Try again",
   "error": "Error",

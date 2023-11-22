@@ -46,19 +46,19 @@ export const ListView = ({ kind }: ListViewProps) => {
 
   const columns = useColumns<NotificationConfigRowFragment>(
     [
-      { key: 'title', label: 'label.title'},
+      { key: 'title', label: 'label.title' },
       {
         key: 'kind',
         label: 'label.kind',
-        sortable: false,
+        sortable: true,
         Cell: props => (
           <Typography>{t(`config-kind.${props.rowData.kind}`)}</Typography>
         ),
       },
       {
-        key: 'status', 
+        key: 'status',
         label: 'label.status',
-        sortable: false,
+        sortable: true,
         Cell: props => (
           <Typography>{t(`config-status.${props.rowData.status}`)}</Typography>
         ),

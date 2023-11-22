@@ -25,3 +25,16 @@ impl Display for IntervalUnits {
         }
     }
 }
+
+impl IntervalUnits {
+    pub fn to_duration(&self, interval: u32) -> chrono::Duration {
+        match self {
+            IntervalUnits::Minutes => chrono::Duration::minutes(interval as i64),
+            IntervalUnits::Hours => chrono::Duration::hours(interval as i64),
+            IntervalUnits::Days => chrono::Duration::days(interval as i64),
+            IntervalUnits::Weeks => chrono::Duration::weeks(interval as i64),
+            IntervalUnits::Months => chrono::Duration::days(interval as i64 * 30),
+            IntervalUnits::Years => chrono::Duration::days(interval as i64 * 365),
+        }
+    }
+}
