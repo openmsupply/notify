@@ -47,24 +47,37 @@ export const ScheduledNotificationEditForm = ({
   const { data, isLoading } = useNotificationQueries(queryParams);
   const queries = data?.nodes ?? [];
 
-  // TODO: proper implementations
-  const isTemplateError = (res: string) => {
-    return res.startsWith('Error: Error');
+  const isTemplateError = (err: string) => {
+    return err.startsWith('Template');
   };
-  const isParamsError = (res: string) => {
-    return res.includes('Failed to render');
+  const isParamsError = (err: string) => {
+    return err.startsWith('Parameter');
   };
 
   const validateTemplate = (template: string) => {
     // TODO: Better way to still run this once, even if no params...
+    // Maybe we don't need to worry about the parameters at all? Just test for a valid template?
     const paramSets = draft.parsedParameters.length
       ? draft.parsedParameters
-      : ['{}'];
+      : [{}];
 
     for (const params of paramSets) {
-      const res = renderOneOff(template, JSON.stringify(params));
-      if (isTemplateError(res)) {
-        setTemplateError(res);
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const res = renderOneOff(template, JSON.stringify(params));
+      } catch (e) {
+        if (typeof e === 'string') {
+          if (isTemplateError(e)) {
+            setTemplateError(e);
+            return;
+          }
+          if (isParamsError(e)) {
+            // Missing params are not an error when validating the template
+            setTemplateError(null);
+            return;
+          }
+        }
+        setTemplateError('Unknown error :' + e);
         return;
       }
     }
