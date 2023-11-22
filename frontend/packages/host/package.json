@@ -41,6 +41,7 @@
     "react-dom": "^18.0.0",
     "react-router-dom": "^6.0.2",
     "swc-loader": "^0.2.0",
-    "webpack-bundle-analyzer": "^4.4.2"
+    "webpack-bundle-analyzer": "^4.4.2",
+    "tera-web": "file:../../../tera-web/pkg"
   }
 }
