@@ -23,6 +23,7 @@ import {
 } from 'packages/common/src';
 import { configRoute } from '../../Notifications/navigate';
 import { NotificationStatusChip } from '../components/NotificationStatusChip';
+import { useParsedEventContext } from './eventContext';
 
 export const DetailView = () => {
   const t = useTranslation('system');
@@ -36,6 +37,8 @@ export const DetailView = () => {
 
   const { data, isLoading } = useNotificationEvents(queryParams);
   const entity = data?.nodes[0];
+
+  const eventContext = useParsedEventContext(entity?.context);
 
   useEffect(() => {
     const listName = entity?.title;
@@ -81,18 +84,16 @@ export const DetailView = () => {
             {entity?.errorMessage ? (
               <TextArea value={entity?.errorMessage} />
             ) : (
-              <Typography variant="body1">No Error</Typography>
+              <Typography variant="body1">{t('messages.no-error')}</Typography>
             )}
           </Box>
           <Box flex={1} justifyContent="right" display="flex" gap={1}>
             <Stack gap={1}>
               <Typography variant="body1">
-                Created:
-                <RelativeTimeDate d={entity?.createdAt} />
+                {t('label.created')}: <RelativeTimeDate d={entity?.createdAt} />
               </Typography>
               <Typography variant="body1">
-                Updated:
-                <RelativeTimeDate d={entity?.updatedAt} />
+                {t('label.updated')}: <RelativeTimeDate d={entity?.updatedAt} />
               </Typography>
             </Stack>
           </Box>
@@ -109,9 +110,12 @@ export const DetailView = () => {
           <BasicSpinner />
         ) : (
           <>
-            <Typography variant="h6">Generated Notification</Typography>
+            <Typography variant="h6">
+              {t('label.generated-notification')}
+            </Typography>
             <TextArea
-              label="To"
+              label={t('label.to')}
+              InputLabelProps={{ shrink: true }} // label always visisble
               minRows={1}
               maxRows={1}
               sx={{
@@ -121,8 +125,10 @@ export const DetailView = () => {
               }}
               value={`${entity?.toAddress} (${entity?.notificationType})`}
             />
+
             <TextArea
-              label="Title"
+              label={t('label.title')}
+              InputLabelProps={{ shrink: true }}
               minRows={1}
               maxRows={1}
               sx={{
@@ -134,7 +140,8 @@ export const DetailView = () => {
             />
 
             <TextArea
-              label="Message"
+              label={t('label.message')}
+              InputLabelProps={{ shrink: true }}
               minRows={2}
               maxRows={25}
               sx={{
@@ -143,6 +150,19 @@ export const DetailView = () => {
                 width: '100%',
               }}
               value={entity?.message}
+            />
+
+            <TextArea
+              label={t('label.parameters-query-results')}
+              InputLabelProps={{ shrink: true }}
+              minRows={2}
+              maxRows={15}
+              sx={{
+                border: '1px solid',
+                borderColor: 'grey.100',
+                width: '100%',
+              }}
+              value={JSON.stringify(eventContext, null, 2)}
             />
           </>
         )}

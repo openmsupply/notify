@@ -118,6 +118,13 @@ pub fn create_notification_events(
             notification_config_id: config_id.clone(),
             notification_type,
             retry_at: None,
+            context: match serde_json::to_string(&tera_context.clone().into_json()) {
+                Ok(context) => Some(context),
+                Err(e) => {
+                    log::error!("Failed to stringify tera context: {:?}", e);
+                    None
+                }
+            },
             ..Default::default()
         };
 
