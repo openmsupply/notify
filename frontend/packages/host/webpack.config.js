@@ -30,7 +30,7 @@ module.exports = env => {
 
   return {
     experiments: {
-      asyncWebAssembly: true,
+      syncWebAssembly: true,
     },
     entry: './src/index',
     mode: isProduction ? 'production' : 'development',

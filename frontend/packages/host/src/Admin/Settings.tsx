@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import {
   Grid,
-  TextArea,
   TranslateIcon,
   Typography,
   useTranslation,
@@ -12,15 +11,9 @@ import { Setting } from './Setting';
 import { useHost } from '../api/hooks';
 import { Environment } from '@notify-frontend/config';
 
-import { renderOneOff } from 'tera-web';
-
 export const Settings: React.FC = () => {
   const t = useTranslation('host');
   const { data } = useHost.utils.version();
-
-  useEffect(() => {
-    console.log(renderOneOff('hi {{name}}', '{"name":"world"}'));
-  }, []);
 
   return (
     <Grid
@@ -30,14 +23,6 @@ export const Settings: React.FC = () => {
       style={{ padding: 15, width: 500 }}
       flexWrap="nowrap"
     >
-      <Typography variant="h5" color="primary" style={{ paddingBottom: 25 }}>
-        {'TERRA'}
-      </Typography>
-      <TextArea
-        onChange={e => {
-          console.log(renderOneOff(e.target.value, '{}'));
-        }}
-      ></TextArea>
       <Typography variant="h5" color="primary" style={{ paddingBottom: 25 }}>
         {t('heading.settings-display')}
       </Typography>
