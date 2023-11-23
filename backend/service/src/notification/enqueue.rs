@@ -57,18 +57,6 @@ pub fn create_notification_events(
 ) -> Result<(), NotificationServiceError> {
     let repo = NotificationEventRowRepository::new(&ctx.connection);
 
-    let base_row = NotificationEventRow {
-        id: uuid(),
-        created_at: Utc::now().naive_utc(),
-        sent_at: None,
-        error_message: None,
-        send_attempts: 0,
-        updated_at: Utc::now().naive_utc(),
-        notification_config_id: config_id.clone(),
-        retry_at: None,
-        ..Default::default()
-    };
-
     // Dedup recipients by to_address
     let mut recipients = notification.recipients.clone();
     recipients.sort_by(|a, b| a.to_address.cmp(&b.to_address));
@@ -142,11 +130,17 @@ pub fn create_notification_events(
         // Replace the recipient data in the template context
         tera_context.insert("recipient", &recipient);
 
-        let recipient_base_row = NotificationEventRow {
+        let base_row = NotificationEventRow {
             id: uuid(),
             to_address: recipient.to_address,
+            created_at: Utc::now().naive_utc(),
+            sent_at: None,
+            error_message: None,
+            send_attempts: 0,
             updated_at: Utc::now().naive_utc(),
+            notification_config_id: config_id.clone(),
             notification_type,
+            retry_at: None,
             context: match serde_json::to_string(&tera_context.clone().into_json()) {
                 Ok(context) => Some(context),
                 Err(e) => {
@@ -154,21 +148,21 @@ pub fn create_notification_events(
                     None
                 }
             },
-            ..base_row.clone()
+            ..Default::default()
         };
 
         let base_row_with_title =
             match tera.render(&template_names.title_template_name, &tera_context) {
                 Ok(title) => NotificationEventRow {
                     title: Some(title),
-                    ..recipient_base_row
+                    ..base_row
                 },
                 Err(e) => {
                     log::error!("Failed to render notification title template: {:?}", e);
                     NotificationEventRow {
                         status: NotificationEventStatus::Failed,
                         error_message: Some(format!("{:?}", e)),
-                        ..recipient_base_row
+                        ..base_row
                     }
                 }
             };
