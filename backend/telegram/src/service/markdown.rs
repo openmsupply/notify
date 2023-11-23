@@ -44,7 +44,7 @@ pub fn cmark_to_telegram_v2(common_markdown: &str) -> String {
     let parser = parser.map(|event| {
         match &event {
             Event::Text(text) => {
-                // DEBUG EVENT: println!Text: {:?}", text);
+                // DEBUG EVENT: println!("Text: {:?}", text);
                 if is_url(&text) {
                     // If it's a URL, we don't want to escape it
                     t_markdown_v2.push_str(&text);
@@ -53,38 +53,38 @@ pub fn cmark_to_telegram_v2(common_markdown: &str) -> String {
                 }
             }
             Event::Start(pulldown_cmark::Tag::Paragraph) => {
-                // DEBUG EVENT: println!Start Paragraph");
+                // DEBUG EVENT: println!("Start Paragraph");
                 // DO NOTHING! We'll end the paragraph with a double newline instead
             }
             Event::End(pulldown_cmark::Tag::Paragraph) => {
-                // DEBUG EVENT: println!End Paragraph");
+                // DEBUG EVENT: println!("End Paragraph");
                 t_markdown_v2.push_str("\n\n");
             }
             Event::Start(pulldown_cmark::Tag::Emphasis) => {
-                // DEBUG EVENT: println!Start Emphasis");
+                // DEBUG EVENT: println!("Start Emphasis");
                 t_markdown_v2.push_str("_");
             }
             Event::End(pulldown_cmark::Tag::Emphasis) => {
-                // DEBUG EVENT: println!End Emphasis");
+                // DEBUG EVENT: println!("End Emphasis");
                 t_markdown_v2.push_str("_");
             }
             Event::Start(pulldown_cmark::Tag::Strong) => {
-                // DEBUG EVENT: println!Start Strong");
+                // DEBUG EVENT: println!("Start Strong");
                 t_markdown_v2.push_str("*");
             }
             Event::End(pulldown_cmark::Tag::Strong) => {
-                // DEBUG EVENT: println!End Strong");
+                // DEBUG EVENT: println!("End Strong");
                 t_markdown_v2.push_str("*");
             }
             Event::Start(pulldown_cmark::Tag::CodeBlock(kind)) => {
-                // DEBUG EVENT: println!Start Code Block");
+                // DEBUG EVENT: println!("Start Code Block");
                 match kind {
                     pulldown_cmark::CodeBlockKind::Indented => {
-                        // DEBUG EVENT: println!Start Indented Code Block");
+                        // DEBUG EVENT: println!("Start Indented Code Block");
                         t_markdown_v2.push_str("```");
                     }
                     pulldown_cmark::CodeBlockKind::Fenced(language) => {
-                        // DEBUG EVENT: println!Start Fenced Code Block");
+                        // DEBUG EVENT: println!("Start Fenced Code Block");
                         t_markdown_v2.push_str("```");
                         t_markdown_v2.push_str(&language);
                         t_markdown_v2.push_str("\n");
@@ -92,61 +92,37 @@ pub fn cmark_to_telegram_v2(common_markdown: &str) -> String {
                 }
             }
             Event::End(pulldown_cmark::Tag::CodeBlock(_kind)) => {
-                // DEBUG EVENT: println!End Code Block");
+                // DEBUG EVENT: println!("End Code Block");
                 t_markdown_v2.push_str("```");
             }
-            Event::Start(pulldown_cmark::Tag::Link(link_type, _url, _title)) => {
-                // DEBUG EVENT: println!Start Link");
+            Event::Start(pulldown_cmark::Tag::Link(_link_type, _url, _title)) => {
+                // DEBUG EVENT: println!("Start Link");
 
-                match link_type {
-                    pulldown_cmark::LinkType::Inline => {
-                        // DEBUG EVENT: println!Inline Link");
-                        // Inline Links send their title as a text event, so we just open the markdown link here ...
-                        t_markdown_v2.push_str("[");
-                    }
-                    pulldown_cmark::LinkType::Autolink => {
-                        // DEBUG EVENT: println!Autolink");
-                        // Autolinks are just a URL, so we'll add the url as the text, and the url as the link
-                        t_markdown_v2.push_str("[");
-                    }
-                    _ => {
-                        // DEBUG EVENT: println!Other Link");
-                        t_markdown_v2.push_str("[");
-                    }
-                };
+                // The link title is sent as a text event in most cases, so we'll just open the markdown link here
+                t_markdown_v2.push_str("[");
             }
-            Event::End(pulldown_cmark::Tag::Link(link_type, url, _title)) => {
-                // DEBUG EVENT: println!End Link");
-                match link_type {
-                    pulldown_cmark::LinkType::Inline => {
-                        // DEBUG EVENT: println!Inline Link");
-                        // Inline Links send their title as a text event, so we just close out the markdown link here ...
-                        t_markdown_v2.push_str("](");
-                        t_markdown_v2.push_str(&url);
-                        t_markdown_v2.push_str(")");
-                    }
-                    _ => {
-                        // Close out any other kind of weird link!
-                        t_markdown_v2.push_str("](");
-                        t_markdown_v2.push_str(&url);
-                        t_markdown_v2.push_str(")");
-                    }
-                };
+            Event::End(pulldown_cmark::Tag::Link(_link_type, url, _title)) => {
+                // DEBUG EVENT: println!("End Link");
+
+                // Inline and other Links send their title as a text event, so we just close out the markdown link here, and use the URL ...
+                t_markdown_v2.push_str("](");
+                t_markdown_v2.push_str(&url);
+                t_markdown_v2.push_str(")");
             }
             Event::Code(text) => {
-                // DEBUG EVENT: println!Code: {:?}", text);
+                // DEBUG EVENT: println!("Code: {:?}", text);
                 // An inline code node - https://docs.rs/pulldown-cmark/latest/pulldown_cmark/enum.Event.html
                 t_markdown_v2.push_str("`");
                 t_markdown_v2.push_str(&text);
                 t_markdown_v2.push_str("`");
             }
             Event::Html(text) => {
-                // DEBUG EVENT: println!HTML: {:?}", text);
+                // DEBUG EVENT: println!("HTML: {:?}", text);
 
                 // It's not clear what to do with this, but it's not supported by telegram markdown
-                // We'll put it in a pre block?
+                // We'll put it in a code block?
                 t_markdown_v2.push_str("```");
-                t_markdown_v2.push_str(&escape_telegram_markdown(&text)); // TODO: Escape this or not?
+                t_markdown_v2.push_str(&escape_telegram_markdown(&text)); // Not sure if it's best escape this or not, playing it safe...
                 t_markdown_v2.push_str("```");
             }
             Event::FootnoteReference(text) => {
@@ -162,14 +138,14 @@ pub fn cmark_to_telegram_v2(common_markdown: &str) -> String {
                 t_markdown_v2.push_str("\n-----\n");
             }
             Event::Start(pulldown_cmark::Tag::Heading(_, _, _)) => {
-                // DEBUG EVENT: println!Start Heading");
+                // DEBUG EVENT: println!("Start Heading");
                 // Telegram doesn't support headings, so we'll just do Bold Underline
                 t_markdown_v2.push_str("*__");
             }
             Event::End(pulldown_cmark::Tag::Heading(_, _, _)) => {
-                // DEBUG EVENT: println!End Heading");
+                // DEBUG EVENT: println!("End Heading");
                 // Telegram doesn't support headings, so we'll just do Bold Underline
-                t_markdown_v2.push_str("__*");
+                t_markdown_v2.push_str("__*\n");
             }
             Event::Start(_tag) => {
                 // Telegram doesn't support this, and we're not going to bother with it
