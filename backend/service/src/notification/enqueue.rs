@@ -51,6 +51,18 @@ pub fn create_notification_events(
 ) -> Result<(), NotificationServiceError> {
     let repo = NotificationEventRowRepository::new(&ctx.connection);
 
+    let base_row = NotificationEventRow {
+        id: uuid(),
+        created_at: Utc::now().naive_utc(),
+        sent_at: None,
+        error_message: None,
+        send_attempts: 0,
+        updated_at: Utc::now().naive_utc(),
+        notification_config_id: config_id.clone(),
+        retry_at: None,
+        ..Default::default()
+    };
+
     // Dedup recipients by to_address
     let mut recipients = notification.recipients.clone();
     recipients.sort_by(|a, b| a.to_address.cmp(&b.to_address));
@@ -58,113 +70,128 @@ pub fn create_notification_events(
 
     // Create a tera instance for this notification
     let mut tera = Tera::default();
-    // Add any configured templates to out new tera instance
-    tera.extend(ctx.service_provider.notification_service.tera())
-        .map_err(|e| {
-            NotificationServiceError::InternalError(format!(
-                "Failed to extend tera instance with notification service templates: {:?}",
-                e
-            ))
-        })?;
 
-    let title_template_name = match notification.title_template {
-        Some(TemplateDefinition::TemplateName(title_template_name)) => title_template_name,
-        Some(TemplateDefinition::Template(title_template)) => {
-            // Add the title template to the tera instance
-            tera.add_raw_template("title_template", &title_template)
-                .map_err(|e| {
-                    NotificationServiceError::InternalError(format!(
-                        "Failed to add title template to tera instance: {:?}",
-                        e
-                    ))
-                })?;
-            "title_template".to_string()
+    // Add any configured templates to our new tera instance
+    let process_notification = || -> Result<(), NotificationServiceError> {
+        tera.extend(ctx.service_provider.notification_service.tera())
+            .map_err(|e| {
+                NotificationServiceError::InternalError(format!(
+                    "Failed to extend tera instance with notification service templates: {:?}",
+                    e
+                ))
+            })?;
+
+        let title_template_name = match notification.title_template {
+            Some(TemplateDefinition::TemplateName(title_template_name)) => title_template_name,
+            Some(TemplateDefinition::Template(title_template)) => {
+                // Add the title template to the tera instance
+                tera.add_raw_template("title_template", &title_template)
+                    .map_err(|e| {
+                        NotificationServiceError::InternalError(format!(
+                            "Failed to add title template to tera instance: {:?}",
+                            e
+                        ))
+                    })?;
+                "title_template".to_string()
+            }
+            None => "default/title.md".to_string(),
+        };
+
+        let body_template_name = match notification.body_template {
+            TemplateDefinition::TemplateName(body_template_name) => body_template_name,
+            TemplateDefinition::Template(body_template) => {
+                // Add the body template to the tera instance
+                tera.add_raw_template("body_template", &body_template)
+                    .map_err(|e| {
+                        NotificationServiceError::InternalError(format!(
+                            "Failed to add body template to tera instance: {:?}",
+                            e
+                        ))
+                    })?;
+                "body_template".to_string()
+            }
+        };
+
+        let mut tera_context = Context::from_value(notification.template_data)?;
+
+        // Loop through recipients and create a notification for each
+        for recipient in recipients {
+            let notification_type = recipient.notification_type.clone();
+
+            // Replace the recipient data in the template context
+            tera_context.insert("recipient", &recipient);
+
+            let recipient_base_row = NotificationEventRow {
+                id: uuid(),
+                to_address: recipient.to_address,
+                updated_at: Utc::now().naive_utc(),
+                notification_type,
+                context: match serde_json::to_string(&tera_context.clone().into_json()) {
+                    Ok(context) => Some(context),
+                    Err(e) => {
+                        log::error!("Failed to stringify tera context: {:?}", e);
+                        None
+                    }
+                },
+                ..base_row.clone()
+            };
+
+            let base_row_with_title = match tera.render(&title_template_name, &tera_context) {
+                Ok(title) => NotificationEventRow {
+                    title: Some(title),
+                    ..recipient_base_row
+                },
+                Err(e) => {
+                    log::error!("Failed to render notification title template: {:?}", e);
+                    NotificationEventRow {
+                        status: NotificationEventStatus::Failed,
+                        error_message: Some(format!("{:?}", e)),
+                        ..recipient_base_row
+                    }
+                }
+            };
+
+            let notification_queue_row = match tera.render(&body_template_name, &tera_context) {
+                Ok(body) => NotificationEventRow {
+                    message: body,
+                    ..base_row_with_title
+                },
+                Err(e) => {
+                    log::error!("Failed to render notification body template: {:?}", e);
+                    NotificationEventRow {
+                        status: NotificationEventStatus::Failed, // Failed means this message will not be sent
+                        error_message: Some(format!("{:?}", e)),
+                        ..base_row_with_title
+                    }
+                }
+            };
+
+            repo.insert_one(&notification_queue_row)
+                .map_err(|e| NotificationServiceError::DatabaseError(e))?;
+
+            // TODO: trigger async notification send?
         }
-        None => "default/title.md".to_string(),
+        Ok(())
     };
 
-    let body_template_name = match notification.body_template {
-        TemplateDefinition::TemplateName(body_template_name) => body_template_name,
-        TemplateDefinition::Template(body_template) => {
-            // Add the body template to the tera instance
-            tera.add_raw_template("body_template", &body_template)
-                .map_err(|e| {
-                    NotificationServiceError::InternalError(format!(
-                        "Failed to add body template to tera instance: {:?}",
-                        e
-                    ))
-                })?;
-            "body_template".to_string()
-        }
-    };
-
-    let mut tera_context = Context::from_value(notification.template_data)?;
-
-    // Loop through recipients and create a notification for each
-    for recipient in recipients {
-        let notification_type = recipient.notification_type.clone();
-
-        // Replace the recipient data in the template context
-        tera_context.insert("recipient", &recipient);
-
-        let base_row = NotificationEventRow {
+    // tODO: where to put this???
+    if let Err(e) = process_notification() {
+        let notification_queue_row = NotificationEventRow {
             id: uuid(),
-            to_address: recipient.to_address,
             created_at: Utc::now().naive_utc(),
-            sent_at: None,
-            error_message: None,
-            send_attempts: 0,
             updated_at: Utc::now().naive_utc(),
             notification_config_id: config_id.clone(),
-            notification_type,
-            retry_at: None,
-            context: match serde_json::to_string(&tera_context.clone().into_json()) {
-                Ok(context) => Some(context),
-                Err(e) => {
-                    log::error!("Failed to stringify tera context: {:?}", e);
-                    None
-                }
-            },
+            status: NotificationEventStatus::Failed,
+            error_message: Some(format!("{:?}", e)),
             ..Default::default()
         };
-
-        let base_row_with_title = match tera.render(&title_template_name, &tera_context) {
-            Ok(title) => NotificationEventRow {
-                title: Some(title),
-                ..base_row
-            },
-            Err(e) => {
-                log::error!("Failed to render notification title template: {:?}", e);
-                NotificationEventRow {
-                    status: NotificationEventStatus::Failed,
-                    error_message: Some(format!("{:?}", e)),
-                    ..base_row
-                }
-            }
-        };
-
-        let notification_queue_row = match tera.render(&body_template_name, &tera_context) {
-            Ok(body) => NotificationEventRow {
-                message: body,
-                ..base_row_with_title
-            },
-            Err(e) => {
-                log::error!("Failed to render notification body template: {:?}", e);
-                NotificationEventRow {
-                    status: NotificationEventStatus::Failed, // Failed means this message will not be sent
-                    error_message: Some(format!("{:?}", e)),
-                    ..base_row_with_title
-                }
-            }
-        };
-
         repo.insert_one(&notification_queue_row)
             .map_err(|e| NotificationServiceError::DatabaseError(e))?;
 
-        // TODO: trigger async notification send?
+        Err(e)
+    } else {
+        Ok(())
     }
-
-    Ok(())
 }
 
 #[cfg(test)]
