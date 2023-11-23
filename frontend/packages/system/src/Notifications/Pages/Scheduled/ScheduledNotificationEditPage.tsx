@@ -4,6 +4,7 @@ import {
   useNotification,
   useParams,
   useBreadcrumbs,
+  ConfigStatus,
 } from '@notify-frontend/common';
 
 import { ScheduledNotificationEditForm } from './ScheduledNotificationEditForm';
@@ -19,6 +20,7 @@ import {
   NotificationConfigRowFragment,
   useNotificationConfigs,
 } from '../../api';
+import { validateTemplate } from './tera';
 
 export const ScheduledNotificationEditPage = () => {
   const t = useTranslation('system');
@@ -55,9 +57,18 @@ export const ScheduledNotificationEditPage = () => {
     await update({ input: inputs.update });
   };
 
+  const isValidTemplate = () => {
+    try {
+      validateTemplate(draft.bodyTemplate);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
   const isInvalid =
     !draft.title ||
-    // nothing selected
+    (draft.status === ConfigStatus.Enabled && !isValidTemplate()) ||
     // no recipients selected
     (!draft.recipientListIds.length &&
       !draft.recipientIds.length &&
