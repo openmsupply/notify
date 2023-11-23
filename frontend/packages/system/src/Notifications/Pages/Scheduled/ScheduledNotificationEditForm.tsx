@@ -9,10 +9,10 @@ import {
   useQueryParamsState,
   useTranslation,
 } from '@notify-frontend/common';
-import { renderOneOff } from 'tera-web';
 import { ScheduledNotification } from '../../types';
 import { SqlQuerySelector } from '../../components';
 import { useNotificationQueries } from 'packages/system/src/Queries/api';
+import { validateTemplate } from './tera';
 
 type ScheduledNotificationEditFormProps = {
   onUpdate: (patch: Partial<ScheduledNotification>) => void;
@@ -47,34 +47,6 @@ export const ScheduledNotificationEditForm = ({
   const { data, isLoading } = useNotificationQueries(queryParams);
   const queries = data?.nodes ?? [];
 
-  const isTemplateError = (err: string) => {
-    return err.startsWith('Template');
-  };
-  const isParamsError = (err: string) => {
-    return err.startsWith('Parameter');
-  };
-
-  const validateTemplate = (template: string) => {
-    try {
-      renderOneOff(template, JSON.stringify({}));
-    } catch (e) {
-      if (typeof e === 'string') {
-        if (isTemplateError(e)) {
-          setTemplateError(e);
-          return;
-        }
-        if (isParamsError(e)) {
-          // Missing params are not an error when validating the template
-          setTemplateError(null);
-          return;
-        }
-      }
-      setTemplateError('Unknown error :' + e);
-      return;
-    }
-    setTemplateError(null);
-  };
-
   return (
     <Box paddingTop={1} width={'100%'}>
       <FormRow title={t('label.details')}>
@@ -99,9 +71,13 @@ export const ScheduledNotificationEditForm = ({
           error={!!templateError}
           value={draft.bodyTemplate}
           onChange={e => {
-            validateTemplate(e.target.value);
-            // TODO: only update if valid?
             onUpdate({ bodyTemplate: e.target.value });
+            try {
+              validateTemplate(e.target.value);
+              setTemplateError(null);
+            } catch (e) {
+              setTemplateError(e as string);
+            }
           }}
           label={t('label.body-template')}
           InputProps={{
