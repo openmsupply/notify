@@ -53,6 +53,7 @@
   "label.notification-type-TELEGRAM": "Telegram",
   "label.notification-type-UNKNOWN": "ERROR-UNSUPPORTED-NOTIFICATION-TYPE",
   "label.parameters-query-results": "Parameters and Query Results",
+  "label.parameters-save-local":"Save parameters in local storage",
   "label.password-strength": "Password Strength",
   "label.password-warning": "Warning",
   "label.phone-number": "Phone Number",

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Box, DetailPanelPortal, PanelLabel, PanelRow } from '@common/ui';
-import { BufferedTextInput, DetailPanelSection } from '@common/components';
+import { Box, DetailPanelPortal, PanelLabel, PanelRow, SaveIcon } from '@common/ui';
+import { BufferedTextInput, DetailPanelSection, IconButton } from '@common/components';
 import { KeyedParams, TeraUtils } from '@common/utils';
 import { useTranslation } from '@common/intl';
 
@@ -8,17 +8,35 @@ export interface ParamsPanelProps {
   query: string;
   queryParams: KeyedParams;
   onUpdateQueryParams: (key: string, value: string) => void;
+  userQueryParameters: KeyedParams | null;
+  setUserQueryParameters: (queryParams: KeyedParams) => void;
 }
 
 export const SidePanel = ({
   query,
   queryParams,
   onUpdateQueryParams,
+  userQueryParameters,
+  setUserQueryParameters
 }: ParamsPanelProps) => {
   const t = useTranslation('system');
+  const onSaveInLocalStorage = (queryParams: KeyedParams) => {
+    setUserQueryParameters(queryParams);
+  };
 
   const paramEditor = (
-    <DetailPanelSection title={t('label.parameters')}>
+    <DetailPanelSection 
+      title={t('label.parameters')}
+      actionButtons={
+        <>
+          <IconButton
+            onClick={() => onSaveInLocalStorage(queryParams)}
+            icon={<SaveIcon />}
+            label={t('label.parameters-save-local')}
+          />
+        </>
+      }
+    >
       {TeraUtils.extractParams(query).length === 0 ? (
         <PanelRow>
           <PanelLabel>{t('message.no-parameters')}</PanelLabel>
@@ -39,7 +57,7 @@ export const SidePanel = ({
                         backgroundColor: 'white',
                       },
                     }}
-                    value={queryParams[param ?? '']}
+                    value={(userQueryParameters?? queryParams)[param ?? '']}
                     onChange={e =>
                       onUpdateQueryParams(param ?? '', e.target.value)
                     }

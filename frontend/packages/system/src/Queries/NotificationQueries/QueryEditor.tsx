@@ -24,6 +24,7 @@ import {
   Paper,
   useToggle,
   Stack,
+  useLocalStorage,
 } from '@notify-frontend/common';
 import { DraftNotificationQuery } from './types';
 import { useUpdateNotificationQuery } from '../api';
@@ -117,12 +118,25 @@ export const QueryEditor = ({
     setIsSaved(true);
   };
 
+  const [userQueryParameters, setUserQueryParameters] = useLocalStorage('/query_parameters');
+
   const allParamsSet = TeraUtils.extractParams(draft.query).every(param => {
+    let result = false;
     if (param) {
-      return queryParams[param] !== undefined; // This allows the user to set the param to an empty string if they edit the field then delete the value
+      // when queryParams has values, use queryParams for allParamsSet, if not check if userQueryParameters (local storage) has values
+      if (Object.keys(queryParams).length > 0){
+        if(userQueryParameters){
+          result = queryParams[param] !== undefined ?  true : userQueryParameters[param] !== (undefined && "");
+        }else{
+          result = queryParams[param] !== undefined; // This allows the user to set the param to an empty string if they edit the field then delete the value
+        }
+      }else{
+        result = (userQueryParameters ?? queryParams)[param] !== (undefined && "");
+      }
     } else {
-      return false;
+      result =  false;
     }
+    return result;
   });
 
   let testQueryButton = (
@@ -132,7 +146,7 @@ export const QueryEditor = ({
       isLoading={queryLoading}
       startIcon={<ZapIcon />}
       onClick={() => {
-        runQuery(draft.query, TeraUtils.keyedParamsAsTeraJson(queryParams));
+        runQuery(draft.query, TeraUtils.keyedParamsAsTeraJson(Object.keys(queryParams).length == 0? (userQueryParameters ?? queryParams) : queryParams));
       }}
     >
       {t('label.test-sql-query')}
@@ -159,6 +173,8 @@ export const QueryEditor = ({
         queryParams={queryParams}
         onUpdateQueryParams={onUpdateQueryParams}
         generatedQuery={generatedQuery}
+        userQueryParameters={userQueryParameters}
+        setUserQueryParameters={setUserQueryParameters}
       />
       {/* Description/Details section */}
       <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>

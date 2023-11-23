@@ -17,6 +17,7 @@ import {
   useNotification,
   useToggle,
   useTranslation,
+  useLocalStorage,
 } from '@notify-frontend/common';
 import { DraftSqlRecipientList } from './types';
 import { useCreateSqlRecipientList, useUpdateSqlRecipientList } from '../api';
@@ -105,9 +106,12 @@ export const RecipientQueryEditor = ({
     setIsSaved(true);
   };
 
+  const [userQueryParameters, setUserQueryParameters] = useLocalStorage('/query_parameters');
+
   const allParamsSet = TeraUtils.extractParams(draft.query).every(param => {
     if (param) {
-      return queryParams[param] !== undefined; // This allows the user to set the param to an empty string if they edit the field then delete the value
+      // This allows the user to set the param to an empty string if they edit the field then delete the value
+      return (Object.keys(queryParams).length > 0)? queryParams[param] !== undefined : (userQueryParameters ?? queryParams)[param] !== (undefined || '');
     } else {
       return false;
     }
@@ -122,7 +126,7 @@ export const RecipientQueryEditor = ({
       onClick={() => {
         queryRecipients(
           draft.query,
-          TeraUtils.keyedParamsAsTeraJson(queryParams)
+          TeraUtils.keyedParamsAsTeraJson(Object.keys(queryParams).length == 0? (userQueryParameters ?? queryParams) : queryParams)
         );
       }}
     >
@@ -149,6 +153,8 @@ export const RecipientQueryEditor = ({
         query={draft.query}
         queryParams={queryParams}
         onUpdateQueryParams={onUpdateQueryParams}
+        userQueryParameters={userQueryParameters}
+        setUserQueryParameters={setUserQueryParameters}
       />
       <Grid flexDirection="column" display="flex" gap={1}>
         {isEditingName ? (
