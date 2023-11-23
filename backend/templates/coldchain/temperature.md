@@ -1,4 +1,4 @@
-**{{ alert_type }} temperature alert!**
+**{% if alert_type == "High" %}🔥{% else %}❄️{% endif %} {{ alert_type }} temperature alert!**
 
 **Facility**: {{ store_name }}
 {% if location_name %}

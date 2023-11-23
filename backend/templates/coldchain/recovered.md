@@ -1,4 +1,4 @@
-**Sensor is now ok!**
+**✅ Sensor is now ok!**
 
 **Facility**: {{ store_name }}
 {% if location_name %}
