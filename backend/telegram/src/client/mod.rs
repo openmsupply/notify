@@ -207,9 +207,6 @@ impl TelegramClient {
 }
 
 #[cfg(test)]
-mod test {}
-
-#[cfg(test)]
 #[cfg(feature = "telegram-tests")]
 mod telegram_test {
     use super::*;
