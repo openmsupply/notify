@@ -19,6 +19,7 @@
     "@notify-frontend/config": "^0.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "tera-web": "file:../../../tera-web/pkg",
     "zxcvbn-typescript": "^5.0.1"
   }
 }

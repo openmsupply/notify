@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   BasicTextInput,
   Box,
@@ -9,6 +9,7 @@ import {
   useQueryParamsState,
   useTranslation,
 } from '@notify-frontend/common';
+import { renderOneOff } from 'tera-web';
 import { ScheduledNotification } from '../../types';
 import { SqlQuerySelector } from '../../components';
 import { useNotificationQueries } from 'packages/system/src/Queries/api';
@@ -38,6 +39,7 @@ export const ScheduledNotificationEditForm = ({
   draft,
 }: ScheduledNotificationEditFormProps) => {
   const t = useTranslation('system');
+  const [templateError, setTemplateError] = useState<string | null>(null);
 
   const { queryParams } = useQueryParamsState();
   queryParams.first = 1000; // Set a high limit to ensure all queries are fetched, if we end up with over 1000 queries we'll need a new solution, or if this is too slow...
@@ -45,27 +47,71 @@ export const ScheduledNotificationEditForm = ({
   const { data, isLoading } = useNotificationQueries(queryParams);
   const queries = data?.nodes ?? [];
 
+  const isTemplateError = (err: string) => {
+    return err.startsWith('Template');
+  };
+  const isParamsError = (err: string) => {
+    return err.startsWith('Parameter');
+  };
+
+  const validateTemplate = (template: string) => {
+    // TODO: Better way to still run this once, even if no params...
+    // Maybe we don't need to worry about the parameters at all? Just test for a valid template?
+    const paramSets = draft.parsedParameters.length
+      ? draft.parsedParameters
+      : [{}];
+
+    for (const params of paramSets) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const res = renderOneOff(template, JSON.stringify(params));
+      } catch (e) {
+        if (typeof e === 'string') {
+          if (isTemplateError(e)) {
+            setTemplateError(e);
+            return;
+          }
+          if (isParamsError(e)) {
+            // Missing params are not an error when validating the template
+            setTemplateError(null);
+            return;
+          }
+        }
+        setTemplateError('Unknown error :' + e);
+        return;
+      }
+    }
+    setTemplateError(null);
+  };
+
   return (
-    <Box paddingTop={1}>
+    <Box paddingTop={1} width={'100%'}>
       <FormRow title={t('label.details')}>
         <BasicTextInput
           autoFocus
           value={draft.subjectTemplate}
           required
-          onChange={e =>
+          // TODO: need to validate this one too?
+          onChange={e => {
             onUpdate({
               subjectTemplate: e.target
                 .value as ScheduledNotification['subjectTemplate'],
-            })
-          }
+            });
+          }}
           label={t('label.subject-template')}
           InputLabelProps={{ shrink: true }}
         />
       </FormRow>
       <FormRow title="">
         <BufferedTextArea
+          helperText={templateError}
+          // only show the red border if the error is with the template itself, not missing params
+          error={!!templateError && !isParamsError(templateError)}
           value={draft.bodyTemplate}
-          onChange={e => onUpdate({ bodyTemplate: e.target.value })}
+          onChange={e => {
+            validateTemplate(e.target.value);
+            onUpdate({ bodyTemplate: e.target.value });
+          }}
           label={t('label.body-template')}
           InputProps={{
             sx: {
