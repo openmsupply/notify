@@ -55,31 +55,22 @@ export const ScheduledNotificationEditForm = ({
   };
 
   const validateTemplate = (template: string) => {
-    // TODO: Better way to still run this once, even if no params...
-    // Maybe we don't need to worry about the parameters at all? Just test for a valid template?
-    const paramSets = draft.parsedParameters.length
-      ? draft.parsedParameters
-      : [{}];
-
-    for (const params of paramSets) {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const res = renderOneOff(template, JSON.stringify(params));
-      } catch (e) {
-        if (typeof e === 'string') {
-          if (isTemplateError(e)) {
-            setTemplateError(e);
-            return;
-          }
-          if (isParamsError(e)) {
-            // Missing params are not an error when validating the template
-            setTemplateError(null);
-            return;
-          }
+    try {
+      renderOneOff(template, JSON.stringify({}));
+    } catch (e) {
+      if (typeof e === 'string') {
+        if (isTemplateError(e)) {
+          setTemplateError(e);
+          return;
         }
-        setTemplateError('Unknown error :' + e);
-        return;
+        if (isParamsError(e)) {
+          // Missing params are not an error when validating the template
+          setTemplateError(null);
+          return;
+        }
       }
+      setTemplateError('Unknown error :' + e);
+      return;
     }
     setTemplateError(null);
   };
@@ -105,11 +96,11 @@ export const ScheduledNotificationEditForm = ({
       <FormRow title="">
         <BufferedTextArea
           helperText={templateError}
-          // only show the red border if the error is with the template itself, not missing params
-          error={!!templateError && !isParamsError(templateError)}
+          error={!!templateError}
           value={draft.bodyTemplate}
           onChange={e => {
             validateTemplate(e.target.value);
+            // TODO: only update if valid?
             onUpdate({ bodyTemplate: e.target.value });
           }}
           label={t('label.body-template')}
