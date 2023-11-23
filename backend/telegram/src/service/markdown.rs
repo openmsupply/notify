@@ -41,10 +41,13 @@ pub fn cmark_to_telegram_v2(common_markdown: &str) -> String {
 
     let mut t_markdown_v2 = String::new();
 
+    // vars to track state
+    let mut list_number: Option<u64> = None;
+
     let parser = parser.map(|event| {
         match &event {
             Event::Text(text) => {
-                // DEBUG EVENT: println!("Text: {:?}", text);
+                // DEBUG EVENT println!("Text: {:?}", text);
                 if is_url(&text) {
                     // If it's a URL, we don't want to escape it
                     t_markdown_v2.push_str(&text);
@@ -146,6 +149,44 @@ pub fn cmark_to_telegram_v2(common_markdown: &str) -> String {
                 // DEBUG EVENT: println!("End Heading");
                 // Telegram doesn't support headings, so we'll just do Bold Underline
                 t_markdown_v2.push_str("__*\n");
+            }
+            Event::Start(pulldown_cmark::Tag::BlockQuote) => {
+                // DEBUG EVENT: println!("Start BlockQuote");
+                // Telegram doesn't support block quotes, so we'll just do Italics, Quotes and extra lines
+                t_markdown_v2.push_str("\n_\"");
+            }
+            Event::End(pulldown_cmark::Tag::BlockQuote) => {
+                // DEBUG EVENT: println!("Start BlockQuote");
+                // Telegram doesn't support block quotes, so we'll just do Italics, Quotes and extra lines
+                t_markdown_v2.push_str("\"_\n");
+            }
+            Event::Start(pulldown_cmark::Tag::List(num)) => {
+                list_number = *num;
+            }
+            Event::End(pulldown_cmark::Tag::List(_num)) => {
+                // println!("End List {:?}", _num);
+                list_number = None;
+                t_markdown_v2.push_str("\n");
+            }
+            Event::Start(pulldown_cmark::Tag::Item) => {
+                // println!("Start List Item");
+                match list_number {
+                    Some(number) => {
+                        // println!("Ordered List");
+                        // Telegram doesn't support ordered lists, so we'll make out own!
+                        t_markdown_v2.push_str(format!("{}\\. ", number).as_str());
+                        list_number = Some(number + 1)
+                    }
+                    None => {
+                        // DEBUG EVENT: println!("Unordered List");
+                        // Telegram doesn't support unordered lists, so we'll make out own!
+                        t_markdown_v2.push_str("\\- ");
+                    }
+                };
+            }
+            Event::End(pulldown_cmark::Tag::Item) => {
+                // println!("End Item");
+                t_markdown_v2.push_str("\n");
             }
             Event::Start(_tag) => {
                 // Telegram doesn't support this, and we're not going to bother with it
@@ -327,10 +368,53 @@ Line3
         assert_eq!(result, expected);
     }
 
+    // Test headings and paragraphs
+    #[test]
+    fn test_cmark_telegram_headings_params() {
+        let cmarkdown = r#"
+# TestTemplate - Markdown
+
+Here's a paragraph, containing some special characters, including $ and stuff.
+
+Here's another paragraph.
+"#; // Don't indent this!
+        let expected = "*__TestTemplate \\- Markdown__*\nHere's a paragraph, containing some special characters, including $ and stuff\\.\n\nHere's another paragraph\\.";
+        let result = cmark_to_telegram_v2(cmarkdown);
+        assert_eq!(result, expected);
+    }
+
+    // Test lists
+    #[test]
+    fn test_cmark_telegram_list() {
+        let cmarkdown = r#"
+## A list!
+1. Item 1
+1. Item 2
+"#; // Don't indent this!
+        let expected = "*__A list\\!__*\n1\\. Item 1\n2\\. Item 2";
+        let result = cmark_to_telegram_v2(cmarkdown);
+        assert_eq!(result, expected);
+
+        let cmarkdown = r#"
+## An unordered list!
+- Item 1
+- Item 2
+"#; // Don't indent this!
+        let expected = "*__An unordered list\\!__*\n\\- Item 1\n\\- Item 2";
+        let result = cmark_to_telegram_v2(cmarkdown);
+        assert_eq!(result, expected);
+    }
+
     #[test]
     fn test_escape_telegram_markdown() {
-        let text = "This is a test of markdown - escaping";
+        let text = "This is a test of markdown - escaping.";
         let escaped_text = escape_telegram_markdown(text);
-        assert_eq!(escaped_text, "This is a test of markdown \\- escaping");
+        assert_eq!(escaped_text, "This is a test of markdown \\- escaping\\.");
+
+        let text = "Here's a paragraph, containing some special characters, including $ and stuff.";
+        let expected =
+            "Here's a paragraph, containing some special characters, including $ and stuff\\.";
+        let escaped_text = escape_telegram_markdown(text);
+        assert_eq!(escaped_text, expected);
     }
 }
