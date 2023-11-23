@@ -118,16 +118,15 @@ impl TelegramClient {
         Ok(chat)
     }
 
+    /// Sends a telegram MarkdownV2 message, to translate from common markdown to telegram markdown see: markdown::cmark_telegram_v2
     pub async fn send_markdown_message(
         &self,
         chat_id: &str,
-        markdown: &str,
+        markdown_v2: &str,
     ) -> Result<TelegramMessage, TelegramError> {
-        let escaped_markdown = escape_telegram_markdown(markdown);
-
         let params = [
             ("chat_id", chat_id),
-            ("text", &escaped_markdown),
+            ("text", &markdown_v2),
             ("parse_mode", "MarkdownV2"),
         ];
         let url = format!("{}/sendMessage", self.base_url);
@@ -207,37 +206,8 @@ impl TelegramClient {
     }
 }
 
-// In all other places characters '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!' must be escaped with the preceding character '\'.
-// https://core.telegram.org/bots/api#markdownv2-style
-// This is kind of a bug, as we are escaping the characters that need to be escaped, but don't know when they shouldnt be escaped (e.g part of a markdown entity)
-// Deliberately not escaping ` so we can write preformatted stuff like ```code```
-fn escape_telegram_markdown(text: &str) -> String {
-    let mut escaped_text = String::new();
-    for c in text.chars() {
-        match c {
-            '_' | '*' | '[' | ']' | '(' | ')' | '~' | '>' | '#' | '+' | '-' | '=' | '|' | '{'
-            | '}' | '.' | '!' => {
-                escaped_text.push('\\');
-                escaped_text.push(c);
-            }
-            _ => escaped_text.push(c),
-        }
-    }
-    escaped_text
-}
-
 #[cfg(test)]
-mod test {
-
-    use super::*;
-
-    #[test]
-    fn test_escape_telegram_markdown() {
-        let text = "This is a test of _markdown_ escaping";
-        let escaped_text = escape_telegram_markdown(text);
-        assert_eq!(escaped_text, "This is a test of \\_markdown\\_ escaping");
-    }
-}
+mod test {}
 
 #[cfg(test)]
 #[cfg(feature = "telegram-tests")]
