@@ -39,7 +39,12 @@ export const ScheduledNotificationEditForm = ({
   draft,
 }: ScheduledNotificationEditFormProps) => {
   const t = useTranslation('system');
-  const [templateError, setTemplateError] = useState<string | null>(null);
+  const [subjectTemplateError, setSubjectTemplateError] = useState<
+    string | null
+  >(null);
+  const [bodyTemplateError, setBodyTemplateError] = useState<string | null>(
+    null
+  );
 
   const { queryParams } = useQueryParamsState();
   queryParams.first = 1000; // Set a high limit to ensure all queries are fetched, if we end up with over 1000 queries we'll need a new solution, or if this is too slow...
@@ -52,14 +57,21 @@ export const ScheduledNotificationEditForm = ({
       <FormRow title={t('label.details')}>
         <BasicTextInput
           autoFocus
+          helperText={subjectTemplateError}
+          error={!!subjectTemplateError}
           value={draft.subjectTemplate}
           required
-          // TODO: need to validate this one too?
           onChange={e => {
             onUpdate({
               subjectTemplate: e.target
                 .value as ScheduledNotification['subjectTemplate'],
             });
+            try {
+              validateTemplate(e.target.value);
+              setSubjectTemplateError(null);
+            } catch (e) {
+              setSubjectTemplateError(e as string);
+            }
           }}
           label={t('label.subject-template')}
           InputLabelProps={{ shrink: true }}
@@ -67,16 +79,16 @@ export const ScheduledNotificationEditForm = ({
       </FormRow>
       <FormRow title="">
         <BufferedTextArea
-          helperText={templateError}
-          error={!!templateError}
+          helperText={bodyTemplateError}
+          error={!!bodyTemplateError}
           value={draft.bodyTemplate}
           onChange={e => {
             onUpdate({ bodyTemplate: e.target.value });
             try {
               validateTemplate(e.target.value);
-              setTemplateError(null);
+              setBodyTemplateError(null);
             } catch (e) {
-              setTemplateError(e as string);
+              setBodyTemplateError(e as string);
             }
           }}
           label={t('label.body-template')}

@@ -57,9 +57,9 @@ export const ScheduledNotificationEditPage = () => {
     await update({ input: inputs.update });
   };
 
-  const isValidTemplate = () => {
+  const isValidTemplate = (template: string) => {
     try {
-      validateTemplate(draft.bodyTemplate);
+      validateTemplate(template);
       return true;
     } catch (e) {
       return false;
@@ -68,7 +68,10 @@ export const ScheduledNotificationEditPage = () => {
 
   const isInvalid =
     !draft.title ||
-    (draft.status === ConfigStatus.Enabled && !isValidTemplate()) ||
+    // enabled with either of subject or body templates invalid
+    (draft.status === ConfigStatus.Enabled &&
+      (!isValidTemplate(draft.subjectTemplate) ||
+        !isValidTemplate(draft.bodyTemplate))) ||
     // no recipients selected
     (!draft.recipientListIds.length &&
       !draft.recipientIds.length &&
