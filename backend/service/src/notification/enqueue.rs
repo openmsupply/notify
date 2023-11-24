@@ -333,7 +333,7 @@ mod test {
         let notification_event_rows = notification_event_row_repository.un_sent().unwrap();
 
         assert_eq!(notification_event_rows.len(), 1);
-        assert_eq!(notification_event_rows[0].to_address, "-".to_string());
+        assert_eq!(notification_event_rows[0].to_address, "".to_string());
         assert_eq!(
             notification_event_rows[0].notification_type,
             NotificationType::Unknown
