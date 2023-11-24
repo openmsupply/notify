@@ -1,4 +1,4 @@
-import { renderOneOff } from 'tera-web';
+import { renderOneOff } from '@openmsupply/tera-web';
 
 const isTemplateError = (err: string) => {
   return err.startsWith('Template');
