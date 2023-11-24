@@ -201,8 +201,13 @@ impl NotificationServiceTrait for NotificationService {
                 NotificationType::Telegram => {
                     // Try to send via telegram
                     if let Some(telegram) = &ctx.service_provider.telegram {
+                        let telegram_markdown_v2 =
+                            telegram::service::markdown::cmark_to_telegram_v2(
+                                &notification.message,
+                            );
+
                         let result = telegram
-                            .send_markdown_message(&notification.to_address, &notification.message)
+                            .send_markdown_message(&notification.to_address, &telegram_markdown_v2)
                             .await;
 
                         match result {

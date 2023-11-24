@@ -4,6 +4,7 @@ use crate::TelegramClient;
 
 use self::processor::poll_get_updates;
 
+pub mod markdown;
 mod processor;
 mod responder;
 
