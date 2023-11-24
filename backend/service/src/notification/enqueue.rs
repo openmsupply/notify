@@ -175,7 +175,7 @@ fn create_failed_event_row(
         .map_err(|e| NotificationServiceError::DatabaseError(e))
     {
         Ok(()) => NotificationServiceError::InternalError(format!(
-            "Failed to add template to tera instance: {:?}",
+            "Failed to create notification: {:?}",
             e
         )),
         Err(db_err) => db_err,
