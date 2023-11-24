@@ -198,7 +198,7 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
               sqlRecipientLists={sqlRecipientLists?.nodes ?? []}
             />
           </AppBarContentPortal>
-          <Grid flexDirection="column" display="flex" gap={2}>
+          <Grid flexDirection="column" display="flex" gap={2} width={'100%'}>
             <Box sx={{ paddingLeft: '10px' }}>
               <CustomForm draft={draft} onUpdate={onUpdate} />
               {errorMessage ? (

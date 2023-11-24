@@ -53,7 +53,7 @@ export const ScheduledNotificationEditForm = ({
   const queries = data?.nodes ?? [];
 
   return (
-    <Box paddingTop={1} width={'100%'}>
+    <Box paddingTop={1} width={'100%'} paddingRight={'14px'}>
       <FormRow title={t('label.details')}>
         <BasicTextInput
           autoFocus
@@ -75,6 +75,7 @@ export const ScheduledNotificationEditForm = ({
           }}
           label={t('label.subject-template')}
           InputLabelProps={{ shrink: true }}
+          fullWidth
         />
       </FormRow>
       <FormRow title="">
