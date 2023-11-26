@@ -24,6 +24,7 @@ import {
   Paper,
   useToggle,
   Stack,
+  useLocalStorage,
 } from '@notify-frontend/common';
 import { DraftNotificationQuery } from './types';
 import { useUpdateNotificationQuery } from '../api';
@@ -91,7 +92,10 @@ export const QueryEditor = ({
     setIsSaved(false);
   };
 
-  const [queryParams, setQueryParams] = useState<KeyedParams>({});
+
+  const [userQueryParameters, setUserQueryParameters] = useLocalStorage('/query_parameters');
+
+  const [queryParams, setQueryParams] = useState<KeyedParams>(userQueryParameters ?? {});
   const onUpdateQueryParams = (key: string, value: string) => {
     const patch = { [key]: value };
     setQueryParams({ ...queryParams, ...patch });
@@ -118,11 +122,7 @@ export const QueryEditor = ({
   };
 
   const allParamsSet = TeraUtils.extractParams(draft.query).every(param => {
-    if (param) {
-      return queryParams[param] !== undefined; // This allows the user to set the param to an empty string if they edit the field then delete the value
-    } else {
-      return false;
-    }
+    return queryParams[param] !== (undefined && "");
   });
 
   let testQueryButton = (
@@ -159,6 +159,8 @@ export const QueryEditor = ({
         queryParams={queryParams}
         onUpdateQueryParams={onUpdateQueryParams}
         generatedQuery={generatedQuery}
+        userQueryParameters={userQueryParameters}
+        setUserQueryParameters={setUserQueryParameters}
       />
       {/* Description/Details section */}
       <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
