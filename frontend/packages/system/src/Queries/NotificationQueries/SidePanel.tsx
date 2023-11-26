@@ -18,14 +18,11 @@ export const SidePanel = ({
   queryParams,
   onUpdateQueryParams,
   generatedQuery,
-  userQueryParameters,
   setUserQueryParameters,
 }: ParamsPanelProps) => {
   const t = useTranslation('system');
 
   const onSaveInLocalStorage = (queryParams: KeyedParams) => {    
-    // When param is not changed from userQueryParameters, want to save it from userQueryParameters, 
-    // whne param is changed, want to save it from queryParams
     setUserQueryParameters(queryParams);
   };
 
@@ -63,7 +60,7 @@ export const SidePanel = ({
                         backgroundColor: 'white',
                       },
                     }}
-                    value={(userQueryParameters?? queryParams)[param ?? '']}
+                    value={queryParams[param ?? '']}
                     onChange={e =>
                       onUpdateQueryParams(param ?? '', e.target.value)
                     }

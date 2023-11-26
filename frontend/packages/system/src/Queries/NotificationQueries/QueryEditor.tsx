@@ -92,7 +92,10 @@ export const QueryEditor = ({
     setIsSaved(false);
   };
 
-  const [queryParams, setQueryParams] = useState<KeyedParams>({});
+
+  const [userQueryParameters, setUserQueryParameters] = useLocalStorage('/query_parameters');
+
+  const [queryParams, setQueryParams] = useState<KeyedParams>(userQueryParameters ?? {});
   const onUpdateQueryParams = (key: string, value: string) => {
     const patch = { [key]: value };
     setQueryParams({ ...queryParams, ...patch });
@@ -118,25 +121,9 @@ export const QueryEditor = ({
     setIsSaved(true);
   };
 
-  const [userQueryParameters, setUserQueryParameters] = useLocalStorage('/query_parameters');
-
   const allParamsSet = TeraUtils.extractParams(draft.query).every(param => {
-    let result = false;
-    if (param) {
-      // when queryParams has values, use queryParams for allParamsSet, if not check if userQueryParameters (local storage) has values
-      if (Object.keys(queryParams).length > 0){
-        if(userQueryParameters){
-          result = queryParams[param] !== undefined ?  true : userQueryParameters[param] !== (undefined && "");
-        }else{
-          result = queryParams[param] !== undefined; // This allows the user to set the param to an empty string if they edit the field then delete the value
-        }
-      }else{
-        result = (userQueryParameters ?? queryParams)[param] !== (undefined && "");
-      }
-    } else {
-      result =  false;
-    }
-    return result;
+    return queryParams[param] !== (undefined && "");
+    //if (param) {}
   });
 
   let testQueryButton = (
@@ -146,7 +133,7 @@ export const QueryEditor = ({
       isLoading={queryLoading}
       startIcon={<ZapIcon />}
       onClick={() => {
-        runQuery(draft.query, TeraUtils.keyedParamsAsTeraJson(Object.keys(queryParams).length == 0? (userQueryParameters ?? queryParams) : queryParams));
+        runQuery(draft.query, TeraUtils.keyedParamsAsTeraJson(queryParams));
       }}
     >
       {t('label.test-sql-query')}
