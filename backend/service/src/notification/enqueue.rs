@@ -4,7 +4,7 @@ use repository::{
     NotificationType, RecipientRow,
 };
 use serde::Serialize;
-use tera::{Context, Tera};
+use tera::{Context, Error, Tera};
 use util::uuid::uuid;
 
 use crate::service_provider::ServiceContext;
@@ -58,47 +58,34 @@ pub fn create_notification_events(
 
     // Create a tera instance for this notification
     let mut tera = Tera::default();
-    // Add any configured templates to out new tera instance
-    tera.extend(ctx.service_provider.notification_service.tera())
-        .map_err(|e| {
-            NotificationServiceError::InternalError(format!(
-                "Failed to extend tera instance with notification service templates: {:?}",
-                e
-            ))
-        })?;
 
-    let title_template_name = match notification.title_template {
-        Some(TemplateDefinition::TemplateName(title_template_name)) => title_template_name,
+    // Add any configured templates to our new tera instance
+    tera.extend(ctx.service_provider.notification_service.tera())
+        .map_err(|e| create_failed_event_row(e, &config_id, ctx))?;
+
+    let title_template_name = match &notification.title_template {
+        Some(TemplateDefinition::TemplateName(title_template_name)) => title_template_name.clone(),
         Some(TemplateDefinition::Template(title_template)) => {
             // Add the title template to the tera instance
             tera.add_raw_template("title_template", &title_template)
-                .map_err(|e| {
-                    NotificationServiceError::InternalError(format!(
-                        "Failed to add title template to tera instance: {:?}",
-                        e
-                    ))
-                })?;
+                .map_err(|e| create_failed_event_row(e, &config_id, ctx))?;
             "title_template".to_string()
         }
         None => "default/title.md".to_string(),
     };
 
-    let body_template_name = match notification.body_template {
-        TemplateDefinition::TemplateName(body_template_name) => body_template_name,
+    let body_template_name = match &notification.body_template {
+        TemplateDefinition::TemplateName(body_template_name) => body_template_name.clone(),
         TemplateDefinition::Template(body_template) => {
             // Add the body template to the tera instance
             tera.add_raw_template("body_template", &body_template)
-                .map_err(|e| {
-                    NotificationServiceError::InternalError(format!(
-                        "Failed to add body template to tera instance: {:?}",
-                        e
-                    ))
-                })?;
+                .map_err(|e| create_failed_event_row(e, &config_id, ctx))?;
             "body_template".to_string()
         }
     };
 
-    let mut tera_context = Context::from_value(notification.template_data)?;
+    let mut tera_context = Context::from_value(notification.template_data)
+        .map_err(|e| create_failed_event_row(e, &config_id, ctx))?;
 
     // Loop through recipients and create a notification for each
     for recipient in recipients {
@@ -165,6 +152,34 @@ pub fn create_notification_events(
     }
 
     Ok(())
+}
+
+fn create_failed_event_row(
+    e: Error,
+    config_id: &Option<String>,
+    ctx: &ServiceContext,
+) -> NotificationServiceError {
+    let failed_notification_event_row = NotificationEventRow {
+        id: uuid(),
+        created_at: Utc::now().naive_utc(),
+        updated_at: Utc::now().naive_utc(),
+        notification_config_id: config_id.clone(),
+        status: NotificationEventStatus::Failed,
+        error_message: Some(format!("{:?}", e)),
+        notification_type: NotificationType::Unknown,
+        ..Default::default()
+    };
+
+    match NotificationEventRowRepository::new(&ctx.connection)
+        .insert_one(&failed_notification_event_row)
+        .map_err(|e| NotificationServiceError::DatabaseError(e))
+    {
+        Ok(()) => NotificationServiceError::InternalError(format!(
+            "Failed to create notification: {:?}",
+            e
+        )),
+        Err(db_err) => db_err,
+    }
 }
 
 #[cfg(test)]
@@ -286,5 +301,43 @@ mod test {
         assert_eq!(notification_event_rows.len(), 1);
         assert_eq!(notification_event_rows[0].to_address, "-12345".to_string());
         assert_ne!(notification_event_rows[0].message, "");
+    }
+
+    #[actix_rt::test]
+    async fn test_failed_template_parsing() {
+        let (_, _, connection_manager, _) =
+            setup_all("test_failed_template_parsing", MockDataInserts::none()).await;
+
+        let connection = connection_manager.connection().unwrap();
+        let service_provider = Arc::new(ServiceProvider::new(
+            connection_manager,
+            get_test_settings(""),
+        ));
+        let context = ServiceContext::as_server_admin(service_provider).unwrap();
+
+        let result = create_notification_events(
+            &context,
+            None,
+            NotificationContext {
+                title_template: None,
+                body_template: TemplateDefinition::Template("{{bad_template}".to_string()),
+                recipients: vec![],
+                template_data: serde_json::json!({}),
+            },
+        );
+
+        assert!(result.is_err());
+
+        // Check we have a notification event with error message
+        let notification_event_row_repository = NotificationEventRowRepository::new(&connection);
+        let notification_event_rows = notification_event_row_repository.un_sent().unwrap();
+
+        assert_eq!(notification_event_rows.len(), 1);
+        assert_eq!(notification_event_rows[0].to_address, "".to_string());
+        assert_eq!(
+            notification_event_rows[0].notification_type,
+            NotificationType::Unknown
+        );
+        assert_ne!(notification_event_rows[0].error_message, None);
     }
 }
