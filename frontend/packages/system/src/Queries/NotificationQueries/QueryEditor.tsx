@@ -123,7 +123,6 @@ export const QueryEditor = ({
 
   const allParamsSet = TeraUtils.extractParams(draft.query).every(param => {
     return queryParams[param] !== (undefined && "");
-    //if (param) {}
   });
 
   let testQueryButton = (
