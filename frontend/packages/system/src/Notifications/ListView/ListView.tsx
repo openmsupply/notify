@@ -86,6 +86,7 @@ export const ListView = ({ kind }: ListViewProps) => {
     page: queryParams.page,
     offset: queryParams.offset,
     first: queryParams.first,
+    total: data?.totalCount,
   };
 
   return (
