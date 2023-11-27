@@ -4,7 +4,6 @@ import {
   useNotification,
   useParams,
   useBreadcrumbs,
-  ConfigStatus,
 } from '@notify-frontend/common';
 
 import { ScheduledNotificationEditForm } from './ScheduledNotificationEditForm';
@@ -68,10 +67,8 @@ export const ScheduledNotificationEditPage = () => {
 
   const isInvalid =
     !draft.title ||
-    // enabled with either of subject or body templates invalid
-    (draft.status === ConfigStatus.Enabled &&
-      (!isValidTemplate(draft.subjectTemplate) ||
-        !isValidTemplate(draft.bodyTemplate))) ||
+    !isValidTemplate(draft.subjectTemplate) ||
+    !isValidTemplate(draft.bodyTemplate) ||
     // no recipients selected
     (!draft.recipientListIds.length &&
       !draft.recipientIds.length &&
