@@ -27,6 +27,7 @@ import {
   RouteBuilder,
   BaseButton,
   ListIcon,
+  Tooltip,
 } from '@notify-frontend/common';
 
 import { BaseNotificationConfig } from '../../types';
@@ -296,8 +297,20 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
                     </LoadingButton>
                   )}
 
+                  <Tooltip
+                    title={
+                      isEnabled(draft.status) && isInvalid
+                        ? t('messages.saving-enabled-invalid-notification')
+                        : ''
+                    }
+                  >
+                    <span>
                   <LoadingButton
-                    disabled={isSaved || isInvalid || !allParamsSet}
+                        disabled={
+                          isSaved ||
+                          (isEnabled(draft.status) && isInvalid) ||
+                          !allParamsSet
+                        }
                     isLoading={isLoading}
                     onClick={() => {
                       onSave(draft);
@@ -308,6 +321,8 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
                   >
                     {t('button.save')}
                   </LoadingButton>
+                    </span>
+                  </Tooltip>
                 </Box>
               </Box>
             }
