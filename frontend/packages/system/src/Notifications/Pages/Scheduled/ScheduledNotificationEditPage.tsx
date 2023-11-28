@@ -57,6 +57,7 @@ export const ScheduledNotificationEditPage = () => {
   };
 
   const isValidTemplate = (template: string) => {
+    if (!template) return false;
     try {
       validateTemplate(template);
       return true;
