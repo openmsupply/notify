@@ -69,7 +69,7 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
   const { OpenButton } = useDetailPanel(t('label.parameters'));
   const { navigateUpOne } = useBreadcrumbs();
   const [errorMessage, setErrorMessage] = useState('');
-  const [isSaved, setIsSaved] = useState(false);
+  const [isSaved, setIsSaved] = useState(true);
   const navigate = useNavigate();
 
   const isEnabled = (status: ConfigStatus) => {
@@ -198,7 +198,7 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
               sqlRecipientLists={sqlRecipientLists?.nodes ?? []}
             />
           </AppBarContentPortal>
-          <Grid flexDirection="column" display="flex" gap={2}>
+          <Grid flexDirection="column" display="flex" gap={2} width={'100%'}>
             <Box sx={{ paddingLeft: '10px' }}>
               <CustomForm draft={draft} onUpdate={onUpdate} />
               {errorMessage ? (

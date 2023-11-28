@@ -19,6 +19,7 @@ import {
   NotificationConfigRowFragment,
   useNotificationConfigs,
 } from '../../api';
+import { validateTemplate } from './tera';
 
 export const ScheduledNotificationEditPage = () => {
   const t = useTranslation('system');
@@ -55,9 +56,20 @@ export const ScheduledNotificationEditPage = () => {
     await update({ input: inputs.update });
   };
 
+  const isValidTemplate = (template: string) => {
+    if (!template) return false;
+    try {
+      validateTemplate(template);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
   const isInvalid =
     !draft.title ||
-    // nothing selected
+    !isValidTemplate(draft.subjectTemplate) ||
+    !isValidTemplate(draft.bodyTemplate) ||
     // no recipients selected
     (!draft.recipientListIds.length &&
       !draft.recipientIds.length &&
