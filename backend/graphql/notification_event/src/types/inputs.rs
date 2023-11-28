@@ -61,6 +61,7 @@ impl NotificationEventSortInput {
 #[derive(Clone, InputObject)]
 pub struct NotificationEventFilterInput {
     pub id: Option<EqualFilterStringInput>,
+    pub notification_config_id: Option<EqualFilterStringInput>,
     pub search: Option<String>,
     pub status: Option<EqualFilterEventStatusInput>,
     pub created_at: Option<DatetimeFilterInput>,
@@ -70,6 +71,7 @@ impl From<NotificationEventFilterInput> for NotificationEventFilter {
     fn from(f: NotificationEventFilterInput) -> Self {
         NotificationEventFilter {
             id: f.id.map(EqualFilter::from),
+            notification_config_id: f.notification_config_id.map(EqualFilter::from),
             search: f.search,
             status: f.status.map(|t| map_filter!(t, EventStatus::to_domain)),
             created_at: f.created_at.map(DatetimeFilter::from),

@@ -11,6 +11,7 @@ import {
   AppFooterPortal,
   ButtonWithIcon,
   CloseIcon,
+  CopyIcon,
   useBreadcrumbs,
   SaveIcon,
   ConfigStatus,
@@ -19,6 +20,13 @@ import {
   useDetailPanel,
   AppBarButtonsPortal,
   KeyedParams,
+  FnUtils,
+  useNavigate,
+  useConfirmationModal,
+  RunIcon,
+  RouteBuilder,
+  BaseButton,
+  ListIcon,
 } from '@notify-frontend/common';
 
 import { BaseNotificationConfig } from '../../types';
@@ -29,11 +37,15 @@ import {
   useRecipients,
   useSqlRecipientLists,
 } from 'packages/system/src/Recipients/api';
+import { useDuplicateNotificationConfig } from '../../api/hooks/useDuplicateNotificationConfig';
+import { configRoute } from '../../navigate';
+import { AppRoute } from 'packages/config/src';
 
 interface BaseNotificationEditPageProps<T extends BaseNotificationConfig> {
   isInvalid: boolean;
   isLoading: boolean;
   allowParameterSets?: boolean;
+  showRunButton?: boolean;
   draft: T;
   setDraft: (draft: T) => void;
   onSave: (draft: T) => Promise<void>;
@@ -47,6 +59,7 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
   isInvalid,
   isLoading,
   allowParameterSets = false,
+  showRunButton = false,
   draft,
   setDraft,
   onSave,
@@ -56,21 +69,36 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
   const { OpenButton } = useDetailPanel(t('label.parameters'));
   const { navigateUpOne } = useBreadcrumbs();
   const [errorMessage, setErrorMessage] = useState('');
-  const [isSaved, setIsSaved] = useState(false);
+  const [isSaved, setIsSaved] = useState(true);
+  const navigate = useNavigate();
+
+  const isEnabled = (status: ConfigStatus) => {
+    return status == ConfigStatus.Enabled;
+  };
 
   // TODO: https://github.com/msupply-foundation/notify/issues/238 handle pagination
   const { data: recipients } = useRecipients({ first: 1000 });
   const { data: recipientLists } = useRecipientLists({ first: 1000 });
   const { data: sqlRecipientLists } = useSqlRecipientLists({ first: 1000 });
 
+  const { mutateAsync: duplicate } = useDuplicateNotificationConfig();
+
   const onUpdate = (patch: Partial<T>) => {
     setDraft({ ...draft, ...patch });
     setIsSaved(false);
   };
 
-  const isEnabled = (status: ConfigStatus) => {
-    return status == ConfigStatus.Enabled;
+  const onDuplicate = async () => {
+    const newId = FnUtils.generateUUID();
+    await duplicate({ input: { oldId: draft.id, newId } });
+    navigate(configRoute(draft.kind, newId));
   };
+
+  const showDuplicateConfirmation = useConfirmationModal({
+    onConfirm: onDuplicate,
+    message: t('messages.confirm-duplicate'),
+    title: t('heading.are-you-sure'),
+  });
 
   const onUpdateParams = (idx: number = 0, key: string, value: string) => {
     const updatedParam = { [key]: value } as KeyedParams;
@@ -145,7 +173,22 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
             onUpdateParams={onUpdateParams}
             onDeleteParam={onDeleteParam}
           />
-          <AppBarButtonsPortal>{OpenButton}</AppBarButtonsPortal>
+          <AppBarButtonsPortal sx={{ display: 'flex', gap: '14px' }}>
+            <BaseButton
+              onClick={() => {
+                navigate(
+                  `${RouteBuilder.create(
+                    AppRoute.NotificationEvents
+                  ).build()}?notificationConfigId=${draft.id}`
+                );
+              }}
+              variant="outlined"
+              startIcon={<ListIcon />}
+            >
+              {t('button.view-recent-events')}
+            </BaseButton>
+            {OpenButton}
+          </AppBarButtonsPortal>
           <AppBarContentPortal sx={{ paddingBottom: '16px', flex: 1 }}>
             <BaseNotificationAppBar
               draft={draft}
@@ -155,7 +198,7 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
               sqlRecipientLists={sqlRecipientLists?.nodes ?? []}
             />
           </AppBarContentPortal>
-          <Grid flexDirection="column" display="flex" gap={2}>
+          <Grid flexDirection="column" display="flex" gap={2} width={'100%'}>
             <Box sx={{ paddingLeft: '10px' }}>
               <CustomForm draft={draft} onUpdate={onUpdate} />
               {errorMessage ? (
@@ -221,6 +264,37 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
                     sx={{ fontSize: '12px' }}
                     onClick={navigateUpOne}
                   />
+
+                  <ButtonWithIcon
+                    shrinkThreshold="lg"
+                    Icon={<CopyIcon />}
+                    label={t('button.duplicate')}
+                    color="secondary"
+                    sx={{ fontSize: '12px' }}
+                    onClick={() => {
+                      showDuplicateConfirmation();
+                    }}
+                  />
+                  {showRunButton && (
+                    <LoadingButton
+                      disabled={
+                        isInvalid ||
+                        !allParamsSet ||
+                        draft.status == ConfigStatus.Disabled
+                      }
+                      isLoading={isLoading}
+                      onClick={() => {
+                        // Note, this doesn't update state, but that's good we don't want to save the nextDueDatetime again if the save button is used next.
+                        draft.nextDueDatetime = new Date().toISOString();
+                        onSave(draft);
+                        setIsSaved(true);
+                      }}
+                      startIcon={<RunIcon />}
+                      sx={{ fontSize: '12px' }}
+                    >
+                      {isSaved ? t('button.run') : t('button.save-and-run')}
+                    </LoadingButton>
+                  )}
 
                   <LoadingButton
                     disabled={isSaved || isInvalid || !allParamsSet}

@@ -74,6 +74,10 @@ impl NotificationEventNode {
         self.row().send_attempts
     }
 
+    pub async fn context(&self) -> Option<String> {
+        self.row().context.to_owned()
+    }
+
     pub async fn notification_config(
         &self,
         ctx: &Context<'_>,

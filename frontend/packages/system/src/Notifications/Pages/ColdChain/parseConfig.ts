@@ -14,10 +14,12 @@ export function parseColdChainNotificationConfig(
 ): CCNotification | null {
   if (!config) return null;
   try {
+    const { configurationData, ...rest } = config;
+
     return {
       ...defaultCCNotification,
-      ...config,
-      ...JSON.parse(config.configurationData),
+      ...JSON.parse(configurationData),
+      ...rest,
     };
   } catch (e) {
     showError();
@@ -40,6 +42,7 @@ export const defaultCCNotification: CCNotification = {
   title: '',
   kind: ConfigKind.ColdChain,
   status: ConfigStatus.Disabled,
+  nextDueDatetime: null, // We always want this to be null, unless triggering a 'run now' action
   recipientListIds: [],
   recipientIds: [],
   sqlRecipientListIds: [],
@@ -54,7 +57,6 @@ export const defaultCCNotification: CCNotification = {
   remind: true,
   reminderInterval: 2,
   reminderUnits: ReminderUnits.HOURS,
-  messageAlertResolved: true,
   locationIds: [],
   requiredParameters: [],
   highTempThreshold: 8,

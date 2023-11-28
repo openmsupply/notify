@@ -3,6 +3,8 @@ use service::{
     service_provider::ServiceContext,
 };
 
+mod test;
+
 pub mod alerts;
 pub mod latest_temperature;
 pub mod parse;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   BasicTextInput,
   Box,
@@ -12,6 +12,7 @@ import {
 import { ScheduledNotification } from '../../types';
 import { SqlQuerySelector } from '../../components';
 import { useNotificationQueries } from 'packages/system/src/Queries/api';
+import { validateTemplate } from './tera';
 
 type ScheduledNotificationEditFormProps = {
   onUpdate: (patch: Partial<ScheduledNotification>) => void;
@@ -38,6 +39,12 @@ export const ScheduledNotificationEditForm = ({
   draft,
 }: ScheduledNotificationEditFormProps) => {
   const t = useTranslation('system');
+  const [subjectTemplateError, setSubjectTemplateError] = useState<
+    string | null
+  >(null);
+  const [bodyTemplateError, setBodyTemplateError] = useState<string | null>(
+    null
+  );
 
   const { queryParams } = useQueryParamsState();
   queryParams.first = 1000; // Set a high limit to ensure all queries are fetched, if we end up with over 1000 queries we'll need a new solution, or if this is too slow...
@@ -46,29 +53,59 @@ export const ScheduledNotificationEditForm = ({
   const queries = data?.nodes ?? [];
 
   return (
-    <Box paddingTop={1}>
+    <Box paddingTop={1} width={'100%'} paddingRight={'14px'}>
       <FormRow title={t('label.details')}>
         <BasicTextInput
           autoFocus
+          helperText={subjectTemplateError}
+          error={!!subjectTemplateError}
           value={draft.subjectTemplate}
           required
-          onChange={e =>
+          onChange={e => {
             onUpdate({
               subjectTemplate: e.target
                 .value as ScheduledNotification['subjectTemplate'],
-            })
-          }
+            });
+            try {
+              validateTemplate(e.target.value);
+              setSubjectTemplateError(null);
+            } catch (e) {
+              setSubjectTemplateError(e as string);
+            }
+          }}
           label={t('label.subject-template')}
           InputLabelProps={{ shrink: true }}
+          fullWidth
         />
       </FormRow>
       <FormRow title="">
         <BufferedTextArea
+          helperText={bodyTemplateError}
+          error={!!bodyTemplateError}
+          required
           value={draft.bodyTemplate}
-          onChange={e => onUpdate({ bodyTemplate: e.target.value })}
+          onChange={e => {
+            onUpdate({ bodyTemplate: e.target.value });
+            try {
+              validateTemplate(e.target.value);
+              setBodyTemplateError(null);
+            } catch (e) {
+              setBodyTemplateError(e as string);
+            }
+          }}
           label={t('label.body-template')}
-          InputProps={{ sx: { backgroundColor: 'background.menu' } }}
+          InputProps={{
+            sx: {
+              backgroundColor: 'background.menu',
+              textarea: {
+                resize: 'vertical',
+                overflow: 'scroll',
+              },
+            },
+          }}
           InputLabelProps={{ shrink: true }}
+          minRows={3}
+          maxRows={10}
         />
       </FormRow>
       <Box padding={1}>

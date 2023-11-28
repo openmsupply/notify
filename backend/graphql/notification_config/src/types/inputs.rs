@@ -13,6 +13,8 @@ use repository::{
 #[graphql(rename_items = "camelCase")]
 pub enum NotificationConfigSortFieldInput {
     Title,
+    Kind,
+    Status,
 }
 
 #[derive(InputObject, Clone)]
@@ -43,6 +45,8 @@ impl NotificationConfigSortInput {
         use NotificationConfigSortFieldInput as from;
         let key = match self.key {
             from::Title => to::Title,
+            from::Kind => to::Kind,
+            from::Status => to::Status,
         };
 
         NotificationConfigSort {

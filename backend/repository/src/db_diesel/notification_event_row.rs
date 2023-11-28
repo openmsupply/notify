@@ -38,6 +38,7 @@ table! {
         retry_at -> Nullable<Timestamp>,
         send_attempts -> Integer,
         error_message -> Nullable<Text>,
+        context -> Nullable<Text>,
     }
 }
 
@@ -69,6 +70,7 @@ pub struct NotificationEventRow {
     pub retry_at: Option<chrono::NaiveDateTime>,
     pub send_attempts: i32,
     pub error_message: Option<String>,
+    pub context: Option<String>, // JSON object, the tera context for the event
 }
 
 pub struct NotificationEventRowRepository<'a> {

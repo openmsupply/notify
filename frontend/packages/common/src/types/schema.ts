@@ -111,6 +111,12 @@ export type DatabaseError = NodeErrorInterface & RefreshTokenErrorInterface & {
   fullError: Scalars['String']['output'];
 };
 
+export type DatetimeFilterInput = {
+  afterOrEqualTo?: InputMaybe<Scalars['DateTime']['input']>;
+  beforeOrEqualTo?: InputMaybe<Scalars['DateTime']['input']>;
+  equalTo?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
 export type DeleteNotificationConfigResponse = DeleteResponse;
 
 export type DeleteNotificationQueryResponse = DeleteResponse;
@@ -127,6 +133,11 @@ export type DeleteResponse = {
 export type DeleteSqlRecipientListResponse = DeleteResponse;
 
 export type DeleteUserAccountResponse = DeleteResponse;
+
+export type DuplicateNotificationConfigInput = {
+  newId: Scalars['String']['input'];
+  oldId: Scalars['String']['input'];
+};
 
 export type EqualFilterConfigKindInput = {
   equalAny?: InputMaybe<Array<ConfigKind>>;
@@ -188,6 +199,7 @@ export type FullMutation = {
   deleteRecipientList: DeleteRecipientListResponse;
   deleteSqlRecipientList: DeleteSqlRecipientListResponse;
   deleteUserAccount: DeleteUserAccountResponse;
+  duplicateNotificationConfig: ModifyNotificationConfigResponse;
   /**
    * Initiates the password reset flow for a user based on email address
    * The user will receive an email with a link to reset their password
@@ -278,6 +290,11 @@ export type FullMutationDeleteSqlRecipientListArgs = {
 
 export type FullMutationDeleteUserAccountArgs = {
   userAccountId: Scalars['String']['input'];
+};
+
+
+export type FullMutationDuplicateNotificationConfigArgs = {
+  input: DuplicateNotificationConfigInput;
 };
 
 
@@ -625,6 +642,8 @@ export type NotificationConfigNode = {
 };
 
 export enum NotificationConfigSortFieldInput {
+  Kind = 'kind',
+  Status = 'status',
   Title = 'title'
 }
 
@@ -647,14 +666,16 @@ export type NotificationEventConnector = {
 };
 
 export type NotificationEventFilterInput = {
+  createdAt?: InputMaybe<DatetimeFilterInput>;
   id?: InputMaybe<EqualFilterStringInput>;
+  notificationConfigId?: InputMaybe<EqualFilterStringInput>;
   search?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<EqualFilterEventStatusInput>;
-  title?: InputMaybe<StringFilterInput>;
 };
 
 export type NotificationEventNode = {
   __typename: 'NotificationEventNode';
+  context?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   errorMessage?: Maybe<Scalars['String']['output']>;
   id: Scalars['String']['output'];
@@ -672,7 +693,12 @@ export type NotificationEventNode = {
 
 export enum NotificationEventSortFieldInput {
   CreatedAt = 'createdAt',
-  Title = 'title'
+  ErrorMessage = 'errorMessage',
+  Message = 'message',
+  NotificationType = 'notificationType',
+  Status = 'status',
+  Title = 'title',
+  ToAddress = 'toAddress'
 }
 
 export type NotificationEventSortInput = {
@@ -923,6 +949,7 @@ export type TokenExpired = RefreshTokenErrorInterface & {
 export type UpdateNotificationConfigInput = {
   configurationData?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
+  nextDueDatetime?: InputMaybe<Scalars['DateTime']['input']>;
   parameters?: InputMaybe<Scalars['String']['input']>;
   recipientIds?: InputMaybe<Array<Scalars['String']['input']>>;
   recipientListIds?: InputMaybe<Array<Scalars['String']['input']>>;

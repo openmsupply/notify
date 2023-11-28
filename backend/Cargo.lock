@@ -1719,6 +1719,7 @@ dependencies = [
  "async-graphql",
  "async-graphql-actix-web",
  "async-trait",
+ "chrono",
  "graphql_core",
  "graphql_types",
  "repository",
@@ -3598,6 +3599,8 @@ version = "0.1.0"
 dependencies = [
  "http",
  "log",
+ "pulldown-cmark",
+ "regex",
  "reqwest",
  "serde",
  "serde_json",

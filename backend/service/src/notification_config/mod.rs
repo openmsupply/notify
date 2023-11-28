@@ -9,6 +9,7 @@ use crate::{service_provider::ServiceContext, ListError, ListResult, SingleRecor
 use self::{
     create::{create_notification_config, CreateNotificationConfig},
     delete::{delete_notification_config, DeleteNotificationConfigError},
+    duplicate::{duplicate_notification_config, DuplicateNotificationConfig},
     query::{
         find_all_due_by_kind, get_notification_config, get_notification_configs, NotificationConfig,
     },
@@ -19,6 +20,7 @@ mod tests;
 
 pub mod create;
 pub mod delete;
+pub mod duplicate;
 pub mod intervals;
 pub mod query;
 pub mod recipients;
@@ -75,6 +77,14 @@ pub trait NotificationConfigServiceTrait: Sync + Send {
         id: &str,
     ) -> Result<String, DeleteNotificationConfigError> {
         delete_notification_config(ctx, id)
+    }
+
+    fn duplicate_notification_config(
+        &self,
+        ctx: &ServiceContext,
+        input: DuplicateNotificationConfig,
+    ) -> Result<NotificationConfig, ModifyNotificationConfigError> {
+        duplicate_notification_config(ctx, input)
     }
 }
 
