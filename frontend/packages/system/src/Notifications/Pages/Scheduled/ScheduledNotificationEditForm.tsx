@@ -82,6 +82,7 @@ export const ScheduledNotificationEditForm = ({
         <BufferedTextArea
           helperText={bodyTemplateError}
           error={!!bodyTemplateError}
+          required
           value={draft.bodyTemplate}
           onChange={e => {
             onUpdate({ bodyTemplate: e.target.value });
