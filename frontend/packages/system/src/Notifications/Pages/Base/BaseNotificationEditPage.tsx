@@ -69,7 +69,7 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
   const { OpenButton } = useDetailPanel(t('label.parameters'));
   const { navigateUpOne } = useBreadcrumbs();
   const [errorMessage, setErrorMessage] = useState('');
-  const [isSaved, setIsSaved] = useState(false);
+  const [isSaved, setIsSaved] = useState(true);
   const navigate = useNavigate();
 
   const isEnabled = (status: ConfigStatus) => {
