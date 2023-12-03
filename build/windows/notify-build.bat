@@ -10,6 +10,7 @@ copy "version.txt" "notify\version.txt"
 @ECHO ##### Prepare notify frontend #####
 start /wait /b build\windows\notify-prepare.bat
 @if %errorlevel% neq 0 exit /b %errorlevel%
+waitfor /t 60 notify-preparation
 
 ECHO ##### Building notify app #####
 cd backend && cargo build --release --bin notify_service && copy "target\release\notify_service.exe" "..\notify\notify_service.exe"
