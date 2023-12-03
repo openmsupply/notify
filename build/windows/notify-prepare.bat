@@ -7,4 +7,4 @@ set /p APP_BUILD_VERSION=<version.txt
 cd frontend && yarn install --force --frozen-lockfile && yarn build-windows
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-waitfor /s %computername% /si notify-preparation
+@REM waitfor /s %computername% /si notify-preparation
