@@ -11,4 +11,4 @@ node "adjustSUFs.js"
 @cd ..
 
 @ECHO ##### Creating installers #####
-start "" /wait "C:\Program Files (x86)\Setup Factory 9\SUFDesign.exe" /BUILD /LOG:installers\setup-factory.log "notify\notify_service.suf"
+start "" /wait "C:\Program Files (x86)\Setup Factory 9\SUFDesign.exe" /BUILD /LOG:installers\setup-factory.log "notify\notify\notify_service.suf"
