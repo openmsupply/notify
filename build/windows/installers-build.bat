@@ -13,5 +13,4 @@ node "%SUFlocation%\adjustSUFs.js"
 @cd ..
 
 @ECHO ##### Creating installers #####
-move "notify\notify\build\Final Application\mSupply" "mSupply\mSupply Single user"
 start "" /wait "C:\Program Files (x86)\Setup Factory 9\SUFDesign.exe" /BUILD /LOG:installers\setup-factory.log "%installerWorkspace%\notify_service.suf"
