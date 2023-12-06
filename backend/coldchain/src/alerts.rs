@@ -10,6 +10,8 @@ use service::{
     service_provider::ServiceContext,
 };
 
+use crate::sensor_state::SensorStatus;
+
 /*
 
 Temperature Alerts will look something like this...
@@ -46,6 +48,7 @@ pub struct ColdchainAlert {
     pub temperature: String,
     pub alert_type: AlertType,
     pub reminder_number: usize,
+    pub old_status: Option<SensorStatus>,
 }
 
 // Later this function probably won't exist, but serves as a reminder/POC...
@@ -135,6 +138,7 @@ mod tests {
             temperature: 10.12345.to_string(),
             alert_type: AlertType::High,
             reminder_number: 0,
+            old_status: None,
         };
 
         let recipient1 = NotificationTarget {
@@ -202,6 +206,7 @@ mod tests {
             temperature: 1.01.to_string(),
             alert_type: AlertType::Low,
             reminder_number: 0,
+            old_status: None,
         };
 
         let recipient1 = NotificationTarget {
@@ -269,6 +274,7 @@ mod tests {
             temperature: 1.01.to_string(),
             alert_type: AlertType::NoData,
             reminder_number: 0,
+            old_status: None,
         };
 
         let recipient1 = NotificationTarget {

@@ -382,6 +382,7 @@ pub fn try_process_sensor_notification(
         temperature: current_temp,
         alert_type: AlertType::Ok,
         reminder_number,
+        old_status: Some(prev_sensor_state.status.clone()),
     };
 
     let alert = match curr_sensor_status {
@@ -407,10 +408,23 @@ pub fn try_process_sensor_notification(
             }
         },
         SensorStatus::Ok => match config.confirm_ok {
-            true => Some(ColdchainAlert {
-                alert_type: AlertType::Ok,
-                ..base_alert
-            }),
+            true => {
+                // only send an ok alert if the previous state was No Data see https://github.com/msupply-foundation/notify/issues/278
+                if prev_sensor_state.status == SensorStatus::NoData {
+                    log::info!("Sending Ok alert for sensor {}", sensor_row.id);
+                    Some(ColdchainAlert {
+                        alert_type: AlertType::Ok,
+                        ..base_alert
+                    })
+                } else {
+                    log::info!(
+                        "Not sending Ok alert for sensor {} as previous state was {:?}",
+                        sensor_row.id,
+                        prev_sensor_state.status
+                    );
+                    None
+                }
+            }
             false => {
                 log::info!("Confirm Ok alert disabled for sensor {}", sensor_row.id);
                 None
