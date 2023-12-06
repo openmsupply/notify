@@ -4360,7 +4360,7 @@ g_HandleSystemReboot();
 <PostBuildProg/>
 <PostBuildCmdLine/>
 <PostBuildWait>0</PostBuildWait>
-<Filename>Notify_Service_replace with version.exe</Filename>
+<Filename>Notify_replace with version.exe</Filename>
 <OutputFolder>C:\Program Files (x86)\Jenkins\jobs\notifyMain - Installers\workspace\installers</OutputFolder>
 <SegmentSizeMode>0</SegmentSizeMode>
 <CustomSegSize>0</CustomSegSize>
