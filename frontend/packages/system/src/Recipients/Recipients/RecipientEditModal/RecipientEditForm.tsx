@@ -6,16 +6,13 @@ import {
   Typography,
   ToggleButton,
   NotificationTypeNode,
-  EnvUtils,
   ModalMode,
-  ButtonWithIcon,
   TelegramIcon,
   Box,
   LoadingButton,
 } from '@notify-frontend/common';
 import { DraftRecipient } from './types';
 import { ToggleButtonGroup } from '@mui/material';
-import { ExternalURL } from 'packages/config/src';
 import { useTelegramTestMessage } from '../../api/hooks/useTelegramTestMessage';
 
 type RecipientEditFormProps = {
