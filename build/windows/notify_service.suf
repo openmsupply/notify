@@ -802,7 +802,7 @@ end
 </Screen>
 <Screen>
 <Type>170</Type>
-<Name>Notify Service Configuration</Name>
+<Name>Notify Configuration</Name>
 <BannerStyle>2</BannerStyle>
 <TemplateName>Custom</TemplateName>
 <OverrideProjTheme>0</OverrideProjTheme>
@@ -1103,15 +1103,15 @@ end
 </Language>
 <Messages>
 <IDS_WINDOW_TITLE>%window_title%</IDS_WINDOW_TITLE>
-<IDS_HEADER_TEXT>Notify Service Configuration</IDS_HEADER_TEXT>
-<IDS_SUBHEADER_TEXT>Settings required in order to configure the Notify Service.</IDS_SUBHEADER_TEXT>
+<IDS_HEADER_TEXT>Notify Configuration</IDS_HEADER_TEXT>
+<IDS_SUBHEADER_TEXT>Settings required in order to configure the Notify.</IDS_SUBHEADER_TEXT>
 <IDS_CTRL_BUTTON_NEXT>&amp;Next &gt;</IDS_CTRL_BUTTON_NEXT>
 <IDS_CTRL_BUTTON_BACK>&lt; &amp;Back</IDS_CTRL_BUTTON_BACK>
 <IDS_CTRL_BUTTON_CANCEL>&amp;Cancel</IDS_CTRL_BUTTON_CANCEL>
 <IDS_CTRL_BUTTON_HELP>&amp;Help</IDS_CTRL_BUTTON_HELP>
 <IDS_CTRL_STATICTEXT_TOPINSTRUCTIONS/>
 <IDS_CTRL_STATICTEXT_BOTTOMINSTRUCTIONS/>
-<IDS_CTRL_STATICTEXT_LABEL_01>Notify Service port number:</IDS_CTRL_STATICTEXT_LABEL_01>
+<IDS_CTRL_STATICTEXT_LABEL_01>Notify port number:</IDS_CTRL_STATICTEXT_LABEL_01>
 <IDS_CTRL_EDIT_01>7007</IDS_CTRL_EDIT_01>
 <IDS_CTRL_EDIT_MASK_01/>
 <IDS_CTRL_EDIT_MASK_PLACE_HOLDER_01> </IDS_CTRL_EDIT_MASK_PLACE_HOLDER_01>
