@@ -30,7 +30,7 @@
   "label.coldchain-low-temp-alerts": "Send low temperature excursion alerts when less than",
   "label.coldchain-no-data-alerts": "Send 'no temperature data' alert after",
   "label.coldchain-reminder-alerts": "Send follow-up reminders until alert is resolved, every",
-  "label.coldchain-message-alerts-resolved": "Send confirmation message when connection is restored",
+  "label.coldchain-message-alerts-resolved": "Send confirmation message when monitoring connection is restored",
   "label.disable-user": "Disable User",
   "label.download-example": "Download an example file here",
   "label.edit-recipient": "Edit Recipient",
