@@ -10,6 +10,8 @@ pub struct Settings {
     pub telegram: TelegramSettings,
     pub datasource: PostgresSettings,
     pub logging: Option<LoggingSettings>,
+    #[serde(default)]
+    pub backup: BackupSettings,
 }
 
 #[derive(serde::Deserialize, Clone)]
@@ -108,4 +110,12 @@ pub struct MailSettings {
 #[derive(serde::Deserialize, Clone)]
 pub struct TelegramSettings {
     pub token: Option<String>,
+}
+
+#[derive(serde::Deserialize, Clone, Default)]
+pub struct BackupSettings {
+    pub enabled: bool,
+    pub cron: String,
+    pub path: String,
+    pub filename: String,
 }

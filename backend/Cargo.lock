@@ -1051,6 +1051,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "cron"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1ff76b51e4c068c52bfd2866e1567bee7c567ae8f24ada09fd4307019e25eab7"
+dependencies = [
+ "chrono",
+ "nom",
+ "once_cell",
+]
+
+[[package]]
 name = "crossbeam-channel"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3363,8 +3374,10 @@ dependencies = [
  "actix-http",
  "actix-multipart",
  "actix-web",
+ "chrono",
  "coldchain",
  "config",
+ "cron",
  "datasource",
  "futures-util",
  "graphql",

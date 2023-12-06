@@ -1,5 +1,5 @@
 use crate::{
-    configuration::get_or_create_token_secret, cors::cors_policy,
+    auto_backup::auto_backup, configuration::get_or_create_token_secret, cors::cors_policy,
     scheduled_tasks::scheduled_task_runner, serve_frontend::config_server_frontend,
     static_files::config_static_files,
 };
@@ -32,6 +32,7 @@ use service::{
 
 use telegram::{service::TelegramService, TelegramClient};
 
+mod auto_backup;
 pub mod configuration;
 pub mod cors;
 pub mod environment;
@@ -78,6 +79,23 @@ async fn run_server(
     let settings_data = Data::new(config_settings.clone());
 
     let restart_switch = Data::new(restart_switch);
+
+    let auto_backup_context = ServiceContext::new(service_provider_data.clone().into_inner());
+    let auto_backup_context = match auto_backup_context {
+        Ok(auto_backup_context) => auto_backup_context,
+        Err(error) => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                format!(
+                    "Error unable to create auto backup task context: {:?}",
+                    error
+                ),
+            ));
+        }
+    };
+    let auto_backup_handle = actix_web::rt::spawn(async move {
+        auto_backup(auto_backup_context).await;
+    });
 
     let scheduled_task_context = ServiceContext::new(service_provider_data.clone().into_inner());
     let scheduled_task_context = match scheduled_task_context {
@@ -214,6 +232,7 @@ async fn run_server(
 
     server_handle.stop(true).await;
     scheduled_task_handle.abort();
+    auto_backup_handle.abort();
     if let Some(telegram_update_handler) = telegram_update_handler_option {
         telegram_update_handler.abort();
     }
