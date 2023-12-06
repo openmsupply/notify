@@ -4282,17 +4282,17 @@ g_HandleSystemReboot();
 </SessionVar>
 <SessionVar>
 <Name>%ProductVer%</Name>
-<Value>v1.5.00-RC1</Value>
+<Value>replace with version</Value>
 <Type>1</Type>
 </SessionVar>
 <SessionVar>
 <Name>%Copyright%</Name>
-<Value>Copyright 2022 %CompanyName%</Value>
+<Value>Copyright 2023 %CompanyName%</Value>
 <Type>1</Type>
 </SessionVar>
 <SessionVar>
 <Name>%CompanyURL%</Name>
-<Value>http://msupply.foundation/</Value>
+<Value>https://msupply.foundation/</Value>
 <Type>1</Type>
 </SessionVar>
 <SessionVar>
