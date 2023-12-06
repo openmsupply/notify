@@ -795,7 +795,7 @@ end
 <IDS_CTRL_SCROLLTEXT_BODY>Insert your license agreement text here...</IDS_CTRL_SCROLLTEXT_BODY>
 <IDS_CTRL_RADIOBTN_AGREE>I agree to the terms of this license agreement</IDS_CTRL_RADIOBTN_AGREE>
 <IDS_CTRL_RADIOBTN_DISAGREE>I do not agree to the terms of this license agreement</IDS_CTRL_RADIOBTN_DISAGREE>
-<IDS_CTRL_SCROLLTEXT_FILE>#PROJECTFILEDIR#\notify_license_and_warranty.txt</IDS_CTRL_SCROLLTEXT_FILE>
+<IDS_CTRL_SCROLLTEXT_FILE>#PROJECTFILEDIR#\notify\notify_license_and_warranty.txt</IDS_CTRL_SCROLLTEXT_FILE>
 </Messages>
 </SUF70Messages>
 </Languages>
