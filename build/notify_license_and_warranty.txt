@@ -1,10 +1,11 @@
 License
 
-Notify software (including it�s documentation produced by mSupply Foundation) is protected by copyright and is the exclusive property of mSupply Foundation and all rights are reserved.
+Notify software (including it�s documentation produced by mSupply Foundation) is protected by copyright and licensed with the GNU Affero General Public License v3.0.
+A copy of the license is available at https://github.com/msupply-foundation/notify/blob/main/LICENSE
 
-mSupply Foundation grants you license to use notify software according to the clauses herein stated and your installation and/or continued use of notify confirms your agreement.
+mSupply Foundation grants you license to use notify software according to the stated licensing agreement and your installation and/or continued use of notify confirms your agreement.
 
-The software may not, in whole or in part, be copied, reproduced, translated or reduced to any machine readable form without prior consent in writing from mSupply Foundation, except as a backup copy. The user guide, including material on the mSupply web site may not, in whole or in part, be copied, reproduced, translated or reduced to any machine readable form without prior consent in writing from mSupply Foundation.
+The user guide, including material on the mSupply web site may not, in whole or in part, be copied, reproduced, translated or reduced to any machine readable form without prior consent in writing from mSupply Foundation.
 
 
 Warranty
