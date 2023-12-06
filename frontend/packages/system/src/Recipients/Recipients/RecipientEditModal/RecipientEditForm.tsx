@@ -34,9 +34,7 @@ export const RecipientEditForm = ({
   const { mutateAsync: sendTelegramTestMessage, isLoading: isMessageSending } =
     useTelegramTestMessage();
 
-  const docsUrl = `${ExternalURL.PublicDocs}${
-    EnvUtils.mapRoute(location.pathname).docs
-  }`;
+  const docsUrl = `https://docs.msupply.foundation/coldchain/cold-chain-notifications/#setting-up-telegram-messenger`;
 
   return (
     <Grid flexDirection="column" display="flex" gap={2}>
