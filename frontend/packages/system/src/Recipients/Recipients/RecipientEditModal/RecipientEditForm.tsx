@@ -34,7 +34,7 @@ export const RecipientEditForm = ({
   const { mutateAsync: sendTelegramTestMessage, isLoading: isMessageSending } =
     useTelegramTestMessage();
 
-  const docsUrl = `https://docs.msupply.foundation/coldchain/cold-chain-notifications/#setting-up-telegram-messenger`;
+  const coldchainTelegramDocs = `https://docs.msupply.foundation/coldchain/cold-chain-notifications/#setting-up-telegram-messenger`;
 
   return (
     <Grid flexDirection="column" display="flex" gap={2}>
@@ -84,7 +84,7 @@ export const RecipientEditForm = ({
           </Typography>
           <Typography sx={{ color: 'gray.dark' }}>
             {t('text.telegram-recipient-creation-2')}{' '}
-            <a rel="noreferrer" target="_blank" href={docsUrl}>
+            <a rel="noreferrer" target="_blank" href={coldchainTelegramDocs}>
               {t('text.here')}
             </a>
             {'.'}
