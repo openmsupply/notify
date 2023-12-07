@@ -1,4 +1,4 @@
-**{% if old_status == "NoData" %}✅ Monitoring connection restored!{% else %}✅ Sensor is now ok!{% endif %}**
+**{% if old_status == "NoData" %}✅ Monitoring connection restored{% else %}✅ Sensor is now ok!{% endif %}**
 
 **Facility**: {{ store_name }}
 {% if location_name %}
