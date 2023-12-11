@@ -2,6 +2,8 @@
 
 "Notify" is a multi channel notification scheduling tool.
 
+To read more about what it does and how to use it, visit our documentation site: https://docs.msupply.foundation/notify/introduction/
+
 ## Setup
 
 You'll need to install the following tools
@@ -75,6 +77,7 @@ After setting up your environment, There are some quick start tutorials you can 
 Until a documentation website is established, you can find some docs for setting up notify & notifications [here](./docs/notification_setup.md)
 
 ## Frequently Asked Questions
+
 See the [FAQ here](./docs/faq.md)
 
 ## Contributing
@@ -94,7 +97,7 @@ If working on an issue, assign yourself to the issue. Not doing so risks multipl
 
 ### Branching
 
-> For now, we only have a `main` branch, as the product is still pre-MVP. Once we move to production, we'll likely move to the below branching strategy to match other mSupply product workflows.
+> For now, we only have a `main` branch that get active development merged into it. In the future we may move to the below branching strategy to match other mSupply product workflows.
 
 Our goal is to achieve something inspired by [gitflow](https://nvie.com/posts/a-successful-git-branching-model/) ([also a good link](http://datasift.github.io/gitflow/IntroducingGitFlow.html)). We have 2 protected branches:
 
