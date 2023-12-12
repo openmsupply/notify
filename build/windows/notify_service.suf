@@ -4153,6 +4153,11 @@ else
 	config = config .. "  filename: \"omsupply.log\"\r\n";
 	config = config .. "  max_file_count: 10\r\n";
 	config = config .. "  max_file_size: 1\r\n";
+	config = config .. "backup:\r\n";
+	config = config .. "  enabled: true\r\n";
+	config = config .. "  cron: \"0 0 21 * * *\"\r\n";
+	config = config .. "  path: \"backup\"\r\n";
+	config = config .. "  filename: \"backup.sqlite\"\r\n";
 	TextFile.WriteFromString(SessionVar.Expand("%AppFolder%\\configuration\\local.yaml"), config, false);
 
 	-- Create omSupply Server keys in registry
