@@ -6,16 +6,13 @@ import {
   Typography,
   ToggleButton,
   NotificationTypeNode,
-  EnvUtils,
   ModalMode,
-  ButtonWithIcon,
   TelegramIcon,
   Box,
   LoadingButton,
 } from '@notify-frontend/common';
 import { DraftRecipient } from './types';
 import { ToggleButtonGroup } from '@mui/material';
-import { ExternalURL } from 'packages/config/src';
 import { useTelegramTestMessage } from '../../api/hooks/useTelegramTestMessage';
 
 type RecipientEditFormProps = {
@@ -34,9 +31,7 @@ export const RecipientEditForm = ({
   const { mutateAsync: sendTelegramTestMessage, isLoading: isMessageSending } =
     useTelegramTestMessage();
 
-  const docsUrl = `${ExternalURL.PublicDocs}${
-    EnvUtils.mapRoute(location.pathname).docs
-  }`;
+  const coldchainTelegramDocs = `https://docs.msupply.foundation/coldchain/cold-chain-notifications/#setting-up-telegram-messenger`;
 
   return (
     <Grid flexDirection="column" display="flex" gap={2}>
@@ -86,7 +81,7 @@ export const RecipientEditForm = ({
           </Typography>
           <Typography sx={{ color: 'gray.dark' }}>
             {t('text.telegram-recipient-creation-2')}{' '}
-            <a rel="noreferrer" target="_blank" href={docsUrl}>
+            <a rel="noreferrer" target="_blank" href={coldchainTelegramDocs}>
               {t('text.here')}
             </a>
             {'.'}
