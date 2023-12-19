@@ -3,7 +3,7 @@ use service::service_provider::ServiceContext;
 use std::path::Path;
 use tokio::time::sleep;
 
-use chrono::Utc;
+use chrono::offset::Local;
 use cron::Schedule;
 use std::str::FromStr;
 
@@ -44,9 +44,9 @@ pub async fn auto_backup(service_context: ServiceContext) {
     };
 
     log::debug!("Backing up database to {}", file_path_name);
-    for datetime in schedule.upcoming(Utc) {
+    for datetime in schedule.upcoming(Local) {
         println!("Next backup at  {}", datetime);
-        let now_utc = Utc::now();
+        let now_utc = Local::now();
         let duration = datetime.signed_duration_since(now_utc);
         sleep(duration.to_std().unwrap_or_default()).await;
 
