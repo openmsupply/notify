@@ -64,6 +64,7 @@ pub fn get_test_settings(db_name: &str) -> Settings {
             database_name: String::from("dashboard"),
         },
         logging: None,
+        backup: Default::default(),
     }
 }
 

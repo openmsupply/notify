@@ -28,7 +28,7 @@ mod repository_test {
     }
 
     use crate::{
-        mock::MockDataInserts, test_db, KeyValueStoreRepository, KeyValueType,
+        backup_sqlite, mock::MockDataInserts, test_db, KeyValueStoreRepository, KeyValueType,
         UserAccountRowRepository,
     };
 
@@ -73,5 +73,15 @@ mod repository_test {
             .unwrap();
         let result = repo.get_string(KeyValueType::SettingsTokenSecret).unwrap();
         assert_eq!(result, None);
+    }
+
+    #[actix_rt::test]
+    async fn test_backup() {
+        let (_, connection, _, _) =
+            test_db::setup_all("test_backup", MockDataInserts::none()).await;
+
+        let result = backup_sqlite(&connection, "test_backup.sqlite");
+
+        assert_eq!(result, Ok(()));
     }
 }

@@ -27,3 +27,8 @@ logging:
   filename: "notify.log"
   max_file_size: 1
   max_file_count: 1
+backup:
+  enabled: true
+  cron: "0 0 21 * * *"
+  path: "backup"
+  filename: "backup.sqlite"
