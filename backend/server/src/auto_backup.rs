@@ -31,8 +31,8 @@ pub async fn auto_backup(service_context: ServiceContext) {
         }
     };
 
-    let file_path = Path::new(&service_context.service_provider.settings.backup.path)
-        .join(&service_context.service_provider.settings.backup.filename);
+    let backup_path = Path::new(&service_context.service_provider.settings.backup.path);
+    let file_path = backup_path.join(&service_context.service_provider.settings.backup.filename);
     let file_path_name = file_path.to_string_lossy();
 
     let con = match service_context.service_provider.connection() {
@@ -49,6 +49,14 @@ pub async fn auto_backup(service_context: ServiceContext) {
         let now_utc = Local::now();
         let duration = datetime.signed_duration_since(now_utc);
         sleep(duration.to_std().unwrap_or_default()).await;
+
+        // create the backup directory if it doesn't exist
+        if !backup_path.exists() {
+            match std::fs::create_dir_all(&backup_path) {
+                Ok(()) => log::info!("Created backup directory"),
+                Err(e) => log::error!("Error creating backup directory: {}", e),
+            }
+        }
 
         // delete the old backup file
         if file_path.exists() {
