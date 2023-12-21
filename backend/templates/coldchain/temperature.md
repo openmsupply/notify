@@ -9,7 +9,7 @@
 **Date**: {{ last_data_time | date(format="%d %b %Y") }}
 **Time**: {{ last_data_time | date(format="%H:%M")}}
 
-**Temperature**: {{ temperature }}°C
+**Temperature**: {{ temperature }} °C
 {% if reminder_number %}
 **Reminder Number**: {{ reminder_number }}
 {% endif %}

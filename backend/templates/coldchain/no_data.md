@@ -1,4 +1,4 @@
-**Monitoring connection lost**
+**📶 Monitoring connection lost!**
 
 **Facility**: {{ store_name }}
 {% if location_name %}

@@ -361,9 +361,7 @@ fn test_try_process_sensor_notification_prev_high() {
         latest_temperature_row,
     );
     assert_eq!(sensor_state.status, SensorStatus::Ok);
-    assert_eq!(alert.is_some(), true);
-    let alert = alert.unwrap();
-    assert_eq!(alert.alert_type, AlertType::Ok);
+    assert_eq!(alert.is_none(), true);
 
     /*
         Test 2: Was High 1 Minute ago, Now High Temp -> No Alert!
@@ -516,9 +514,7 @@ fn test_try_process_sensor_notification_prev_low() {
         latest_temperature_row,
     );
     assert_eq!(sensor_state.status, SensorStatus::Ok);
-    assert_eq!(alert.is_some(), true);
-    let alert = alert.unwrap();
-    assert_eq!(alert.alert_type, AlertType::Ok);
+    assert_eq!(alert.is_none(), true);
 
     /*
         Test 2: Was Low 1 Minute ago, Now High Temp -> Alert!
