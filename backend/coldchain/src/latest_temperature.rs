@@ -29,6 +29,7 @@ pub fn latest_temperature(
     temperature
     FROM temperature_log
     WHERE sensor_id = $1
+    AND temperature < 55 -- ignore any obviously bad data see: https://github.com/msupply-foundation/notify/issues/283
     ORDER BY date DESC, time DESC
     LIMIT 1";
 
