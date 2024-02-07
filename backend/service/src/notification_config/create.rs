@@ -66,6 +66,7 @@ pub fn generate(
         configuration_data: "{}".to_string(),
         status: NotificationConfigStatus::Disabled,
         parameters: "{}".to_string(),
+        parameter_query_id: None,
         recipient_ids: "[]".to_string(),
         recipient_list_ids: "[]".to_string(),
         sql_recipient_list_ids: "[]".to_string(),

@@ -22,6 +22,7 @@ pub struct NotificationConfig {
     pub configuration_data: String,
     pub status: NotificationConfigStatus,
     pub parameters: String,
+    pub parameter_query_id: Option<String>,
     pub recipient_ids: Vec<String>,
     pub recipient_list_ids: Vec<String>,
     pub sql_recipient_list_ids: Vec<String>,
@@ -38,6 +39,7 @@ impl From<NotificationConfigRow> for NotificationConfig {
             configuration_data,
             status,
             parameters,
+            parameter_query_id,
             recipient_ids,
             recipient_list_ids,
             sql_recipient_list_ids,
@@ -52,6 +54,7 @@ impl From<NotificationConfigRow> for NotificationConfig {
             configuration_data,
             status,
             parameters,
+            parameter_query_id,
             recipient_ids: serde_json::from_str(&recipient_ids).unwrap_or_default(),
             recipient_list_ids: serde_json::from_str(&recipient_list_ids).unwrap_or_default(),
             sql_recipient_list_ids: serde_json::from_str(&sql_recipient_list_ids)

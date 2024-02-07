@@ -17,6 +17,7 @@ pub struct UpdateNotificationConfig {
     pub configuration_data: Option<String>,
     pub status: Option<NotificationConfigStatus>,
     pub parameters: Option<String>,
+    pub parameter_query_id: Option<String>,
     pub recipient_ids: Option<Vec<String>>,
     pub recipient_list_ids: Option<Vec<String>>,
     pub sql_recipient_list_ids: Option<Vec<String>>,
@@ -71,6 +72,7 @@ pub fn generate(
         configuration_data,
         status,
         parameters,
+        parameter_query_id,
         recipient_ids,
         recipient_list_ids,
         sql_recipient_list_ids,
@@ -92,6 +94,10 @@ pub fn generate(
 
     if let Some(parameters) = parameters {
         new_notification_config_row.parameters = parameters;
+    }
+
+    if let Some(parameter_query_id) = parameter_query_id {
+        new_notification_config_row.parameter_query_id = Some(parameter_query_id);
     }
 
     if let Some(recipient_ids) = recipient_ids {
