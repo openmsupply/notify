@@ -22,6 +22,7 @@ pub mod create;
 pub mod delete;
 pub mod duplicate;
 pub mod intervals;
+pub mod parameters;
 pub mod query;
 pub mod recipients;
 pub mod update;
