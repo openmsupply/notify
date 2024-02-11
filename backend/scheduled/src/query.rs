@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use log::info;
 use repository::{EqualFilter, NotificationQueryFilter, NotificationQueryRepository};
 use serde_json::json;
 use service::service_provider::ServiceContext;
@@ -27,6 +28,7 @@ pub fn get_notification_query_results(
 
     // loop through all the notification query ids, run them, and store the results
     for query in queries {
+        let now = chrono::Utc::now();
         let result = ctx
             .service_provider
             .datasource_service
@@ -45,6 +47,13 @@ pub fn get_notification_query_results(
                 json!([{"error": "error running query", "query": query.query, "parameters": parameters}])
             }
         };
+        let end_time = chrono::Utc::now();
+        info!(
+            "Query {} took {}ms",
+            query.reference_name,
+            (end_time - now).num_milliseconds()
+        );
+
         query_results.insert(query.reference_name, query_json);
     }
 

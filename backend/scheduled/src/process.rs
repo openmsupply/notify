@@ -30,11 +30,14 @@ pub fn process_scheduled_notifications(
     let mut errored_notifications = 0;
     let mut skipped_notifications = 0;
     for scheduled_notification in scheduled_notifications {
+        let start_time = Utc::now();
+        let notification_name = scheduled_notification.title.clone();
         log::info!(
             "Processing scheduled notification: {} - {}",
+            scheduled_notification.title,
             scheduled_notification.id,
-            scheduled_notification.title
         );
+
         match try_process_scheduled_notifications(ctx, scheduled_notification, current_time) {
             Err(e) => {
                 log::error!("{:?}", e);
@@ -49,6 +52,12 @@ pub fn process_scheduled_notifications(
                 successful_notifications += 1;
             }
         }
+        let end_time = Utc::now();
+        log::info!(
+            "Processed {} Notification in {}s",
+            notification_name,
+            (end_time - start_time).num_seconds()
+        );
     }
     // Return the number of notifications processed
     log::info!(
@@ -132,24 +141,32 @@ fn try_process_scheduled_notifications(
         let sql_params = serde_json::to_value(&template_params).map_err(|e| {
             NotificationError::InternalError(format!("Failed to parse sql params data: {:?}", e))
         })?;
-        let sql_query_parameters = get_notification_query_results(ctx, sql_params, &config)?;
 
-        // Template data should include the notification config parameters, plus the results of any queries
-
-        template_params.extend(sql_query_parameters);
-
-        let template_data = serde_json::to_value(template_params).map_err(|e| {
-            NotificationError::InternalError(format!("Failed to parse template data: {:?}", e))
-        })?;
+        log::info!("Processing parameter set: {}", sql_params);
 
         // Get the recipients
         let notification_targets = get_notification_targets(
             ctx,
             &scheduled_notification,
-            template_data.clone(),
+            sql_params.clone(),
         )
         .map_err(|e| {
             NotificationError::InternalError(format!("Failed to get notification targets: {:?}", e))
+        })?;
+
+        // If there are no recipients, skip this parameter set
+        if notification_targets.is_empty() {
+            log::info!("No notification targets, skipping");
+            continue;
+        }
+
+        let sql_query_parameters = get_notification_query_results(ctx, sql_params, &config)?;
+
+        // Template data should include the notification config parameters, plus the results of any queries
+        template_params.extend(sql_query_parameters);
+
+        let template_data = serde_json::to_value(template_params).map_err(|e| {
+            NotificationError::InternalError(format!("Failed to parse template data: {:?}", e))
         })?;
 
         // Send the notification
