@@ -80,6 +80,9 @@ mod repository_test {
         let (_, connection, _, _) =
             test_db::setup_all("test_backup", MockDataInserts::none()).await;
 
+        // cleanup
+        std::fs::remove_file("test_backup.sqlite").unwrap();
+
         let result = backup_sqlite(&connection, "test_backup.sqlite");
 
         assert_eq!(result, Ok(()));
