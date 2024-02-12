@@ -6,9 +6,12 @@ import {
   BufferedTextArea,
   DetailPanelSection,
   IconButton,
+  Autocomplete,
 } from '@common/components';
 import { KeyedParams } from '@common/utils';
+import { useQueryParamsState } from '@common/hooks';
 
+import { useNotificationQueries } from '../../../Queries/api';
 import { ParameterEditor } from './ParameterEditor';
 import { useTranslation } from '@common/intl';
 
@@ -18,6 +21,7 @@ export interface ParamsPanelProps {
   allowParameterSets?: boolean;
   onUpdateParams: (idx: number, key: string, value: string) => void;
   onDeleteParam: (idx: number, key: string | null) => void; // Warning: null deletes everything for that index
+  onChangeParameterQuery?: (id: string | null) => void;
 }
 
 export const NotificationDetailPanel = ({
@@ -26,6 +30,7 @@ export const NotificationDetailPanel = ({
   allowParameterSets = false,
   onUpdateParams,
   onDeleteParam,
+  onChangeParameterQuery = () => {},
 }: ParamsPanelProps) => {
   const t = useTranslation('system');
 
@@ -40,6 +45,9 @@ export const NotificationDetailPanel = ({
   if (params.length === 0 || params[0] === undefined) {
     params = [{} as KeyedParams];
   }
+
+  const { queryParams } = useQueryParamsState();
+  const { data: queriesData } = useNotificationQueries(queryParams);
 
   const paramEditors = (
     <>
@@ -144,10 +152,29 @@ export const NotificationDetailPanel = ({
     </DetailPanelSection>
   );
 
+  // TODO: Preview results
+  // TODO: Save to config
+  // TODO: Avoid queries which require parameters
+  const parameterQuerySelector = (
+    <DetailPanelSection
+      key={'param-query-selector'}
+      title={t('label.parameter-query-select')}
+    >
+      <Autocomplete
+        // TODO: Figure out background-color
+        options={queriesData?.nodes ?? []}
+        width="full"
+        getOptionLabel={option => option.name}
+        onChange={(_, option) => onChangeParameterQuery(option?.id ?? null)} // TODO: Move the change trigger to save button
+      />
+    </DetailPanelSection>
+  );
+
   return (
     <DetailPanelPortal>
       {paramEditors}
       {jsonParamsEditor}
+      {parameterQuerySelector}
     </DetailPanelPortal>
   );
 };
