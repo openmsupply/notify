@@ -116,6 +116,9 @@ export const NotificationDetailPanel = ({
                   onUpdateParams(idx, key, param[key] ?? '');
                 }
               });
+              while (params.length > editedParams.length) {
+                onDeleteParam(editedParams.length, null);
+              }
             } catch (e) {
               setErrorMessage(`Unable to save new parameters: ${e}`);
             }
