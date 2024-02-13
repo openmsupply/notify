@@ -75,6 +75,7 @@ export function buildScheduledNotificationInputs(
     configurationData: JSON.stringify(config),
     status: config.status,
     parameters: JSON.stringify(params),
+    parameterQueryId: config.parameterQueryId,
     recipientIds: config.recipientIds,
     recipientListIds: config.recipientListIds,
     sqlRecipientListIds: config.sqlRecipientListIds,
