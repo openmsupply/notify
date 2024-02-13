@@ -11,11 +11,11 @@ pub fn get_notification_parameters(
 ) -> Result<Vec<HashMap<String, serde_json::Value>>, NotificationServiceError> {
     // Fetch default parameters from config
     let params_string = match notification_config.parameters.len() {
-        0 => "[{}]".to_string(),
+        0 => "[]".to_string(),
         _ => notification_config.parameters.clone(),
     };
     let sql_params_string = match &notification_config.parameter_query_id {
-        None => "[{}]".to_string(),
+        None => "[]".to_string(),
         Some(query_id) => get_sql_parameters(ctx, query_id)?,
     };
 
@@ -50,23 +50,33 @@ fn get_sql_parameters(
     let query_record = repository.find_one_by_id(&parameter_query_id)?;
 
     let sql_query = match query_record {
-        // TODO: Better error
-        None => return Err(NotificationServiceError::InternalError("Temp error".to_string())),
+        None => return Err(NotificationServiceError::InternalError(format!(
+                    "No query found for parameter_query_id: {}", parameter_query_id)
+                )),
         Some(record) => record.query,
     };
-
-    // TODO: We could probably make parameter requests also accept parameters but that feels like
-    // overkill
 
     let query_result = ctx
         .service_provider
         .datasource_service
         .run_sql_query(sql_query)
-        .map_err(|_| {
-            NotificationServiceError::InternalError("TODO: Better error".to_string())
+        .map_err(|e| {
+            NotificationServiceError::InternalError(format!("Error when fetching parameter_query_id: {} - {:?}",
+                        parameter_query_id, e
+                    ))
         })?;
 
-    // TODO: Idk how these results are formatted
-    log::debug!("{}", query_result.results);
-    return Ok(query_result.results);
+    let parsed_results: Vec<HashMap<String, serde_json::Value>> = serde_json::from_str(&query_result.results)
+        .map_err(|e| {
+            NotificationServiceError::InternalError(format!("Failed to parse parameter query results: {:?}", e))
+        })?;
+
+    let parameters = match parsed_results[0].get("parameters") {
+        None => return Err(NotificationServiceError::InternalError(format!(
+                    "No 'parameters' column found in query results - {}", parameter_query_id)
+                )),
+        Some(params) => params
+    };
+
+    return Ok(parameters.to_string());
 }

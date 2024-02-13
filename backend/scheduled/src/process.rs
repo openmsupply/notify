@@ -113,7 +113,7 @@ fn try_process_scheduled_notifications(
     let param_results = get_notification_parameters(ctx, &scheduled_notification);
     let mut all_params = match param_results {
         Ok(val) => val,
-        Err(_) => return Err(NotificationError::InternalError("Error fetching parameters".to_string()))
+        Err(e) => return Err(NotificationError::InternalError(format!("Failed to fetch parameters: {:?}", e)))
     };
 
     if all_params.len() == 0 {
