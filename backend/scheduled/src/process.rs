@@ -109,7 +109,6 @@ fn try_process_scheduled_notifications(
         )));
     }
 
-    // TODO: Clean this up
     let param_results = get_notification_parameters(ctx, &scheduled_notification);
     let mut all_params = match param_results {
         Ok(val) => val,

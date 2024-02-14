@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::service_provider::ServiceContext;
-use crate::notification::NotificationServiceError; // TODO: Fixup this import (or remove usage)
+use crate::notification::NotificationServiceError;
 use super::query::NotificationConfig;
 use repository::NotificationQueryRowRepository;
 
@@ -34,8 +34,6 @@ pub fn get_notification_parameters(
                 e, params_string
             ))
         })?;
-
-    // TODO: Check if there's a cleaner version of this
     all_params.append(&mut sql_params);
 
     return Ok(all_params);
