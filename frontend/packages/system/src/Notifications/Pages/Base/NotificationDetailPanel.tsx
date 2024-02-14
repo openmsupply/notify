@@ -139,8 +139,20 @@ export const NotificationDetailPanel = ({
             try {
               const editedParams: KeyedParams[] = JSON.parse(paramsString);
               editedParams.forEach((param, idx) => {
-                for (const key of Object.keys(param)) {
-                  onUpdateParams(idx, key, param[key] ?? '');
+                if (idx === params.length) {
+                  // Allow adding empty sets from JSON
+                  params.push({});
+                  onDeleteParam(idx, 'this-is-a-hack-to-force-an-update');
+                }
+                // Iterate through all valid keys
+                for (const key of [...Object.keys(param), ...Object.keys(params[idx] || {})]) {
+                  if (param[key]) {
+                    // If we parsed the key from the JSON input, update it
+                    onUpdateParams(idx, key, param[key] || '');
+                  } else {
+                    // If the key exists on the parameter object but not the JSON, delete it
+                    onDeleteParam(idx, key);
+                  }
                 }
               });
               while (params.length > editedParams.length) {
