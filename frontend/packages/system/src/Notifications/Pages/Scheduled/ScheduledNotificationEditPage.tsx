@@ -44,6 +44,10 @@ export const ScheduledNotificationEditPage = () => {
       (entity as NotificationConfigRowFragment) ?? null,
       parsingErrorSnack
     );
+    if (parsedDraft) {
+      // Backend expects this value to be null if unedited so don't load it from config
+      parsedDraft.nextDueDatetime = null;
+    }
     setDraft(parsedDraft ?? defaultSchedulerNotification);
     if (parsedDraft?.title) setSuffix(parsedDraft?.title);
   }, [data]);

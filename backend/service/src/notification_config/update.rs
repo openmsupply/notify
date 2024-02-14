@@ -96,10 +96,6 @@ pub fn generate(
         new_notification_config_row.parameters = parameters;
     }
 
-    if let Some(parameter_query_id) = parameter_query_id {
-        new_notification_config_row.parameter_query_id = Some(parameter_query_id);
-    }
-
     if let Some(recipient_ids) = recipient_ids {
         let recipient_json = serde_json::to_string(&recipient_ids).map_err(|_| {
             ModifyNotificationConfigError::BadUserInput(
@@ -129,6 +125,9 @@ pub fn generate(
 
     // Note: We usually reset the next check datetime in case the schedule has changed, or something needs to be recalculated
     new_notification_config_row.next_due_datetime = next_due_datetime;
+
+    // We might want to clear out the parameter_query_id so it's allowed to be None
+    new_notification_config_row.parameter_query_id = parameter_query_id;
 
     Ok(new_notification_config_row)
 }
