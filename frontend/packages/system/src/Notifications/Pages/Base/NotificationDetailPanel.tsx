@@ -193,7 +193,7 @@ export const NotificationDetailPanel = ({
         width="full"
         getOptionLabel={option => option.name}
         onChange={(_, option) => onChangeParameterQuery(option?.id ?? null)}
-        value={selectedQuery ? { ...selectedQuery, label: selectedQuery?.name || '' } : null}
+        value={selectedQuery ? { ...selectedQuery, label: selectedQuery.name } : null}
       />
     </DetailPanelSection>
   );
