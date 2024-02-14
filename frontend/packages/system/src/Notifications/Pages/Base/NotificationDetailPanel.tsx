@@ -1,5 +1,5 @@
 import React from 'react';
-import { CopyIcon, DeleteIcon, DetailPanelPortal, SaveIcon } from '@common/ui';
+import { CopyIcon, DeleteIcon, DetailPanelPortal, SaveIcon, PlusCircleIcon } from '@common/ui';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import {
@@ -44,52 +44,68 @@ export const NotificationDetailPanel = ({
     params = [params];
   }
 
-  if (params.length === 0 || params[0] === undefined) {
-    params = [{} as KeyedParams];
-  }
-
   const { queryParams } = useQueryParamsState();
   const { data: queriesData } = useNotificationQueries(queryParams);
   const selectedQuery = queriesData?.nodes.find(query => query.id === parameterQueryId);
 
   const paramEditors = (
     <>
-      {params.map((_, idx) => {
-        return (
+      {
+        params.length === 0 ? (
           <DetailPanelSection
-            key={`param-editor-detail-${idx}`}
-            title={`${t('label.parameters')}: ${idx + 1}`}
-            defaultExpanded={idx === params.length - 1}
+            key={'new-parameters-section'}
+            title={`${t('label.parameters')}`}
+            defaultExpanded={false}
             actionButtons={
               <>
                 <IconButton
                   onClick={() => {
-                    params.push(params[idx] ?? {});
-                    onDeleteParam(idx + 1, 'this-is-a-hack-to-force-an-update');
+                    params.push({});
+                    onDeleteParam(0, 'this-is-a-hack-to-force-an-update');
                   }}
-                  disabled={!allowParameterSets}
-                  icon={<CopyIcon />}
-                  label={t('button.duplicate')}
-                />
-                <IconButton
-                  onClick={() => onDeleteParam(idx, null)}
-                  disabled={params.length === 1}
-                  icon={<DeleteIcon />}
-                  label={t('label.delete')}
+                  icon={<PlusCircleIcon/>}
+                  label={t('button.create')}
                 />
               </>
             }
-          >
-            <ParameterEditor
-              key={`param-editor-${idx}`}
-              requiredParams={requiredParams}
-              params={params[idx] ?? {}}
-              onUpdateParams={(key, value) => onUpdateParams(idx, key, value)}
-              onDeleteParam={key => onDeleteParam(idx, key)}
-            />
-          </DetailPanelSection>
-        );
-      })}
+          />
+        ) :
+        params.map((_, idx) => {
+          return (
+            <DetailPanelSection
+              key={`param-editor-detail-${idx}`}
+              title={`${t('label.parameters')}: ${idx + 1}`}
+              defaultExpanded={idx === params.length - 1}
+              actionButtons={
+                <>
+                  <IconButton
+                    onClick={() => {
+                      params.push(params[idx] ?? {});
+                      onDeleteParam(idx + 1, 'this-is-a-hack-to-force-an-update');
+                    }}
+                    disabled={!allowParameterSets}
+                    icon={<CopyIcon />}
+                    label={t('button.duplicate')}
+                  />
+                  <IconButton
+                    onClick={() => onDeleteParam(idx, null)}
+                    icon={<DeleteIcon />}
+                    label={t('label.delete')}
+                  />
+                </>
+              }
+            >
+              <ParameterEditor
+                key={`param-editor-${idx}`}
+                requiredParams={requiredParams}
+                params={params[idx] ?? {}}
+                onUpdateParams={(key, value) => onUpdateParams(idx, key, value)}
+                onDeleteParam={key => onDeleteParam(idx, key)}
+              />
+            </DetailPanelSection>
+          );
+        })
+      }
     </>
   );
 
