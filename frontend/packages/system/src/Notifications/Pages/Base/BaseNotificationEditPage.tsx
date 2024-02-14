@@ -173,6 +173,7 @@ export const BaseNotificationEditPage = <T extends BaseNotificationConfig>({
             onUpdateParams={onUpdateParams}
             onDeleteParam={onDeleteParam}
             onChangeParameterQuery={x => onUpdate({ parameterQueryId: x } as Partial<T>)}
+            parameterQueryId={draft.parameterQueryId}
           />
           <AppBarButtonsPortal sx={{ display: 'flex', gap: '14px' }}>
             <BaseButton
