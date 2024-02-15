@@ -4,7 +4,7 @@ use chrono::{DateTime, NaiveDateTime, Utc};
 use repository::{NotificationConfigKind, NotificationConfigRowRepository};
 use service::{
     notification::enqueue::{create_notification_events, NotificationContext, TemplateDefinition},
-    notification_config::{query::NotificationConfig, recipients::get_notification_targets},
+    notification_config::{query::NotificationConfig, recipients::get_notification_targets, parameters::get_notification_parameters},
     service_provider::ServiceContext,
 };
 
@@ -118,18 +118,11 @@ fn try_process_scheduled_notifications(
         )));
     }
 
-    let params = match scheduled_notification.parameters.len() {
-        0 => "[{}]".to_string(),
-        _ => scheduled_notification.parameters.clone(),
+    let param_results = get_notification_parameters(ctx, &scheduled_notification);
+    let mut all_params = match param_results {
+        Ok(val) => val,
+        Err(e) => return Err(NotificationError::InternalError(format!("Failed to fetch parameters: {:?}", e)))
     };
-
-    let mut all_params: Vec<HashMap<String, serde_json::Value>> = serde_json::from_str(&params)
-        .map_err(|e| {
-            NotificationError::InternalError(format!(
-                "Failed to parse notification config parameters (expecting an array of params): {:?} - {}",
-                e, params
-            ))
-        })?;
 
     if all_params.len() == 0 {
         // If no parameters are provided, create a single empty parameter set

@@ -14,6 +14,7 @@ table! {
         configuration_data -> Text,
         status -> crate::db_diesel::notification_config_row::NotificationConfigStatusMapping,
         parameters -> Text,
+        parameter_query_id -> Nullable<Text>,
         recipient_ids -> Text,
         recipient_list_ids -> Text,
         sql_recipient_list_ids -> Text,
@@ -86,6 +87,7 @@ pub struct NotificationConfigRow {
     pub configuration_data: String,
     pub status: NotificationConfigStatus,
     pub parameters: String,             // JSON object {key: "value"}
+    pub parameter_query_id: Option<String>,
     pub recipient_ids: String,          // JSON array of strings (ids)
     pub recipient_list_ids: String,     // JSON array of strings (ids)
     pub sql_recipient_list_ids: String, // JSON array of strings (ids)

@@ -38,6 +38,7 @@
   "label.edit-user": "Edit User",
   "label.edit-parameters": "Edit Parameters",
   "label.parameters-as-json": "JSON Parameters",
+  "label.parameter-query-select": "Get parameters from SQL Query",
   "label.error": "Error",
   "label.filter-by-notification-config": "Filter by Notification Config",
   "label.generated-notification": "Generated Notification",

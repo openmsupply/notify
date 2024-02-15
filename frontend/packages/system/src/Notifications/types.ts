@@ -41,6 +41,7 @@ type BaseConfig = Pick<
   | 'title'
   | 'status'
   | 'parameters'
+  | 'parameterQueryId'
   | 'recipientIds'
   | 'recipientListIds'
   | 'sqlRecipientListIds'

@@ -17,6 +17,7 @@ pub struct UpdateNotificationConfig {
     pub configuration_data: Option<String>,
     pub status: Option<NotificationConfigStatus>,
     pub parameters: Option<String>,
+    pub parameter_query_id: Option<String>,
     pub recipient_ids: Option<Vec<String>>,
     pub recipient_list_ids: Option<Vec<String>>,
     pub sql_recipient_list_ids: Option<Vec<String>>,
@@ -71,6 +72,7 @@ pub fn generate(
         configuration_data,
         status,
         parameters,
+        parameter_query_id,
         recipient_ids,
         recipient_list_ids,
         sql_recipient_list_ids,
@@ -123,6 +125,9 @@ pub fn generate(
 
     // Note: We usually reset the next check datetime in case the schedule has changed, or something needs to be recalculated
     new_notification_config_row.next_due_datetime = next_due_datetime;
+
+    // We might want to clear out the parameter_query_id so it's allowed to be None
+    new_notification_config_row.parameter_query_id = parameter_query_id;
 
     Ok(new_notification_config_row)
 }

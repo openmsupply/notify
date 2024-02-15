@@ -5,6 +5,7 @@ fragment NotificationConfigRow on NotificationConfigNode {
   configurationData
   status
   parameters
+  parameterQueryId
   recipientIds
   recipientListIds
   sqlRecipientListIds

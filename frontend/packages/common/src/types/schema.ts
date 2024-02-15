@@ -633,6 +633,7 @@ export type NotificationConfigNode = {
   configurationData: Scalars['String']['output'];
   id: Scalars['String']['output'];
   kind: ConfigKind;
+  parameterQueryId?: Maybe<Scalars['String']['output']>;
   parameters: Scalars['String']['output'];
   recipientIds: Array<Scalars['String']['output']>;
   recipientListIds: Array<Scalars['String']['output']>;
@@ -950,6 +951,7 @@ export type UpdateNotificationConfigInput = {
   configurationData?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
   nextDueDatetime?: InputMaybe<Scalars['DateTime']['input']>;
+  parameterQueryId?: InputMaybe<Scalars['String']['input']>;
   parameters?: InputMaybe<Scalars['String']['input']>;
   recipientIds?: InputMaybe<Array<Scalars['String']['input']>>;
   recipientListIds?: InputMaybe<Array<Scalars['String']['input']>>;

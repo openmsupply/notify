@@ -44,6 +44,10 @@ impl NotificationConfigNode {
         &self.row().parameters
     }
 
+    pub async fn parameter_query_id(&self) -> &Option<String> {
+        &self.row().parameter_query_id
+    }
+
     pub async fn recipient_ids(&self) -> &[String] {
         &self.row().recipient_ids
     }

@@ -1,14 +1,17 @@
 import React from 'react';
-import { CopyIcon, DeleteIcon, DetailPanelPortal, SaveIcon } from '@common/ui';
+import { CopyIcon, DeleteIcon, DetailPanelPortal, SaveIcon, PlusCircleIcon } from '@common/ui';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import {
   BufferedTextArea,
   DetailPanelSection,
   IconButton,
+  Autocomplete,
 } from '@common/components';
 import { KeyedParams } from '@common/utils';
+import { useQueryParamsState } from '@common/hooks';
 
+import { useNotificationQueries } from '../../../Queries/api';
 import { ParameterEditor } from './ParameterEditor';
 import { useTranslation } from '@common/intl';
 
@@ -18,6 +21,8 @@ export interface ParamsPanelProps {
   allowParameterSets?: boolean;
   onUpdateParams: (idx: number, key: string, value: string) => void;
   onDeleteParam: (idx: number, key: string | null) => void; // Warning: null deletes everything for that index
+  onChangeParameterQuery?: (id: string | null) => void;
+  parameterQueryId?: string | null;
 }
 
 export const NotificationDetailPanel = ({
@@ -26,6 +31,8 @@ export const NotificationDetailPanel = ({
   allowParameterSets = false,
   onUpdateParams,
   onDeleteParam,
+  onChangeParameterQuery = () => {},
+  parameterQueryId = null,
 }: ParamsPanelProps) => {
   const t = useTranslation('system');
 
@@ -37,48 +44,68 @@ export const NotificationDetailPanel = ({
     params = [params];
   }
 
-  if (params.length === 0 || params[0] === undefined) {
-    params = [{} as KeyedParams];
-  }
+  const { queryParams } = useQueryParamsState();
+  const { data: queriesData } = useNotificationQueries(queryParams);
+  const selectedQuery = queriesData?.nodes.find(query => query.id === parameterQueryId);
 
   const paramEditors = (
     <>
-      {params.map((_, idx) => {
-        return (
+      {
+        params.length === 0 ? (
           <DetailPanelSection
-            key={`param-editor-detail-${idx}`}
-            title={`${t('label.parameters')}: ${idx + 1}`}
-            defaultExpanded={idx === params.length - 1}
+            key={'new-parameters-section'}
+            title={`${t('label.parameters')}`}
+            defaultExpanded={false}
             actionButtons={
               <>
                 <IconButton
                   onClick={() => {
-                    params.push(params[idx] ?? {});
-                    onDeleteParam(idx + 1, 'this-is-a-hack-to-force-an-update');
+                    params.push({});
+                    onDeleteParam(0, 'this-is-a-hack-to-force-an-update');
                   }}
-                  disabled={!allowParameterSets}
-                  icon={<CopyIcon />}
-                  label={t('button.duplicate')}
-                />
-                <IconButton
-                  onClick={() => onDeleteParam(idx, null)}
-                  disabled={params.length === 1}
-                  icon={<DeleteIcon />}
-                  label={t('label.delete')}
+                  icon={<PlusCircleIcon/>}
+                  label={t('button.create')}
                 />
               </>
             }
-          >
-            <ParameterEditor
-              key={`param-editor-${idx}`}
-              requiredParams={requiredParams}
-              params={params[idx] ?? {}}
-              onUpdateParams={(key, value) => onUpdateParams(idx, key, value)}
-              onDeleteParam={key => onDeleteParam(idx, key)}
-            />
-          </DetailPanelSection>
-        );
-      })}
+          />
+        ) :
+        params.map((_, idx) => {
+          return (
+            <DetailPanelSection
+              key={`param-editor-detail-${idx}`}
+              title={`${t('label.parameters')}: ${idx + 1}`}
+              defaultExpanded={idx === params.length - 1}
+              actionButtons={
+                <>
+                  <IconButton
+                    onClick={() => {
+                      params.push(params[idx] ?? {});
+                      onDeleteParam(idx + 1, 'this-is-a-hack-to-force-an-update');
+                    }}
+                    disabled={!allowParameterSets}
+                    icon={<CopyIcon />}
+                    label={t('button.duplicate')}
+                  />
+                  <IconButton
+                    onClick={() => onDeleteParam(idx, null)}
+                    icon={<DeleteIcon />}
+                    label={t('label.delete')}
+                  />
+                </>
+              }
+            >
+              <ParameterEditor
+                key={`param-editor-${idx}`}
+                requiredParams={requiredParams}
+                params={params[idx] ?? {}}
+                onUpdateParams={(key, value) => onUpdateParams(idx, key, value)}
+                onDeleteParam={key => onDeleteParam(idx, key)}
+              />
+            </DetailPanelSection>
+          );
+        })
+      }
     </>
   );
 
@@ -112,10 +139,25 @@ export const NotificationDetailPanel = ({
             try {
               const editedParams: KeyedParams[] = JSON.parse(paramsString);
               editedParams.forEach((param, idx) => {
-                for (const key of Object.keys(param)) {
-                  onUpdateParams(idx, key, param[key] ?? '');
+                if (idx === params.length) {
+                  // Allow adding empty sets from JSON
+                  params.push({});
+                  onDeleteParam(idx, 'this-is-a-hack-to-force-an-update');
+                }
+                // Iterate through all valid keys
+                for (const key of [...Object.keys(param), ...Object.keys(params[idx] || {})]) {
+                  if (param[key]) {
+                    // If we parsed the key from the JSON input, update it
+                    onUpdateParams(idx, key, param[key] || '');
+                  } else {
+                    // If the key exists on the parameter object but not the JSON, delete it
+                    onDeleteParam(idx, key);
+                  }
                 }
               });
+              while (params.length > editedParams.length) {
+                onDeleteParam(editedParams.length, null);
+              }
             } catch (e) {
               setErrorMessage(`Unable to save new parameters: ${e}`);
             }
@@ -141,10 +183,26 @@ export const NotificationDetailPanel = ({
     </DetailPanelSection>
   );
 
+  const parameterQuerySelector = (
+    <DetailPanelSection
+      key={'param-query-selector'}
+      title={t('label.parameter-query-select')}
+    >
+      <Autocomplete
+        options={queriesData?.nodes ?? []}
+        width="full"
+        getOptionLabel={option => option.name}
+        onChange={(_, option) => onChangeParameterQuery(option?.id ?? null)}
+        value={selectedQuery ? { ...selectedQuery, label: selectedQuery.name } : null}
+      />
+    </DetailPanelSection>
+  );
+
   return (
     <DetailPanelPortal>
       {paramEditors}
       {jsonParamsEditor}
+      {parameterQuerySelector}
     </DetailPanelPortal>
   );
 };
