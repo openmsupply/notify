@@ -64,17 +64,5 @@ fn get_sql_parameters(
                     ))
         })?;
 
-    let parsed_results: Vec<HashMap<String, serde_json::Value>> = serde_json::from_str(&query_result.results)
-        .map_err(|e| {
-            NotificationServiceError::InternalError(format!("Failed to parse parameter query results: {:?}", e))
-        })?;
-
-    let parameters = match parsed_results[0].get("parameters") {
-        None => return Err(NotificationServiceError::InternalError(format!(
-                    "No 'parameters' column found in query results - {}", parameter_query_id)
-                )),
-        Some(params) => params
-    };
-
-    return Ok(parameters.to_string());
+    return Ok(query_result.results);
 }
