@@ -27,14 +27,14 @@ pub fn get_notification_parameters(
                 e, params_string
             ))
         })?;
-    let mut sql_params: Vec<HashMap<String, serde_json::Value>>  = serde_json::from_str(&sql_params_string)
+    let sql_params: Vec<HashMap<String, serde_json::Value>>  = serde_json::from_str(&sql_params_string)
         .map_err(|e| {
             NotificationServiceError::InternalError(format!(
                 "Failed to parse notification sql parameters (expecting an array of params_string): {:?} - {}",
                 e, params_string
             ))
         })?;
-    all_params.append(&mut sql_params);
+    all_params.extend(sql_params);
 
     return Ok(all_params);
 }
