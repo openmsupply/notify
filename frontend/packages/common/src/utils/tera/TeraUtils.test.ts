@@ -16,6 +16,11 @@ describe('TeraUtils', () => {
       'data.name',
     ]);
   });
+  it('Should not extract duplicate parameters', () => {
+    expect(TeraUtils.extractParams(
+      'What\'s in a {{ name }}? A rose by any other {{ name }} would smell just as sweet'
+    )).toEqual(['name']);
+  });
 });
 
 describe('keyedParamsAsTeraJson', () => {

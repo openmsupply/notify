@@ -12,9 +12,9 @@ export const TeraUtils = {
   extractParams: function (templateText: string) {
     // Extracts parameters names from a template string
     // Example: extractParams('Hello {{name}}!') => ['name']
-    return [...templateText.matchAll(parameterExtractorRE)].map(
+    return [...new Set([...templateText.matchAll(parameterExtractorRE)].map(
       match => match[1]?.trim() ?? ''
-    );
+    ))];
   },
   keyedParamsAsTeraJson: function (keyedParams: KeyedParams) {
     // Converts a keyed params object to a JSON string
