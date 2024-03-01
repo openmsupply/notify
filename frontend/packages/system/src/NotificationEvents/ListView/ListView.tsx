@@ -42,7 +42,9 @@ export const ListView = ({}: ListViewProps) => {
         label: 'label.date',
         Cell: props => (
           <Tooltip title={props.rowData.createdAt}>
-            <RelativeTimeDate d={props.rowData.createdAt}></RelativeTimeDate>
+            <div>
+              <RelativeTimeDate d={props.rowData.createdAt}></RelativeTimeDate>
+            </div>
           </Tooltip>
         ),
       },
