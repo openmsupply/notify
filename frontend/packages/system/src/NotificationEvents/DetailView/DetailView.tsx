@@ -53,20 +53,22 @@ export const DetailView = () => {
         {/* if we have a config_id, create a link to edit the config */}
         {entity?.notificationConfigId && (
           <Tooltip title={entity.notificationConfig?.title ?? ''}>
-            <BaseButton
-              onClick={() => {
-                navigate(
-                  configRoute(
-                    entity.notificationConfig?.kind ?? ConfigKind.Scheduled,
-                    entity.notificationConfigId ?? ''
-                  )
-                );
-              }}
-              variant="outlined"
-              endIcon={<EditIcon />}
-            >
-              {t('button.edit-notification-config')}
-            </BaseButton>
+            <div>
+              <BaseButton
+                onClick={() => {
+                  navigate(
+                    configRoute(
+                      entity.notificationConfig?.kind ?? ConfigKind.Scheduled,
+                      entity.notificationConfigId ?? ''
+                    )
+                  );
+                }}
+                variant="outlined"
+                endIcon={<EditIcon />}
+              >
+                {t('button.edit-notification-config')}
+              </BaseButton>
+            </div>
           </Tooltip>
         )}
       </AppBarButtonsPortal>
