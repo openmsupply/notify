@@ -90,24 +90,25 @@ fn try_process_coldchain_notifications(
     // Put all the alerts into a vector, to simply the logic for sending alerts
     let mut alerts: Vec<ColdchainAlert> = Vec::new();
 
-    // Loop through checking the current status for each sensor
-    for sensor_id in config.sensor_ids.clone() {
-        // Get the latest temperature for the sensor
-        let mut connection = ctx
-            .service_provider
-            .datasource_service
-            .get_connection_pool()
-            .pool
-            .get()
-            .map_err(|e| ColdChainError::InternalError(format!("{:?}", e)))?;
+    // Get the latest temperature for the sensors
+    let mut connection = ctx
+        .service_provider
+        .datasource_service
+        .get_connection_pool()
+        .pool
+        .get()
+        .map_err(|e| ColdChainError::InternalError(format!("{:?}", e)))?;
 
-        let latest_temperature_row = latest_temperature(&mut connection, sensor_id.clone())
-            .map_err(|e| {
-                ColdChainError::InternalError(format!(
-                    "Failed to get latest temperature for sensor {}: {:?}",
-                    sensor_id, e
-                ))
-            })?;
+    let latest_temperature_results = latest_temperature(&mut connection, config.sensor_ids.clone())
+        .map_err(|e| {
+            ColdChainError::InternalError(format!(
+                "Failed to fetch latest sensor temperatures: {:?}", e
+            ))
+        })?;
+
+    // Loop through checking the current status for each sensor
+    for latest_temperature_row in latest_temperature_results.clone() {
+        let sensor_id = latest_temperature_row.sensor_id.clone(); // TODO: Stop being lazy Ethan
 
         // We need this sensor status to be unique per notification config, so we include the notification config id in the key
         // This means that the same sensor can alarm in two different configs
@@ -245,7 +246,7 @@ pub fn try_process_sensor_notification(
     prev_sensor_state: Option<SensorState>,
     sensor_row: SensorInfoRow,
     now_local: NaiveDateTime,
-    latest_temperature_row: Option<latest_temperature::LatestTemperatureRow>,
+    latest_temperature_row: latest_temperature::LatestTemperatureRow,
 ) -> (SensorState, Option<ColdchainAlert>) {
     // If we don't have a previous state, we'll assume the sensor was previously in the `Ok` state
     let prev_sensor_state = match prev_sensor_state {
@@ -333,40 +334,26 @@ pub fn try_process_sensor_notification(
         status_start_utc = Utc::now().naive_utc();
     }
 
-    let last_data_localtime: NaiveDateTime = latest_temperature_row
-        .clone()
-        .map(|row| row.log_datetime)
-        .unwrap_or_default();
+    let last_data_localtime: NaiveDateTime = latest_temperature_row.log_datetime.clone();
 
-    let data_age: String = match latest_temperature_row.clone() {
-        Some(row) => format!(
+    let data_age: String = format!(
             "{} minutes",
-            (Local::now().naive_local() - row.log_datetime)
+            (Local::now().naive_local() - latest_temperature_row.log_datetime)
                 .num_minutes()
                 .to_string() // TODO: Improve this to show the age in hours/days/weeks/months/years? Ideally it would be translatable?
-        ),
-        None => "?? minutes".to_string(),
-    };
+        );
 
-    let current_temp: String = match latest_temperature_row.clone() {
-        Some(row) => match row.temperature {
+    let current_temp: String = match latest_temperature_row.temperature {
             Some(t) => format!("{:.2}", t), // round to 2 decimal places
             None => "Null".to_string(),
-        },
-        None => "Never Recorded".to_string(),
-    };
+        };
 
     // Calculate the new sensor state
     let sensor_state = SensorState {
         sensor_id: sensor_row.id.clone(),
         status: curr_sensor_status.clone(),
-        timestamp_localtime: latest_temperature_row
-            .clone()
-            .map(|row| row.log_datetime)
-            .unwrap_or_default(),
-        temperature: latest_temperature_row
-            .map(|row| row.temperature)
-            .unwrap_or(None),
+        timestamp_localtime: latest_temperature_row.log_datetime.clone(),
+        temperature: latest_temperature_row.temperature.clone(),
         status_start_utc,
         last_notification_utc: reminder_timestamp,
         reminder_number,
@@ -447,17 +434,15 @@ pub fn try_process_sensor_notification(
 
 pub fn evaluate_sensor_status(
     now: NaiveDateTime,
-    latest_temperature_row: Option<latest_temperature::LatestTemperatureRow>,
+    latest_temperature_row: latest_temperature::LatestTemperatureRow,
     high_temp_threshold: f64,
     low_temp_threshold: f64,
     max_age: chrono::Duration,
 ) -> SensorStatus {
-    let sensor_status = match latest_temperature_row.clone() {
-        None => SensorStatus::NoData, // No rows returned, means no data!
-        Some(row) => match row.temperature {
+    let sensor_status = match latest_temperature_row.temperature {
             Some(t) => {
                 // check if the row is too old and should be considered no data row!
-                if (now - row.log_datetime) > max_age {
+                if (now - latest_temperature_row.log_datetime) > max_age {
                     return SensorStatus::NoData;
                 }
                 match t {
@@ -467,7 +452,6 @@ pub fn evaluate_sensor_status(
                 }
             }
             None => SensorStatus::NoData, // There's a row returned but the temperature is null, so no data again!
-        },
-    };
+        };
     return sensor_status;
 }

@@ -2,16 +2,32 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::Error as DieselError;
 
-use diesel::sql_types::{Double, Nullable, Text, Timestamp};
-use diesel::{sql_query, RunQueryDsl};
+use diesel::dsl::sql;
+use diesel::sql_types::Timestamp;
+use diesel::RunQueryDsl;
 
-#[derive(QueryableByName, Debug, PartialEq, Clone)]
+table! {
+    temperature_data (id) {
+        id -> Text,
+        temperature -> Nullable<Double>,
+        date -> Date,
+        time -> Timestamp,
+        location_id -> Text,
+        temperature_breach_id -> Text,
+        store_id -> Text,
+        sensor_id -> Text,
+        log_interval -> Integer,
+        om_datetime -> Text
+    }
+}
+
+#[derive(Queryable, Debug, PartialEq, Clone)]
 #[diesel(table_name = temperature_data)]
 pub struct LatestTemperatureRow {
     #[diesel(sql_type = Text)]
-    pub id: String,
-    #[diesel(sql_type = Text)]
     pub sensor_id: String,
+    #[diesel(sql_type = Text)]
+    pub id: String,
     #[diesel(sql_type = Timestamp)]
     pub log_datetime: chrono::NaiveDateTime,
     #[diesel(sql_type = Nullable<Double>)]
@@ -20,22 +36,25 @@ pub struct LatestTemperatureRow {
 
 pub fn latest_temperature(
     connection: &mut PgConnection,
-    sensor_id: String,
-) -> Result<Option<LatestTemperatureRow>, DieselError> {
-    let query = "SELECT 
-    id,
-    sensor_id,
-    CONCAT(TO_CHAR(date,'YYYY-MM-DD'),' ', TO_CHAR(time,'HH24:MI:SS'))::timestamp AS log_datetime,
-    temperature
-    FROM temperature_log
-    WHERE sensor_id = $1
-    AND temperature < 55 -- ignore any obviously bad data see: https://github.com/msupply-foundation/notify/issues/283
-    ORDER BY date DESC, time DESC
-    LIMIT 1";
+    sensor_ids: Vec<String>,
+) -> Result<Vec<LatestTemperatureRow>, DieselError> {
+    let result = temperature_data::table
+        .filter(temperature_data::sensor_id.eq_any(sensor_ids))
+        .filter(temperature_data::temperature.lt(55.0)) // ignore any obviously bad data see: https://github.com/msupply-foundation/notify/issues/283
+        .select((
+            temperature_data::sensor_id,
+            temperature_data::id,
+            sql::<Timestamp>("CONCAT(TO_CHAR(date,'YYYY-MM-DD'),' ', TO_CHAR(time,'HH24:MI:SS'))::timestamp AS log_datetime"),
+            temperature_data::temperature
+        ))
+        .order_by((
+            temperature_data::sensor_id,
+            temperature_data::date.desc(),
+            temperature_data::time.desc()
+        ))
+        .distinct_on(temperature_data::sensor_id)
+        .load(connection)?;
 
-    let query = sql_query(query).bind::<Text, _>(sensor_id);
-    // println!("query: {:?}", query);
-    let result: Option<LatestTemperatureRow> = query.get_result(connection).optional()?;
     Ok(result)
 }
 

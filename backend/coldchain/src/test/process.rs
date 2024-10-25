@@ -26,7 +26,7 @@ fn test_evaluate_sensor_status() {
 
     let status = evaluate_sensor_status(
         now,
-        Some(row),
+        row,
         high_temp_threshold,
         low_temp_threshold,
         max_age,
@@ -42,7 +42,7 @@ fn test_evaluate_sensor_status() {
 
     let status = evaluate_sensor_status(
         now,
-        Some(row),
+        row,
         high_temp_threshold,
         low_temp_threshold,
         max_age,
@@ -59,7 +59,7 @@ fn test_evaluate_sensor_status() {
 
     let status = evaluate_sensor_status(
         now,
-        Some(row),
+        row,
         high_temp_threshold,
         low_temp_threshold,
         max_age,
@@ -77,7 +77,7 @@ fn test_evaluate_sensor_status() {
 
     let status = evaluate_sensor_status(
         now,
-        Some(row),
+        row,
         high_temp_threshold,
         low_temp_threshold,
         max_age,
@@ -86,9 +86,9 @@ fn test_evaluate_sensor_status() {
 
     // No Data (no Row)
 
-    let status =
-        evaluate_sensor_status(now, None, high_temp_threshold, low_temp_threshold, max_age);
-    assert_eq!(status, SensorStatus::NoData);
+    // let status =
+    //     evaluate_sensor_status(now, None, high_temp_threshold, low_temp_threshold, max_age);
+    // assert_eq!(status, SensorStatus::NoData);
 
     // No Data (row with null temp)
     let row = LatestTemperatureRow {
@@ -100,7 +100,7 @@ fn test_evaluate_sensor_status() {
 
     let status = evaluate_sensor_status(
         now,
-        Some(row),
+        row,
         high_temp_threshold,
         low_temp_threshold,
         max_age,
@@ -118,7 +118,7 @@ fn test_evaluate_sensor_status() {
 
     let status = evaluate_sensor_status(
         now,
-        Some(row),
+        row,
         high_temp_threshold,
         low_temp_threshold,
         max_age,
@@ -191,12 +191,12 @@ fn test_try_process_sensor_notification_prev_ok() {
         Test 1: Was Ok 1 Minute ago, Still Ok Now: No Alert
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local,
         temperature: Some(5.5), // Within limits
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -212,12 +212,12 @@ fn test_try_process_sensor_notification_prev_ok() {
         Test 2: Was Ok 1 Minute ago, Now High Temp -> Alert!
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local,
         temperature: Some(config.high_temp_threshold + 1.0),
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -236,12 +236,12 @@ fn test_try_process_sensor_notification_prev_ok() {
         Test 3: Was Ok 1 Minute ago, Now Low Temp -> Alert!
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local,
         temperature: Some(config.low_temp_threshold - 1.0),
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -260,12 +260,12 @@ fn test_try_process_sensor_notification_prev_ok() {
         Test 4: Was Ok 1 Minute ago, Now No Data -> Alert!
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local - config.no_data_duration() - chrono::Duration::minutes(1),
         temperature: Some(5.5),
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -346,12 +346,12 @@ fn test_try_process_sensor_notification_prev_high() {
         Test 1: Was High 1 Minute ago, Ok Now: Ok Alert
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local,
         temperature: Some(5.5), // Within limits
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -367,12 +367,12 @@ fn test_try_process_sensor_notification_prev_high() {
         Test 2: Was High 1 Minute ago, Now High Temp -> No Alert!
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local,
         temperature: Some(config.high_temp_threshold + 1.0),
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -389,12 +389,12 @@ fn test_try_process_sensor_notification_prev_high() {
         Test 3: Was High 1 Minute ago, Now Low Temp -> Alert!
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local,
         temperature: Some(config.low_temp_threshold - 1.0),
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -413,12 +413,12 @@ fn test_try_process_sensor_notification_prev_high() {
         Test 4: Was High 1 Minute ago, Now No Data -> Alert!
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local - config.no_data_duration() - chrono::Duration::minutes(1),
         temperature: Some(5.5),
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -499,12 +499,12 @@ fn test_try_process_sensor_notification_prev_low() {
         Test 1: Was Low 1 Minute ago, Ok Now: Ok Alert
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local,
         temperature: Some(5.5), // Within limits
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -520,12 +520,12 @@ fn test_try_process_sensor_notification_prev_low() {
         Test 2: Was Low 1 Minute ago, Now High Temp -> Alert!
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local,
         temperature: Some(config.high_temp_threshold + 1.0),
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -544,12 +544,12 @@ fn test_try_process_sensor_notification_prev_low() {
         Test 3: Was Low 1 Minute ago, Now Low Temp -> No Alert
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local,
         temperature: Some(config.low_temp_threshold - 1.0),
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -566,12 +566,12 @@ fn test_try_process_sensor_notification_prev_low() {
         Test 4: Was Low 1 Minute ago, Now No Data -> Alert!
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local - config.no_data_duration() - chrono::Duration::minutes(1),
         temperature: Some(5.5),
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -641,12 +641,12 @@ fn test_try_process_sensor_notification_prev_no_data() {
         Test 1: Was No Data 1 Minute ago, Ok Now: Ok Alert
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local,
         temperature: Some(5.5), // Within limits
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -664,12 +664,12 @@ fn test_try_process_sensor_notification_prev_no_data() {
         Test 2: Was No Data 1 Minute ago, Now High Temp -> Alert!
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local,
         temperature: Some(config.high_temp_threshold + 1.0),
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -688,12 +688,12 @@ fn test_try_process_sensor_notification_prev_no_data() {
         Test 3: Was No Data 1 Minute ago, Now Low Temp -> Alert!
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local,
         temperature: Some(config.low_temp_threshold - 1.0),
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -712,12 +712,12 @@ fn test_try_process_sensor_notification_prev_no_data() {
         Test 4: Was No Data, Now Still No Data -> No Alert
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: last_data_timestamp,
         temperature: Some(5.5),
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -791,12 +791,12 @@ fn test_try_process_sensor_notification_no_data_reminder() {
         Test 1: Has been No Data for 1 hour (Reminder Duration) but still no data -> Send a reminder
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: last_data_timestamp,
         temperature: Some(5.5), // Within limits
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -838,12 +838,12 @@ fn test_try_process_sensor_notification_no_data_reminder() {
         Test 2: Has been No Data for 1 hour (e.g. Reminder Duration) and still no data BUT reminders are turned off -> Don't send a reminder
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: last_data_timestamp,
         temperature: Some(5.5), // Within limits
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -913,12 +913,12 @@ fn test_try_process_sensor_notification_high_temp_reminder() {
         Test 1: Has been High for 1 hour (Reminder Duration) and we're still High Temp -> Send a reminder
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local,
         temperature: Some(config.high_temp_threshold + 1.0), // High Temp
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -957,12 +957,12 @@ fn test_try_process_sensor_notification_high_temp_reminder() {
         reminder_number: 1,
     };
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local,
         temperature: Some(config.high_temp_threshold + 1.0), // High Temp
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -996,12 +996,12 @@ fn test_try_process_sensor_notification_high_temp_reminder() {
         reminder_number: 1,
     };
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local,
         temperature: Some(config.high_temp_threshold + 1.0), // High Temp
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
@@ -1044,12 +1044,12 @@ fn test_try_process_sensor_notification_high_temp_reminder() {
         Test 3: Has been No Data for 1 hour (e.g. Reminder Duration) and still no data BUT reminders are turned off -> Don't send a reminder
     */
 
-    let latest_temperature_row = Some(LatestTemperatureRow {
+    let latest_temperature_row = LatestTemperatureRow {
         id: "1".to_string(),
         sensor_id: "1".to_string(),
         log_datetime: now_local,
         temperature: Some(config.high_temp_threshold + 1.0), // High Temp
-    });
+    };
 
     let (sensor_state, alert) = try_process_sensor_notification(
         &config,
