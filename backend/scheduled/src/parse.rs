@@ -283,5 +283,22 @@ mod test {
             next_due_date.unwrap(),
             Utc.with_ymd_and_hms(2025, 02, 28, 7, 0, 0).unwrap()
         );
+
+        // Running through a short month
+        let config = ScheduledNotificationPluginConfig {
+            body_template: "".to_string(),
+            subject_template: "".to_string(),
+            schedule_frequency: "monthly".to_string(),
+            schedule_start_time: Utc.with_ymd_and_hms(2024, 01, 31, 7, 0, 0).unwrap(),
+            ..Default::default()
+        };
+
+        let now_utc: DateTime<Utc> = Utc.with_ymd_and_hms(2024, 03, 10, 0, 0, 0).unwrap();
+        let next_due_date = config.next_due_date(now_utc);
+        assert!(next_due_date.is_ok());
+        assert_eq!(
+            next_due_date.unwrap(),
+            Utc.with_ymd_and_hms(2025, 03, 31, 7, 0, 0).unwrap()
+        );
     }
 }
