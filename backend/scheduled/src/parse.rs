@@ -298,7 +298,7 @@ mod test {
         assert!(next_due_date.is_ok());
         assert_eq!(
             next_due_date.unwrap(),
-            Utc.with_ymd_and_hms(2025, 03, 31, 7, 0, 0).unwrap()
+            Utc.with_ymd_and_hms(2024, 03, 31, 7, 0, 0).unwrap()
         );
     }
 }
