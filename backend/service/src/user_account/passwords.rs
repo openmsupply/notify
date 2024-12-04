@@ -281,6 +281,7 @@ pub fn accept_user_invite(
         email: None,
         display_name: Some(input.display_name.clone()),
         permissions: None,
+        nickname: None
     };
 
     let mut user = ctx

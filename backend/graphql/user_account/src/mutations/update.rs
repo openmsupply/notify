@@ -43,6 +43,7 @@ pub struct UpdateUserAccountInput {
     pub email: Option<String>,
     pub display_name: Option<String>,
     pub permissions: Option<Vec<PermissionNode>>,
+    pub nickname: Option<String>
 }
 
 impl From<UpdateUserAccountInput> for UpdateUserAccount {
@@ -54,6 +55,7 @@ impl From<UpdateUserAccountInput> for UpdateUserAccount {
             email,
             display_name,
             permissions,
+            nickname,
         }: UpdateUserAccountInput,
     ) -> Self {
         let permissions =
@@ -66,6 +68,7 @@ impl From<UpdateUserAccountInput> for UpdateUserAccount {
             email,
             display_name,
             permissions,
+            nickname
         }
     }
 }
