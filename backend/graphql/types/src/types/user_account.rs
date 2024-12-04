@@ -69,6 +69,10 @@ impl UserAccountNode {
 
         Ok(result.into_iter().map(LogNode::from_domain).collect())
     }
+
+    pub async fn nickname(&self) -> &Option<String> {
+        &self.row().nickname
+    }
 }
 
 impl UserAccountNode {
