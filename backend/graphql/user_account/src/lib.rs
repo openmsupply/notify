@@ -222,6 +222,7 @@ mod test {
                     display_name: "test_username".to_string(),
                     password_reset_token: None,
                     password_reset_datetime: None,
+                    nickname: None
                 }],
                 count: 1,
             })

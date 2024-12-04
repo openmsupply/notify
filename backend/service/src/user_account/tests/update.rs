@@ -119,6 +119,7 @@ mod user_account_update_tests {
                     email: None,
                     display_name: None,
                     permissions: vec![Permission::ServerAdmin],
+                    nickname: None
                 },
             )
             .unwrap();

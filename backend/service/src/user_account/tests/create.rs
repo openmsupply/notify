@@ -35,7 +35,8 @@ mod user_account_create_test {
                     password: "".to_string(),
                     email: mock_data["base"].user_accounts[0].email.clone(),
                     display_name: Some(mock_data["base"].user_accounts[0].display_name.clone()),
-                    permissions: vec![Permission::ServerAdmin]
+                    permissions: vec![Permission::ServerAdmin],
+                    nickname: None
                 },
             ),
             Err(ModifyUserAccountError::UserAccountAlreadyExists)
@@ -51,7 +52,9 @@ mod user_account_create_test {
                     password: "".to_string(),
                     email: mock_data["base"].user_accounts[0].email.clone(),
                     display_name: Some(mock_data["base"].user_accounts[0].display_name.clone()),
-                    permissions: vec![Permission::ServerAdmin]
+                    permissions: vec![Permission::ServerAdmin],
+                    nickname: None
+
                 },
             ),
             Err(ModifyUserAccountError::UserAccountAlreadyExists)
@@ -70,7 +73,8 @@ mod user_account_create_test {
                     password: "".to_string(),
                     email: mock_data["base"].user_accounts[0].email.clone(),
                     display_name: Some(mock_data["base"].user_accounts[0].display_name.clone()),
-                    permissions: vec![Permission::Reader]
+                    permissions: vec![Permission::Reader],
+                    nickname: None
                 },
             ),
             Err(ModifyUserAccountError::UserAccountAlreadyExists)
@@ -86,7 +90,8 @@ mod user_account_create_test {
                     password: "".to_string(),
                     email: mock_data["base"].user_accounts[0].email.clone(),
                     display_name: Some(mock_data["base"].user_accounts[0].display_name.clone()),
-                    permissions: vec![Permission::ServerAdmin]
+                    permissions: vec![Permission::ServerAdmin],
+                    nickname: None
                 },
             ),
             Err(ModifyUserAccountError::InvalidPassword)
@@ -102,7 +107,8 @@ mod user_account_create_test {
                     password: "".to_string(),
                     email: mock_data["base"].user_accounts[0].email.clone(),
                     display_name: Some(mock_data["base"].user_accounts[0].display_name.clone()),
-                    permissions: vec![Permission::Reader]
+                    permissions: vec![Permission::Reader],
+                    nickname: None
                 },
             ),
             Err(ModifyUserAccountError::InvalidUsername)
@@ -137,6 +143,7 @@ mod user_account_create_test {
                 email: None,
                 display_name: None,
                 permissions: vec![Permission::Reader],
+                nickname: None
             },
         );
 
@@ -166,6 +173,7 @@ mod user_account_create_test {
                 email: None,
                 display_name: None,
                 permissions: vec![Permission::Reader],
+                nickname: None
             },
         );
         assert!(result.is_ok());
@@ -210,6 +218,7 @@ mod user_account_create_test {
                 email: None,
                 display_name: None,
                 permissions: vec![Permission::ServerAdmin],
+                nickname: None
             },
         );
 
@@ -230,5 +239,42 @@ mod user_account_create_test {
 
         assert!(result.len() == 1);
         assert!(result[0].permission == Permission::ServerAdmin);
+    }
+
+    #[actix_rt::test]
+    async fn test_create_user_account_with_nickname() {
+        let (_, _, connection_manager, _) = setup_all(
+            "test_create_user_account_with_nickname",
+            MockDataInserts::none(),
+        )
+        .await;
+
+        let service_provider = Arc::new(ServiceProvider::new(
+            connection_manager,
+            get_test_settings(""),
+        ));
+        let context = ServiceContext::as_server_admin(service_provider).unwrap();
+        let service = &context.service_provider.user_account_service;
+
+        let new_user_id = uuid();
+        let result = service.create_user_account(
+            &context,
+            CreateUserAccount {
+                id: new_user_id.clone(),
+                username: "new_username".to_string(),
+                password: "new_password".to_string(),
+                email: None,
+                display_name: None,
+                permissions: vec![Permission::ServerAdmin],
+                nickname: Some("new_nickname".to_string()),
+            },
+        );
+
+        assert!(result.is_ok());
+
+        let user_account = service
+            .get_user_account(&context, new_user_id)
+            .unwrap();
+        assert_eq!(user_account.nickname, Some("new_nickname".to_string()));
     }
 }

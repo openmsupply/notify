@@ -22,6 +22,7 @@ pub struct CreateUserAccount {
     pub email: Option<String>,
     pub display_name: Option<String>,
     pub permissions: Vec<Permission>,
+    pub nickname: Option<String>,
 }
 
 pub fn create_user_account(
@@ -101,7 +102,8 @@ pub fn generate(
         password,
         email,
         display_name,
-        permissions: _, //Permissions are created as separate DB rows
+        permissions: _, //Permissions are created as separate DB rows,
+        nickname
     }: CreateUserAccount,
 ) -> Result<UserAccountRow, ModifyUserAccountError> {
     let hashed_password = hash_password(&password)?;
@@ -116,5 +118,6 @@ pub fn generate(
             .unwrap_or(username),
         password_reset_token: None,
         password_reset_datetime: None,
+        nickname
     })
 }

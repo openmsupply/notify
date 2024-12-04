@@ -231,6 +231,7 @@ pub fn initiate_user_invite(
         password: uuid(), // The password is a secure uuid, so shouldn't be guessable.
         display_name: Some(input.display_name.clone()),
         permissions: input.permissions.clone(),
+        nickname: None
     };
 
     let user = ctx
@@ -584,6 +585,7 @@ mod password_test {
                     id: uuid(),
                     display_name: Some(username.to_string()),
                     permissions: vec![Permission::ServerAdmin],
+                    nickname: None
                 },
             )
             .unwrap();

@@ -22,6 +22,7 @@ pub fn mock_user_account_a() -> UserAccountRow {
         display_name: String::from("user_account_a"),
         password_reset_token: None,
         password_reset_datetime: None,
+        nickname: Some("User A's Nick Name".to_string())
     }
 }
 
@@ -34,6 +35,7 @@ pub fn mock_user_account_b() -> UserAccountRow {
         display_name: String::from("user_account_b"),
         password_reset_token: None,
         password_reset_datetime: None,
+        ..Default::default()
     }
 }
 
@@ -46,6 +48,7 @@ pub fn mock_user_account_username_x() -> UserAccountRow {
         display_name: String::from("user_account_c"),
         password_reset_token: None,
         password_reset_datetime: None,
+        ..Default::default()
     }
 }
 
@@ -58,5 +61,6 @@ pub fn mock_user_account_display_name_x() -> UserAccountRow {
         display_name: String::from("user_account_x"),
         password_reset_token: None,
         password_reset_datetime: None,
+        ..Default::default()
     }
 }

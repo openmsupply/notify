@@ -12,6 +12,7 @@ mod repository_test {
                 display_name: "user 1".to_string(),
                 password_reset_token: None,
                 password_reset_datetime: None,
+                nickname: None
             }
         }
         pub fn user_account_2() -> UserAccountRow {
@@ -23,6 +24,7 @@ mod repository_test {
                 display_name: "user2".to_string(),
                 password_reset_token: None,
                 password_reset_datetime: None,
+                nickname: None
             }
         }
     }
