@@ -143,6 +143,9 @@ pub fn generate(
     if let Some(display_name) = display_name {
         new_user_account_row.display_name = display_name.trim().to_string();
     }
+    if let Some(nickname) = nickname {
+        new_user_account_row.nickname = Some(nickname.trim().to_string());
+    }
 
     Ok(new_user_account_row)
 }

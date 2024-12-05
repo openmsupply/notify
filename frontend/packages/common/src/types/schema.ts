@@ -98,6 +98,7 @@ export type CreateUserAccountInput = {
   displayName?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
+  nickname?: InputMaybe<Scalars['String']['input']>;
   password: Scalars['String']['input'];
   permissions: Array<PermissionNode>;
   username: Scalars['String']['input'];
@@ -995,6 +996,7 @@ export type UpdateUserAccountInput = {
   displayName?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
+  nickname?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
   permissions?: InputMaybe<Array<PermissionNode>>;
   username?: InputMaybe<Scalars['String']['input']>;
@@ -1021,6 +1023,7 @@ export type UserAccountNode = {
   displayName: Scalars['String']['output'];
   email?: Maybe<Scalars['String']['output']>;
   id: Scalars['String']['output'];
+  nickname?: Maybe<Scalars['String']['output']>;
   permissions: Array<PermissionNode>;
   username: Scalars['String']['output'];
 };

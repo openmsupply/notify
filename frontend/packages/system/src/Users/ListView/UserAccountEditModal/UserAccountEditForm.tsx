@@ -90,6 +90,14 @@ export const UserAccountEditForm: FC<UserAccountEditFormProps> = ({
         InputLabelProps={{ shrink: true }}
       />
       <BasicTextInput
+        value={userAccount.nickname}
+        onChange={e => 
+          onUpdate({ nickname: e.target.value })
+        }
+        label={t('label.nickname')}
+        InputLabelProps={{ shrink: true }}
+      />
+      <BasicTextInput
         value={userAccount.email || ''}
         onChange={e => onUpdate({ email: e.target.value })}
         label={t('label.email')}

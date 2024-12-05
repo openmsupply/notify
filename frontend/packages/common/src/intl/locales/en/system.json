@@ -49,6 +49,7 @@
   "label.new-query": "New Query",
   "label.new-user": "New User",
   "label.new-notification": "New Notification",
+  "label.nickname": "Nickname",
   "label.notification-title": "Notification Title",
   "label.notification-type-EMAIL": "Email",
   "label.notification-type-TELEGRAM": "Telegram",
