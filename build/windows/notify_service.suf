@@ -240,7 +240,7 @@
 <Name>Welcome to Setup</Name>
 <BannerStyle>1</BannerStyle>
 <TemplateName>Welcome to Setup</TemplateName>
-<OverrideProjTheme>1</OverrideProjTheme>
+<OverrideProjTheme>0</OverrideProjTheme>
 <StyleData>
 <CstClrs>0</CstClrs>
 <TBBG format="hex">ffffff</TBBG>
@@ -258,8 +258,8 @@
 <CDISTXT format="hex">aca899</CDISTXT>
 <CPRGRS format="hex">316ac5</CPRGRS>
 <C3DSHDK format="hex">716f64</C3DSHDK>
-<TBIMG>C:\ProgramData\IndigoRose\Setup Factory\9.0\Themes\openmsupply\notify_top_banner.png</TBIMG>
-<SBIMG>C:\ProgramData\IndigoRose\Setup Factory\9.0\Themes\openmsupply\notify_side_banner.png</SBIMG>
+<TBIMG>notify_top_banner.png</TBIMG>
+<SBIMG>notify_side_banner.png</SBIMG>
 <BDIMG/>
 <BDFILL>0</BDFILL>
 <HDSEP>1</HDSEP>
@@ -2244,7 +2244,7 @@ Please click Next to proceed with the installation.</IDS_CTRL_STATICTEXT_BODY>
 <Name>One Progress Bar (While Installing)</Name>
 <BannerStyle>2</BannerStyle>
 <TemplateName>One Progress Bar (While Installing)</TemplateName>
-<OverrideProjTheme>1</OverrideProjTheme>
+<OverrideProjTheme>0</OverrideProjTheme>
 <StyleData>
 <CstClrs>0</CstClrs>
 <TBBG format="hex">ffffff</TBBG>
@@ -2262,8 +2262,8 @@ Please click Next to proceed with the installation.</IDS_CTRL_STATICTEXT_BODY>
 <CDISTXT format="hex">aca899</CDISTXT>
 <CPRGRS format="hex">316ac5</CPRGRS>
 <C3DSHDK format="hex">716f64</C3DSHDK>
-<TBIMG>C:\ProgramData\IndigoRose\Setup Factory\9.0\Themes\openmsupply\notify_top_banner.png</TBIMG>
-<SBIMG>C:\ProgramData\IndigoRose\Setup Factory\9.0\Themes\openmsupply\notify_side_banner.png</SBIMG>
+<TBIMG>notify_top_banner.png</TBIMG>
+<SBIMG>notify_side_banner.png</SBIMG>
 <BDIMG/>
 <BDFILL>0</BDFILL>
 <HDSEP>1</HDSEP>
@@ -2541,7 +2541,7 @@ end
 <Name>Finished Install</Name>
 <BannerStyle>1</BannerStyle>
 <TemplateName>Custom</TemplateName>
-<OverrideProjTheme>1</OverrideProjTheme>
+<OverrideProjTheme>0</OverrideProjTheme>
 <StyleData>
 <CstClrs>0</CstClrs>
 <TBBG format="hex">ffffff</TBBG>
@@ -2559,8 +2559,8 @@ end
 <CDISTXT format="hex">aca899</CDISTXT>
 <CPRGRS format="hex">316ac5</CPRGRS>
 <C3DSHDK format="hex">716f64</C3DSHDK>
-<TBIMG>C:\ProgramData\IndigoRose\Setup Factory\9.0\Themes\openmsupply\notify_top_banner.png</TBIMG>
-<SBIMG>C:\ProgramData\IndigoRose\Setup Factory\9.0\Themes\openmsupply\notify_side_banner.png</SBIMG>
+<TBIMG>notify_top_banner.png</TBIMG>
+<SBIMG>notify_side_banner.png</SBIMG>
 <BDIMG/>
 <BDFILL>0</BDFILL>
 <HDSEP>1</HDSEP>
@@ -3982,7 +3982,7 @@ g_HandleSystemReboot();
 <Action>0</Action>
 </SetupRequirements>
 <Launcher/>
-<ProjectTheme>openmsupply</ProjectTheme>
+<ProjectTheme>notify</ProjectTheme>
 <ProjFileDesc>New Project</ProjFileDesc>
 <ProjFileAuthor/>
 <ProjFileCompany/>
