@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <DocumentData>
 <ProductID>{AFB904C4-C255-4540-B97E-A75A34F1FFB0}</ProductID>
-<ProductVersion>9.5.3.0</ProductVersion>
+<ProductVersion>9.6.0.1</ProductVersion>
 <ProductType>Commercial</ProductType>
 <ArchiveFiles>
 <FileData>
@@ -50,6 +50,9 @@
 <Shared>0</Shared>
 <OSCond>
 <OS>32768</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
 <OS>65535</OS>
 <OS>65535</OS>
 <OS>65535</OS>
@@ -138,6 +141,9 @@
 <OS>65535</OS>
 <OS>65535</OS>
 <OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
 </OSCond>
 <RTCond/>
 <BuildConfigs>
@@ -211,6 +217,9 @@
 <OS>65535</OS>
 <OS>65535</OS>
 <OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
 </OSCond>
 <RTCond/>
 <BuildConfigs>
@@ -231,7 +240,7 @@
 <Name>Welcome to Setup</Name>
 <BannerStyle>1</BannerStyle>
 <TemplateName>Welcome to Setup</TemplateName>
-<OverrideProjTheme>0</OverrideProjTheme>
+<OverrideProjTheme>1</OverrideProjTheme>
 <StyleData>
 <CstClrs>0</CstClrs>
 <TBBG format="hex">ffffff</TBBG>
@@ -249,8 +258,8 @@
 <CDISTXT format="hex">aca899</CDISTXT>
 <CPRGRS format="hex">316ac5</CPRGRS>
 <C3DSHDK format="hex">716f64</C3DSHDK>
-<TBIMG>notify_top_banner.png</TBIMG>
-<SBIMG>notify_side_banner.png</SBIMG>
+<TBIMG>C:\ProgramData\IndigoRose\Setup Factory\9.0\Themes\openmsupply\notify_top_banner.png</TBIMG>
+<SBIMG>C:\ProgramData\IndigoRose\Setup Factory\9.0\Themes\openmsupply\notify_side_banner.png</SBIMG>
 <BDIMG/>
 <BDFILL>0</BDFILL>
 <HDSEP>1</HDSEP>
@@ -2235,7 +2244,7 @@ Please click Next to proceed with the installation.</IDS_CTRL_STATICTEXT_BODY>
 <Name>One Progress Bar (While Installing)</Name>
 <BannerStyle>2</BannerStyle>
 <TemplateName>One Progress Bar (While Installing)</TemplateName>
-<OverrideProjTheme>0</OverrideProjTheme>
+<OverrideProjTheme>1</OverrideProjTheme>
 <StyleData>
 <CstClrs>0</CstClrs>
 <TBBG format="hex">ffffff</TBBG>
@@ -2253,8 +2262,8 @@ Please click Next to proceed with the installation.</IDS_CTRL_STATICTEXT_BODY>
 <CDISTXT format="hex">aca899</CDISTXT>
 <CPRGRS format="hex">316ac5</CPRGRS>
 <C3DSHDK format="hex">716f64</C3DSHDK>
-<TBIMG>notify_top_banner.png</TBIMG>
-<SBIMG>notify_side_banner.png</SBIMG>
+<TBIMG>C:\ProgramData\IndigoRose\Setup Factory\9.0\Themes\openmsupply\notify_top_banner.png</TBIMG>
+<SBIMG>C:\ProgramData\IndigoRose\Setup Factory\9.0\Themes\openmsupply\notify_side_banner.png</SBIMG>
 <BDIMG/>
 <BDFILL>0</BDFILL>
 <HDSEP>1</HDSEP>
@@ -2532,7 +2541,7 @@ end
 <Name>Finished Install</Name>
 <BannerStyle>1</BannerStyle>
 <TemplateName>Custom</TemplateName>
-<OverrideProjTheme>0</OverrideProjTheme>
+<OverrideProjTheme>1</OverrideProjTheme>
 <StyleData>
 <CstClrs>0</CstClrs>
 <TBBG format="hex">ffffff</TBBG>
@@ -2550,8 +2559,8 @@ end
 <CDISTXT format="hex">aca899</CDISTXT>
 <CPRGRS format="hex">316ac5</CPRGRS>
 <C3DSHDK format="hex">716f64</C3DSHDK>
-<TBIMG>notify_top_banner.png</TBIMG>
-<SBIMG>notify_side_banner.png</SBIMG>
+<TBIMG>C:\ProgramData\IndigoRose\Setup Factory\9.0\Themes\openmsupply\notify_top_banner.png</TBIMG>
+<SBIMG>C:\ProgramData\IndigoRose\Setup Factory\9.0\Themes\openmsupply\notify_side_banner.png</SBIMG>
 <BDIMG/>
 <BDFILL>0</BDFILL>
 <HDSEP>1</HDSEP>
@@ -3794,13 +3803,13 @@ if Registry.DoesKeyExist(HKEY_LOCAL_MACHINE, "Software\\omSupply Server") then
 	Registry.DeleteKey(HKEY_LOCAL_MACHINE, "Software\\omSupply Server");
 end
 
--- Check if the open msupply service already exist or is running at the moment.
+-- Check if the notify service already exist or is running at the moment.
 -- Stop (if running) the service and then delete it for a fresh new service installation.
 local bServiceExists = false;
-queryResult = Service.Query("Open mSupply Server", "omsupply-server");
+queryResult = Service.Query("Notify", "Notify");
 if (queryResult == SERVICE_RUNNING) then
 	bServiceExists = true;
-	Service.Stop("Open mSupply Server", "omsupply-server", 5);
+	Service.Stop("Notify", "Notify", 5);
 end
 
 if ((queryResult == SERVICE_PAUSED) or (queryResult == SERVICE_STOPPED)) then
@@ -3808,7 +3817,7 @@ if ((queryResult == SERVICE_PAUSED) or (queryResult == SERVICE_STOPPED)) then
 end
 
 if (bServiceExists) then
-	Service.Delete("Open mSupply Server", "omsupply-server");
+	Service.Delete("Notify Server", "Notify");
 end</Script>
 <BookMarks count="0">
 </BookMarks>
@@ -3961,6 +3970,9 @@ g_HandleSystemReboot();
 <OS>65535</OS>
 <OS>65535</OS>
 <OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
 </OSCond>
 <ScreenWidth>0</ScreenWidth>
 <ScreenHeight>0</ScreenHeight>
@@ -3979,7 +3991,7 @@ g_HandleSystemReboot();
 <ProjFileURL/>
 <ProjFileEmail/>
 <ProjFileCreatedVer>9.5.1.0</ProjFileCreatedVer>
-<ProjFileSavedVer>9.5.3.0</ProjFileSavedVer>
+<ProjFileSavedVer>9.6.0.1</ProjFileSavedVer>
 <BaseFolderArchive>C:\Users\Administrator\Documents\Open mSupply</BaseFolderArchive>
 <BaseFolderExternal/>
 <UseSkinFile>0</UseSkinFile>
@@ -4387,8 +4399,15 @@ a2F0aG1hbmR1MzEy</CodeSignCertificatePasswordSHA256>
 <CodeSignCertificateFileSHA1/>
 <CodeSignCertificatePasswordSHA1>
 </CodeSignCertificatePasswordSHA1>
-<CodeSignDescription>Open mSupply Installer</CodeSignDescription>
+<CodeSignDescription>Notify Installer</CodeSignDescription>
 <CodeSignDescriptionURL>https://msupply.foundation</CodeSignDescriptionURL>
+<CodeSignUsePFXCertificate>0</CodeSignUsePFXCertificate>
+<CodeSignAppendSecondSignature>0</CodeSignAppendSecondSignature>
+<CodeSignUseSHA512>0</CodeSignUseSHA512>
+<CodeSignCertificateSubject/>
+<CodeSignSecondTimestampURL/>
+<CodeSignCertificateThumbprint/>
+<CodeSignShowToolWindow>0</CodeSignShowToolWindow>
 <UseCustomIcon>1</UseCustomIcon>
 <CustomIconFile>#PROJECTFILEDIR#\notify\notify.ico</CustomIconFile>
 <ResourceFileVersion>9.5.1.0</ResourceFileVersion>
